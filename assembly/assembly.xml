@@ -6,7 +6,7 @@
 
   <formats>
     <format>zip</format>
-    <format>tar.gz</format>    
+<!--     <format>tar.gz</format>     -->
   </formats>
 
   <fileSets>
@@ -23,7 +23,7 @@
     </fileSet>
     
     <fileSet>
-      <directory>${project.basedir}</directory>
+      <directory>${project.basedir}/src/main/resources</directory>
       <includes>
         <include>data/**</include>
       </includes>
@@ -31,11 +31,19 @@
     </fileSet>
     
    <!-- Cortex configuration -->
+
     <fileSet>
       <directory>${project.basedir}/src/main/resources/cortex</directory>
       <outputDirectory>/Proline-Cortex-${cortex.version}/config</outputDirectory>
+       <includes>
+      	<include>*</include>
+	  </includes>
     </fileSet>
-
+    
+	<fileSet>
+      <directory>${project.basedir}/src/main/resources/cortex/${proline.datastore}</directory>
+      <outputDirectory>/Proline-Cortex-${cortex.version}/config</outputDirectory>
+    </fileSet>
     
     <!-- Proline-Zero directory -->
     <fileSet>
@@ -45,7 +53,7 @@
 
     <!-- Proline-Zero scripts -->
 	<fileSet>
-		<directory>${project.basedir}/scripts</directory>
+		<directory>${project.basedir}/src/main/resources/scripts/${os.classifier}</directory>
 		<includes>
 			<include>*.sh</include>
 		</includes>
@@ -56,14 +64,22 @@
 	</fileSet>
 	
 	<fileSet>
-		<directory>${project.basedir}/scripts</directory>
+		<directory>${project.basedir}/src/main/resources/scripts/${os.classifier}</directory>
 		<includes>
-			<include>*.bat</include>
+			<include>*.ini</include>
 		</includes>
 		 <filtered>true</filtered>
 		<outputDirectory>/</outputDirectory>
 	</fileSet>
 
+	<fileSet>
+		<directory>${project.basedir}/src/main/resources/scripts/${os.classifier}</directory>
+		<includes>
+			<include>*.exe</include>
+		</includes>
+		 <filtered>false</filtered>
+		<outputDirectory>/</outputDirectory>
+	</fileSet>
   </fileSets>
 
 </assembly>

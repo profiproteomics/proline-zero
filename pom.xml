@@ -13,21 +13,6 @@
 		<hornetq.version>2.4.0.Final</hornetq.version>
 	</properties>
 
-<!-- 	<repositories> -->
-<!-- 		<repository> -->
-<!-- 			<id>project</id> -->
-<!-- 			<name>project repository</name> -->
-<!-- 			<url>file:${project.basedir}/repository</url> -->
-<!-- 			<releases> -->
-<!-- 				<enabled>true</enabled> -->
-<!-- 				<checksumPolicy>ignore</checksumPolicy> -->
-<!-- 			</releases> -->
-<!-- 			<snapshots> -->
-<!-- 				<enabled>false</enabled> -->
-<!-- 			</snapshots> -->
-<!-- 		</repository> -->
-<!-- 	</repositories> -->
-
 	<dependencies>
 
 		<dependency>
@@ -40,9 +25,10 @@
 
 		<dependency>
 			<groupId>fr.proline</groupId>
-			<artifactId>ProlineStudio-app</artifactId>
+			<artifactId>ProlineStudio</artifactId>
 			<version>${studio.version}</version>
 			<type>zip</type>
+			<classifier>${os.classifier}</classifier>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
@@ -97,4 +83,40 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>windows-x64_h2</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<os.classifier>windows-x64</os.classifier>
+				<proline.datastore>h2</proline.datastore>
+			</properties>
+		</profile>
+		<profile>
+			<id>windows-x64_postgresql</id>
+			<properties>
+				<os.classifier>windows-x64</os.classifier>
+				<proline.datastore>postgresql</proline.datastore>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.postgresql</groupId>
+					<artifactId>postgresql</artifactId>
+					<version>9.4.11-2</version>
+					<type>zip</type>
+					<classifier>${os.classifier}</classifier>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>linux-x64_h2</id>
+			<properties>
+				<os.classifier>linux-x64</os.classifier>
+				<proline.datastore>h2</proline.datastore>
+			</properties>
+		</profile>
+	</profiles>
 </project>
