@@ -60,8 +60,9 @@ Local $CONFIG_DIR="..\config\stand-alone\non-clustered"
 Local $CLASSPATH = $CONFIG_DIR & ";..\schemas\;..\lib\*"
 Local $CLUSTER_PROPS =" -Djnp.port=1099 -Djnp.rmiPort=1098 -Djnp.host=localhost -Dhornetq.remoting.netty.host=0.0.0.0 -Dhornetq.remoting.netty.port=5445"
 Local $JVM_ARGS= $CLUSTER_PROPS & " -XX:+UseParallelGC  -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Dhornetq.config.dir=$CONFIG_DIR$ -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Djava.util.logging.config.file=$CONFIG_DIR$\logging.properties -Djava.library.path=."
-
-Local $hqPID = Run("$java_home$\bin\java $JVM_ARGS$ -classpath $CLASSPATH$ org.hornetq.integration.bootstrap.HornetQBootstrapServer hornetq-beans.xml", "", @SW_HIDE , $STDOUT_CHILD)
+Local $hornetQCmd = "$java_home$\bin\java $JVM_ARGS$ -classpath $CLASSPATH$ org.hornetq.integration.bootstrap.HornetQBootstrapServer hornetq-beans.xml"
+_FileWriteLog($log, " Running HornetQ: " & $hornetQCmd )
+Local $hqPID = Run($hornetQCmd, "", @SW_HIDE , $STDOUT_CHILD)
 Local $sOutput = ""
 
  While 1
@@ -92,8 +93,10 @@ FileChangeDir( "..\.." )
 ; Start Cortex and store CORTEX PID in pid.txt file
 
 _Print("Starting CORTEX process from Proline-Cortex-$cortex_version$ ...")
+Local $cortexCmd = "$java_home$\bin\java -Xmx4G -XX:+UseG1GC -XX:+UseStringDeduplication -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=30 -cp ""config;Proline-Cortex-$cortex_version$.jar;lib/*"" -Dlogback.configurationFile=config/logback.xml fr.proline.cortex.ProcessingNode"
+_FileWriteLog($log, " Running Cortex: " & $cortexCmd )
 
-Local $cortexPID = Run("$java_home$\bin\java -Xmx4G -XX:+UseG1GC -XX:+UseStringDeduplication -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=30 -cp ""config;Proline-Cortex-$cortex_version$.jar;lib/*"" -Dlogback.configurationFile=config/logback.xml fr.proline.cortex.ProcessingNode", "", @SW_HIDE)
+Local $cortexPID = Run($cortexCmd, "", @SW_HIDE)
 if ($cortexPID == 0) Then
    MsgBox($MB_SYSTEMMODAL, "", "CORTEX Cannot be started. Abort Proline launcher")
    Exit(1)
