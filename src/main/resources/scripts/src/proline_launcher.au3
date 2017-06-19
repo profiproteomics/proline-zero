@@ -20,8 +20,11 @@ opt("ExpandVarStrings",1)
 Local $cortex_version = IniRead("proline_launcher.ini", "Version", "cortex_version", "")
 Local $hornetq_version = IniRead("proline_launcher.ini", "Version", "hornetq_version", "")
 Local $studio_version = IniRead("proline_launcher.ini", "Version", "studio_version", "")
+Local $server_max_memory = IniRead("proline_launcher.ini", "Proline", "server_max_memory", "4G")
 Local $datastore = IniRead("proline_launcher.ini", "Proline", "datastore", "")
 Local $java_home = IniRead("proline_launcher.ini", "Path", "java_home", ".\ProlineStudio-$studio_version$\jre")
+Local $postgresql_port = IniRead("proline_launcher.ini", "PostgreSQL", "postgresql_port", "5432")
+
 
 If (StringLeft($java_home, 1) == "." ) Then
    $java_home = @ScriptDir & "\" & $java_home
@@ -93,7 +96,7 @@ FileChangeDir( "..\.." )
 ; Start Cortex and store CORTEX PID in pid.txt file
 
 _Print("Starting CORTEX process from Proline-Cortex-$cortex_version$ ...")
-Local $cortexCmd = "$java_home$\bin\java -Xmx4G -XX:+UseG1GC -XX:+UseStringDeduplication -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=30 -cp ""config;Proline-Cortex-$cortex_version$.jar;lib/*"" -Dlogback.configurationFile=config/logback.xml fr.proline.cortex.ProcessingNode"
+Local $cortexCmd = "$java_home$\bin\java -Xmx$server_max_memory$ -XX:+UseG1GC -XX:+UseStringDeduplication -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=30 -cp ""config;Proline-Cortex-$cortex_version$.jar;lib/*"" -Dlogback.configurationFile=config/logback.xml fr.proline.cortex.ProcessingNode"
 _FileWriteLog($log, " Running Cortex: " & $cortexCmd )
 
 Local $cortexPID = Run($cortexCmd, "", @SW_HIDE)
@@ -156,7 +159,7 @@ If ($initDataStore) Then
 EndIf
 
 _Print("Starting PG process ...")
-Local $pgCode = RunWait("pgsql\bin\pg_ctl -w -D .\data\databases\pg -l pgsql.log start", "", @SW_HIDE)
+Local $pgCode = RunWait("pgsql\bin\pg_ctl -w -D .\data\databases\pg -l pgsql.log -o ""-p $postgresql_port$"" start", "", @SW_HIDE)
 if ($pgCode == 0) Then
    _Print("PG started")
    If ($initDataStore) Then
