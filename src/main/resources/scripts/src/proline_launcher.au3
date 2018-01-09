@@ -208,7 +208,7 @@ Func checkPGPort()
    TCPStartup()
    _Print("Testing PG port $postgresql_port$ ")
    Local $iSocket = TCPConnect("127.0.0.1", $postgresql_port)
-    ; Si une erreur s'est produite, affiche le code d'erreur et retourne False.
+    ; Si une erreur s'est produite, affiche le code d'erreur et retourne True.
     If @error Then
 		TCPShutdown()
         Return True
