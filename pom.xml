@@ -3,13 +3,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.proline</groupId>
 	<artifactId>Proline-Zero</artifactId>
-	<version>1.6.0</version>
+	<version>1.7.0-SNAPSHOT</version>
 	<name>Proline Zero</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<cortex.version>0.5.0</cortex.version>
-		<studio.version>1.2.0</studio.version>
+		<cortex.version>0.6.0-SNAPSHOT</cortex.version>
+		<studio.version>1.3.0-SNAPSHOT</studio.version>
 		<hornetq.version>2.4.0.Final</hornetq.version>
 	</properties>
 
