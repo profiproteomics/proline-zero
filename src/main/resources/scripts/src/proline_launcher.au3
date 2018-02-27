@@ -245,7 +245,7 @@ _Print("First use: Creating a default user proline with password proline ...")
 RunWait("$java_home$\bin\java -Xmx1024m -cp ""lib/*;config"" fr.proline.admin.RunCommand create_user -l proline -p proline", "", @SW_HIDE)
 
 _Print("First use: Creating a default project ...")
-RunWait("$java_home$\bin\java -Xmx1024m -cp ""lib/*;config"" fr.proline.admin.RunCommand create_project -oid 1 -n ""Proline_Project"" -desc ""Proline default Project"" ", "", @SW_HIDE)
+RunWait("$java_home$\bin\java -Xmx1024m -cp ""lib/*;config"" fr.proline.admin.RunCommand create_project -oid 2 -n ""Proline_Project"" -desc ""Proline default Project"" ", "", @SW_HIDE)
 
 FileChangeDir( ".." )
 EndFunc
