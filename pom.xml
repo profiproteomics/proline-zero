@@ -3,22 +3,22 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>Proline-Zero</artifactId>
-    <version>1.6.1</version>
+    <version>2.0.0</version>
     <name>Proline Zero</name>
 
     <parent>
         <groupId>fr.proline</groupId>
         <artifactId>ProFI-Pom</artifactId>
-        <version>0.4.0-SNAPSHOT</version> <!-- Snapshot Trunk version -->
+        <version>0.4.0</version> <!-- Snapshot Trunk version -->
     </parent>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cortex.version>0.5.0</cortex.version>
-        <studio.version>1.2.1</studio.version>
+        <cortex.version>2.0.0</cortex.version>
+        <studio.version>2.0.0</studio.version>
         <hornetq.version>2.4.0.Final</hornetq.version>
-        <admin.version>0.7.0</admin.version>
-        <seqrepo.version>0.7.0</seqrepo.version>
+        <admin.version>0.8.0</admin.version>
+        <seqrepo.version>0.8.0</seqrepo.version>
         <dist.data>${project.basedir}/data/sample</dist.data>
     </properties>
 
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>fr.proline.util</groupId>
             <artifactId>ProFI-Commons-Java</artifactId>
-            <version>0.7.0-SNAPSHOT</version>
+            <version>0.7.0</version>
         </dependency>
 
         <dependency>
@@ -72,7 +72,7 @@
                             <addClasspath>true</addClasspath>
                             <classpathLayoutType>custom</classpathLayoutType>
                             <customClasspathLayout>
-                                lib/${artifact.artifactId}-${artifact.baseVersion}${dashClassifier?}.${artifact.extension}
+                                lib/${project.artifactId}-${project.version}${dashClassifier?}.${artifact.extension}
                             </customClasspathLayout>
                             <mainClass>fr.proline.zero.Main</mainClass>
                         </manifest>
@@ -172,6 +172,7 @@
             <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
                 <artifactId>launch4j-maven-plugin</artifactId>
+                <version>1.7.25</version>
                 <executions>
                     <execution>
                         <id>l4j-clui</id>
@@ -220,10 +221,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <!-- <version>2.7</version> -->
-            </plugin>
         </plugins>
     </build>
 
@@ -316,41 +313,41 @@
                 <proline.datastore>postgresql</proline.datastore>
                 <proline.launcher.executable>${project.artifactId}.exe</proline.launcher.executable>
             </properties>
-            <!--<dependencies>-->
-                <!--<dependency>-->
-                    <!--<groupId>org.postgresql</groupId>-->
-                    <!--<artifactId>postgresql</artifactId>-->
-                    <!--<version>9.4.11-2</version>-->
-                    <!--<type>zip</type>-->
-                    <!--<classifier>${os.classifier}</classifier>-->
-                <!--</dependency>-->
-            <!--</dependencies>-->
-        </profile>
-        <profile>
-            <id>windows-x64_postgresql_sampledata</id>
-            <properties>
-                <os.classifier>windows-x64</os.classifier>
-                <proline.datastore>postgresql</proline.datastore>
-                <dist.data>${project.basedir}/data/sample</dist.data>
-                <proline.launcher.executable>${project.artifactId}.exe</proline.launcher.executable>
-            </properties>
             <dependencies>
                 <dependency>
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
-                    <version>9.4.11-2</version>
-                    <type>zip</type>
-                    <classifier>${os.classifier}</classifier>
-                </dependency>
-                <dependency>
-                    <groupId>fr.proline.samples</groupId>
-                    <artifactId>pg_data</artifactId>
-                    <version>1.6</version>
+                    <version>9.6.11-1</version>
                     <type>zip</type>
                     <classifier>${os.classifier}</classifier>
                 </dependency>
             </dependencies>
         </profile>
+        <!--<profile>-->
+            <!--<id>windows-x64_postgresql_sampledata</id>-->
+            <!--<properties>-->
+                <!--<os.classifier>windows-x64</os.classifier>-->
+                <!--<proline.datastore>postgresql</proline.datastore>-->
+                <!--<dist.data>${project.basedir}/data/sample</dist.data>-->
+                <!--<proline.launcher.executable>${project.artifactId}.exe</proline.launcher.executable>-->
+            <!--</properties>-->
+            <!--<dependencies>-->
+                <!--<dependency>-->
+                    <!--<groupId>org.postgresql</groupId>-->
+                    <!--<artifactId>postgresql</artifactId>-->
+                    <!--<version>9.6.11-1</version>-->
+                    <!--<type>zip</type>-->
+                    <!--<classifier>${os.classifier}</classifier>-->
+                <!--</dependency>-->
+                <!--<dependency>-->
+                    <!--<groupId>fr.proline.samples</groupId>-->
+                    <!--<artifactId>pg_data</artifactId>-->
+                    <!--<version>2.0</version>-->
+                    <!--<type>zip</type>-->
+                    <!--<classifier>${os.classifier}</classifier>-->
+                <!--</dependency>-->
+            <!--</dependencies>-->
+        <!--</profile>-->
         <profile>
             <id>linux-x64_h2</id>
             <properties>
@@ -377,7 +374,7 @@
                 <dependency>
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
-                    <version>9.4.18-1</version>
+                    <version>9.6.11-1</version>
                     <type>zip</type>
                     <classifier>${os.classifier}</classifier>
                 </dependency>
