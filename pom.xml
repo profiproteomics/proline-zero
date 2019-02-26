@@ -20,6 +20,7 @@
         <admin.version>0.8.0</admin.version>
         <seqrepo.version>0.8.0</seqrepo.version>
         <dist.data>${project.basedir}/data/sample</dist.data>
+        <pg.win.version>9.4.11-2</pg.win.version>
     </properties>
 
     <dependencies>
@@ -72,7 +73,7 @@
                             <addClasspath>true</addClasspath>
                             <classpathLayoutType>custom</classpathLayoutType>
                             <customClasspathLayout>
-                                lib/${project.artifactId}-${project.version}${dashClassifier?}.${artifact.extension}
+                                lib/${artifact.artifactId}-${artifact.baseVersion}${dashClassifier?}.${artifact.extension}
                             </customClasspathLayout>
                             <mainClass>fr.proline.zero.Main</mainClass>
                         </manifest>
@@ -317,7 +318,7 @@
                 <dependency>
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
-                    <version>9.6.11-1</version>
+                    <version>${pg.win.version}</version>
                     <type>zip</type>
                     <classifier>${os.classifier}</classifier>
                 </dependency>
@@ -335,7 +336,7 @@
                 <!--<dependency>-->
                     <!--<groupId>org.postgresql</groupId>-->
                     <!--<artifactId>postgresql</artifactId>-->
-                    <!--<version>9.6.11-1</version>-->
+                    <!--<version>${pg.win.version}</version>-->
                     <!--<type>zip</type>-->
                     <!--<classifier>${os.classifier}</classifier>-->
                 <!--</dependency>-->
