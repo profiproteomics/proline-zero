@@ -2,23 +2,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>Proline-Zero</artifactId>
-    <version>2.0.0</version>
+    <artifactId>proline-zero</artifactId>
+    <version>2.1.0-SNAPSHOT</version>
     <name>Proline Zero</name>
 
     <parent>
         <groupId>fr.proline</groupId>
-        <artifactId>ProFI-Pom</artifactId>
-        <version>0.4.0</version> <!-- Snapshot Trunk version -->
+        <artifactId>profi-pom</artifactId>
+        <version>0.5.0-SNAPSHOT</version> <!-- Snapshot Trunk version -->
     </parent>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cortex.version>2.0.0</cortex.version>
-        <studio.version>2.0.0</studio.version>
+        <cortex.version>2.1.0-SNAPSHOT</cortex.version>
+        <studio.version>2.1.0-SNAPSHOT</studio.version>
         <hornetq.version>2.4.0.Final</hornetq.version>
-        <admin.version>0.8.0</admin.version>
-        <seqrepo.version>0.8.0</seqrepo.version>
+        <admin.version>0.9.0-SNAPSHOT</admin.version>
+        <seqrepo.version>0.9.0-SNAPSHOT</seqrepo.version>
         <dist.data>${project.basedir}/data/sample</dist.data>
         <pg.win.version>9.4.11-2</pg.win.version>
     </properties>
@@ -42,9 +42,9 @@
         </dependency>
 
         <dependency>
-            <groupId>fr.proline.util</groupId>
-            <artifactId>ProFI-Commons-Java</artifactId>
-            <version>0.7.0</version>
+            <groupId>fr.profi.util</groupId>
+            <artifactId>profi-commons-java</artifactId>
+            <version>0.8.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
