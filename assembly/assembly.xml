@@ -33,7 +33,7 @@
         <!-- Cortex configuration -->
         <fileSet>
             <directory>${project.basedir}/src/main/resources/cortex</directory>
-            <outputDirectory>/Proline-Cortex-${cortex.version}/config</outputDirectory>
+            <outputDirectory>/proline-cortex-${cortex.version}/config</outputDirectory>
             <includes>
                 <include>*</include>
             </includes>
@@ -41,13 +41,13 @@
 
         <fileSet>
             <directory>${project.basedir}/src/main/resources/cortex/${proline.datastore}</directory>
-            <outputDirectory>/Proline-Cortex-${cortex.version}/config</outputDirectory>
+            <outputDirectory>/proline-cortex-${cortex.version}/config</outputDirectory>
         </fileSet>
 
         <!-- SeqRepo configuration -->
         <fileSet>
             <directory>${project.basedir}/src/main/resources/seqrepo</directory>
-            <outputDirectory>/PM-SequenceRepository-${seqrepo.version}/config</outputDirectory>
+            <outputDirectory>/pm-sequence-repository-${seqrepo.version}/config</outputDirectory>
             <includes>
                 <include>*</include>
             </includes>
@@ -55,7 +55,7 @@
 
         <fileSet>
             <directory>${project.basedir}/src/main/resources/seqrepo/${proline.datastore}</directory>
-            <outputDirectory>/PM-SequenceRepository-${seqrepo.version}/config</outputDirectory>
+            <outputDirectory>/pm-sequence-repository-${seqrepo.version}/config</outputDirectory>
         </fileSet>
 
         <!-- Proline-Zero directory -->

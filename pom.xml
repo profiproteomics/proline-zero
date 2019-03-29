@@ -4,7 +4,7 @@
 
     <artifactId>proline-zero</artifactId>
     <version>2.1.0-SNAPSHOT</version>
-    <name>Proline Zero</name>
+    <name>Proline-Zero</name>
 
     <parent>
         <groupId>fr.proline</groupId>
@@ -120,7 +120,7 @@
                                 <resource>
                                     <directory>src/main/resources</directory>
                                     <includes>
-                                        <include>**/${project.artifactId}.sh</include>
+                                        <include>**/${project.name}.sh</include>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
@@ -183,7 +183,7 @@
                         </goals>
                         <configuration>
                             <headerType>gui</headerType>
-                            <outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
+                            <outfile>${project.build.directory}/${project.name}.exe</outfile>
                             <jar>${project.build.directory}/${project.artifactId}-${project.version}.jar</jar>
                             <errTitle>${project.name}</errTitle>
                             <classPath>
@@ -204,7 +204,7 @@
                                 <txtProductVersion>txt product version</txtProductVersion>
                                 <productName>${project.name}</productName>
                                 <internalName>${project.artifactId}</internalName>
-                                <originalFilename>${project.artifactId}.exe</originalFilename>
+                                <originalFilename>${project.name}.exe</originalFilename>
                             </versionInfo>
                         </configuration>
                     </execution>
@@ -220,6 +220,15 @@
                         <descriptor>assembly/assembly.xml</descriptor>
                     </descriptors>
                 </configuration>
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>make-assembly</id>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>single</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
             </plugin>
 
         </plugins>
@@ -234,7 +243,7 @@
             <dependencies>
                 <dependency>
                     <groupId>fr.proline</groupId>
-                    <artifactId>Proline-Cortex</artifactId>
+                    <artifactId>proline-cortex</artifactId>
                     <version>${cortex.version}</version>
                     <classifier>bin</classifier>
                     <type>zip</type>
@@ -247,7 +256,7 @@
                 </dependency>
                 <dependency>
                     <groupId>fr.proline</groupId>
-                    <artifactId>Proline-Admin-GUI</artifactId>
+                    <artifactId>proline-admin-gui</artifactId>
                     <version>${admin.version}</version>
                     <classifier>bin</classifier>
                     <type>zip</type>
@@ -260,7 +269,7 @@
                 </dependency>
                 <dependency>
                     <groupId>fr.proline</groupId>
-                    <artifactId>PM-SequenceRepository</artifactId>
+                    <artifactId>pm-sequence-repository</artifactId>
                     <version>${seqrepo.version}</version>
                     <classifier>bin</classifier>
                     <type>zip</type>
@@ -312,7 +321,7 @@
             <properties>
                 <os.classifier>windows-x64</os.classifier>
                 <proline.datastore>postgresql</proline.datastore>
-                <proline.launcher.executable>${project.artifactId}.exe</proline.launcher.executable>
+                <proline.launcher.executable>${project.name}.exe</proline.launcher.executable>
             </properties>
             <dependencies>
                 <dependency>
