@@ -50,11 +50,7 @@ public class ProlineStudio extends AbstractProcess {
         // option such as --fork-java ? Dont known in this case how java forked process output are redirected ??
 		// Corrections: the redirectOutput only works without --console suppress and when the launcher is started with a console
         
-		process = new ProcessExecutor()
-				.command(command)
-                .directory(ProlineFiles.STUDIO_DIRECTORY)
-				.destroyOnExit()
-				.start();
+		process = new ProcessExecutor().command(command).directory(ProlineFiles.STUDIO_DIRECTORY).destroyOnExit().start();
 		// wait a moment before closing the splash screen, because Studio  is only displayed a moment after the process is started
 		SplashScreen.stop(2000);
 //		logger.info("Proline Studio is running...");

@@ -81,18 +81,34 @@ public class Memory {
 			// if selected memory is low, only adjust the cortex memory and use postgresql default config
 			cortexXmx = Math.floorDiv(memory, M);
 			if(ProlineFiles.PG_DATASTORE != null) {
-				restorePortgreSQLDefaultConfig();
+				restorePostgreSQLDefaultConfig();
 			}
 		} else {
-			// split the selected memory: 40% for cortex, 40% for postgresql, 20% for hornetq, seqrepo and studio
-			long memory40 = (long)(memory * 0.4);
-			cortexXmx = Math.floorDiv(memory40, M);
+			// split the selected memory: 1G for hornetq, 1G seqrepo and 1G studio, the remaining shared 35% for postgresql (up to 5G), 65% Cortex
+			long serverMemory = memory - jmsXmx * M - studioXmx * M - seqRepoXmx * M;
+			long memoryPg = (long)Math.min(5 * G, (serverMemory * 0.35));
+			long memoryCortex = serverMemory - memoryPg;
+			cortexXmx = Math.floorDiv(memoryCortex, M);
+
+			logger.info("PostgreSQL max memory: {}", toHumanReadable(memoryPg));
+			logger.info("Cortex max memory: {}", toHumanReadable(cortexXmx * M));
+			logger.info("HornetQ max memory: {}", toHumanReadable(jmsXmx * M));
+			logger.info("Studio max memory: {}", toHumanReadable(studioXmx * M));
+			logger.info("SeqRepo max memory: {}", toHumanReadable(seqRepoXmx * M));
+
 			if(ProlineFiles.PG_DATASTORE != null) {
-				adjustPostgreSQLMemory(memory40);
+				adjustPostgreSQLMemory(memoryPg);
 			}
 		}
 	}
-	
+
+	private static String toHumanReadable(long value) {
+		if(value < K) return String.format("%.1f", value) + "B";
+		if(value < M) return String.format("%.1f", value / (float)K) + "kB";
+		if(value < G) return String.format("%.1f", value / (float)M) + "MB";
+		return String.format("%.1f", value / (float)G) + "GB";
+	}
+
 	private static String toPgUnit(long value) {
 		if(value < K) return value + "B";
 		if(value < M) return (value / K) + "kB";
@@ -100,7 +116,7 @@ public class Memory {
 		return (value / G) + "GB";
 	}
 	
-	public static void restorePortgreSQLDefaultConfig() {
+	public static void restorePostgreSQLDefaultConfig() {
 		// get config files
 		File pgConfig = ProlineFiles.PG_CONFIG_FILE;
 		File pgConfigDefault = ProlineFiles.PG_DEFAULT_CONFIG_FILE;
@@ -200,20 +216,17 @@ public class Memory {
 	}
 	
 	// memory getters
-	public static String getJmsMinMemory() {
-		return "-Xms"+jmsXms+"M";
-	}
+	public static String getJmsMinMemory() { return "-Xms"+jmsXms+"M"; }
 	public static String getJmsMaxMemory() { return "-Xmx"+jmsXmx+"M"; }
 	public static String getCortexMinMemory() {
 		return "-Xms"+cortexXms+"M";
 	}
 	public static String getCortexMaxMemory(boolean debugMode) { return !debugMode ? "-Xmx"+cortexXmx+"M" : "-Xmx2G"; }
-//	public static String getCortexMaxMemory() { return getCortexMaxMemory(false); }
 	public static String getSeqRepoMinMemory() {
 		return "-Xms"+seqRepoXms+"M";
 	}
 	public static String getSeqRepoMaxMemory() { return "-Xmx"+seqRepoXmx+"M"; }
-//	public static String getStudioMinMemory() { return "-Xms"+studioXms+"M"; }
-//	public static String getStudioMaxMemory() { return "-Xmx"+studioXmx+"M"; }
+	public static String getStudioMinMemory() { return "-Xms"+studioXms+"M"; }
+	public static String getStudioMaxMemory() { return "-Xmx"+studioXmx+"M"; }
 	public static String getAdminMaxMemory() { return "-Xmx"+adminXmx+"M"; }
 }

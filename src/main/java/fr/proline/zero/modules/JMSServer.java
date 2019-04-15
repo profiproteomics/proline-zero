@@ -74,6 +74,7 @@ public class JMSServer extends AbstractProcess {
             		.destroyOnExit()
             		.start();
 
+
             waitForStartCompletion(Config.getDefaultTimeout());
             logger.info("Process {} successfully started (name = {}, pid = {}, alive = {})", getProcessName(), process.getProcess(), PidUtil.getPid(process.getProcess()), isProcessAlive);
         }  else {

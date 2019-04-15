@@ -47,9 +47,8 @@ public class Main {
 					// adjust memory before starting datastore
 					if(!Config.isDebugMode()) {
 						Memory.adjustMemory(Config.getWorkingMemory());
-					}
-					else {
-						Memory.restorePortgreSQLDefaultConfig();
+					} else {
+						Memory.restorePostgreSQLDefaultConfig();
 					}
 					// start datastore
 					ExecutionSession.getDataStore().start();
@@ -72,7 +71,7 @@ public class Main {
 				if(!Config.isDebugMode()) {
 					Memory.adjustMemory(Config.getWorkingMemory());
 				} else {
-					Memory.restorePortgreSQLDefaultConfig();
+					Memory.restorePostgreSQLDefaultConfig();
 				}
 				// start datastore
 				ExecutionSession.getDataStore().start();

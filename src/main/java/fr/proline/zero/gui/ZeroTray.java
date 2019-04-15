@@ -5,7 +5,6 @@ import dorkbox.systemTray.MenuItem;
 import dorkbox.systemTray.SystemTray;
 import dorkbox.util.SwingUtil;
 import fr.proline.zero.modules.ExecutionSession;
-import fr.proline.zero.modules.ProlineAdmin;
 import fr.proline.zero.util.Config;
 import fr.proline.zero.util.Memory;
 import fr.proline.zero.util.ProlineFiles;
@@ -171,7 +170,7 @@ public class ZeroTray {
             menuDatastore.add(new MenuItem("Restore default configuration", ProlineFiles.DEFAULT_ICON, e -> {
                 // ask if user is certain
                 if(Popup.okCancel("Restore file '" + ProlineFiles.PG_DEFAULT_CONFIG_FILE.getName() + "' ?")) {
-                    Memory.restorePortgreSQLDefaultConfig();
+                    Memory.restorePostgreSQLDefaultConfig();
                 }
             }), 1);
             menuDatastore.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openPostgreSqlLog()), 2);
