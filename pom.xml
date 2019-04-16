@@ -2,23 +2,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>proline-zero</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
-    <name>Proline-Zero</name>
+    <artifactId>Proline-Zero</artifactId>
+    <version>2.0.1</version>
+    <name>Proline Zero</name>
 
     <parent>
         <groupId>fr.proline</groupId>
-        <artifactId>profi-pom</artifactId>
-        <version>0.5.0-SNAPSHOT</version> <!-- Snapshot Trunk version -->
+        <artifactId>ProFI-Pom</artifactId>
+        <version>0.4.0</version> <!-- Snapshot Trunk version -->
     </parent>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cortex.version>2.1.0-SNAPSHOT</cortex.version>
-        <studio.version>2.1.0-SNAPSHOT</studio.version>
+        <cortex.version>2.0.1</cortex.version>
+        <studio.version>2.0.1</studio.version>
         <hornetq.version>2.4.0.Final</hornetq.version>
-        <admin.version>0.9.0-SNAPSHOT</admin.version>
-        <seqrepo.version>0.9.0-SNAPSHOT</seqrepo.version>
+        <admin.version>0.8.1</admin.version>
+        <seqrepo.version>0.8.0</seqrepo.version>
         <dist.data>${project.basedir}/data/sample</dist.data>
         <pg.win.version>9.4.11-2</pg.win.version>
     </properties>
@@ -42,9 +42,9 @@
         </dependency>
 
         <dependency>
-            <groupId>fr.profi.util</groupId>
-            <artifactId>profi-commons-java</artifactId>
-            <version>0.8.0-SNAPSHOT</version>
+            <groupId>fr.proline.util</groupId>
+            <artifactId>ProFI-Commons-Java</artifactId>
+            <version>0.7.0</version>
         </dependency>
 
         <dependency>
@@ -120,7 +120,7 @@
                                 <resource>
                                     <directory>src/main/resources</directory>
                                     <includes>
-                                        <include>**/${project.name}.sh</include>
+                                        <include>**/${project.artifactId}.sh</include>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
@@ -183,7 +183,7 @@
                         </goals>
                         <configuration>
                             <headerType>gui</headerType>
-                            <outfile>${project.build.directory}/${project.name}.exe</outfile>
+                            <outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
                             <jar>${project.build.directory}/${project.artifactId}-${project.version}.jar</jar>
                             <errTitle>${project.name}</errTitle>
                             <classPath>
@@ -204,7 +204,7 @@
                                 <txtProductVersion>txt product version</txtProductVersion>
                                 <productName>${project.name}</productName>
                                 <internalName>${project.artifactId}</internalName>
-                                <originalFilename>${project.name}.exe</originalFilename>
+                                <originalFilename>${project.artifactId}.exe</originalFilename>
                             </versionInfo>
                         </configuration>
                     </execution>
@@ -220,15 +220,6 @@
                         <descriptor>assembly/assembly.xml</descriptor>
                     </descriptors>
                 </configuration>
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>make-assembly</id>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>single</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
             </plugin>
 
         </plugins>
@@ -243,7 +234,7 @@
             <dependencies>
                 <dependency>
                     <groupId>fr.proline</groupId>
-                    <artifactId>proline-cortex</artifactId>
+                    <artifactId>Proline-Cortex</artifactId>
                     <version>${cortex.version}</version>
                     <classifier>bin</classifier>
                     <type>zip</type>
@@ -256,7 +247,7 @@
                 </dependency>
                 <dependency>
                     <groupId>fr.proline</groupId>
-                    <artifactId>proline-admin-gui</artifactId>
+                    <artifactId>Proline-Admin-GUI</artifactId>
                     <version>${admin.version}</version>
                     <classifier>bin</classifier>
                     <type>zip</type>
@@ -269,7 +260,7 @@
                 </dependency>
                 <dependency>
                     <groupId>fr.proline</groupId>
-                    <artifactId>pm-sequence-repository</artifactId>
+                    <artifactId>PM-SequenceRepository</artifactId>
                     <version>${seqrepo.version}</version>
                     <classifier>bin</classifier>
                     <type>zip</type>
@@ -321,7 +312,7 @@
             <properties>
                 <os.classifier>windows-x64</os.classifier>
                 <proline.datastore>postgresql</proline.datastore>
-                <proline.launcher.executable>${project.name}.exe</proline.launcher.executable>
+                <proline.launcher.executable>${project.artifactId}.exe</proline.launcher.executable>
             </properties>
             <dependencies>
                 <dependency>
