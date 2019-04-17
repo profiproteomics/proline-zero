@@ -68,7 +68,7 @@ public class ProlineFiles {
      */
 
     public final static File SEQREPO_DIRECTORY = new File(WORKING_DIRECTORY + "/PM-SequenceRepository-" + Config.getSeqRepoVersion());
-    public final static File SEQREPO_JAR_FILE = new File(SEQREPO_DIRECTORY + "/PM-SequenceRepository-" + Config.getSeqRepoVersion() + ".jar");
+    public final static File SEQREPO_JAR_FILE = new File(SEQREPO_DIRECTORY + "/pm-sequence-repository-" + Config.getSeqRepoVersion() + ".jar");
     public final static File SEQREPO_CONFIG_FILE = new File(SEQREPO_DIRECTORY + "/config/parsing-rules.conf");
     public static File getSeqrepoCurrentLogFile() {
         return new File(SEQREPO_DIRECTORY + "/sequence_repository_debug_" + getFormattedDate() + ".txt");

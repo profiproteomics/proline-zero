@@ -219,6 +219,7 @@
                     <descriptors>
                         <descriptor>assembly/assembly.xml</descriptor>
                     </descriptors>
+                    <finalName>${project.name}-${project.version}</finalName>
                 </configuration>
                 <!--<executions>-->
                     <!--<execution>-->
