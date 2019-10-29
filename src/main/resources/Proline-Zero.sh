@@ -15,5 +15,5 @@ if [ -d pgsql ]; then
 fi
 
 # Start Proline Zero launcher
-${JAVA_HOME}/bin/java -jar Proline-Zero-1.6.0-javalauncher.jar
+${JAVA_HOME}/bin/java -jar proline-zero-${pom.version}.jar
 
