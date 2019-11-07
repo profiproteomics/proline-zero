@@ -1,6 +1,8 @@
 # Proline Zero
 
-Proline Zero is a portable and stand-alone package of Proline 1.6, containing the Client and the Server applications. The launcher automatically starts all the required processes in the correct order, and also shuts down everything properly when it is being closed.
+ProlineZero is an all-in-one solution running on a workstation or a laptop for a single user. This mode is based on a zip file to extract and doesn’t require any modification of the computer’s configuration nor any administrative rights (zero installation & zero footprint on the computer configuration).
+
+The launcher automatically starts all the required processes in the correct order, and also shuts down everything properly when it is being closed.
 Please keep in mind that Proline is supposed to run on a high performance server. Therefore, do not expect Proline Zero to have the same performances if your computer is running with less than 8GB of memory. Also, you will need a large amount of disk space to store the database and the input files.
 
 ## Prerequisites
@@ -54,3 +56,11 @@ The configuration file contains settings for the launcher. These settings should
 * hornetq_version: the version number of HornetQ
 * seqrepo_version: the version number of the Sequence Repository module
 * studio_version: the version number of Proline Studio
+
+# License
+
+This project is licensed under the [CeCILL License V2.1](http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html)
+
+# Proline Web Site
+
+ Visit http://www.profiproteomics.fr/proline for Proline Suite documentation and downloads.
