@@ -9,6 +9,9 @@ import fr.proline.zero.gui.Popup;
 import fr.proline.zero.gui.SplashScreen;
 import fr.proline.zero.modules.ExecutionSession;
 import fr.proline.zero.modules.ProlineAdmin;
+import java.io.File;
+import java.io.IOException;
+import org.apache.commons.io.FileUtils;
 
 public class Main {
 
@@ -22,86 +25,102 @@ public class Main {
      * [ ] test Proline Zero when SeqRepo is missing
      * [ ]
      */
+    private static Logger logger = LoggerFactory.getLogger(Main.class);
 
-	private static Logger logger = LoggerFactory.getLogger(Main.class);
+    public static void main(String[] args) {
 
-	public static void main(String[] args) {
+        logger.info("Starting Proline Zero");
 
-		logger.info("Starting Proline Zero");
+        try {
+            ExecutionSession.initialize();
+            ZeroTray.initialize();
+            // add a shutdown hook that will be executed when the program ends or if the user ends it with Ctrl+C
+            Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
-		try {
-			ExecutionSession.initialize();
-			ZeroTray.initialize();
-			// add a shutdown hook that will be executed when the program ends or if the user ends it with Ctrl+C
-			Runtime.getRuntime().addShutdownHook(new ShutdownHook());
+            SplashScreen.setProgressMax(5); // pgsql, hornetq, cortex, seqrepo, studio
+            if (!ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists()) {
+                SplashScreen.setProgressMax(7); // init, pgsql, admin, hornetq, cortex, seqrepo, studio
+                try {
+                    SplashScreen.setProgress("Initializing Datastore");
+                    logger.info("Datastore folder is empty : Proline Datastore must be initialized");
 
-			SplashScreen.setProgressMax(5); // pgsql, hornetq, cortex, seqrepo, studio
-			if(!ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists()) {
-				SplashScreen.setProgressMax(7); // init, pgsql, admin, hornetq, cortex, seqrepo, studio
-				try {
-					SplashScreen.setProgress("Initializing Datastore");
-					logger.info("Datastore folder is empty : Proline Datastore must be initialized");
+                    ExecutionSession.getDataStore().init();
+                    SplashScreen.setProgress("Starting Datastore");
+                    // adjust memory before starting datastore
+                    if (!Config.isDebugMode()) {
+                        Memory.adjustMemory(Config.getWorkingMemory());
+                    } else {
+                        Memory.restorePostgreSQLDefaultConfig();
+                    }
+                    // start datastore
+                    ExecutionSession.getDataStore().start();
 
-					ExecutionSession.getDataStore().init();
-					SplashScreen.setProgress("Starting Datastore");
-					// adjust memory before starting datastore
-					if(!Config.isDebugMode()) {
-						Memory.adjustMemory(Config.getWorkingMemory());
-					} else {
-						Memory.restorePostgreSQLDefaultConfig();
-					}
-					// start datastore
-					ExecutionSession.getDataStore().start();
+                } catch (Exception e) {
+                    logger.error("Error during datastore initialization", e);
+                    SystemUtils.end();
+                    System.exit(1);
+                }
 
-				} catch (Exception e) {
-					logger.error("Error during datastore initialization", e);
-					SystemUtils.end();
-					System.exit(1);
-				}
+                SplashScreen.setProgress("Initializing Proline databases");
+                ExecutionSession.updateConfigurationFiles();
+                ProlineAdmin.setUp();
 
-				SplashScreen.setProgress("Initializing Proline databases");
-				ExecutionSession.updateConfigurationFiles();
-				ProlineAdmin.setUp();
+            } else {
+                SplashScreen.setProgress("Starting Datastore");
+                // TODO: check that application.conf PG port == proline_launcher.config PG port because
+                // PG port can be updated only once since Proline store the database JDBC URL
+                // adjust memory before starting datastore
+                if (!Config.isDebugMode()) {
+                    Memory.adjustMemory(Config.getWorkingMemory());
+                } else {
+                    Memory.restorePostgreSQLDefaultConfig();
+                }
+                // start datastore
+                ExecutionSession.getDataStore().start();
+            }
 
-			} else {
-				SplashScreen.setProgress("Starting Datastore");
-				// TODO: check that application.conf PG port == proline_launcher.config PG port because
-        // PG port can be updated only once since Proline store the database JDBC URL
-				// adjust memory before starting datastore
-				if(!Config.isDebugMode()) {
-					Memory.adjustMemory(Config.getWorkingMemory());
-				} else {
-					Memory.restorePostgreSQLDefaultConfig();
-				}
-				// start datastore
-				ExecutionSession.getDataStore().start();
-			}
+            logger.info("Starting Proline");
+            SplashScreen.setProgress("Starting JMS Server");
+            ExecutionSession.getJMSServer().start();
+            logger.info("JMS Server started");
+            SplashScreen.setProgress("Starting Cortex Server");
+            String dataTmpPath = "./data/tmp";
+            File tmpFile = new File(dataTmpPath);
+            if (!tmpFile.isDirectory()) {
+                boolean b;
+                b = tmpFile.mkdir();
+                logger.info("create folder ./data/tmp {}", b);
+            }
+            String dataMzdbPath = "./data/mzdb";
+            File mzdbFile = new File(dataMzdbPath);
+            if (!mzdbFile.isDirectory()) {
+                boolean b;
+                b = mzdbFile.mkdir();
+                logger.info("create folder ./data/mzdb {}", b);
+                mzdbFile.mkdir();
+            }
+            cleanTmpFolder(tmpFile);
 
-			logger.info("Starting Proline");
-			SplashScreen.setProgress("Starting JMS Server");
-			ExecutionSession.getJMSServer().start();
-			logger.info("JMS Server started");
-			SplashScreen.setProgress("Starting Cortex Server");
-			ExecutionSession.getCortex().start();
-			logger.info("Cortex Server started");
-			// allow SeqRepo to be missing (if not packaged with Proline Zero, or if launcher is used on a server)
-			// TODO test this case !
-			if(Config.isSeqRepoEnabled() && ProlineFiles.SEQREPO_DIRECTORY.exists()) {
-				SplashScreen.setProgress("Starting Sequence Repository");
-				ExecutionSession.getSeqRepo().start();
-				logger.info("Sequence Repository started");
-			} else {
-				SplashScreen.setProgress("Skipping Sequence Repository");
-				logger.info("Skipping Sequence Repository (as requested in config file)");
-			}
+            ExecutionSession.getCortex().start();
+            logger.info("Cortex Server started");
+            // allow SeqRepo to be missing (if not packaged with Proline Zero, or if launcher is used on a server)
+            // TODO test this case !
+            if (Config.isSeqRepoEnabled() && ProlineFiles.SEQREPO_DIRECTORY.exists()) {
+                SplashScreen.setProgress("Starting Sequence Repository");
+                ExecutionSession.getSeqRepo().start();
+                logger.info("Sequence Repository started");
+            } else {
+                SplashScreen.setProgress("Skipping Sequence Repository");
+                logger.info("Skipping Sequence Repository (as requested in config file)");
+            }
             // allow Proline Studio to be missing (or if launcher is in server mode)
             // TODO make a completely different method for server mode, to allow a different behaviour and an easier way to test each modes
 //            if(!Config.isServerMode()) {
-                SplashScreen.setProgress("Starting Proline Studio");
-                ExecutionSession.getStudio().start(); // TODO rename start to startAndWait ? or maybe do the waiting here ?
-                logger.info("Studio closed, stop Cortex & JMS");
-                // stop JMS, Cortex and SeqRepo (should be useless because it will be done in the Shutdown Hook class)
-                SystemUtils.end();
+            SplashScreen.setProgress("Starting Proline Studio");
+            ExecutionSession.getStudio().start(); // TODO rename start to startAndWait ? or maybe do the waiting here ?
+            logger.info("Studio closed, stop Cortex & JMS");
+            // stop JMS, Cortex and SeqRepo (should be useless because it will be done in the Shutdown Hook class)
+            SystemUtils.end();
 //            } else {
 //                // wait until user stops Proline through the system tray
 //                // TODO open Proline Monitor instead (but closing Monitor must not close Proline Zero !)
@@ -109,12 +128,22 @@ public class Main {
 //                    Thread.sleep(2500);
 //                }
 //            }
-		} catch (Throwable t) {
-			// provide a msgbox to warn the user of the problem
-			logger.error("Severe Error while running Proline Launcher. The application will close due to:", t);
-			SystemUtils.end();
-			Popup.error(t.getMessage());
-		}
-	}
+        } catch (Throwable t) {
+            // provide a msgbox to warn the user of the problem
+            logger.error("Severe Error while running Proline Launcher. The application will close due to:", t);
+            SystemUtils.end();
+            Popup.error(t.getMessage());
+        }
+    }
 
+    private static synchronized void cleanTmpFolder(File tmpFile) {
+        long folderSize = tmpFile.length();
+        if (folderSize > 1000000) {//1 Giga byte
+            try {
+                FileUtils.cleanDirectory(tmpFile);
+            } catch (IOException ex) {
+                logger.info("clean folder ./data/tmp exception" + ex.getCause() + " " + ex.getMessage() + " " + ex.getLocalizedMessage());
+            }
+        }
+    }
 }
