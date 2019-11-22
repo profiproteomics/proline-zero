@@ -57,6 +57,13 @@
             <directory>${project.basedir}/src/main/resources/seqrepo/${proline.datastore}</directory>
             <outputDirectory>/PM-SequenceRepository-${seqrepo.version}/config</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/src/main/resources/admin/</directory>
+            <outputDirectory>/Proline-Admin-GUI-${admin.version}/config</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+        </fileSet>
 
         <!-- Proline-Zero directory -->
 
