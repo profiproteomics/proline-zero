@@ -84,22 +84,21 @@ public class Main {
             ExecutionSession.getJMSServer().start();
             logger.info("JMS Server started");
             SplashScreen.setProgress("Starting Cortex Server");
-            String dataTmpPath = "./data/tmp";
-            File tmpFile = new File(dataTmpPath);
+            File tmpFile = ProlineFiles.DATA_TMP_DIRECTORY;
             if (!tmpFile.isDirectory()) {
                 boolean b;
                 b = tmpFile.mkdir();
-                logger.info("create folder ./data/tmp {}", b);
+                logger.info("create folder {} {}", tmpFile.getName(), b);
             }
-            String dataMzdbPath = "./data/mzdb";
+            String dataMzdbPath = ExecutionSession.getCortex().getMzdbFolder().replace("..", ".");//relative under working directory, not relative to cortex directory
             File mzdbFile = new File(dataMzdbPath);
             if (!mzdbFile.isDirectory()) {
                 boolean b;
                 b = mzdbFile.mkdir();
-                logger.info("create folder ./data/mzdb {}", b);
+                logger.info("create folder {} {}", mzdbFile.getName(), b);
                 mzdbFile.mkdir();
             }
-            cleanTmpFolder(tmpFile);
+           // cleanTmpFolder(tmpFile);
 
             ExecutionSession.getCortex().start();
             logger.info("Cortex Server started");

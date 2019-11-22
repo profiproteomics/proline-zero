@@ -7,6 +7,10 @@ import org.slf4j.LoggerFactory;
 import fr.proline.zero.gui.SplashScreen;
 import fr.proline.zero.util.Config;
 import fr.proline.zero.util.SystemUtils;
+import java.io.File;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExecutionSession {
 
@@ -78,15 +82,33 @@ public class ExecutionSession {
     }
 
     public static void updateConfigurationFiles() {
-        if (datastore == null) {
-            String datastoreType = Config.getDatastoreType();
+        String datastoreType = Config.getDatastoreType();
 
-            if (datastoreType.equalsIgnoreCase("H2")) {
-                // nothing to configure
-            } else {
-                getCortex().updatePostgreSQLPortConfig();
-                getSeqRepo().updatePostgreSQLPortConfig();
-            }
+        if (datastoreType.equalsIgnoreCase("H2")) {
+            // nothing to configure
+        } else {
+            updatePostgreSQLPortConfig();
+            getCortex().updateCortexNbParallelizableServiceRunners();
+        }
+    }
+
+    private static void updatePostgreSQLPortConfig() {
+        File cortexConfigFile = ProlineFiles.CORTEX_CONFIG_FILE;
+        updatePostgreSQLPortConfig(cortexConfigFile);
+        File adminConfigFile = ProlineFiles.ADMIN_CONFIG_FILE;
+        updatePostgreSQLPortConfig(adminConfigFile);
+        File seqRepoConfigFile = ProlineFiles.SEQREPO_DATA_STORE_CONFIG_FILE;
+        updatePostgreSQLPortConfig(seqRepoConfigFile);
+    }
+
+    private static void updatePostgreSQLPortConfig(File configFile) {
+        String newPort = "port=\"" + Config.getPostgreSQLPort() + "\"";
+        logger.info("Replace PG port in file " + configFile.getAbsolutePath() + " to " + newPort);
+        try {
+            List<String> lines = Files.lines(configFile.toPath()).map(l -> l.replaceAll("port\\s*=\\s*\"(\\d+)\"", newPort)).collect(Collectors.toList());
+            Files.write(configFile.toPath(), lines);
+        } catch (Exception e) {
+            logger.error("Error replacing database port in file " + configFile.getAbsolutePath(), e);
         }
     }
 

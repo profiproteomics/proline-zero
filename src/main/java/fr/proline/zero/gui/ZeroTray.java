@@ -199,7 +199,7 @@ public class ZeroTray {
     private static Menu _seqRepoMenu() {
         if(menuSeqRepo == null) {
             menuSeqRepo = new Menu(ExecutionSession.getSeqRepo().getProcessName() + " " + Config.getSeqRepoVersion(), ProlineFiles.PROGRESS_ICON);
-            menuSeqRepo.add(new MenuItem("Edit parse rules", ProlineFiles.EDIT_ICON, e -> ZeroTray.editFile(ProlineFiles.SEQREPO_CONFIG_FILE)));
+            menuSeqRepo.add(new MenuItem("Edit parse rules", ProlineFiles.EDIT_ICON, e -> ZeroTray.editFile(ProlineFiles.SEQREPO_PARSE_RULES_CONFIG_FILE)));
             menuSeqRepo.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openSeqRepoLog()));
         }
         return menuSeqRepo;
