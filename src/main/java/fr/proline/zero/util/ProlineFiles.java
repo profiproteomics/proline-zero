@@ -54,6 +54,9 @@ public class ProlineFiles {
     public final static File CORTEX_JMS_CONFIG_FILE = new File(CORTEX_DIRECTORY + "/config/jms-node.conf");
     public static String CORTEX_JMS_NODE_NB_RUNSERVICE = "service_thread_pool_size";
 
+    public static String CORTEX_JMS_NODE_PORT = "jms_server_port";
+    public static String CORTEX_MZDB_MOUNT_POINT = "mzdb_files";
+
     public static File getCortexCurrentDebugLogFile() {
         return new File(CORTEX_DIRECTORY + "/logs/proline_cortex_log." + getFormattedDate() + ".txt");
     }
@@ -91,7 +94,7 @@ public class ProlineFiles {
     /*
      * PostgreSQL files
      */
-    public final static String PG_DATASTORE_RELATIVE_PATH = WORKING_DATA_DIRECTORY.getName()+"/databases/pg";
+    public final static String PG_DATASTORE_RELATIVE_PATH = WORKING_DATA_DIRECTORY.getName() + "/databases/pg";
     public final static File PG_DATASTORE = new File(WORKING_DIRECTORY + "/" + PG_DATASTORE_RELATIVE_PATH);
     public final static File PG_CONFIG_FILE = new File(PG_DATASTORE, "postgresql.conf");
     public final static File PG_DEFAULT_CONFIG_FILE = new File(PG_DATASTORE, "postgresql.conf.default");
@@ -103,7 +106,7 @@ public class ProlineFiles {
     /*
      * H2 files
      */
-    public final static String H2_DATASTORE_RELATIVE_PATH = WORKING_DATA_DIRECTORY.getName()+"/databases/h2";
+    public final static String H2_DATASTORE_RELATIVE_PATH = WORKING_DATA_DIRECTORY.getName() + "/databases/h2";
     public final static File H2_DATASTORE = new File(WORKING_DIRECTORY + "/" + H2_DATASTORE_RELATIVE_PATH);
 
     /*

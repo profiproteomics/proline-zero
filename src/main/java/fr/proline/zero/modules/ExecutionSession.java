@@ -8,8 +8,14 @@ import fr.proline.zero.gui.SplashScreen;
 import fr.proline.zero.util.Config;
 import fr.proline.zero.util.SystemUtils;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ExecutionSession {
@@ -42,7 +48,8 @@ public class ExecutionSession {
 
     public static JMSServer getJMSServer() {
         if (jmsServer == null) {
-            jmsServer = new JMSServer();
+            int port = getJMSServerPort();
+            jmsServer = new JMSServer(port);
         }
         return jmsServer;
     }
@@ -88,7 +95,7 @@ public class ExecutionSession {
             // nothing to configure
         } else {
             updatePostgreSQLPortConfig();
-            getCortex().updateCortexNbParallelizableServiceRunners();
+            updateCortexNbParallelizableServiceRunners();
         }
     }
 
@@ -112,6 +119,19 @@ public class ExecutionSession {
         }
     }
 
+    private static void updateCortexNbParallelizableServiceRunners() {
+        String nbThread = ProlineFiles.CORTEX_JMS_NODE_NB_RUNSERVICE + " = " + Config.getCortexNbParallelizableServiceRunners();
+        File configFile = ProlineFiles.CORTEX_JMS_CONFIG_FILE;
+        logger.info("Replace " + ProlineFiles.CORTEX_JMS_NODE_NB_RUNSERVICE + " in file " + configFile.getAbsolutePath() + " to " + nbThread);
+        String regex = ProlineFiles.CORTEX_JMS_NODE_NB_RUNSERVICE + "\\s*=\\s*([\\d-]+)";
+        try {
+            List<String> lines = Files.lines(configFile.toPath()).map(l -> l.replaceAll(regex, nbThread)).collect(Collectors.toList());
+            Files.write(configFile.toPath(), lines);
+        } catch (Exception e) {
+            logger.error("Error replacing " + nbThread + "in file " + configFile.getAbsolutePath(), e);
+        }
+    }
+
     public static void end() throws Exception {
 //        ProlineAdmin.stop();
         studio.stop();
@@ -124,6 +144,42 @@ public class ExecutionSession {
 
     public static boolean isSessionActive() {
         return isActive;
+    }
+
+    private static int getJMSServerPort() {
+        String regex_port = ProlineFiles.CORTEX_JMS_NODE_PORT + "\\s*=\\s*([\\d]+)";
+        File configFile = ProlineFiles.CORTEX_JMS_CONFIG_FILE;
+        String value = getProperty(configFile, regex_port);
+        return Integer.parseInt(value);
+    }
+
+    public static String getMzdbFolder() {
+        File configFile = ProlineFiles.CORTEX_CONFIG_FILE;
+        final String regex = ProlineFiles.CORTEX_MZDB_MOUNT_POINT + "\\s*=\\s*\"([\\w.\\/]+)\"";
+        return getProperty(configFile, regex);
+    }
+
+    private static String getProperty(File file, String regex) {
+        try {
+
+            final Pattern pattern = Pattern.compile(regex);
+            FileInputStream inputStream;
+            inputStream = new FileInputStream(file);
+            Scanner fileScanner = new Scanner(inputStream, StandardCharsets.UTF_8.name());
+            Matcher matcher;
+
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                matcher = pattern.matcher(line);
+                if (matcher.find()) {
+                    String value = matcher.group(1);
+                    return value;
+                }
+            }
+        } catch (FileNotFoundException ex) {
+            logger.error(file.getPath() + " FileNotFoundException", ex);
+        }
+        return "";
     }
 
 }

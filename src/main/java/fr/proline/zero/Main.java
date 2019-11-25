@@ -90,7 +90,7 @@ public class Main {
                 b = tmpFile.mkdir();
                 logger.info("create folder {} {}", tmpFile.getName(), b);
             }
-            String dataMzdbPath = ExecutionSession.getCortex().getMzdbFolder().replace("..", ".");//relative under working directory, not relative to cortex directory
+            String dataMzdbPath = ExecutionSession.getMzdbFolder().replace("..", ".");//relative under working directory, not relative to cortex directory
             File mzdbFile = new File(dataMzdbPath);
             if (!mzdbFile.isDirectory()) {
                 boolean b;
@@ -98,7 +98,7 @@ public class Main {
                 logger.info("create folder {} {}", mzdbFile.getName(), b);
                 mzdbFile.mkdir();
             }
-           // cleanTmpFolder(tmpFile);
+            // cleanTmpFolder(tmpFile);
 
             ExecutionSession.getCortex().start();
             logger.info("Cortex Server started");

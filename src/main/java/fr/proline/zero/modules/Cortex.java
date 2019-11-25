@@ -11,13 +11,6 @@ import fr.proline.zero.util.Config;
 import fr.proline.zero.util.Memory;
 import fr.proline.zero.util.ProlineFiles;
 import fr.proline.zero.util.SystemUtils;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeroturnaround.exec.ProcessExecutor;
@@ -77,44 +70,6 @@ public class Cortex extends AbstractProcess {
 
     public void stop() throws Exception {
         kill(process);
-    }
-
-    public void updateCortexNbParallelizableServiceRunners() {
-        String nbThread = ProlineFiles.CORTEX_JMS_NODE_NB_RUNSERVICE + " = " + Config.getCortexNbParallelizableServiceRunners();
-        File configFile = ProlineFiles.CORTEX_JMS_CONFIG_FILE;
-        logger.info("Replace " + ProlineFiles.CORTEX_JMS_NODE_NB_RUNSERVICE + " in file " + configFile.getAbsolutePath() + " to " + nbThread);
-        String regex = ProlineFiles.CORTEX_JMS_NODE_NB_RUNSERVICE + "\\s*=\\s*([\\d-]+)";
-        try {
-            List<String> lines = Files.lines(configFile.toPath()).map(l -> l.replaceAll(regex, nbThread)).collect(Collectors.toList());
-            Files.write(configFile.toPath(), lines);
-        } catch (Exception e) {
-            logger.error("Error replacing " + nbThread + "in file " + configFile.getAbsolutePath(), e);
-        }
-    }
-
-    public String getMzdbFolder() {
-        try {
-            File configFile = ProlineFiles.CORTEX_CONFIG_FILE;
-            final String regex = "mzdb_files\\s*=\\s*\"([\\w.\\/]+)\"";
-            final Pattern pattern = Pattern.compile(regex);
-            FileInputStream inputStream;
-            inputStream = new FileInputStream(configFile);
-            Scanner fileScanner = new Scanner(inputStream, StandardCharsets.UTF_8.name());
-            Matcher matcher;
-
-            while (fileScanner.hasNextLine()) {
-                String line = fileScanner.nextLine();
-                matcher = pattern.matcher(line);
-                if (matcher.find()) {
-                    String mzdbFolder = matcher.group(1);
-                    return mzdbFolder;
-                }
-                //m_logger.debug("{}, task register {}", index);
-            }
-        } catch (FileNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Cortex.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return "";
     }
 
 }
