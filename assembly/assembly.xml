@@ -58,11 +58,12 @@
             <outputDirectory>/PM-SequenceRepository-${seqrepo.version}/config</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/src/main/resources/admin/</directory>
+            <directory>${project.basedir}/src/main/resources/admin/${proline.datastore}</directory>
             <outputDirectory>/Proline-Admin-GUI-${admin.version}/config</outputDirectory>
             <includes>
                 <include>*</include>
             </includes>
+            <filtered>true</filtered>
         </fileSet>
 
         <!-- Proline-Zero directory -->
@@ -75,7 +76,7 @@
         <fileSet>
             <directory>${project.build.directory}</directory>
             <includes>
-                <include>*.jar</include>
+                <!--<include>*.jar</include>-->
                 <include>${proline.launcher.executable}</include>
             </includes>
             <outputDirectory>/</outputDirectory>
