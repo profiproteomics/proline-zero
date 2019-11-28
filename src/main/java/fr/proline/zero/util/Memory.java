@@ -96,7 +96,7 @@ public class Memory {
 			logger.info("Studio max memory: {}", toHumanReadable(studioXmx * M));
 			logger.info("SeqRepo max memory: {}", toHumanReadable(seqRepoXmx * M));
 
-			if(ProlineFiles.PG_DATASTORE != null) {
+			if(ProlineFiles.PG_DATASTORE.isDirectory()) {
 				adjustPostgreSQLMemory(memoryPg);
 			}
 		}
