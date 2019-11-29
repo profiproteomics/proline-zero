@@ -15,6 +15,8 @@ public class Config {
 
     private static Logger logger = LoggerFactory.getLogger(Config.class);
     private static Properties properties;
+    public static String JMS_SERVER_PORT = "jms_server_port";
+    public static String POSTGRESQL_PORT = "postgresql_port";
 
     private static void initialize() {
         if (properties == null) {
@@ -43,8 +45,8 @@ public class Config {
         Config.initialize();
         return properties.getProperty("data_folder");
     }
-    
-        public static String getDataTmpFolder() {
+
+    public static String getDataTmpFolder() {
         Config.initialize();
         return properties.getProperty("data_folder");
     }
@@ -64,7 +66,12 @@ public class Config {
 
     public static int getPostgreSQLPort() {
         Config.initialize();
-        return Integer.parseInt(properties.getProperty("postgresql_port"));
+        return Integer.parseInt(properties.getProperty(POSTGRESQL_PORT));
+    }
+
+    public static int getJMSServerPort() {
+        Config.initialize();
+        return Integer.parseInt(properties.getProperty(JMS_SERVER_PORT));
     }
 
     public static int getCortexNbParallelizableServiceRunners() {

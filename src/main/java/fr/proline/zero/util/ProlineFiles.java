@@ -69,6 +69,7 @@ public class ProlineFiles {
      * JMS/HornetQ files
      */
     public final static File HORNETQ_DIRECTORY = new File(WORKING_DIRECTORY + "/Proline-Cortex-" + Config.getCortexVersion() + "/hornetq_light-" + Config.getHornetQVersion());
+    public final static File HORNETQ_CONFIG_FILE = new File(HORNETQ_DIRECTORY + "/config/stand-alone/non-clustered/hornetq-configuration.xml");
     public final static File HORNETQ_LOG_FILE = new File(HORNETQ_DIRECTORY + "/logs/hornetq.log");
 
     /*
@@ -78,6 +79,7 @@ public class ProlineFiles {
     public final static File SEQREPO_JAR_FILE = new File(SEQREPO_DIRECTORY + "/pm-sequence-repository-" + Config.getSeqRepoVersion() + ".jar");
     public final static File SEQREPO_PARSE_RULES_CONFIG_FILE = new File(SEQREPO_DIRECTORY + "/config/parsing-rules.conf");
     public final static File SEQREPO_DATA_STORE_CONFIG_FILE = new File(SEQREPO_DIRECTORY + "/config/application.conf");
+    public final static File SEQREPO_JMS_CONFIG_FILE = new File(SEQREPO_DIRECTORY + "/config/jms-node.conf");
 
     public static File getSeqrepoCurrentLogFile() {
         return new File(SEQREPO_DIRECTORY + "/sequence_repository_debug_" + getFormattedDate() + ".txt");

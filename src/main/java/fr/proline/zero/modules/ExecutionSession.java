@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -88,48 +89,51 @@ public class ExecutionSession {
         return studio;
     }
 
-    public static void updateConfigurationFiles() {
-        String datastoreType = Config.getDatastoreType();
-
-        if (datastoreType.equalsIgnoreCase("H2")) {
-            // nothing to configure
-        } else {
+    public synchronized static void updateConfigPort() {
+        if (getDataStore().getDatastoreName().equals(PostgreSQL.NAME)) {
             updatePostgreSQLPortConfig();
-            updateCortexNbParallelizableServiceRunners();
         }
+        updateJMSServerPortConfig();
     }
 
     private static void updatePostgreSQLPortConfig() {
-        File cortexConfigFile = ProlineFiles.CORTEX_CONFIG_FILE;
-        updatePostgreSQLPortConfig(cortexConfigFile);
-        File adminConfigFile = ProlineFiles.ADMIN_CONFIG_FILE;
-        updatePostgreSQLPortConfig(adminConfigFile);
-        File seqRepoConfigFile = ProlineFiles.SEQREPO_DATA_STORE_CONFIG_FILE;
-        updatePostgreSQLPortConfig(seqRepoConfigFile);
-    }
-
-    private static void updatePostgreSQLPortConfig(File configFile) {
         String newPort = "port=\"" + Config.getPostgreSQLPort() + "\"";
-        logger.info("Replace PG port in file " + configFile.getAbsolutePath() + " to " + newPort);
-        try {
-            List<String> lines = Files.lines(configFile.toPath()).map(l -> l.replaceAll("port\\s*=\\s*\"(\\d+)\"", newPort)).collect(Collectors.toList());
-            Files.write(configFile.toPath(), lines);
-        } catch (Exception e) {
-            logger.error("Error replacing database port in file " + configFile.getAbsolutePath(), e);
-        }
+        String regex = "port\\s*=\\s*\"(\\d+)\"";  //with "" arround number
+        File cortexConfigFile = ProlineFiles.CORTEX_CONFIG_FILE;
+        updateProperty(cortexConfigFile, regex, newPort);
+        File adminConfigFile = ProlineFiles.ADMIN_CONFIG_FILE;
+        updateProperty(adminConfigFile, regex, newPort);
+        File seqRepoConfigFile = ProlineFiles.SEQREPO_DATA_STORE_CONFIG_FILE;
+        updateProperty(seqRepoConfigFile, regex, newPort);        
     }
 
-    private static void updateCortexNbParallelizableServiceRunners() {
+    private static void updateJMSServerPortConfig() {
+        String newPort = Config.JMS_SERVER_PORT + " = " + Config.getJMSServerPort();
+        String regex = Config.JMS_SERVER_PORT + "\\s*=\\s*([\\d-]+)"; //without "" arround number
+        File cortexConfigFile = ProlineFiles.CORTEX_JMS_CONFIG_FILE;
+        updateProperty(cortexConfigFile, regex, newPort);
+        File seqRepoConfigFile = ProlineFiles.SEQREPO_JMS_CONFIG_FILE;
+        updateProperty(seqRepoConfigFile, regex, newPort);
+        File hornetqConfigFile = ProlineFiles.HORNETQ_CONFIG_FILE;
+        final String regexXML =  "hornetq.remoting.netty.port\\s*:\\s*\\d{4}";
+        updateProperty(hornetqConfigFile, regexXML, "hornetq.remoting.netty.port:" + Config.getJMSServerPort());
+    }
+
+    public synchronized static void updateCortexNbParallelizableServiceRunners() {
         String nbThread = ProlineFiles.CORTEX_JMS_NODE_NB_RUNSERVICE + " = " + Config.getCortexNbParallelizableServiceRunners();
         File configFile = ProlineFiles.CORTEX_JMS_CONFIG_FILE;
-        logger.info("Replace " + ProlineFiles.CORTEX_JMS_NODE_NB_RUNSERVICE + " in file " + configFile.getAbsolutePath() + " to " + nbThread);
         String regex = ProlineFiles.CORTEX_JMS_NODE_NB_RUNSERVICE + "\\s*=\\s*([\\d-]+)";
+        updateProperty(configFile, regex, nbThread);
+    }
+
+    private static void updateProperty(File configFile, String regex, String value) {
+        logger.info("Replace" + regex + " in file " + configFile.getAbsolutePath() + " to " + value);
         try {
-            List<String> lines = Files.lines(configFile.toPath()).map(l -> l.replaceAll(regex, nbThread)).collect(Collectors.toList());
-            Files.write(configFile.toPath(), lines);
+            List<String> lines = Files.lines(configFile.toPath()).map(l -> l.replaceAll(regex, value)).collect(Collectors.toList());
+            Files.write(configFile.toPath(), lines,  StandardOpenOption.DSYNC);
         } catch (Exception e) {
-            logger.error("Error replacing " + nbThread + "in file " + configFile.getAbsolutePath(), e);
-        }
+            logger.error("Error replacing " + value + "in file " + configFile.getAbsolutePath(), e);
+        } 
     }
 
     public static void end() throws Exception {
