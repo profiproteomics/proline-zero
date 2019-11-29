@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import fr.proline.zero.gui.Popup;
 import fr.proline.zero.gui.SplashScreen;
+import fr.proline.zero.modules.DataStore;
 import fr.proline.zero.modules.ExecutionSession;
+import fr.proline.zero.modules.PostgreSQL;
 import fr.proline.zero.modules.ProlineAdmin;
 import java.io.File;
 import java.io.IOException;
@@ -33,50 +35,35 @@ public class Main {
 
         try {
             ExecutionSession.initialize();
+
             ZeroTray.initialize();
             // add a shutdown hook that will be executed when the program ends or if the user ends it with Ctrl+C
             Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
             SplashScreen.setProgressMax(5); // pgsql, hornetq, cortex, seqrepo, studio
-            if (!ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists()) {
+            if (!ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists()) {//first launche
+                ExecutionSession.updateConfigPort();//can be change only 1 time at the first time
+                ExecutionSession.updateCortexNbParallelizableServiceRunners();
                 SplashScreen.setProgressMax(7); // init, pgsql, admin, hornetq, cortex, seqrepo, studio
+                SplashScreen.setProgress("Initializing Datastore");
+                logger.info("Datastore folder is empty : Proline Datastore must be initialized");
+                DataStore dStore = ExecutionSession.getDataStore();
                 try {
-                    SplashScreen.setProgress("Initializing Datastore");
-                    logger.info("Datastore folder is empty : Proline Datastore must be initialized");
-
-                    ExecutionSession.getDataStore().init();
-                    SplashScreen.setProgress("Starting Datastore");
-                    // adjust memory before starting datastore
-                    if (!Config.isDebugMode()) {
-                        Memory.adjustMemory(Config.getWorkingMemory());
-                    } else {
-                        Memory.restorePostgreSQLDefaultConfig();
-                    }
-                    // start datastore
-                    ExecutionSession.getDataStore().start();
-
+                    dStore.init();
                 } catch (Exception e) {
                     logger.error("Error during datastore initialization", e);
                     SystemUtils.end();
                     System.exit(1);
                 }
-
+                startDataStore(dStore);
                 SplashScreen.setProgress("Initializing Proline databases");
-                ExecutionSession.updateConfigurationFiles();
                 ProlineAdmin.setUp();
-
             } else {
-                SplashScreen.setProgress("Starting Datastore");
+                ExecutionSession.updateCortexNbParallelizableServiceRunners();//each time, we can change
                 // TODO: check that application.conf PG port == proline_launcher.config PG port because
                 // PG port can be updated only once since Proline store the database JDBC URL
                 // adjust memory before starting datastore
-                if (!Config.isDebugMode()) {
-                    Memory.adjustMemory(Config.getWorkingMemory());
-                } else {
-                    Memory.restorePostgreSQLDefaultConfig();
-                }
-                // start datastore
-                ExecutionSession.getDataStore().start();
+                startDataStore(ExecutionSession.getDataStore());
             }
 
             logger.info("Starting Proline");
@@ -133,6 +120,23 @@ public class Main {
             SystemUtils.end();
             Popup.error(t.getMessage());
         }
+    }
+
+    private static void startDataStore(DataStore dataStore) throws Exception {
+        SplashScreen.setProgress("Starting Datastore");
+        // TODO: check that application.conf PG port == proline_launcher.config PG port because
+        // PG port can be updated only once since Proline store the database JDBC URL
+        // adjust memory before starting datastore
+        if (!Config.isDebugMode()) {
+            Memory.adjustMemory(Config.getWorkingMemory());
+        } else {
+            if (dataStore.getDatastoreName().equals(PostgreSQL.NAME)) {
+                Memory.restorePostgreSQLDefaultConfig();
+            }
+        }
+        // start datastore
+        ExecutionSession.getDataStore().start();
+
     }
 
     private static synchronized void cleanTmpFolder(File tmpFile) {

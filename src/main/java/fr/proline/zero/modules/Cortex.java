@@ -1,10 +1,8 @@
 package fr.proline.zero.modules;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import fr.proline.zero.gui.ZeroTray;
 import fr.proline.zero.util.Config;
