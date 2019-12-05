@@ -1,5 +1,6 @@
 package fr.proline.zero.modules;
 
+import fr.proline.zero.gui.Popup;
 import java.io.File;
 import java.io.PrintWriter;
 
@@ -34,6 +35,7 @@ public class PostgreSQL extends DataStore {
     }
 
     public void init() throws Exception {
+        verifyVersion();
         if (SystemUtils.isPortAvailable(Config.getPostgreSQLPort())) {
             logger.info("Initializing PostgreSQL datastore");
             // create the temporary password file (delete it if it already exists)
@@ -82,6 +84,29 @@ public class PostgreSQL extends DataStore {
         } else {
             logger.error("PostgreSQL port {} is already in use. This may be caused by another process talking to this port or by an existing postgreSQL server instance already running", Config.getPostgreSQLPort());
             throw new IllegalArgumentException("PostgreSQL port " + Config.getPostgreSQLPort() + " is already in use");
+        }
+    }
+
+    private void verifyVersion() throws Exception {
+        ProcessResult pgVersion = new ProcessExecutor()
+                .command("./pgsql/bin/pg_ctl", "--version")
+                .environment("PATH", SystemUtils.getPathEnvironmentVariable(getJavaPath()))
+                .redirectOutput(new LogOutputStream() {
+                    @Override
+                    protected void processLine(String line) {
+                        Popup.info("Version :" + line);
+                        logger.info("###############postgresql version is " + line);
+                        //line = pg_ctl (PostgreSQL) 9.4.11
+                    }
+                })
+                .execute();
+        int exitCode = pgVersion.getExitValue();
+        if (exitCode == 0) {
+            logger.debug("pginit verify version finish successfully");
+        } else {
+            logger.info("pginit verify fails with error code {}", exitCode);
+            logger.info("pginit verify fails with output '{}'", pgVersion.outputString());
+            throw new RuntimeException("Could not init pgVersion postgreSQL datastore, it may be a problem with the path of PostgreSQL");
         }
     }
 
