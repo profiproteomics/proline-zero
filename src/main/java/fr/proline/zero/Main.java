@@ -48,7 +48,7 @@ public class Main {
                 SplashScreen.setProgress("Initializing Datastore");
                 logger.info("Datastore folder is empty : Proline Datastore must be initialized");
                 DataStore dStore = ExecutionSession.getDataStore();
-                try {
+                try {                   
                     dStore.init();
                 } catch (Exception e) {
                     logger.error("Error during datastore initialization", e);
@@ -59,6 +59,7 @@ public class Main {
                 SplashScreen.setProgress("Initializing Proline databases");
                 ProlineAdmin.setUp();
             } else {
+
                 ExecutionSession.updateCortexNbParallelizableServiceRunners();//each time, we can change
                 // TODO: check that application.conf PG port == proline_launcher.config PG port because
                 // PG port can be updated only once since Proline store the database JDBC URL
@@ -101,19 +102,22 @@ public class Main {
             }
             // allow Proline Studio to be missing (or if launcher is in server mode)
             // TODO make a completely different method for server mode, to allow a different behaviour and an easier way to test each modes
-//            if(!Config.isServerMode()) {
-            SplashScreen.setProgress("Starting Proline Studio");
-            ExecutionSession.getStudio().start(); // TODO rename start to startAndWait ? or maybe do the waiting here ?
-            logger.info("Studio closed, stop Cortex & JMS");
-            // stop JMS, Cortex and SeqRepo (should be useless because it will be done in the Shutdown Hook class)
-            SystemUtils.end();
-//            } else {
+            if (!Config.isServerMode()) {
+                SplashScreen.setProgress("Starting Proline Studio");
+                ExecutionSession.getStudio().start(); // TODO rename start to startAndWait ? or maybe do the waiting here ?
+                logger.info("Studio closed, stop Cortex & JMS");
+                // stop JMS, Cortex and SeqRepo (should be useless because it will be done in the Shutdown Hook class)
+                SystemUtils.end();
+            } else {
+                SplashScreen.setProgress("skipping Proline Studio");
+                logger.info("Skipping Proline Studio (as requested in config file)");
+                SplashScreen.stop();
 //                // wait until user stops Proline through the system tray
 //                // TODO open Proline Monitor instead (but closing Monitor must not close Proline Zero !)
-//                while(ExecutionSession.isSessionActive()) {
-//                    Thread.sleep(2500);
-//                }
-//            }
+                while (ExecutionSession.isSessionActive()) {
+                    Thread.sleep(2500);
+                }
+            }
         } catch (Throwable t) {
             // provide a msgbox to warn the user of the problem
             logger.error("Severe Error while running Proline Launcher. The application will close due to:", t);

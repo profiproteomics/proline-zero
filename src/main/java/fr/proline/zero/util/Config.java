@@ -15,8 +15,13 @@ public class Config {
 
     private static Logger logger = LoggerFactory.getLogger(Config.class);
     private static Properties properties;
-    public static String JMS_SERVER_PORT = "jms_server_port";
+    public static String JMS_PORT = "jms_server_port";
     public static String POSTGRESQL_PORT = "postgresql_port";
+    public static int DEFAULT_POSTGRESQL_PORT = 5433;
+    public static int DEFAULT_JMS_PORT = 5445;
+    public static int DEFAULT_JMS_BATCH_PORT = 5455;
+    public static int DEFAULT_JMS_JNP_PORT = 1099;
+    public static int DEFAULT_JMS_JNP_RMI_PORT = 1098;
 
     private static void initialize() {
         if (properties == null) {
@@ -69,9 +74,41 @@ public class Config {
         return Integer.parseInt(properties.getProperty(POSTGRESQL_PORT));
     }
 
-    public static int getJMSServerPort() {
+    public static int getH2Port() {
         Config.initialize();
-        return Integer.parseInt(properties.getProperty(JMS_SERVER_PORT));
+        return Integer.parseInt(properties.getProperty(POSTGRESQL_PORT));
+    }
+
+    public static int getJmsPort() {
+        Config.initialize();
+        String value =properties.getProperty(JMS_PORT);
+        if (value == null)
+            return -1;
+        else return Integer.parseInt(value);
+    }
+
+    public static int getJmsBatchPort() {
+        Config.initialize();
+        String value =properties.getProperty("jms_server_batch_port");
+         if (value == null)
+            return -1;
+        else return Integer.parseInt(value);
+    }
+
+    public static int getJnpPort() {
+        Config.initialize();
+        String value =properties.getProperty("jnp_port");
+         if (value == null)
+            return -1;
+        else return Integer.parseInt(value);
+    }
+
+    public static int getJnpRmiPort() {
+        Config.initialize();
+        String value =properties.getProperty("jnp_rmi_port");
+         if (value == null)
+            return -1;
+        else return Integer.parseInt(value);
     }
 
     public static int getCortexNbParallelizableServiceRunners() {

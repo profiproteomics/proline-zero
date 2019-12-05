@@ -93,30 +93,69 @@ public class ExecutionSession {
         if (getDataStore().getDatastoreName().equals(PostgreSQL.NAME)) {
             updatePostgreSQLPortConfig();
         }
-        updateJMSServerPortConfig();
+        updateJmsPortConfig();
+        updateJmsBatchPortConfig();
+        updateJnpPortConfig();
+        updateJnpRmiPortConfig();
     }
 
     private static void updatePostgreSQLPortConfig() {
-        String newPort = "port=\"" + Config.getPostgreSQLPort() + "\"";
-        String regex = "port\\s*=\\s*\"(\\d+)\"";  //with "" arround number
-        File cortexConfigFile = ProlineFiles.CORTEX_CONFIG_FILE;
-        updateProperty(cortexConfigFile, regex, newPort);
-        File adminConfigFile = ProlineFiles.ADMIN_CONFIG_FILE;
-        updateProperty(adminConfigFile, regex, newPort);
-        File seqRepoConfigFile = ProlineFiles.SEQREPO_DATA_STORE_CONFIG_FILE;
-        updateProperty(seqRepoConfigFile, regex, newPort);        
+        int port = Config.getPostgreSQLPort();
+        if (port != Config.DEFAULT_POSTGRESQL_PORT) {
+            String newPort = "port=\"" + port + "\"";
+            String regex = "port\\s*=\\s*\"(\\d+)\"";  //with "" arround number
+            File cortexConfigFile = ProlineFiles.CORTEX_CONFIG_FILE;
+            updateProperty(cortexConfigFile, regex, newPort);
+            File adminConfigFile = ProlineFiles.ADMIN_CONFIG_FILE;
+            updateProperty(adminConfigFile, regex, newPort);
+            File seqRepoConfigFile = ProlineFiles.SEQREPO_DATA_STORE_CONFIG_FILE;
+            updateProperty(seqRepoConfigFile, regex, newPort);
+        }
     }
 
-    private static void updateJMSServerPortConfig() {
-        String newPort = Config.JMS_SERVER_PORT + " = " + Config.getJMSServerPort();
-        String regex = Config.JMS_SERVER_PORT + "\\s*=\\s*([\\d-]+)"; //without "" arround number
-        File cortexConfigFile = ProlineFiles.CORTEX_JMS_CONFIG_FILE;
-        updateProperty(cortexConfigFile, regex, newPort);
-        File seqRepoConfigFile = ProlineFiles.SEQREPO_JMS_CONFIG_FILE;
-        updateProperty(seqRepoConfigFile, regex, newPort);
-        File hornetqConfigFile = ProlineFiles.HORNETQ_CONFIG_FILE;
-        final String regexXML =  "hornetq.remoting.netty.port\\s*:\\s*\\d{4}";
-        updateProperty(hornetqConfigFile, regexXML, "hornetq.remoting.netty.port:" + Config.getJMSServerPort());
+    private static void updateJmsPortConfig() {
+        int port = Config.getJmsPort();
+        if (port != -1 && port != Config.DEFAULT_JMS_PORT) {
+            String newPort = Config.JMS_PORT + " = " + port;
+            String regex = Config.JMS_PORT + "\\s*=\\s*([\\d-]+)"; //without "" arround number
+            File cortexConfigFile = ProlineFiles.CORTEX_JMS_CONFIG_FILE;
+            updateProperty(cortexConfigFile, regex, newPort);
+            File seqRepoConfigFile = ProlineFiles.SEQREPO_JMS_CONFIG_FILE;
+            updateProperty(seqRepoConfigFile, regex, newPort);
+            File hornetqConfigFile = ProlineFiles.HORNETQ_CONFIG_FILE;
+            final String regexXML = "hornetq.remoting.netty.port\\s*:\\s*\\d{4}";
+            updateProperty(hornetqConfigFile, regexXML, "hornetq.remoting.netty.port:" + port);
+            File studioPrefereceFile = ProlineFiles.STUDIO_PREFERENCES_FILE;
+            final String regexJmsUrl = "serverURL=localhost[:\\d]*";
+            updateProperty(studioPrefereceFile, regexJmsUrl, "serverURL=localhost:" + port);
+        }
+    }
+
+    private static void updateJmsBatchPortConfig() {
+        int port = Config.getJmsBatchPort();
+        if (port != -1 && port != Config.DEFAULT_JMS_BATCH_PORT) {
+            File hornetqConfigFile = ProlineFiles.HORNETQ_CONFIG_FILE;
+            final String regexXML = "hornetq.remoting.netty.batch.port\\s*:\\s*\\d{4}";
+            updateProperty(hornetqConfigFile, regexXML, "hornetq.remoting.netty.batch.port:" + port);
+        }
+    }
+
+    private static void updateJnpRmiPortConfig() {
+        int port = Config.getJnpRmiPort();
+        if (port != -1 && port != Config.DEFAULT_JMS_JNP_RMI_PORT) {
+            File hornetqConfigFile = ProlineFiles.HORNETQ_RMI_CONFIG_FILE;
+            final String regexXML = "jnp.rmiPort\\s*:\\s*\\d{4}";
+            updateProperty(hornetqConfigFile, regexXML, "jnp.rmiPort:" + port);
+        }
+    }
+
+    private static void updateJnpPortConfig() {
+        int port = Config.getJnpPort();
+        if (port != -1) {
+            File hornetqConfigFile = ProlineFiles.HORNETQ_RMI_CONFIG_FILE;
+            final String regexXML = "jnp.port\\s*:\\s*\\d{4}";
+            updateProperty(hornetqConfigFile, regexXML, "jnp.port:" + port);
+        }
     }
 
     public synchronized static void updateCortexNbParallelizableServiceRunners() {
@@ -127,13 +166,13 @@ public class ExecutionSession {
     }
 
     private static void updateProperty(File configFile, String regex, String value) {
-        logger.info("Replace" + regex + " in file " + configFile.getAbsolutePath() + " to " + value);
+        logger.info("Replace " + regex + " in file " + configFile.getPath()+" "+configFile.getName() + " to " + value);
         try {
             List<String> lines = Files.lines(configFile.toPath()).map(l -> l.replaceAll(regex, value)).collect(Collectors.toList());
-            Files.write(configFile.toPath(), lines,  StandardOpenOption.DSYNC);
+            Files.write(configFile.toPath(), lines, StandardOpenOption.SYNC);
         } catch (Exception e) {
-            logger.error("Error replacing " + value + "in file " + configFile.getAbsolutePath(), e);
-        } 
+            logger.error("Error replacing " + value + "in file " + configFile.getPath(), e);
+        }
     }
 
     public static void end() throws Exception {

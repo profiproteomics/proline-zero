@@ -75,7 +75,6 @@ public class ZeroTray {
 //                Popup.error(t);
 //            }
 //        }));
-
         // link to the packaged documentation file
         mainMenu.add(new MenuItem("Help", ProlineFiles.HELP_ICON, e -> {
             try {
@@ -88,23 +87,25 @@ public class ZeroTray {
         mainMenu.add(new MenuItem("ProFI Web site", e -> {
             try {
                 Desktop.getDesktop().browse(new URL(ProlineFiles.PROFI_WEBSITE).toURI());
-            } catch(Throwable t) {
+            } catch (Throwable t) {
                 Popup.error(t);
             }
         }));
-        // exit button
-//        mainMenu.add(new MenuItem("Exit", ProlineFiles.QUIT_ICON, e -> {
-//            // FIXME this command Kills Studio and Proline Zero, but not the Studio child process that provides the GUI (so user don't feel like it's close)
-//            // solution is to remove Exit button when Proline Zero is not in server mode (client just need to close Proline Studio)
-//            logger.info("User requested to close Proline Zero");
-//            try {
-////                ExecutionSession.getStudio().stop();
-//                SystemUtils.end();
-//            } catch(Throwable t) {
-//                logger.error("Error while killing studio", t);
-//                Popup.error(t);
-//            }
-//        }));
+        if (Config.isServerMode()) {
+            // exit button
+            mainMenu.add(new MenuItem("Exit", ProlineFiles.QUIT_ICON, e -> {
+                // FIXME this command Kills Studio and Proline Zero, but not the Studio child process that provides the GUI (so user don't feel like it's close)
+                // solution is to remove Exit button when Proline Zero is not in server mode (client just need to close Proline Studio)
+                logger.info("User requested to close Proline Zero");
+                try {
+//                ExecutionSession.getStudio().stop();
+                    SystemUtils.end();
+                } catch (Throwable t) {
+                    logger.error("Error while killing studio", t);
+                    Popup.error(t);
+                }
+            }));
+        }
 
     }
 
@@ -128,10 +129,10 @@ public class ZeroTray {
             ZeroTray.updateStatus(menuSeqRepo, ExecutionSession.getSeqRepo().isProcessAlive());
             ZeroTray.updateStatus(menuStudio, ExecutionSession.getStudio().isProcessAlive());
             // parent menu should either be:
-            if(ExecutionSession.getDataStore().isProcessAlive() && ExecutionSession.getJMSServer().isProcessAlive() && ExecutionSession.getCortex().isProcessAlive() && ExecutionSession.getSeqRepo().isProcessAlive() && ExecutionSession.getStudio().isProcessAlive()) {
+            if (ExecutionSession.getDataStore().isProcessAlive() && ExecutionSession.getJMSServer().isProcessAlive() && ExecutionSession.getCortex().isProcessAlive() && ExecutionSession.getSeqRepo().isProcessAlive() && ExecutionSession.getStudio().isProcessAlive()) {
                 // if all processes are running, status is "running"
                 menuProcesses.setImage(ProlineFiles.STATUS_RUNNING_ICON);
-            } else if(!ExecutionSession.getDataStore().isProcessAlive() && !ExecutionSession.getJMSServer().isProcessAlive() && !ExecutionSession.getCortex().isProcessAlive() && !ExecutionSession.getSeqRepo().isProcessAlive() && !ExecutionSession.getStudio().isProcessAlive()) {
+            } else if (!ExecutionSession.getDataStore().isProcessAlive() && !ExecutionSession.getJMSServer().isProcessAlive() && !ExecutionSession.getCortex().isProcessAlive() && !ExecutionSession.getSeqRepo().isProcessAlive() && !ExecutionSession.getStudio().isProcessAlive()) {
                 // if all processes are stopped, status is "stopped"
                 menuProcesses.setImage(ProlineFiles.STATUS_STOPPED_ICON);
             } else {
@@ -150,8 +151,8 @@ public class ZeroTray {
             } else {
                 Desktop.getDesktop().edit(file);
             }
-        } catch(IOException ioe) {
-            Popup.error("File '"+file.getAbsolutePath()+"' failed to be opened in the default file editor, open it manually to change configuration.", ioe);
+        } catch (IOException ioe) {
+            Popup.error("File '" + file.getAbsolutePath() + "' failed to be opened in the default file editor, open it manually to change configuration.", ioe);
         }
     }
 
@@ -163,13 +164,13 @@ public class ZeroTray {
     }
 
     private static Menu _pgsqlMenu() {
-        if(menuDatastore == null) {
+        if (menuDatastore == null) {
             menuDatastore = new Menu(ExecutionSession.getDataStore().getDatastoreName(), ProlineFiles.PROGRESS_ICON);
 
             menuDatastore.add(new MenuItem("Edit configuration", ProlineFiles.EDIT_ICON, e -> ZeroTray.editFile(ProlineFiles.PG_CONFIG_FILE)), 0);
             menuDatastore.add(new MenuItem("Restore default configuration", ProlineFiles.DEFAULT_ICON, e -> {
                 // ask if user is certain
-                if(Popup.okCancel("Restore file '" + ProlineFiles.PG_DEFAULT_CONFIG_FILE.getName() + "' ?")) {
+                if (Popup.okCancel("Restore file '" + ProlineFiles.PG_DEFAULT_CONFIG_FILE.getName() + "' ?")) {
                     Memory.restorePostgreSQLDefaultConfig();
                 }
             }), 1);
@@ -179,7 +180,7 @@ public class ZeroTray {
     }
 
     private static Menu _hornetqMenu() {
-        if(menuHornetQ == null) {
+        if (menuHornetQ == null) {
             menuHornetQ = new Menu(ExecutionSession.getJMSServer().getProcessName() + " " + Config.getHornetQVersion(), ProlineFiles.PROGRESS_ICON);
             menuHornetQ.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openHornetQLog()));
         }
@@ -187,7 +188,7 @@ public class ZeroTray {
     }
 
     private static Menu _cortexMenu() {
-        if(menuCortex == null) {
+        if (menuCortex == null) {
             menuCortex = new Menu(ExecutionSession.getCortex().getProcessName() + " " + Config.getCortexVersion(), ProlineFiles.PROGRESS_ICON);
 //            menuCortex.add(new MenuItem("Edit configuration", ProlineFiles.EDIT_ICON, e -> ZeroTray.editFile(ProlineFiles.CORTEX_CONFIG_FILE)));
             menuCortex.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openCortexLog()));
@@ -197,7 +198,7 @@ public class ZeroTray {
     }
 
     private static Menu _seqRepoMenu() {
-        if(menuSeqRepo == null) {
+        if (menuSeqRepo == null) {
             menuSeqRepo = new Menu(ExecutionSession.getSeqRepo().getProcessName() + " " + Config.getSeqRepoVersion(), ProlineFiles.PROGRESS_ICON);
             menuSeqRepo.add(new MenuItem("Edit parse rules", ProlineFiles.EDIT_ICON, e -> ZeroTray.editFile(ProlineFiles.SEQREPO_PARSE_RULES_CONFIG_FILE)));
             menuSeqRepo.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openSeqRepoLog()));
@@ -206,7 +207,7 @@ public class ZeroTray {
     }
 
     private static Menu getStudioMenu() {
-        if(menuStudio == null) {
+        if (menuStudio == null) {
             menuStudio = new Menu(ExecutionSession.getStudio().getProcessName() + " " + Config.getStudioVersion(), ProlineFiles.PROGRESS_ICON);
 //            menuStudio.add(new MenuItem("Edit configuration", ProlineFiles.EDIT_ICON, e -> ZeroTray.editFile(ProlineFiles.STUDIO_CONFIG_FILE)));
             menuStudio.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openStudioLog()));

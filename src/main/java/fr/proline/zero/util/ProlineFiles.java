@@ -70,6 +70,7 @@ public class ProlineFiles {
      */
     public final static File HORNETQ_DIRECTORY = new File(WORKING_DIRECTORY + "/Proline-Cortex-" + Config.getCortexVersion() + "/hornetq_light-" + Config.getHornetQVersion());
     public final static File HORNETQ_CONFIG_FILE = new File(HORNETQ_DIRECTORY + "/config/stand-alone/non-clustered/hornetq-configuration.xml");
+    public final static File HORNETQ_RMI_CONFIG_FILE = new File(HORNETQ_DIRECTORY + "/config/stand-alone/non-clustered/hornetq-beans.xml");
     public final static File HORNETQ_LOG_FILE = new File(HORNETQ_DIRECTORY + "/logs/hornetq.log");
 
     /*
@@ -92,7 +93,7 @@ public class ProlineFiles {
     public final static File STUDIO_CONFIG_FILE = new File(STUDIO_DIRECTORY + "/etc/prolinestudio.conf");
     public final static File STUDIO_LOG_FILE = new File(STUDIO_DIRECTORY + "/Proline_Studio-" + System.getProperty("user.name") + ".log");
     public final static File STUDIO_ERROR_LOG_FILE = new File(STUDIO_DIRECTORY + "/Proline_Studio-Error-" + System.getProperty("user.name") + ".log");
-
+    public final static File STUDIO_PREFERENCES_FILE = new File(WORKING_DATA_DIRECTORY + "/.prolinestudio/config/Preferences.properties");
     /*
      * PostgreSQL files
      */

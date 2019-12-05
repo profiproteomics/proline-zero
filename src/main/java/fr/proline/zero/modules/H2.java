@@ -81,6 +81,7 @@ public class H2 extends DataStore {
 	        }
 			if(datastoreIsRunning) {
 				logger.info("H2 successfully started");
+                                isProcessAlive = true;
 			} else {
 				throw new RuntimeException("Could not start H2 server");
 			}
