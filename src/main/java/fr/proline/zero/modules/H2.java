@@ -25,89 +25,95 @@ import fr.proline.zero.util.SystemUtils;
  * The dbName used is "seq_db" instead of "./data/databases/h2/seq_db"
  * This can be fixed in PM-SequenceRepository but not in the launcher.
  */
-
 public class H2 extends DataStore {
 
-	private static final String relativeDatastorePath = "data/databases/h2";
-	private static Logger logger = LoggerFactory.getLogger(H2.class);
-	private StartedProcess process;
-	private boolean datastoreIsRunning;
+    private static final String relativeDatastorePath = "data/databases/h2";
+    private static Logger logger = LoggerFactory.getLogger(H2.class);
+    private StartedProcess process;
+    private boolean datastoreIsRunning;
 
-	public String getDatastoreName() {
-		return "H2";
-	}
-			
+    public String getDatastoreName() {
+        return "H2";
+    }
+
 //	public H2(File workingDirectory) {
 //		super(workingDirectory, relativeDatastorePath);
 //	}
+    public void init() throws Exception {
+        File datastoreDirectory = new File(relativeDatastorePath);
+        if (!datastoreDirectory.exists() || !datastoreDirectory.isDirectory()) {
+            datastoreDirectory.mkdir();
+        }
+    }
 
-	public void init() throws Exception {
-		File datastoreDirectory = new File(relativeDatastorePath);
-		if(!datastoreDirectory.exists() || !datastoreDirectory.isDirectory()) {
-			datastoreDirectory.mkdir();
-		}
-	}
+    public void start() throws Exception {
+        datastoreIsRunning = false;
+        int dataStorePort = Config.getH2Port();
+        int JmsServerPort = Config.getJmsPort();
+        if (SystemUtils.isPortAvailable(dataStorePort) && SystemUtils.isPortAvailable(JmsServerPort)) {
 
-	public void start() throws Exception  {
-		datastoreIsRunning = false;
-		if (SystemUtils.isPortAvailable(9092) && SystemUtils.isPortAvailable(5435)) {
-			logger.info("Initializing H2 datastore");
-			// start H2
-			String classpath = new StringBuilder().append(SystemUtils.toSystemClassPath("Proline-Cortex-")).append(Config.getCortexVersion()).append(SystemUtils.toSystemClassPath("/lib/*")).toString();
-			List<String> command = new ArrayList<>();
-			command.add(Config.getJavaExePath());
-			command.add("-cp");
-			command.add(classpath);
-			command.add("org.h2.tools.Console");
-			command.add("-tcp");
-			command.add("-pg");
+            logger.info("Initializing H2 datastore");
+            // start H2
+            String classpath = new StringBuilder().append(SystemUtils.toSystemClassPath("Proline-Cortex-")).append(Config.getCortexVersion()).append(SystemUtils.toSystemClassPath("/lib/*")).toString();
+            List<String> command = new ArrayList<>();
+            command.add(Config.getJavaExePath());
+            command.add("-cp");
+            command.add(classpath);
+            command.add("org.h2.tools.Console");
+            command.add("-tcp");
+            command.add("-pg");
 //			logger.info("ABU running command: "+command.toString());
-			process = new ProcessExecutor()
-					.command(command)
-					.redirectOutput(new LogOutputStream() {
-						@Override
-						protected void processLine(String line) {
-							if(Config.isDebugMode()) logger.debug(line);
-							if(line.contains("PG server running at")) {
-								datastoreIsRunning = true;
-							}
-						}
-					})
-					.start();
-			
-			long start = System.currentTimeMillis();
-	        while (!datastoreIsRunning && ((System.currentTimeMillis() - start) <= Config.getDefaultTimeout())) {
-	            Thread.sleep(200);
-	        }
-			if(datastoreIsRunning) {
-				logger.info("H2 successfully started");
-                                isProcessAlive = true;
-			} else {
-				throw new RuntimeException("Could not start H2 server");
-			}
-		} else {
-			logger.error("H2 ports 9092 and/or 5435 are already in use. This may be caused by another process talking to this port or by an existing H2 instance already running");
-			throw new IllegalArgumentException("H2 ports 9092 and/or 5435 are already in use");
-		}
+            process = new ProcessExecutor()
+                    .command(command)
+                    .redirectOutput(new LogOutputStream() {
+                        @Override
+                        protected void processLine(String line) {
+                            if (Config.isDebugMode()) {
+                                logger.debug(line);
+                            }
+                            if (line.contains("PG server running at")) {
+                                datastoreIsRunning = true;
+                            }
+                        }
+                    })
+                    .start();
 
-	}
-	
-	public void stop() throws Exception  {
-		// if running, stop it
-		if (process != null) {
-			boolean isAlive = false;
-			// if previous processes could not be started, the current process will not exist
-			if(process.getProcess() != null) {
-				isAlive = process.getProcess().isAlive();
-				// TODO put the lines below in this condition ?
-			}
-			logger.info("Trying to stop Cortex Process " + process.getProcess() +" , pid = "+ PidUtil.getPid(process.getProcess()) + " is alive: " + isAlive);
-			SystemProcess sysProcess = Processes.newStandardProcess(process.getProcess());
-			
-			ProcessUtil.destroyGracefullyOrForcefullyAndWait(sysProcess, 30, TimeUnit.SECONDS, 5, TimeUnit.SECONDS);
-		} else {
-			logger.info("Can't stop H2, process is not running");
-		}
-	}
+            long start = System.currentTimeMillis();
+            while (!datastoreIsRunning && ((System.currentTimeMillis() - start) <= Config.getDefaultTimeout())) {
+                Thread.sleep(200);
+            }
+            if (datastoreIsRunning) {
+                logger.info("H2 successfully started");
+                isProcessAlive = true;
+            } else {
+                throw new RuntimeException("Could not start H2 server");
+            }
+        } else {
+            logger.error("H2 ports {} and/or JMS port {} is already in use. "
+                    + "This may be caused by another process talking on this port or by an existing postgreSQL server instance already running",
+                    dataStorePort, JmsServerPort);
+            throw new IllegalArgumentException("H2 port " + dataStorePort + " and/or JMS port " + JmsServerPort + " are already in use");
+
+        }
+
+    }
+
+    public void stop() throws Exception {
+        // if running, stop it
+        if (process != null) {
+            boolean isAlive = false;
+            // if previous processes could not be started, the current process will not exist
+            if (process.getProcess() != null) {
+                isAlive = process.getProcess().isAlive();
+                // TODO put the lines below in this condition ?
+            }
+            logger.info("Trying to stop Cortex Process " + process.getProcess() + " , pid = " + PidUtil.getPid(process.getProcess()) + " is alive: " + isAlive);
+            SystemProcess sysProcess = Processes.newStandardProcess(process.getProcess());
+
+            ProcessUtil.destroyGracefullyOrForcefullyAndWait(sysProcess, 30, TimeUnit.SECONDS, 5, TimeUnit.SECONDS);
+        } else {
+            logger.info("Can't stop H2, process is not running");
+        }
+    }
 
 }

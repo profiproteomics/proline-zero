@@ -111,9 +111,9 @@ public class PostgreSQL extends DataStore {
     }
 
     public void start() throws Exception {
-
-        if (SystemUtils.isPortAvailable(Config.getPostgreSQLPort())) {
-
+        int dataStorePort = Config.getPostgreSQLPort();
+        int JmsServerPort = Config.getJmsPort();
+        if (SystemUtils.isPortAvailable(dataStorePort) && SystemUtils.isPortAvailable(JmsServerPort)) {
             //
             // Warning : pg_ctl start got a strange behavior :
             // the process stopped with error code 1 but in case of success
@@ -141,8 +141,10 @@ public class PostgreSQL extends DataStore {
                 throw new RuntimeException("Could not start postgreSQL server");
             }
         } else {
-            logger.error("PostgreSQL port {} is already in use. This may be caused by another process talking on this port or by an existing postgreSQL server instance already running", Config.getPostgreSQLPort());
-            throw new IllegalArgumentException("PostgreSQL port " + Config.getPostgreSQLPort() + " is already in use");
+            logger.error("PostgreSQL port {} and/or JMS port {} is already in use. "
+                    + "This may be caused by another process talking on this port or by an existing postgreSQL server instance already running",
+                    dataStorePort,JmsServerPort);
+            throw new IllegalArgumentException("PostgreSQL port " + dataStorePort + " and/or JMS port " + JmsServerPort + " are already in use");
         }
         ZeroTray.update();
 

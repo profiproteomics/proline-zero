@@ -1,5 +1,6 @@
 package fr.proline.zero;
 
+import dorkbox.systemTray.SystemTray;
 import fr.proline.zero.gui.ZeroTray;
 import fr.proline.zero.util.*;
 import org.slf4j.Logger;
@@ -36,11 +37,11 @@ public class Main {
         try {
             ExecutionSession.initialize();
 
-            ZeroTray.initialize();
+            if (SystemTray.get() != null) {
+                ZeroTray.initialize();
+            }
             // add a shutdown hook that will be executed when the program ends or if the user ends it with Ctrl+C
             Runtime.getRuntime().addShutdownHook(new ShutdownHook());
-
-            SplashScreen.setProgressMax(5); // pgsql, hornetq, cortex, seqrepo, studio
             if (!ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists()) {//first launche
                 ExecutionSession.updateConfigPort();//can be change only 1 time at the first time
                 ExecutionSession.updateCortexNbParallelizableServiceRunners();
@@ -48,7 +49,7 @@ public class Main {
                 SplashScreen.setProgress("Initializing Datastore");
                 logger.info("Datastore folder is empty : Proline Datastore must be initialized");
                 DataStore dStore = ExecutionSession.getDataStore();
-                try {                   
+                try {
                     dStore.init();
                 } catch (Exception e) {
                     logger.error("Error during datastore initialization", e);
@@ -59,7 +60,7 @@ public class Main {
                 SplashScreen.setProgress("Initializing Proline databases");
                 ProlineAdmin.setUp();
             } else {
-
+                SplashScreen.setProgressMax(5); // pgsql, hornetq, cortex, seqrepo, studio
                 ExecutionSession.updateCortexNbParallelizableServiceRunners();//each time, we can change
                 // TODO: check that application.conf PG port == proline_launcher.config PG port because
                 // PG port can be updated only once since Proline store the database JDBC URL

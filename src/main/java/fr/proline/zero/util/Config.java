@@ -71,7 +71,12 @@ public class Config {
 
     public static int getPostgreSQLPort() {
         Config.initialize();
-        return Integer.parseInt(properties.getProperty(POSTGRESQL_PORT));
+        String value = properties.getProperty(POSTGRESQL_PORT);
+        if (value == null) {
+            return DEFAULT_POSTGRESQL_PORT;
+        } else {
+            return Integer.parseInt(value);
+        }
     }
 
     public static int getH2Port() {
@@ -81,34 +86,42 @@ public class Config {
 
     public static int getJmsPort() {
         Config.initialize();
-        String value =properties.getProperty(JMS_PORT);
-        if (value == null)
-            return -1;
-        else return Integer.parseInt(value);
+        String value = properties.getProperty(JMS_PORT);
+        if (value == null) {
+            return DEFAULT_JMS_PORT;
+        } else {
+            return Integer.parseInt(value);
+        }
     }
 
     public static int getJmsBatchPort() {
         Config.initialize();
-        String value =properties.getProperty("jms_server_batch_port");
-         if (value == null)
-            return -1;
-        else return Integer.parseInt(value);
+        String value = properties.getProperty("jms_server_batch_port");
+        if (value == null) {
+            return DEFAULT_JMS_BATCH_PORT;
+        } else {
+            return Integer.parseInt(value);
+        }
     }
 
     public static int getJnpPort() {
         Config.initialize();
-        String value =properties.getProperty("jnp_port");
-         if (value == null)
-            return -1;
-        else return Integer.parseInt(value);
+        String value = properties.getProperty("jnp_port");
+        if (value == null) {
+            return DEFAULT_JMS_JNP_PORT;
+        } else {
+            return Integer.parseInt(value);
+        }
     }
 
     public static int getJnpRmiPort() {
         Config.initialize();
-        String value =properties.getProperty("jnp_rmi_port");
-         if (value == null)
-            return -1;
-        else return Integer.parseInt(value);
+        String value = properties.getProperty("jnp_rmi_port");
+        if (value == null) {
+            return DEFAULT_JMS_JNP_RMI_PORT;
+        } else {
+            return Integer.parseInt(value);
+        }
     }
 
     public static int getCortexNbParallelizableServiceRunners() {

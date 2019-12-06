@@ -22,10 +22,8 @@ public class JMSServer extends AbstractProcess {
 
     private File jmsHome;
     private StartedProcess process;
-    private int _jmsServerPort;
 
-    JMSServer(int port) {
-        _jmsServerPort = port;
+    JMSServer() {
         jmsHome = ProlineFiles.HORNETQ_DIRECTORY;
         if (!jmsHome.exists() || !jmsHome.isDirectory()) {
             throw new IllegalArgumentException("JMS server Home directory not found");
@@ -33,14 +31,15 @@ public class JMSServer extends AbstractProcess {
     }
 
     public void start() throws Exception {
-        boolean isPortAvailable = SystemUtils.isPortAvailable(_jmsServerPort);
+        boolean isPortAvailable = SystemUtils.isPortAvailable(Config.getJmsPort()) && SystemUtils.isPortAvailable(Config.getJmsBatchPort())
+                && SystemUtils.isPortAvailable(Config.getJnpPort()) && SystemUtils.isPortAvailable(Config.getJnpRmiPort());
         if (isPortAvailable) {
             String classpath = SystemUtils.toSystemClassPath("config/stand-alone/non-clustered/;schema/*;lib/*");
             logger.info("starting JMS server from path " + jmsHome.getAbsolutePath());
             List<String> command = new ArrayList<>();
             command.add(Config.getJavaExePath());
             command.add("-Dhornetq.remoting.netty.host=0.0.0.0");
-            command.add("-Dhornetq.remoting.netty.port=" + _jmsServerPort);
+            command.add("-Dhornetq.remoting.netty.port=" + Config.getJmsPort());
             command.add("-XX:+UseParallelGC");
             command.add("-XX:+AggressiveOpts");
             command.add("-XX:+UseFastAccessorMethods");
@@ -76,8 +75,16 @@ public class JMSServer extends AbstractProcess {
             waitForStartCompletion(Config.getDefaultTimeout());
             logger.info("Process {} successfully started (name = {}, pid = {}, alive = {})", getProcessName(), process.getProcess(), PidUtil.getPid(process.getProcess()), isProcessAlive);
         } else {
-            logger.error("JMS server ports " + _jmsServerPort + " is already in use. Please make sure that these port are available before starting Proline");
-            throw new IllegalArgumentException("JMS port " + _jmsServerPort + " is already in use");
+            logger.error("JMS server ports " + Config.getJmsPort()
+                    + "JMS server batch ports " + Config.getJmsBatchPort()
+                    + "JMS server JNP ports " + Config.getJnpPort()
+                    + "JMS server JNP RMI ports " + Config.getJnpRmiPort()
+                    + " are already in use. Please make sure that these port are available before starting Proline");
+            throw new IllegalArgumentException("JMS server ports " + Config.getJmsPort()
+                    + "JMS server batch ports " + Config.getJmsBatchPort()
+                    + "JMS server JNP ports " + Config.getJnpPort()
+                    + "JMS server JNP RMI ports " + Config.getJnpRmiPort()
+                    + " are already in use");
         }
 
         ZeroTray.update();
