@@ -32,7 +32,7 @@ public class ExecutionSession {
 
     public static void initialize() throws Exception {
         logger.info("Operating system is " + SystemUtils.getOSType().name());
-        logger.info("Working directory is " + new File("").getAbsoluteFile().getAbsolutePath());//don't use ProlineFiles, which almost is static, if not, change port can't be succes
+        logger.info("Working directory is " + ProlineFiles.WORKING_DIRECTORY.getAbsolutePath());
 
         // check that linux user is not root when running PostgreSQL
         if (SystemUtils.isOSUnix() && !Config.getDatastoreType().equalsIgnoreCase("H2") && System.getProperty("user.name").equalsIgnoreCase("root")) {
