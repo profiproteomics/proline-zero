@@ -68,7 +68,14 @@
         </fileSet>
 
         <!-- Proline-Zero directory -->
-
+        <fileSet>
+            <directory>${project.basedir}/src/main/resources/${proline.datastore}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>*.config</include>
+            </includes>
+            <filtered>true</filtered>
+        </fileSet>
         <fileSet>
             <directory>${project.build.directory}/${project.artifactId}-${project.version}</directory>
             <outputDirectory>/</outputDirectory>
