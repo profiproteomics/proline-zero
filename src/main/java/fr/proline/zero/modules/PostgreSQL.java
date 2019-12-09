@@ -3,7 +3,8 @@ package fr.proline.zero.modules;
 import fr.proline.zero.gui.Popup;
 import java.io.File;
 import java.io.PrintWriter;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import fr.proline.zero.gui.ZeroTray;
 import fr.proline.zero.util.Config;
 import fr.proline.zero.util.ProlineFiles;
@@ -21,9 +22,15 @@ public class PostgreSQL extends DataStore {
     private static Logger logger = LoggerFactory.getLogger(PostgreSQL.class);
     private static String PG_DATA = SystemUtils.toSystemPath(ProlineFiles.PG_DATASTORE_RELATIVE_PATH);
     public static String NAME = "PostgreSQL";
+    private static String VERSION_9_4 = "9.4";
+    private boolean _isVersion94 = true;
 
     public String getDatastoreName() {
         return NAME;
+    }
+
+    public boolean isVersion94() {
+        return _isVersion94;
     }
 
     private String getJavaPath() throws Exception {
@@ -35,8 +42,8 @@ public class PostgreSQL extends DataStore {
     }
 
     public void init() throws Exception {
-        verifyVersion();
-        if (SystemUtils.isPortAvailable(Config.getPostgreSQLPort())) {
+        int datastorePort = Config.getDataStorePort();
+        if (SystemUtils.isPortAvailable(datastorePort)) {
             logger.info("Initializing PostgreSQL datastore");
             // create the temporary password file (delete it if it already exists)
             File tempPasswdFile = ProlineFiles.PG_PASSWD_FILE;
@@ -82,23 +89,32 @@ public class PostgreSQL extends DataStore {
                 logger.warn("Could not delete newly created temporary file {}", tempPasswdFile.getAbsolutePath());
             }
         } else {
-            logger.error("PostgreSQL port {} is already in use. This may be caused by another process talking to this port or by an existing postgreSQL server instance already running", Config.getPostgreSQLPort());
-            throw new IllegalArgumentException("PostgreSQL port " + Config.getPostgreSQLPort() + " is already in use");
+            logger.error("PostgreSQL port {} is already in use. This may be caused by another process talking to this port or by an existing postgreSQL server instance already running", datastorePort);
+            throw new IllegalArgumentException("PostgreSQL port " + datastorePort + " is already in use");
         }
     }
 
-    private void verifyVersion() throws Exception {
+    public void verifyVersion() throws Exception {
         ProcessResult pgVersion = new ProcessExecutor()
                 .command("./pgsql/bin/pg_ctl", "--version")
                 .environment("PATH", SystemUtils.getPathEnvironmentVariable(getJavaPath()))
                 .redirectOutput(new LogOutputStream() {
                     @Override
                     protected void processLine(String line) {
-                        Popup.info("Version :" + line);
-                        logger.info("###############postgresql version is " + line);
-                        //line = pg_ctl (PostgreSQL) 9.4.11
+                        //Popup.info("Version :" + line);
+                        logger.info("#postgresql version is " + line);
+                        final String regex = "(\\d.\\d).\\d+";
+                        Pattern pattern = Pattern.compile(regex);
+                        Matcher matcher = pattern.matcher(line);
+                        if (matcher.find()) {
+                            String version = matcher.group(1);
+                            if (!version.equals(VERSION_9_4)) {
+                                _isVersion94 = false;
+                            }
+                        }
                     }
-                })
+                }
+                )
                 .execute();
         int exitCode = pgVersion.getExitValue();
         if (exitCode == 0) {
@@ -111,7 +127,7 @@ public class PostgreSQL extends DataStore {
     }
 
     public void start() throws Exception {
-        int dataStorePort = Config.getPostgreSQLPort();
+        int dataStorePort = Config.getDataStorePort();
         int JmsServerPort = Config.getJmsPort();
         if (SystemUtils.isPortAvailable(dataStorePort) && SystemUtils.isPortAvailable(JmsServerPort)) {
             //
@@ -121,7 +137,7 @@ public class PostgreSQL extends DataStore {
             // execute().getExitValue() never returns.
             //
             StartedProcess pg = new ProcessExecutor()
-                    .command("./pgsql/bin/pg_ctl", "-w", "-D" + PG_DATA, "-l" + ProlineFiles.PG_LOG_FILENAME, "-o \"-p" + Config.getPostgreSQLPort() + "\"", "start")
+                    .command("./pgsql/bin/pg_ctl", "-w", "-D" + PG_DATA, "-l" + ProlineFiles.PG_LOG_FILENAME, "-o \"-p" + dataStorePort + "\"", "start")
                     .redirectOutput(Slf4jStream.ofCaller().asInfo())
                     .environment("PATH", SystemUtils.getPathEnvironmentVariable(getJavaPath()))
                     .start();
@@ -143,7 +159,7 @@ public class PostgreSQL extends DataStore {
         } else {
             logger.error("PostgreSQL port {} and/or JMS port {} is already in use. "
                     + "This may be caused by another process talking on this port or by an existing postgreSQL server instance already running",
-                    dataStorePort,JmsServerPort);
+                    dataStorePort, JmsServerPort);
             throw new IllegalArgumentException("PostgreSQL port " + dataStorePort + " and/or JMS port " + JmsServerPort + " are already in use");
         }
         ZeroTray.update();

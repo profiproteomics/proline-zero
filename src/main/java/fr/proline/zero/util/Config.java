@@ -10,14 +10,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.proline.zero.Main;
+import fr.proline.zero.modules.PostgreSQL;
 
 public class Config {
 
     private static Logger logger = LoggerFactory.getLogger(Config.class);
     private static Properties properties;
     public static String JMS_PORT = "jms_server_port";
-    public static String POSTGRESQL_PORT = "postgresql_port";
+    public static String DATA_STORE_PORT = "data_store_port";
     public static int DEFAULT_POSTGRESQL_PORT = 5433;
+    public static int DEFAULT_H2_PORT = 9092;
     public static int DEFAULT_JMS_PORT = 5445;
     public static int DEFAULT_JMS_BATCH_PORT = 5455;
     public static int DEFAULT_JMS_JNP_PORT = 1099;
@@ -46,16 +48,6 @@ public class Config {
         return properties.getProperty("datastore");
     }
 
-    public static String getDataFolder() {
-        Config.initialize();
-        return properties.getProperty("data_folder");
-    }
-
-    public static String getDataTmpFolder() {
-        Config.initialize();
-        return properties.getProperty("data_folder");
-    }
-
     public static int getDefaultTimeout() {
         Config.initialize();
         int timeout;
@@ -69,19 +61,24 @@ public class Config {
         return timeout * 1000;
     }
 
-    public static int getPostgreSQLPort() {
+    public static long getMaxTmpFolderSize() {
         Config.initialize();
-        String value = properties.getProperty(POSTGRESQL_PORT);
+        String value = properties.getProperty("max_tmp_folder_size");
+        return (value == null) ? -1 : Long.parseLong(value);
+    }
+
+    public static int getDataStorePort() {
+        Config.initialize();
+        String value = properties.getProperty(DATA_STORE_PORT);
         if (value == null) {
-            return DEFAULT_POSTGRESQL_PORT;
+            if (getDatastoreType().equalsIgnoreCase(PostgreSQL.NAME)) {
+                return DEFAULT_POSTGRESQL_PORT;
+            } else {
+                return DEFAULT_H2_PORT;
+            }
         } else {
             return Integer.parseInt(value);
         }
-    }
-
-    public static int getH2Port() {
-        Config.initialize();
-        return Integer.parseInt(properties.getProperty(POSTGRESQL_PORT));
     }
 
     public static int getJmsPort() {

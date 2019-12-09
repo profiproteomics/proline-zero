@@ -20,7 +20,8 @@
         <admin.version>0.9.0-SNAPSHOT</admin.version>
         <seqrepo.version>0.9.0-SNAPSHOT</seqrepo.version>
         <dist.data>${project.basedir}/data/sample</dist.data>
-        <pg.win.version>9.4.11-2</pg.win.version>
+        <!--<pg.win.version>9.4.11-2</pg.win.version>-->
+        <pg.win.version>9.6.11-1</pg.win.version>
     </properties>
 
     <dependencies>
@@ -99,7 +100,6 @@
                                 <resource>
                                     <directory>src/main/resources</directory>
                                     <includes>
-                                        <include>**/proline_launcher.config</include>
                                         <include>**/profi.png</include>
                                     </includes>
                                     <filtering>true</filtering>
@@ -222,13 +222,13 @@
                     <finalName>${project.name}-${project.version}</finalName>
                 </configuration>
                 <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>make-assembly</id>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>single</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
+                <!--<execution>-->
+                <!--<id>make-assembly</id>-->
+                <!--<phase>package</phase>-->
+                <!--<goals>-->
+                <!--<goal>single</goal>-->
+                <!--</goals>-->
+                <!--</execution>-->
                 <!--</executions>-->
             </plugin>
 
@@ -335,29 +335,29 @@
             </dependencies>
         </profile>
         <!--<profile>-->
-            <!--<id>windows-x64_postgresql_sampledata</id>-->
-            <!--<properties>-->
-                <!--<os.classifier>windows-x64</os.classifier>-->
-                <!--<proline.datastore>postgresql</proline.datastore>-->
-                <!--<dist.data>${project.basedir}/data/sample</dist.data>-->
-                <!--<proline.launcher.executable>${project.artifactId}.exe</proline.launcher.executable>-->
-            <!--</properties>-->
-            <!--<dependencies>-->
-                <!--<dependency>-->
-                    <!--<groupId>org.postgresql</groupId>-->
-                    <!--<artifactId>postgresql</artifactId>-->
-                    <!--<version>${pg.win.version}</version>-->
-                    <!--<type>zip</type>-->
-                    <!--<classifier>${os.classifier}</classifier>-->
-                <!--</dependency>-->
-                <!--<dependency>-->
-                    <!--<groupId>fr.proline.samples</groupId>-->
-                    <!--<artifactId>pg_data</artifactId>-->
-                    <!--<version>2.0</version>-->
-                    <!--<type>zip</type>-->
-                    <!--<classifier>${os.classifier}</classifier>-->
-                <!--</dependency>-->
-            <!--</dependencies>-->
+        <!--<id>windows-x64_postgresql_sampledata</id>-->
+        <!--<properties>-->
+        <!--<os.classifier>windows-x64</os.classifier>-->
+        <!--<proline.datastore>postgresql</proline.datastore>-->
+        <!--<dist.data>${project.basedir}/data/sample</dist.data>-->
+        <!--<proline.launcher.executable>${project.artifactId}.exe</proline.launcher.executable>-->
+        <!--</properties>-->
+        <!--<dependencies>-->
+        <!--<dependency>-->
+        <!--<groupId>org.postgresql</groupId>-->
+        <!--<artifactId>postgresql</artifactId>-->
+        <!--<version>${pg.win.version}</version>-->
+        <!--<type>zip</type>-->
+        <!--<classifier>${os.classifier}</classifier>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>fr.proline.samples</groupId>-->
+        <!--<artifactId>pg_data</artifactId>-->
+        <!--<version>2.0</version>-->
+        <!--<type>zip</type>-->
+        <!--<classifier>${os.classifier}</classifier>-->
+        <!--</dependency>-->
+        <!--</dependencies>-->
         <!--</profile>-->
         <profile>
             <id>linux-x64_h2</id>

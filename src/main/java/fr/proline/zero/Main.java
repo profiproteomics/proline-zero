@@ -65,6 +65,8 @@ public class Main {
                 // TODO: check that application.conf PG port == proline_launcher.config PG port because
                 // PG port can be updated only once since Proline store the database JDBC URL
                 // adjust memory before starting datastore
+                DataStore dStore = ExecutionSession.getDataStore();
+
                 startDataStore(ExecutionSession.getDataStore());
             }
 
@@ -87,7 +89,7 @@ public class Main {
                 logger.info("create folder {} {}", mzdbFile.getName(), b);
                 mzdbFile.mkdir();
             }
-            // cleanTmpFolder(tmpFile);
+            cleanTmpFolder(tmpFile);
 
             ExecutionSession.getCortex().start();
             logger.info("Cortex Server started");
@@ -110,7 +112,7 @@ public class Main {
                 // stop JMS, Cortex and SeqRepo (should be useless because it will be done in the Shutdown Hook class)
                 SystemUtils.end();
             } else {
-                SplashScreen.setProgress("skipping Proline Studio");
+                SplashScreen.setProgress("Skipping Proline Studio");
                 logger.info("Skipping Proline Studio (as requested in config file)");
                 SplashScreen.stop();
 //                // wait until user stops Proline through the system tray
@@ -129,6 +131,9 @@ public class Main {
 
     private static void startDataStore(DataStore dataStore) throws Exception {
         SplashScreen.setProgress("Starting Datastore");
+        if (dataStore.getDatastoreName().equals(PostgreSQL.NAME)) {
+            ((PostgreSQL) dataStore).verifyVersion();
+        }
         // TODO: check that application.conf PG port == proline_launcher.config PG port because
         // PG port can be updated only once since Proline store the database JDBC URL
         // adjust memory before starting datastore
@@ -146,9 +151,15 @@ public class Main {
 
     private static synchronized void cleanTmpFolder(File tmpFile) {
         long folderSize = tmpFile.length();
-        if (folderSize > 1000000) {//1 Giga byte
+        long maxSize = Config.getMaxTmpFolderSize();  //in Mo
+        if (maxSize < 0)
+            return;
+        if (folderSize > maxSize*1024) {//to bytes
             try {
-                FileUtils.cleanDirectory(tmpFile);
+                boolean confirm = Popup.okCancel("Temporary ./data/tmp folder size now is " + folderSize + "byte,\n more than " + maxSize + "byte defined in configuration, Do you confirm to clean the folder?");
+                if (confirm) {
+                    FileUtils.cleanDirectory(tmpFile);
+                }
             } catch (IOException ex) {
                 logger.info("clean folder ./data/tmp exception" + ex.getCause() + " " + ex.getMessage() + " " + ex.getLocalizedMessage());
             }

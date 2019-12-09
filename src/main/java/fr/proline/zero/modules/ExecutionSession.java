@@ -99,8 +99,10 @@ public class ExecutionSession {
     }
 
     private static void updatePostgreSQLPortConfig() {
-        int port = Config.getPostgreSQLPort();
-        if (port != Config.DEFAULT_POSTGRESQL_PORT) {
+        int port = Config.getDataStorePort();
+        int defaultPort = getDataStore().getDatastoreName().equals(PostgreSQL.NAME) ? Config.DEFAULT_POSTGRESQL_PORT : Config.DEFAULT_H2_PORT;
+
+        if (port != defaultPort) {
             String newPort = "port=\"" + port + "\"";
             String regex = "port\\s*=\\s*\"(\\d{4,5})\"";  //with "" arround number
             File cortexConfigFile = ProlineFiles.CORTEX_CONFIG_FILE;

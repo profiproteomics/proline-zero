@@ -48,7 +48,7 @@ public class H2 extends DataStore {
 
     public void start() throws Exception {
         datastoreIsRunning = false;
-        int dataStorePort = Config.getH2Port();
+        int dataStorePort = Config.getDataStorePort();
         int JmsServerPort = Config.getJmsPort();
         if (SystemUtils.isPortAvailable(dataStorePort) && SystemUtils.isPortAvailable(JmsServerPort)) {
 

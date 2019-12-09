@@ -105,7 +105,8 @@ public class Memory {
             logger.info("SeqRepo max memory: {}", toHumanReadable(seqRepoXmx * M));
 
             if (ExecutionSession.getDataStore().getDatastoreName().equals(PostgreSQL.NAME)) {
-                adjustPostgreSQLMemory(memoryPg);
+                PostgreSQL datastore = (PostgreSQL) ExecutionSession.getDataStore();
+                adjustPostgreSQLMemory(memoryPg, datastore.isVersion94());
             }
         }
     }
@@ -161,7 +162,7 @@ public class Memory {
         }
     }
 
-    private static void adjustPostgreSQLMemory(long memory) {
+    private static void adjustPostgreSQLMemory(long memory, boolean isVersion94) {
         /*
 		 * PostgreSQL settings to be changed:
 		 * | parameter            | default | opt                | max                |
@@ -180,7 +181,9 @@ public class Memory {
         }
         HashMap<String, String> pgParams = new HashMap<String, String>();
         pgParams.put("shared_buffers", "shared_buffers = " + toPgUnit(sharedBuffersOptimizedValue));
-        pgParams.put("checkpoint_segments", "checkpoint_segments = " + Math.floorDiv(sharedBuffersOptimizedValue, (16 * M)));
+        if (isVersion94) {
+            pgParams.put("checkpoint_segments", "checkpoint_segments = " + Math.floorDiv(sharedBuffersOptimizedValue, (16 * M)));
+        }
         pgParams.put("temp_buffers", "temp_buffers = " + toPgUnit(memory / 32));
         pgParams.put("work_mem", "work_mem = 8MB");
         pgParams.put("maintenance_work_mem", "maintenance_work_mem = " + toPgUnit(memory / 16));
