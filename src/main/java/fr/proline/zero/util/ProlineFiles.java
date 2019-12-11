@@ -62,7 +62,8 @@ public class ProlineFiles {
     }
 
     public static File getCortexCurrentMzdbLogFile() {
-        return new File(CORTEX_DIRECTORY + "/logs/proline_mzdb_log." + getFormattedDate() + ".txt");
+        int i = 0;
+        return new File(CORTEX_DIRECTORY + "/logs/proline_mzdb_log." + getFormattedDate() + "." + i + ".txt");
     }
 
     /*

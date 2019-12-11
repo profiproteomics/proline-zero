@@ -33,7 +33,7 @@ public class Main {
     public static void main(String[] args) {
 
         logger.info("Starting Proline Zero");
-
+        manageFolder();
         try {
             ExecutionSession.initialize();
 
@@ -66,31 +66,13 @@ public class Main {
                 // PG port can be updated only once since Proline store the database JDBC URL
                 // adjust memory before starting datastore
                 DataStore dStore = ExecutionSession.getDataStore();
-
                 startDataStore(ExecutionSession.getDataStore());
             }
-
             logger.info("Starting Proline");
             SplashScreen.setProgress("Starting JMS Server");
             ExecutionSession.getJMSServer().start();
             logger.info("JMS Server started");
             SplashScreen.setProgress("Starting Cortex Server");
-            File tmpFile = ProlineFiles.DATA_TMP_DIRECTORY;
-            if (!tmpFile.isDirectory()) {
-                boolean b;
-                b = tmpFile.mkdir();
-                logger.info("create folder {} {}", tmpFile.getName(), b);
-            }
-            String dataMzdbPath = ExecutionSession.getMzdbFolder().replace("..", ".");//relative under working directory, not relative to cortex directory
-            File mzdbFile = new File(dataMzdbPath);
-            if (!mzdbFile.isDirectory()) {
-                boolean b;
-                b = mzdbFile.mkdir();
-                logger.info("create folder {} {}", mzdbFile.getName(), b);
-                mzdbFile.mkdir();
-            }
-            cleanTmpFolder(tmpFile);
-
             ExecutionSession.getCortex().start();
             logger.info("Cortex Server started");
             // allow SeqRepo to be missing (if not packaged with Proline Zero, or if launcher is used on a server)
@@ -129,6 +111,24 @@ public class Main {
         }
     }
 
+    private static void manageFolder() {
+        File tmpFile = ProlineFiles.DATA_TMP_DIRECTORY;
+        if (!tmpFile.isDirectory()) {
+            boolean b;
+            b = tmpFile.mkdir();
+            logger.info("create folder {} {}", tmpFile.getName(), b);
+        }
+        String dataMzdbPath = ExecutionSession.getMzdbFolder().replace("..", ".");//relative under working directory, not relative to cortex directory
+        File mzdbFile = new File(dataMzdbPath);
+        if (!mzdbFile.isDirectory()) {
+            boolean b;
+            b = mzdbFile.mkdir();
+            logger.info("create folder {} {}", mzdbFile.getName(), b);
+            mzdbFile.mkdir();
+        }
+        cleanTmpFolder(tmpFile);
+    }
+
     private static void startDataStore(DataStore dataStore) throws Exception {
         SplashScreen.setProgress("Starting Datastore");
         if (dataStore.getDatastoreName().equals(PostgreSQL.NAME)) {
@@ -152,9 +152,10 @@ public class Main {
     private static synchronized void cleanTmpFolder(File tmpFile) {
         long folderSize = tmpFile.length();
         long maxSize = Config.getMaxTmpFolderSize();  //in Mo
-        if (maxSize < 0)
+        if (maxSize < 0) {
             return;
-        if (folderSize > maxSize*1024) {//to bytes
+        }
+        if (folderSize > maxSize * 1024) {//to bytes
             try {
                 boolean confirm = Popup.okCancel("Temporary ./data/tmp folder size now is " + folderSize + "byte,\n more than " + maxSize + "byte defined in configuration, Do you confirm to clean the folder?");
                 if (confirm) {

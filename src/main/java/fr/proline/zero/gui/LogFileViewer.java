@@ -14,7 +14,7 @@ public class LogFileViewer {
     private static LogFile studioErrorLog;
 
     public static void openProlineZeroLog() {
-        if(zeroLog == null) {
+        if (zeroLog == null) {
             zeroLog = new LogFile(ProlineFiles.getProlineZeroCurrentLogFile());
         } else {
             zeroLog.focus();
@@ -22,14 +22,14 @@ public class LogFileViewer {
     }
 
     public static void closeProlineZeroLog() {
-        if(zeroLog != null) {
+        if (zeroLog != null) {
             zeroLog.close();
             zeroLog = null;
         }
     }
 
     public static void openPostgreSqlLog() {
-        if(pgLog == null) {
+        if (pgLog == null) {
             pgLog = new LogFile(ProlineFiles.PG_LOG_FILE);
         } else {
             pgLog.focus();
@@ -37,14 +37,14 @@ public class LogFileViewer {
     }
 
     public static void closePostgreSqlLog() {
-        if(pgLog != null) {
+        if (pgLog != null) {
             pgLog.close();
             pgLog = null;
         }
     }
 
     public static void openHornetQLog() {
-        if(hornetQLog == null) {
+        if (hornetQLog == null) {
             hornetQLog = new LogFile(ProlineFiles.HORNETQ_LOG_FILE);
         } else {
             hornetQLog.focus();
@@ -52,14 +52,14 @@ public class LogFileViewer {
     }
 
     public static void closeHornetQLog() {
-        if(hornetQLog != null) {
+        if (hornetQLog != null) {
             hornetQLog.close();
             hornetQLog = null;
         }
     }
 
     public static void openCortexLog() {
-        if(cortexLog == null) {
+        if (cortexLog == null) {
             cortexLog = new LogFile(ProlineFiles.getCortexCurrentDebugLogFile());
         } else {
             cortexLog.focus();
@@ -67,14 +67,14 @@ public class LogFileViewer {
     }
 
     public static void closeCortexLog() {
-        if(cortexLog != null) {
+        if (cortexLog != null) {
             cortexLog.close();
             cortexLog = null;
         }
     }
 
     public static void openCortexMzdbLog() {
-        if(cortexMzdbLog == null) {
+        if (cortexMzdbLog == null) {
             cortexMzdbLog = new LogFile(ProlineFiles.getCortexCurrentMzdbLogFile());
         } else {
             cortexMzdbLog.focus();
@@ -82,14 +82,14 @@ public class LogFileViewer {
     }
 
     public static void closeCortexMzdbLog() {
-        if(cortexMzdbLog != null) {
+        if (cortexMzdbLog != null) {
             cortexMzdbLog.close();
             cortexMzdbLog = null;
         }
     }
 
     public static void openSeqRepoLog() {
-        if(seqRepoLog == null) {
+        if (seqRepoLog == null) {
             seqRepoLog = new LogFile(ProlineFiles.getSeqrepoCurrentLogFile());
         } else {
             seqRepoLog.focus();
@@ -97,14 +97,14 @@ public class LogFileViewer {
     }
 
     public static void closeSeqRepoLog() {
-        if(seqRepoLog != null) {
+        if (seqRepoLog != null) {
             seqRepoLog.close();
             seqRepoLog = null;
         }
     }
 
     public static void openStudioLog() {
-        if(studioLog == null) {
+        if (studioLog == null) {
             studioLog = new LogFile(ProlineFiles.STUDIO_LOG_FILE);
         } else {
             studioLog.focus();
@@ -112,14 +112,14 @@ public class LogFileViewer {
     }
 
     public static void closeStudioLog() {
-        if(studioLog != null) {
+        if (studioLog != null) {
             studioLog.close();
             studioLog = null;
         }
     }
 
     public static void openStudioErrorLog() {
-        if(studioErrorLog == null) {
+        if (studioErrorLog == null) {
             studioErrorLog = new LogFile(ProlineFiles.STUDIO_ERROR_LOG_FILE);
         } else {
             studioErrorLog.focus();
@@ -127,7 +127,7 @@ public class LogFileViewer {
     }
 
     public static void closeStudioErrorLog() {
-        if(studioErrorLog != null) {
+        if (studioErrorLog != null) {
             studioErrorLog.close();
             studioErrorLog = null;
         }

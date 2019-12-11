@@ -9,72 +9,90 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
 import java.io.File;
-import java.nio.file.Files;
-import java.util.stream.Stream;
+import java.io.FileReader;
+import javax.swing.text.Caret;
 
 public class LogFile {
 
     private static Logger logger = LoggerFactory.getLogger(LogFile.class);
     private final int DEFAULT_MAX_LINES_NUMBER = 1000;
-    private final int DEFAULT_REFRESH_RATE_MS = 1000;
-    private boolean isFrameOpened = false;
-    private JFrame frame;
+    private final int DEFAULT_REFRESH_RATE_MS = 5000;
+    private boolean m_isFrameOpened = false;
+    private JFrame m_frame;
+    private final File m_logFile;
+    private JTextArea m_logTextArea;
+    private JScrollBar m_verticalScroll;
 
     public LogFile(File logFile) {
+        m_logFile = logFile;
         create(logFile, DEFAULT_MAX_LINES_NUMBER);
     }
 
     public void focus() {
-        if (frame != null && isFrameOpened) {
-            frame.requestFocus();
+        if (m_frame != null && m_isFrameOpened) {
+            m_frame.requestFocus();
+        } else {
+            m_isFrameOpened = true;
+            m_frame.setVisible(true);
+            updateLog(DEFAULT_MAX_LINES_NUMBER);
         }
     }
 
     public void close() {
-        if (frame != null && isFrameOpened) {
-            frame.setVisible(false);
-            frame.dispose();
-            isFrameOpened = false;
+        if (m_frame != null && m_isFrameOpened) {
+            m_frame.setVisible(false);
+            m_frame.dispose();
+            m_isFrameOpened = false;
         }
     }
 
     private void create(File logFile, int maxLinesNumber) {
         // TODO maybe add a textfield to change the number of lines
-        // TODO also display somewhere the path of the file
-
-        frame = new JFrame(logFile.getName());
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        frame.addWindowListener(new WindowAdapter() {
+        m_frame = new JFrame(logFile.getName());
+        m_frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        m_frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
                 close();
             }
         });
-        JTextArea container = new JTextArea();
-        container.setAutoscrolls(true);
-        container.setLineWrap(true);
-        container.setBackground(Color.darkGray);
-        container.setForeground(Color.WHITE);
+        JTextField fileInfoField = new JTextField("Path: " + logFile.getAbsolutePath());
+        m_logTextArea = new JTextArea();
+        m_logTextArea.setAutoscrolls(true);
+        m_logTextArea.setLineWrap(true);
+        m_logTextArea.setBackground(Color.darkGray);
+        m_logTextArea.setForeground(Color.WHITE);
 //        container.setEnabled(false);
 
-        JScrollPane scrollPane = new JScrollPane(container);
-        JScrollBar vScroll = scrollPane.getVerticalScrollBar();
-        vScroll.setValue(vScroll.getMaximum());
+        JScrollPane scrollPane = new JScrollPane(m_logTextArea);
 
-        frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
-        frame.pack();
-        frame.setVisible(true);
-        frame.setSize(800, 600);
-        frame.setIconImage(new ImageIcon(ProlineFiles.DOCUMENT_ICON).getImage());
-        isFrameOpened = true;
+        m_verticalScroll = scrollPane.getVerticalScrollBar();
 
+        m_verticalScroll.setValue(m_verticalScroll.getMaximum());
+        m_frame.getContentPane().add(fileInfoField, BorderLayout.NORTH);
+        m_frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
+        m_frame.pack();
+        m_frame.setVisible(true);
+        m_frame.setSize(800, 600);
+        m_frame.setIconImage(new ImageIcon(ProlineFiles.DOCUMENT_ICON).getImage());
+        m_isFrameOpened = true;
+        updateLog(maxLinesNumber);
+
+    }
+
+    private void updateLog(int maxLinesNumber) {
         new Thread(() -> {
-            while (isFrameOpened) {
+            while (m_isFrameOpened) {
                 LogBuffer buffer = new LogBuffer(maxLinesNumber);
-                try (Stream<String> stream = Files.lines(logFile.toPath())) {
-                    stream.forEach(line -> buffer.collect(line));
+                try {
+                    BufferedReader b = new BufferedReader(new FileReader(m_logFile));
+                    String readLine = "";
+                    while ((readLine = b.readLine()) != null) {
+                        buffer.collect(readLine);
+                    }
                 } catch (Exception e) {
                     // put the stack trace in the buffer
                     buffer.collect("Error while reading the file: " + e.getMessage());
@@ -83,12 +101,24 @@ public class LogFile {
                     }
                 }
                 SwingUtilities.invokeLater(() -> {
-                    boolean scrollToBottom = false;
-                    if (vScroll.getValue() == vScroll.getMaximum()) scrollToBottom = true;
-                    // update container
-                    container.setText(String.join("\n", buffer.contents()));
-                    // scroll to the bottom of the scrollpane if the focus was already at the bottom (otherwise we consider that the user is reading the log)
-                    if (scrollToBottom) vScroll.setValue(vScroll.getMaximum());
+                    synchronized (this) {
+                        boolean updateScroll = false;
+                        int knobValue = m_verticalScroll.getValue();
+                        int yBounds = m_verticalScroll.getBounds().height;
+                        int offSet = 10;
+                        int max = m_verticalScroll.getMaximum();
+                        int pos = 0;
+                        if (knobValue + yBounds + offSet < max) {
+                            updateScroll = true;
+                            pos = m_logTextArea.getCaretPosition();
+                        }
+                        // update container
+                        m_logTextArea.setText(String.join("\n", buffer.contents()));//automatically at bottom
+                        // scroll to the bottom of the scrollpane if the focus was already at the bottom (otherwise we consider that the user is reading the log)
+                        if (updateScroll) {
+                            m_logTextArea.setCaretPosition(pos);
+                        }
+                    }
                 });
                 try {
                     Thread.sleep(DEFAULT_REFRESH_RATE_MS);
