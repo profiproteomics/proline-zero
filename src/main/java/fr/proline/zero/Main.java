@@ -37,13 +37,15 @@ public class Main {
         try {
             ExecutionSession.initialize();
 
-            if (SystemTray.get() != null) {
+            if (java.awt.SystemTray.isSupported()){
                 ZeroTray.initialize();
             }
             // add a shutdown hook that will be executed when the program ends or if the user ends it with Ctrl+C
             Runtime.getRuntime().addShutdownHook(new ShutdownHook());
             if (!ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists()) {//first launche
+                logger.info("First launch, update port");
                 ExecutionSession.updateConfigPort();//can be change only 1 time at the first time
+                logger.info("launch, update thread number");
                 ExecutionSession.updateCortexNbParallelizableServiceRunners();
                 SplashScreen.setProgressMax(7); // init, pgsql, admin, hornetq, cortex, seqrepo, studio
                 SplashScreen.setProgress("Initializing Datastore");
@@ -60,6 +62,7 @@ public class Main {
                 SplashScreen.setProgress("Initializing Proline databases");
                 ProlineAdmin.setUp();
             } else {
+                logger.info("launch, update thread number");
                 SplashScreen.setProgressMax(5); // pgsql, hornetq, cortex, seqrepo, studio
                 ExecutionSession.updateCortexNbParallelizableServiceRunners();//each time, we can change
                 // TODO: check that application.conf PG port == proline_launcher.config PG port because
@@ -116,14 +119,14 @@ public class Main {
         if (!tmpFile.isDirectory()) {
             boolean b;
             b = tmpFile.mkdir();
-            logger.info("create folder {} {}", tmpFile.getName(), b);
+            logger.info("create folder {} successful ={}", tmpFile.getName(), b);
         }
         String dataMzdbPath = ExecutionSession.getMzdbFolder().replace("..", ".");//relative under working directory, not relative to cortex directory
         File mzdbFile = new File(dataMzdbPath);
         if (!mzdbFile.isDirectory()) {
             boolean b;
             b = mzdbFile.mkdir();
-            logger.info("create folder {} {}", mzdbFile.getName(), b);
+            logger.info("create folder {} successful={}", mzdbFile.getName(), b);
             mzdbFile.mkdir();
         }
         cleanTmpFolder(tmpFile);
