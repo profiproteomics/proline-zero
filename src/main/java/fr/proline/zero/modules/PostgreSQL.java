@@ -1,6 +1,5 @@
 package fr.proline.zero.modules;
 
-import fr.proline.zero.gui.Popup;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.regex.Matcher;
@@ -23,7 +22,7 @@ public class PostgreSQL extends DataStore {
     private static String PG_DATA = SystemUtils.toSystemPath(ProlineFiles.PG_DATASTORE_RELATIVE_PATH);
     public static String NAME = "PostgreSQL";
     private static String VERSION_9_4 = "9.4";
-    private boolean _isVersion94 = true;
+    private boolean _isVersion94 = false;
 
     public String getDatastoreName() {
         return NAME;
@@ -108,8 +107,9 @@ public class PostgreSQL extends DataStore {
                         Matcher matcher = pattern.matcher(line);
                         if (matcher.find()) {
                             String version = matcher.group(1);
-                            if (!version.equals(VERSION_9_4)) {
-                                _isVersion94 = false;
+                            logger.info("#postgresql version is " + version);
+                            if (version.equals(VERSION_9_4)) {
+                                _isVersion94 = true;
                             }
                         }
                     }
