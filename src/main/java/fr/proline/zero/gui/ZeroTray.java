@@ -23,6 +23,7 @@ public class ZeroTray {
 
     private static SystemTray systemTray;
     private static Menu menuProcesses, menuDatastore, menuHornetQ, menuCortex, menuSeqRepo, menuStudio;
+
     /*
      * TODO
      * [x] Add the Proline Zero config file somewhere
@@ -37,74 +38,80 @@ public class ZeroTray {
      * [ ] Add a GUI to let the user set memory himself ? (good idea both for server and client modes)
      *
      */
-
     public static void initialize() throws RuntimeException {
         logger.info("Start system tray");
 
 //        SystemTray.DEBUG = true; // for test apps, we always want to run in debug mode
 //        CacheUtil.clear(); // for test apps, make sure the cache is always reset. You should never do this in production.
-
         SwingUtil.setLookAndFeel(null); // set Native L&F (this is the System L&F instead of CrossPlatform L&F)
 
         logger.info("System tray initialization");
-        systemTray = SystemTray.get();
-        if (systemTray == null) {
-            throw new RuntimeException("Unable to load SystemTray!");
+        try {
+            systemTray = SystemTray.get();
+            if (systemTray == null) {
+                logger.warn(" Unable to initialize System Tray.");
+                return;
+            }
+        } catch (Throwable t) {
+            logger.error(" Unable to use System Tray " + t.getMessage());
+            return;
         }
 
-        logger.info("System tray definition");
-        systemTray.setTooltip("Proline Zero");
-        systemTray.setImage(ProlineFiles.PROFI_ICON);
+        if (systemTray != null) {
+            logger.info("System tray definition");
+            systemTray.setTooltip("Proline Zero");
+            systemTray.setImage(ProlineFiles.PROFI_ICON);
 
-        Menu mainMenu = systemTray.getMenu();
-        mainMenu.add(_prolineZeroMenu());
-        // add these menu in a submenu (processes)
-        menuProcesses = new Menu("Proline stack", ProlineFiles.PROGRESS_ICON);
-        menuProcesses.add(_pgsqlMenu());
-        menuProcesses.add(_hornetqMenu());
-        menuProcesses.add(_cortexMenu());
-        menuProcesses.add(_seqRepoMenu());
-        menuProcesses.add(getStudioMenu());
-        mainMenu.add(menuProcesses);
+            Menu mainMenu = systemTray.getMenu();
+            mainMenu.add(_prolineZeroMenu());
+            // add these menu in a submenu (processes)
+            menuProcesses = new Menu("Proline stack", ProlineFiles.PROGRESS_ICON);
+            menuProcesses.add(_pgsqlMenu());
+            menuProcesses.add(_hornetqMenu());
+            menuProcesses.add(_cortexMenu());
+            menuProcesses.add(_seqRepoMenu());
+            menuProcesses.add(getStudioMenu());
+            mainMenu.add(menuProcesses);
 
-        // open Proline monitor
-//        mainMenu.add(new MenuItem("Administration", ProlineFiles.EDIT_ICON, e -> {
-//            try {
-//                ProlineAdmin.start();
-//            } catch(Throwable t) {
-//                Popup.error(t);
-//            }
-//        }));
-        // link to the packaged documentation file
-        mainMenu.add(new MenuItem("Help", ProlineFiles.HELP_ICON, e -> {
-            try {
-                Desktop.getDesktop().browse(ProlineFiles.getProlineDocumentationFile().toURI());
-            } catch(Throwable t) {
-                Popup.error(t);
-            }
-        }));
-        // link to profi website
-        mainMenu.add(new MenuItem("ProFI Web site", e -> {
-            try {
-                Desktop.getDesktop().browse(new URL(ProlineFiles.PROFI_WEBSITE).toURI());
-            } catch (Throwable t) {
-                Popup.error(t);
-            }
-        }));
-        if (Config.isServerMode()) {
-            // exit button
-            mainMenu.add(new MenuItem("Exit", ProlineFiles.QUIT_ICON, e -> {
-                // FIXME this command Kills Studio and Proline Zero, but not the Studio child process that provides the GUI (so user don't feel like it's close)
-                // solution is to remove Exit button when Proline Zero is not in server mode (client just need to close Proline Studio)
-                logger.info("User requested to close Proline Zero");
+            // open Proline monitor
+            //        mainMenu.add(new MenuItem("Administration", ProlineFiles.EDIT_ICON, e -> {
+            //            try {
+            //                ProlineAdmin.start();
+            //            } catch(Throwable t) {
+            //                Popup.error(t);
+            //            }
+            //        }));
+            // link to the packaged documentation file
+            mainMenu.add(new MenuItem("Help", ProlineFiles.HELP_ICON, e -> {
                 try {
-//                ExecutionSession.getStudio().stop();
-                    SystemUtils.end();
+                    Desktop.getDesktop().browse(ProlineFiles.getProlineDocumentationFile().toURI());
                 } catch (Throwable t) {
-                    logger.error("Error while killing studio", t);
                     Popup.error(t);
                 }
             }));
+            // link to profi website
+            mainMenu.add(new MenuItem("ProFI Web site", e -> {
+                try {
+                    Desktop.getDesktop().browse(new URL(ProlineFiles.PROFI_WEBSITE).toURI());
+                } catch (Throwable t) {
+                    Popup.error(t);
+                }
+            }));
+            if (Config.isServerMode()) {
+                // exit button
+                mainMenu.add(new MenuItem("Exit", ProlineFiles.QUIT_ICON, e -> {
+                    // FIXME this command Kills Studio and Proline Zero, but not the Studio child process that provides the GUI (so user don't feel like it's close)
+                    // solution is to remove Exit button when Proline Zero is not in server mode (client just need to close Proline Studio)
+                    logger.info("User requested to close Proline Zero");
+                    try {
+                        //                ExecutionSession.getStudio().stop();
+                        SystemUtils.end();
+                    } catch (Throwable t) {
+                        logger.error("Error while killing studio", t);
+                        Popup.error(t);
+                    }
+                }));
+            }
         }
 
     }

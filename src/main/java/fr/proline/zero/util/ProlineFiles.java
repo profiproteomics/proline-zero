@@ -49,7 +49,7 @@ public class ProlineFiles {
      */
 
     public final static File CORTEX_DIRECTORY = new File(WORKING_DIRECTORY + "/Proline-Cortex-" + Config.getCortexVersion());
-    public final static File CORTEX_JAR_FILE = new File(CORTEX_DIRECTORY + "/Proline-Cortex-" + Config.getCortexVersion() + ".jar");
+    public final static File CORTEX_JAR_FILE = new File(CORTEX_DIRECTORY + "/proline-cortex-" + Config.getCortexVersion() + ".jar");
     public final static File CORTEX_CONFIG_FILE = new File(CORTEX_DIRECTORY + "/config/application.conf");
     public final static File CORTEX_JMS_CONFIG_FILE = new File(CORTEX_DIRECTORY + "/config/jms-node.conf");
     public static String CORTEX_JMS_NODE_NB_RUNSERVICE = "service_thread_pool_size";

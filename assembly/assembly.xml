@@ -84,7 +84,7 @@
         <fileSet>
             <directory>${project.build.directory}</directory>
             <includes>
-                <!--<include>*.jar</include>-->
+                <include>*.jar</include>
                 <include>${proline.launcher.executable}</include>
             </includes>
             <outputDirectory>/</outputDirectory>

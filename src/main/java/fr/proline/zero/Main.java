@@ -1,6 +1,5 @@
 package fr.proline.zero;
 
-import dorkbox.systemTray.SystemTray;
 import fr.proline.zero.gui.ZeroTray;
 import fr.proline.zero.util.*;
 import org.slf4j.Logger;
@@ -36,10 +35,7 @@ public class Main {
         manageFolder();
         try {
             ExecutionSession.initialize();
-
-            if (java.awt.SystemTray.isSupported()){
-                ZeroTray.initialize();
-            }
+            ZeroTray.initialize();
             // add a shutdown hook that will be executed when the program ends or if the user ends it with Ctrl+C
             Runtime.getRuntime().addShutdownHook(new ShutdownHook());
             if (!ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists()) {//first launche

@@ -12,7 +12,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -170,7 +169,7 @@ public class ExecutionSession {
         logger.info("Replace " + regex + " in file " + configFile.getPath() + " to " + value);
         try {
             List<String> lines = Files.lines(configFile.toPath()).map(l -> l.replaceAll(regex, value)).collect(Collectors.toList());
-            Files.write(configFile.toPath(), lines, StandardOpenOption.SYNC);
+            Files.write(configFile.toPath(), lines);
         } catch (Exception e) {
             logger.error("Error replacing " + value + "in file " + configFile.getPath(), e);
         }
@@ -178,8 +177,12 @@ public class ExecutionSession {
 
     public static void end() throws Exception {
 //        ProlineAdmin.stop();
-        studio.stop();
-        seqRepo.stop();
+        if (studio != null) {//when config server mode,  studio is null
+            studio.stop();
+        }
+        if (seqRepo != null) {//when config disable, seqRepo is null
+            seqRepo.stop();
+        }
         cortex.stop();
         jmsServer.stop();
         datastore.stop();

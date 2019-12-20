@@ -22,6 +22,8 @@
         <dist.data>${project.basedir}/data/sample</dist.data>
         <!--<pg.win.version>9.4.11-2</pg.win.version>-->
         <pg.win.version>9.6.11-1</pg.win.version>
+        <pg.linux.version>10.11-3</pg.linux.version>
+
     </properties>
 
     <dependencies>
@@ -30,7 +32,12 @@
             <artifactId>zt-exec</artifactId>
             <version>1.10</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.196</version>
+           
+        </dependency>
         <dependency>
             <groupId>org.zeroturnaround</groupId>
             <artifactId>zt-process-killer</artifactId>
@@ -59,7 +66,12 @@
             <artifactId>jna</artifactId>
             <version>4.3.0</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-db</artifactId>
+            <version>RELEASE801</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
     <build>
@@ -121,6 +133,7 @@
                                     <directory>src/main/resources</directory>
                                     <includes>
                                         <include>**/${project.name}.sh</include>
+                                        <filtering>true</filtering>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
@@ -385,10 +398,18 @@
                 <dependency>
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
-                    <version>9.4.18-1</version>
+                    <version>${pg.linux.version}</version>
                     <type>zip</type>
                     <classifier>${os.classifier}</classifier>
                 </dependency>
+                
+                <dependency>
+                    <groupId>fr.proline</groupId>
+                    <artifactId>proline-zero</artifactId>
+                    <version>2.1.0-SNAPSHOT</version>
+                    <type>jar</type>
+                </dependency>
+                <!--proline-zero-2.1.0-SNAPSHOT.jar-->
             </dependencies>
         </profile>
     </profiles>
