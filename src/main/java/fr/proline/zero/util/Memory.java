@@ -45,9 +45,9 @@ public class Memory {
     private static final long seqRepoXms = 512;
     private static final long seqRepoXmx = 1024;
     private static final long studioXms = 128;
-    private static final long studioXmx = 1024;
+    private static long studioXmx = 1024;//to be adjusted 
     private static final long adminXmx = 1024;
-
+    private static final long PGXmx = 5120;//PostgreSQL max=5G
     // physical memory (minimum should be 8G)
     private static final OperatingSystemMXBean os = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
     private static final long totalMemorySize = os.getTotalPhysicalMemorySize();
@@ -61,27 +61,12 @@ public class Memory {
         long memory = availableMemory;
         if (requestedMemory != null) {
             // take the given memory parameter from the config file and convert it to real values
-            try {
-                int iMemory = Integer.parseInt(requestedMemory.trim().replaceAll("[kmgtKMGT]$", ""));
-                String unit = requestedMemory.trim().replaceAll("\\d", "");
-                if (unit.equals("K")) {
-                    memory = iMemory * K;
-                } else if (unit.equals("M")) {
-                    memory = iMemory * M;
-                } else if (unit.equals("G")) {
-                    memory = iMemory * G;
-                } else if (unit.equals("T")) {
-                    memory = iMemory * T;
-                } else if (unit.equals("")) {
-                    memory = iMemory;
-                }
-                // extract last letter
-            } catch (Exception e) {
-                // if requested memory is unreadable, use available memory, show warning popup and go on
-                logger.warn("Allocated memory could not be read, Proline Zero will use available memory");
+            long value = parseMemo("Zero", requestedMemory);
+            if (value != -1 && value < availableMemory) {
+                memory = value;
             }
         }
-
+        logger.debug("Memory total ={}, available = {}, request ={}", toHumanReadable(totalMemorySize), toHumanReadable(availableMemory), requestedMemory);
         logger.info("Proline Zero will use " + Math.floorDiv(memory, G) + "GB of RAM");
         // define settings according to the memory requested by the user
         if (memory < 4 * G) {
@@ -92,23 +77,60 @@ public class Memory {
                 restorePostgreSQLDefaultConfig();
             }
         } else {
+            String studioMemo = Config.getStudioMemory();
+            long studioMemoValue = parseMemo("Studio", studioMemo);
+
+            long serverMemory = memory - jmsXmx * M - studioMemoValue - seqRepoXmx * M;
+            if (serverMemory <= 1 * G) {
+                studioMemoValue = studioXmx * M;
+            }
+            logger.debug("Zero Memory total ={}, studioMemo request = {}, studioMemo effectif ={}", toHumanReadable(memory), studioMemo, toHumanReadable(studioMemoValue));
+            studioXmx = studioMemoValue;
+            serverMemory = memory - jmsXmx * M - studioMemoValue - seqRepoXmx * M;
             // split the selected memory: 1G for hornetq, 1G seqrepo and 1G studio, the remaining shared 35% for postgresql (up to 5G), 65% Cortex
-            long serverMemory = memory - jmsXmx * M - studioXmx * M - seqRepoXmx * M;
-            long memoryPg = (long) Math.min(5 * G, (serverMemory * 0.35));
+            // long serverMemory = memory - jmsXmx * M - studioXmxValue - seqRepoXmx * M;
+            long memoryPg = (long) Math.min(PGXmx * M, (serverMemory * 0.35));//PostgreSQL max=5G
             long memoryCortex = serverMemory - memoryPg;
             cortexXmx = Math.floorDiv(memoryCortex, M);
 
             logger.info("PostgreSQL max memory: {}", toHumanReadable(memoryPg));
             logger.info("Cortex max memory: {}", toHumanReadable(cortexXmx * M));
             logger.info("HornetQ max memory: {}", toHumanReadable(jmsXmx * M));
-            logger.info("Studio max memory: {}", toHumanReadable(studioXmx * M));
+            logger.info("Studio max memory: {}", toHumanReadable(studioMemoValue));
             logger.info("SeqRepo max memory: {}", toHumanReadable(seqRepoXmx * M));
+
+            adjustStudioMemory(studioMemoValue);
 
             if (ExecutionSession.getDataStore().getDatastoreName().equals(PostgreSQL.NAME)) {
                 PostgreSQL datastore = (PostgreSQL) ExecutionSession.getDataStore();
                 adjustPostgreSQLMemory(memoryPg, datastore.isVersion94());
             }
         }
+
+    }
+
+    private static long parseMemo(String info, String requestedMemory) {
+        long memory = -1;
+        try {
+            int iMemory = Integer.parseInt(requestedMemory.trim().replaceAll("[kmgtKMGT]$", ""));
+            String unit = requestedMemory.trim().replaceAll("\\d", "");
+            if (unit.equals("K")) {
+                memory = iMemory * K;
+            } else if (unit.equals("M")) {
+                memory = iMemory * M;
+            } else if (unit.equals("G")) {
+                memory = iMemory * G;
+            } else if (unit.equals("T")) {
+                memory = iMemory * T;
+            } else if (unit.equals("")) {
+                memory = iMemory;
+            }
+            // extract last letter
+        } catch (Exception e) {
+            // if requested memory is unreadable, use available memory, show warning popup and go on
+            logger.warn(info + " allocated memory could not be read, Proline Zero will use available memory");
+        }
+        return memory;
     }
 
     private static String toHumanReadable(long value) {
@@ -160,6 +182,14 @@ public class Memory {
                 logger.error("Failed to restore the default PostgreSQL configuration file", ioe);
             }
         }
+    }
+
+    private static void adjustStudioMemory(long memory) {
+        File studioConfig = ProlineFiles.STUDIO_CONFIG_FILE;
+//        String regexMin = "-J-Xms(\\d+)m";
+        String regexMax = "-J-Xmx(\\d+)m";
+        String newMax = "-J-Xmx" + Math.floorDiv(memory, M) + "m";
+        ExecutionSession.updateProperty(studioConfig, regexMax, newMax);
     }
 
     private static void adjustPostgreSQLMemory(long memory, boolean isVersion94) {
@@ -278,4 +308,5 @@ public class Memory {
     public static String getAdminMaxMemory() {
         return "-Xmx" + adminXmx + "M";
     }
+
 }

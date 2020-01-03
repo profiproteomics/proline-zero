@@ -165,7 +165,7 @@ public class ExecutionSession {
         updateProperty(configFile, regex, nbThread);
     }
 
-    private static void updateProperty(File configFile, String regex, String value) {
+    public static void updateProperty(File configFile, String regex, String value) {
         logger.info("Replace " + regex + " in file " + configFile.getPath() + " to " + value);
         try {
             List<String> lines = Files.lines(configFile.toPath()).map(l -> l.replaceAll(regex, value)).collect(Collectors.toList());

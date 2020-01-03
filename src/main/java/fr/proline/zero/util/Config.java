@@ -161,6 +161,11 @@ public class Config {
         return properties.getProperty("server_max_memory");
     }
 
+    public static String getStudioMemory() {
+        Config.initialize();
+        return properties.getProperty("studio_max_memory");
+    }
+
     public static String getAdminVersion() {
         Config.initialize();
         return properties.getProperty("admin_version");
