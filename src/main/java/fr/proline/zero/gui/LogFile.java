@@ -12,7 +12,6 @@ import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import javax.swing.text.Caret;
 
 public class LogFile {
 

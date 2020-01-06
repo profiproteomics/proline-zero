@@ -99,63 +99,64 @@ public class ExecutionSession {
 
     private static void updatePostgreSQLPortConfig() {
         int port = Config.getDataStorePort();
-        int defaultPort = getDataStore().getDatastoreName().equals(PostgreSQL.NAME) ? Config.DEFAULT_POSTGRESQL_PORT : Config.DEFAULT_H2_PORT;
-
-        if (port != defaultPort) {
-            String newPort = "port=\"" + port + "\"";
-            String regex = "port\\s*=\\s*\"(\\d{4,5})\"";  //with "" arround number
-            File cortexConfigFile = ProlineFiles.CORTEX_CONFIG_FILE;
-            updateProperty(cortexConfigFile, regex, newPort);
-            File adminConfigFile = ProlineFiles.ADMIN_CONFIG_FILE;
-            updateProperty(adminConfigFile, regex, newPort);
-            File seqRepoConfigFile = ProlineFiles.SEQREPO_DATA_STORE_CONFIG_FILE;
-            updateProperty(seqRepoConfigFile, regex, newPort);
-        }
+        //int defaultPort = getDataStore().getDatastoreName().equals(PostgreSQL.NAME) ? Config.DEFAULT_POSTGRESQL_PORT : Config.DEFAULT_H2_PORT;
+        //force to change port even if port=defaultPort
+        String newPort = "port=\"" + port + "\"";
+        String regex = "port\\s*=\\s*\"(\\d{4,5})\"";  //with "" arround number
+        File cortexConfigFile = ProlineFiles.CORTEX_CONFIG_FILE;
+        updateProperty(cortexConfigFile, regex, newPort);
+        File adminConfigFile = ProlineFiles.ADMIN_CONFIG_FILE;
+        updateProperty(adminConfigFile, regex, newPort);
+        File seqRepoConfigFile = ProlineFiles.SEQREPO_DATA_STORE_CONFIG_FILE;
+        updateProperty(seqRepoConfigFile, regex, newPort);
     }
 
     private static void updateJmsPortConfig() {
         int port = Config.getJmsPort();
-        if (port != Config.DEFAULT_JMS_PORT) {
-            String newPort = Config.JMS_PORT + " = " + port;
-            String regex = Config.JMS_PORT + "\\s*=\\s*(\\d{4,5})"; //without "" arround number
-            File cortexConfigFile = ProlineFiles.CORTEX_JMS_CONFIG_FILE;
-            updateProperty(cortexConfigFile, regex, newPort);
-            File seqRepoConfigFile = ProlineFiles.SEQREPO_JMS_CONFIG_FILE;
-            updateProperty(seqRepoConfigFile, regex, newPort);
-            File hornetqConfigFile = ProlineFiles.HORNETQ_CONFIG_FILE;
-            final String regexXML = "hornetq.remoting.netty.port\\s*:\\s*\\d{4,5}";
-            updateProperty(hornetqConfigFile, regexXML, "hornetq.remoting.netty.port:" + port);
-            File studioPrefereceFile = ProlineFiles.STUDIO_PREFERENCES_FILE;
-            final String regexJmsUrl = "serverURL=localhost[:\\d]*";
-            updateProperty(studioPrefereceFile, regexJmsUrl, "serverURL=localhost:" + port);
-        }
+        //force to change port even if port=defaultPort
+        String newPort = Config.JMS_PORT + " = " + port;
+        String regex = Config.JMS_PORT + "\\s*=\\s*(\\d{4,5})"; //without "" arround number
+        File cortexConfigFile = ProlineFiles.CORTEX_JMS_CONFIG_FILE;
+        updateProperty(cortexConfigFile, regex, newPort);
+        File seqRepoConfigFile = ProlineFiles.SEQREPO_JMS_CONFIG_FILE;
+        updateProperty(seqRepoConfigFile, regex, newPort);
+        File hornetqConfigFile = ProlineFiles.HORNETQ_CONFIG_FILE;
+        final String regexXML = "hornetq.remoting.netty.port\\s*:\\s*\\d{4,5}";
+        updateProperty(hornetqConfigFile, regexXML, "hornetq.remoting.netty.port:" + port);
+
+        File studioPrefereceFile = ProlineFiles.STUDIO_PREFERENCES_FILE;
+        String regexStudio = "serverURL=localhost";
+        String value = (port != Config.DEFAULT_JMS_PORT) ? regexStudio + ":" + port : regexStudio;
+        final String regexJmsUrl = regexStudio + "[:\\d]*";
+        updateProperty(studioPrefereceFile, regexJmsUrl, value);
+
     }
 
     private static void updateJmsBatchPortConfig() {
         int port = Config.getJmsBatchPort();
-        if (port != Config.DEFAULT_JMS_BATCH_PORT) {
+        //if (port != Config.DEFAULT_JMS_BATCH_PORT) {
             File hornetqConfigFile = ProlineFiles.HORNETQ_CONFIG_FILE;
             final String regexXML = "hornetq.remoting.netty.batch.port\\s*:\\s*\\d{4,5}";
             updateProperty(hornetqConfigFile, regexXML, "hornetq.remoting.netty.batch.port:" + port);
-        }
+        //}
     }
 
     private static void updateJnpRmiPortConfig() {
         int port = Config.getJnpRmiPort();
-        if (port != Config.DEFAULT_JMS_JNP_RMI_PORT) {
+        //if (port != Config.DEFAULT_JMS_JNP_RMI_PORT) {
             File hornetqConfigFile = ProlineFiles.HORNETQ_RMI_CONFIG_FILE;
             final String regexXML = "jnp.rmiPort\\s*:\\s*\\d{4,5}";
             updateProperty(hornetqConfigFile, regexXML, "jnp.rmiPort:" + port);
-        }
+        //}
     }
 
     private static void updateJnpPortConfig() {
         int port = Config.getJnpPort();
-        if (port != Config.DEFAULT_JMS_JNP_PORT) {
+        //if (port != Config.DEFAULT_JMS_JNP_PORT) {
             File hornetqConfigFile = ProlineFiles.HORNETQ_RMI_CONFIG_FILE;
             final String regexXML = "jnp.port\\s*:\\s*\\d{4,5}";
             updateProperty(hornetqConfigFile, regexXML, "jnp.port:" + port);
-        }
+        //}
     }
 
     public synchronized static void updateCortexNbParallelizableServiceRunners() {

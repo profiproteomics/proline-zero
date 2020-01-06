@@ -67,7 +67,7 @@ public class Memory {
             }
         }
         logger.debug("Memory total ={}, available = {}, request ={}", toHumanReadable(totalMemorySize), toHumanReadable(availableMemory), requestedMemory);
-        logger.info("Proline Zero will use " + Math.floorDiv(memory, G) + "GB of RAM");
+        logger.info("Proline Zero will use " + toHumanReadable(memory) + " of RAM");
         // define settings according to the memory requested by the user
         if (memory < 4 * G) {
             Popup.warning("Your computer does not have enough free memory, Proline Zero will likely be running slowly");

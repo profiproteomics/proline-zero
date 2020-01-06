@@ -47,6 +47,11 @@ public class ZeroTray {
 
         logger.info("System tray initialization");
         try {
+            if (!java.awt.SystemTray.isSupported()) {
+                systemTray = null;
+                logger.warn(" System Tray is not supported.");
+                return;
+            }
             systemTray = SystemTray.get();
             if (systemTray == null) {
                 logger.warn(" Unable to initialize System Tray.");
