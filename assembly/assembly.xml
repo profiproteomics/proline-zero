@@ -69,7 +69,7 @@
 
         <!-- Proline-Zero directory -->
         <fileSet>
-            <directory>${project.basedir}/src/main/resources/${proline.datastore}</directory>
+            <directory>${project.basedir}/src/main/resources/</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>*.config</include>
@@ -84,8 +84,8 @@
         <fileSet>
             <directory>${project.build.directory}</directory>
             <includes>
-                <include>*.jar</include>
                 <include>${proline.launcher.executable}</include>
+                <include>${proline.launcher.executable.jar}</include>
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>

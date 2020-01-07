@@ -317,7 +317,9 @@
             <properties>
                 <os.classifier>windows-x64</os.classifier>
                 <proline.datastore>h2</proline.datastore>
+                <proline.datastore.port>9092</proline.datastore.port>
                 <proline.launcher.executable>${project.name}.exe</proline.launcher.executable>
+                <proline.launcher.executable.jar></proline.launcher.executable.jar>
             </properties>
             <dependencies>
                 <dependency>
@@ -335,7 +337,9 @@
             <properties>
                 <os.classifier>windows-x64</os.classifier>
                 <proline.datastore>postgresql</proline.datastore>
+                <proline.datastore.port>5433</proline.datastore.port>
                 <proline.launcher.executable>${project.name}.exe</proline.launcher.executable>
+                <proline.launcher.executable.jar></proline.launcher.executable.jar>
             </properties>
             <dependencies>
                 <dependency>
@@ -377,7 +381,9 @@
             <properties>
                 <os.classifier>linux-x64</os.classifier>
                 <proline.datastore>h2</proline.datastore>
+                <proline.datastore.port>9092</proline.datastore.port>
                 <proline.launcher.executable>${project.name}.sh</proline.launcher.executable>
+                <proline.launcher.executable.jar>${project.artifactId}-${project.version}.jar</proline.launcher.executable.jar>
             </properties>
             <dependencies>
                 <dependency>
@@ -392,7 +398,9 @@
             <properties>
                 <os.classifier>linux-x64</os.classifier>
                 <proline.datastore>postgresql</proline.datastore>
+                <proline.datastore.port>5433</proline.datastore.port>
                 <proline.launcher.executable>${project.name}.sh</proline.launcher.executable>
+                <proline.launcher.executable.jar>${project.artifactId}-${project.version}.jar</proline.launcher.executable.jar>
             </properties>
             <dependencies>
                 <dependency>
