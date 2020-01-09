@@ -23,6 +23,7 @@
         <!--<pg.win.version>9.4.11-2</pg.win.version>-->
         <pg.win.version>9.6.11-1</pg.win.version>
         <pg.linux.version>10.11-3</pg.linux.version>
+        <h2.version>1.4.196</h2.version>
 
     </properties>
 

@@ -25,11 +25,18 @@
         <fileSet>
             <directory>${dist.data}</directory>
             <includes>
-                <include>data/**</include>
+                <include>data/.prolinestudio/**</include>
+            </includes>
+            <filtered>true</filtered>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${dist.data}</directory>
+            <includes>
+                <include>data/mascot/**</include>
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
-
         <!-- Cortex configuration -->
         <fileSet>
             <directory>${project.basedir}/src/main/resources/cortex</directory>
