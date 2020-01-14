@@ -33,11 +33,11 @@ public class ProlineStudio extends AbstractProcess {
      * "../data/.prolinestudio/var/cache/all-installer.dat
      */
     public void cleanCache() {
-        String cacheFolder = ProlineFiles.WORKING_DATA_DIRECTORY+studioUserDir + "/var/cache";
+        String cacheFolder = ProlineFiles.WORKING_DATA_DIRECTORY + studioUserDir + "/var/cache";
         File cacheFolderFile = new File(cacheFolder);
         if (cacheFolderFile.isDirectory()) {
             try {
-                logger.info("clean folder: "+cacheFolderFile.getAbsolutePath());
+                logger.info("clean folder: " + cacheFolderFile.getAbsolutePath());
                 FileUtils.cleanDirectory(cacheFolderFile);
             } catch (IOException ex) {
                 logger.info("clean folder" + cacheFolder + ex.getCause() + " " + ex.getMessage() + " " + ex.getLocalizedMessage());
@@ -65,7 +65,7 @@ public class ProlineStudio extends AbstractProcess {
             command.add("ProlineStudio-" + Config.getStudioVersion() + "/bin/prolinestudio");
         }
         command.add("--userdir");
-        command.add("../data"+studioUserDir);//"../data/.prolinestudio", relative directory
+        command.add("../data" + studioUserDir);//"../data/.prolinestudio", relative directory
         command.add("--nosplash"); // there's already a splash screen, no need to have another one !
         // Warning : it seems that starting studio with --console suppress option is not compatible with redirectOutput option
         // this means that start failure won't be visible in the launcher output. An option to test is to start the process with another
@@ -94,7 +94,9 @@ public class ProlineStudio extends AbstractProcess {
         // FIXME when called from system tray, it only closes the ProlineStudio.exe process but not the java process (which is the real process)
         // Proline Studio should stop by itself when user closes Studio
         // This method will be called if the user uses the the system tray to close Studio (or if a Proline Zero method one day wants to end Studio)
-        kill(process);
+        if (isProcessAlive) {
+            kill(process);
+        }
     }
 
 }
