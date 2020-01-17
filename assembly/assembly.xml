@@ -19,7 +19,7 @@
                 <include>LICENSE*</include>
                 <include>NOTICE*</include>
             </includes>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory></outputDirectory>
         </fileSet>
 
         <fileSet>
@@ -28,19 +28,19 @@
                 <include>data/.prolinestudio/**</include>
             </includes>
             <filtered>true</filtered>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory></outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${dist.data}</directory>
             <includes>
                 <include>data/mascot/**</include>
             </includes>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory></outputDirectory>
         </fileSet>
         <!-- Cortex configuration -->
         <fileSet>
             <directory>${project.basedir}/src/main/resources/cortex</directory>
-            <outputDirectory>/Proline-Cortex-${cortex.version}/config</outputDirectory>
+            <outputDirectory>Proline-Cortex-${cortex.version}/config</outputDirectory>
             <includes>
                 <include>*.conf</include>
             </includes>
@@ -48,13 +48,13 @@
 
         <fileSet>
             <directory>${project.basedir}/src/main/resources/cortex/${proline.datastore}</directory>
-            <outputDirectory>/Proline-Cortex-${cortex.version}/config</outputDirectory>
+            <outputDirectory>Proline-Cortex-${cortex.version}/config</outputDirectory>
         </fileSet>
 
         <!-- SeqRepo configuration -->
         <fileSet>
             <directory>${project.basedir}/src/main/resources/seqrepo</directory>
-            <outputDirectory>/PM-SequenceRepository-${seqrepo.version}/config</outputDirectory>
+            <outputDirectory>PM-SequenceRepository-${seqrepo.version}/config</outputDirectory>
             <includes>
                 <include>*.conf</include>
             </includes>
@@ -62,12 +62,12 @@
 
         <fileSet>
             <directory>${project.basedir}/src/main/resources/seqrepo/${proline.datastore}</directory>
-            <outputDirectory>/PM-SequenceRepository-${seqrepo.version}/config</outputDirectory>
+            <outputDirectory>PM-SequenceRepository-${seqrepo.version}/config</outputDirectory>
         </fileSet>
         <!-- Admin configuration -->
         <fileSet>
             <directory>${project.basedir}/src/main/resources/admin/${proline.datastore}</directory>
-            <outputDirectory>/Proline-Admin-GUI-${admin.version}/config</outputDirectory>
+            <outputDirectory>Proline-Admin-GUI-${admin.version}/config</outputDirectory>
             <includes>
                 <include>*</include>
             </includes>
@@ -77,7 +77,7 @@
         <!-- Proline-Zero directory -->
         <fileSet>
             <directory>${project.basedir}/src/main/resources/</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory></outputDirectory>
             <includes>
                 <include>*.config</include>
             </includes>
@@ -85,7 +85,7 @@
         </fileSet>
         <fileSet>
             <directory>${project.build.directory}/${project.artifactId}-${project.version}</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory></outputDirectory>
         </fileSet>
 
         <fileSet>
@@ -94,7 +94,7 @@
                 <include>${proline.launcher.executable}</include>
                 <include>${proline.launcher.executable.jar}</include>
             </includes>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory></outputDirectory>
         </fileSet>
 
 
@@ -115,13 +115,13 @@
                 <include>*.config</include>
             </includes>
             <filtered>true</filtered>
-            <outputDirectory>/</outputDirectory>
+           <outputDirectory></outputDirectory>
         </fileSet>
 
         <!-- Dependency libs -->
         <fileSet>
             <directory>${project.build.directory}/lib</directory>
-            <outputDirectory>/lib</outputDirectory>
+            <outputDirectory>lib</outputDirectory>
         </fileSet>
 
     </fileSets>
