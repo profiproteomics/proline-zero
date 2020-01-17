@@ -57,6 +57,7 @@ public class Main {
                 startDataStore(dStore);
                 SplashScreen.setProgress("Initializing Proline databases");
                 ProlineAdmin.setUp();
+                ProlineAdmin.checkUpdate();
             } else {
                 logger.info("launch, update thread number");
                 SplashScreen.setProgressMax(5); // pgsql, hornetq, cortex, seqrepo, studio
@@ -66,6 +67,7 @@ public class Main {
                 // adjust memory before starting datastore
                 DataStore dStore = ExecutionSession.getDataStore();
                 startDataStore(ExecutionSession.getDataStore());
+                ProlineAdmin.checkUpdate();
             }
             logger.info("Starting Proline");
             SplashScreen.setProgress("Starting JMS Server");

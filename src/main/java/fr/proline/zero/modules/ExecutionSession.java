@@ -135,27 +135,27 @@ public class ExecutionSession {
     private static void updateJmsBatchPortConfig() {
         int port = Config.getJmsBatchPort();
         //if (port != Config.DEFAULT_JMS_BATCH_PORT) {
-            File hornetqConfigFile = ProlineFiles.HORNETQ_CONFIG_FILE;
-            final String regexXML = "hornetq.remoting.netty.batch.port\\s*:\\s*\\d{4,5}";
-            updateProperty(hornetqConfigFile, regexXML, "hornetq.remoting.netty.batch.port:" + port);
+        File hornetqConfigFile = ProlineFiles.HORNETQ_CONFIG_FILE;
+        final String regexXML = "hornetq.remoting.netty.batch.port\\s*:\\s*\\d{4,5}";
+        updateProperty(hornetqConfigFile, regexXML, "hornetq.remoting.netty.batch.port:" + port);
         //}
     }
 
     private static void updateJnpRmiPortConfig() {
         int port = Config.getJnpRmiPort();
         //if (port != Config.DEFAULT_JMS_JNP_RMI_PORT) {
-            File hornetqConfigFile = ProlineFiles.HORNETQ_RMI_CONFIG_FILE;
-            final String regexXML = "jnp.rmiPort\\s*:\\s*\\d{4,5}";
-            updateProperty(hornetqConfigFile, regexXML, "jnp.rmiPort:" + port);
+        File hornetqConfigFile = ProlineFiles.HORNETQ_RMI_CONFIG_FILE;
+        final String regexXML = "jnp.rmiPort\\s*:\\s*\\d{4,5}";
+        updateProperty(hornetqConfigFile, regexXML, "jnp.rmiPort:" + port);
         //}
     }
 
     private static void updateJnpPortConfig() {
         int port = Config.getJnpPort();
         //if (port != Config.DEFAULT_JMS_JNP_PORT) {
-            File hornetqConfigFile = ProlineFiles.HORNETQ_RMI_CONFIG_FILE;
-            final String regexXML = "jnp.port\\s*:\\s*\\d{4,5}";
-            updateProperty(hornetqConfigFile, regexXML, "jnp.port:" + port);
+        File hornetqConfigFile = ProlineFiles.HORNETQ_RMI_CONFIG_FILE;
+        final String regexXML = "jnp.port\\s*:\\s*\\d{4,5}";
+        updateProperty(hornetqConfigFile, regexXML, "jnp.port:" + port);
         //}
     }
 
@@ -178,15 +178,21 @@ public class ExecutionSession {
 
     public static void end() throws Exception {
 //        ProlineAdmin.stop();
-        if (studio != null) {//when config server mode,  studio is null
+        if (studio != null && studio.isProcessAlive()) {//when config server mode,  studio is null
             studio.stop();
         }
-        if (seqRepo != null) {//when config disable, seqRepo is null
+        if (seqRepo != null && seqRepo.isProcessAlive()) {//when config disable, seqRepo is null
             seqRepo.stop();
         }
-        cortex.stop();
-        jmsServer.stop();
-        datastore.stop();
+        if (cortex != null && cortex.isProcessAlive()) {
+            cortex.stop();
+        }
+        if (jmsServer != null && jmsServer.isProcessAlive()) {
+            jmsServer.stop();
+        }
+        if (datastore != null && datastore.isProcessAlive()) {
+            datastore.stop();
+        }
         isActive = false;
     }
 
