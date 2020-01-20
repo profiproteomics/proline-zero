@@ -79,20 +79,24 @@ public class ProlineAdmin {
     private static boolean NEED_UPDATE = true;
     private static boolean NO_NEED_UPDATE = false;
 
-    /**
-     *
-     * @param force
-     */
+  /**
+   * 
+   * @param need , true = must upgrade all database
+   */
     public static void doMigration(boolean need) {
-        String message = "Need Update Databse no detected, do you force a migraton?";
+        boolean yes = false;
         if (need == NEED_UPDATE) {
-            message = "Update Databse necessary detected";
+            String[] options = {"Do upgrade", "No"};
+            yes = Popup.optionYesNO("\"Update Databse Necessary\" detected", options);
+        } else {
+            String[] options = {"Force an upgrade", "No"};
+            yes = Popup.optionYesNO("\"Need Update Databse\" no detected, do you force an upgrade?", options);
         }
-        boolean yes = Popup.okCancel(message);
         if (yes) {
             try {
                 logger.info("Update databse");
                 Popup.info("This will take several minutes, please don't kill/stop this process");
+                SplashScreen.setMessage("Initializing Proline databases...upgrading...");
                 runCommand(new String[]{"upgrade_dbs"}, null);
             } catch (Exception ex) {
                 logger.info("Update databse Exception :" + ex.getCause() + " " + ex.getMessage() + " " + ex.getLocalizedMessage());
@@ -103,7 +107,7 @@ public class ProlineAdmin {
                 return;   // continue to launch proline Zero
             } else {
                 logger.info("Exit without database update.");
-                Popup.info("Without database update, Proline Zero will stop...");
+                Popup.info("Without database update, Proline Zero will be stopped...");
                 SystemUtils.end();
                 System.exit(0);
             }

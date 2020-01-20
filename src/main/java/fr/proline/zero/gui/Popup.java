@@ -31,7 +31,14 @@ public class Popup {
 
     public static boolean okCancel(String message) {
         SplashScreen.setModal(false);
-        int r =JOptionPane.showConfirmDialog(null, message, DEFAULT_TITLE, JOptionPane.OK_CANCEL_OPTION);
+        int r = JOptionPane.showConfirmDialog(null, message, DEFAULT_TITLE, JOptionPane.OK_CANCEL_OPTION);
+        SplashScreen.setModal(true);
+        return (r == JOptionPane.OK_OPTION);
+    }
+
+    public static boolean optionYesNO(String message, String[] options) {
+        SplashScreen.setModal(false);
+        int r = JOptionPane.showOptionDialog(null, message, DEFAULT_TITLE, JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, message);
         SplashScreen.setModal(true);
         return (r == JOptionPane.OK_OPTION);
     }
@@ -41,7 +48,7 @@ public class Popup {
     }
 
     public static void error(Throwable t) {
-        error(t.toString() +": "+t.getMessage(), t);
+        error(t.toString() + ": " + t.getMessage(), t);
     }
 
     public static void error(String message, Throwable t) {
@@ -54,13 +61,13 @@ public class Popup {
             document.insertString(document.getLength(), "Proline Zero has failed with the following message:\n", attrs);
             StyleConstants.setBold(attrs, false);
             StyleConstants.setForeground(attrs, Color.RED);
-            document.insertString(document.getLength(), message+"\n", attrs);
+            document.insertString(document.getLength(), message + "\n", attrs);
             // add stacktrace
-            if(t != null) {
+            if (t != null) {
                 StyleConstants.setForeground(attrs, Color.BLACK);
                 StyleConstants.setItalic(attrs, true);
                 for (StackTraceElement e : t.getStackTrace()) {
-                    document.insertString(document.getLength(), "\tat "+e.toString()+"\n", attrs);
+                    document.insertString(document.getLength(), "\tat " + e.toString() + "\n", attrs);
                 }
             }
             document.insertString(document.getLength(), "\nPlease read the log file for more detailed information", new SimpleAttributeSet());
