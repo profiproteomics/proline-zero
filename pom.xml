@@ -26,7 +26,7 @@
         <h2.version>1.4.196</h2.version>
 
     </properties>
-
+    
     <dependencies>
         <dependency>
             <groupId>org.zeroturnaround</groupId>
@@ -326,7 +326,7 @@
                 <dependency>
                     <groupId>com.h2database</groupId>
                     <artifactId>h2</artifactId>
-                    <version>1.4.197</version>
+                    <version>${h2.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -390,7 +390,7 @@
                 <dependency>
                     <groupId>com.h2database</groupId>
                     <artifactId>h2</artifactId>
-                    <version>1.4.197</version>
+                    <version>${h2.version}</version>
                 </dependency>
             </dependencies>
         </profile>

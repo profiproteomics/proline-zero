@@ -79,18 +79,23 @@ public class ProlineAdmin {
     private static boolean NEED_UPDATE = true;
     private static boolean NO_NEED_UPDATE = false;
 
-  /**
-   * 
-   * @param need , true = must upgrade all database
-   */
+    /**
+     *
+     * @param need , true = must upgrade all database
+     */
     public static void doMigration(boolean need) {
         boolean yes = false;
         if (need == NEED_UPDATE) {
             String[] options = {"Do upgrade", "No"};
             yes = Popup.optionYesNO("\"Update Databse Necessary\" detected", options);
         } else {
-            String[] options = {"Force an upgrade", "No"};
-            yes = Popup.optionYesNO("\"Need Update Databse\" no detected, do you force an upgrade?", options);
+            boolean isForeceUpdate = Config.getForceUpdate();
+            logger.debug("isForeceUpdate={}", isForeceUpdate);
+            if (isForeceUpdate) {
+                String[] options = {"Force an upgrade", "No"};
+                yes = Popup.optionYesNO("\"Need Update Databse\" no detected, do you force an upgrade? "
+                        + "\n If you don't need, you can disable the force_datastore_update option in proline_launcher.config to avoid this prompt at each launche", options);
+            }
         }
         if (yes) {
             try {

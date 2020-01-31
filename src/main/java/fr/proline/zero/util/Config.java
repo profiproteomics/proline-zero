@@ -201,4 +201,10 @@ public class Config {
         return !Config.isBooleanTrue(seqRepoDisabled);
     }
 
+    public static boolean getForceUpdate() {
+        Config.initialize();
+        String databaseUpdate = properties.getProperty("force_datastore_update");
+        return Config.isBooleanTrue(databaseUpdate);
+    }
+
 }
