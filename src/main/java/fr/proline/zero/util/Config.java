@@ -158,7 +158,7 @@ public class Config {
 
     public static String getWorkingMemory() {
         Config.initialize();
-        return properties.getProperty("server_max_memory");
+        return properties.getProperty("total_max_memory");
     }
 
     public static String getStudioMemory() {
