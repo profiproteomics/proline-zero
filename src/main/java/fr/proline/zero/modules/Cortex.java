@@ -40,7 +40,8 @@ public class Cortex extends AbstractProcess {
         command.add("-XX:MaxHeapFreeRatio=30");
         command.add("-Djava.io.tmpdir=../data/tmp");
         command.add("-Dlogback.configurationFile=config/logback.xml");
-
+        command.add("-Duser.language=en");
+        command.add("-Duser.country=US");
         command.add("-classpath");
         command.add(classpath);
         command.add("fr.proline.cortex.ProcessingNode");
