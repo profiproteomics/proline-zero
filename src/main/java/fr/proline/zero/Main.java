@@ -119,6 +119,12 @@ public class Main {
             b = tmpFile.mkdir();
             logger.info("create folder {} successful ={}", tmpFile.getName(), b);
         }
+        File fastaFile = ProlineFiles.DATA_SEQUENCE_REPOSITORY_DIRECTORY;
+        if (!fastaFile.isDirectory()) {
+            boolean b;
+            b = fastaFile.mkdir();
+            logger.info("create folder {} successful ={}", fastaFile.getName(), b);
+        }      
         String dataMzdbPath = ExecutionSession.getMzdbFolder().replace("..", ".");//relative under working directory, not relative to cortex directory
         File mzdbFile = new File(dataMzdbPath);
         if (!mzdbFile.isDirectory()) {

@@ -35,6 +35,12 @@ public class ProlineFiles {
     }
     public final static String PROFI_WEBSITE = "http://www.profiproteomics.fr/";
 
+    /**
+     * data directory
+     */
+    public final static File DATA_TMP_DIRECTORY = new File(WORKING_DATA_DIRECTORY + "/tmp");
+    public final static File DATA_SEQUENCE_REPOSITORY_DIRECTORY = new File(WORKING_DATA_DIRECTORY + "/fasta");
+
     /*
      * Proline Admin files
      */
@@ -42,12 +48,10 @@ public class ProlineFiles {
     public final static File ADMIN_JAR_FILE = new File(ADMIN_DIRECTORY + "/Proline-Admin-GUI-" + Config.getAdminVersion() + ".jar");
     public final static File ADMIN_LOG_FILE = new File(ADMIN_DIRECTORY + "/logs/proline_admin_gui_log.txt");
     public final static File ADMIN_CONFIG_FILE = new File(ADMIN_DIRECTORY + "/config/application.conf");
-    public final static File DATA_TMP_DIRECTORY = new File(WORKING_DATA_DIRECTORY + "/tmp");
-    public final static File DATA_MZDB_DIRECTORY = new File(WORKING_DIRECTORY + Config.getAdminVersion());
+
     /*
      * Proline Cortex files
      */
-
     public final static File CORTEX_DIRECTORY = new File(WORKING_DIRECTORY + "/Proline-Cortex-" + Config.getCortexVersion());
     public final static File CORTEX_JAR_FILE = new File(CORTEX_DIRECTORY + "/proline-cortex-" + Config.getCortexVersion() + ".jar");
     public final static File CORTEX_CONFIG_FILE = new File(CORTEX_DIRECTORY + "/config/application.conf");
