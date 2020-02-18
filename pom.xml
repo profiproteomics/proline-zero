@@ -114,6 +114,7 @@
                                     <directory>src/main/resources</directory>
                                     <includes>
                                         <include>**/profi.png</include>
+                                        <include>**/Proline-Zero.sh</include>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
@@ -320,7 +321,7 @@
                 <proline.datastore>h2</proline.datastore>
                 <proline.datastore.port>9092</proline.datastore.port>
                 <proline.launcher.executable>${project.name}.exe</proline.launcher.executable>
-                <proline.launcher.executable.jar></proline.launcher.executable.jar>
+                <proline.launcher.executable.commandline></proline.launcher.executable.commandline>
             </properties>
             <dependencies>
                 <dependency>
@@ -340,7 +341,7 @@
                 <proline.datastore>postgresql</proline.datastore>
                 <proline.datastore.port>5433</proline.datastore.port>
                 <proline.launcher.executable>${project.name}.exe</proline.launcher.executable>
-                <proline.launcher.executable.jar></proline.launcher.executable.jar>
+                <proline.launcher.executable.commandline></proline.launcher.executable.commandline>
             </properties>
             <dependencies>
                 <dependency>
@@ -383,8 +384,8 @@
                 <os.classifier>linux-x64</os.classifier>
                 <proline.datastore>h2</proline.datastore>
                 <proline.datastore.port>9092</proline.datastore.port>
-                <proline.launcher.executable>${project.name}.sh</proline.launcher.executable>
-                <proline.launcher.executable.jar>${project.artifactId}-${project.version}.jar</proline.launcher.executable.jar>
+                <proline.launcher.executable>${project.artifactId}-${project.version}.jar</proline.launcher.executable>
+                <proline.launcher.executable.commandline>${project.name}.sh</proline.launcher.executable.commandline>                
             </properties>
             <dependencies>
                 <dependency>
@@ -400,8 +401,8 @@
                 <os.classifier>linux-x64</os.classifier>
                 <proline.datastore>postgresql</proline.datastore>
                 <proline.datastore.port>5433</proline.datastore.port>
-                <proline.launcher.executable>${project.name}.sh</proline.launcher.executable>
-                <proline.launcher.executable.jar>${project.artifactId}-${project.version}.jar</proline.launcher.executable.jar>
+                <proline.launcher.executable>${project.artifactId}-${project.version}.jar</proline.launcher.executable>
+                <proline.launcher.executable.commandline>${project.name}.sh</proline.launcher.executable.commandline>  
             </properties>
             <dependencies>
                 <dependency>
@@ -410,14 +411,7 @@
                     <version>${pg.linux.version}</version>
                     <type>zip</type>
                     <classifier>${os.classifier}</classifier>
-                </dependency>
-                
-                <dependency>
-                    <groupId>fr.proline</groupId>
-                    <artifactId>proline-zero</artifactId>
-                    <version>2.1.0-SNAPSHOT</version>
-                    <type>jar</type>
-                </dependency>
+                </dependency>                               
                 <!--proline-zero-2.1.0-SNAPSHOT.jar-->
             </dependencies>
         </profile>

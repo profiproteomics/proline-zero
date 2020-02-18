@@ -92,7 +92,7 @@
             <directory>${project.build.directory}</directory>
             <includes>
                 <include>${proline.launcher.executable}</include>
-                <include>${proline.launcher.executable.jar}</include>
+                <include>${proline.launcher.executable.commandline}</include>
             </includes>
             <outputDirectory></outputDirectory>
         </fileSet>
@@ -115,7 +115,7 @@
                 <include>*.config</include>
             </includes>
             <filtered>true</filtered>
-           <outputDirectory></outputDirectory>
+            <outputDirectory></outputDirectory>
         </fileSet>
 
         <!-- Dependency libs -->
