@@ -57,17 +57,14 @@ public class Main {
                 startDataStore(dStore);
                 SplashScreen.setProgress("Initializing Proline databases");
                 ProlineAdmin.setUp();
-                ProlineAdmin.checkUpdate();
+                ProlineAdmin.checkUpdate("Initializing Proline databases");
             } else {
                 logger.info("launch, update thread number");
                 SplashScreen.setProgressMax(5); // pgsql, hornetq, cortex, seqrepo, studio
                 ExecutionSession.updateCortexNbParallelizableServiceRunners();//each time, we can change
-                // TODO: check that application.conf PG port == proline_launcher.config PG port because
-                // PG port can be updated only once since Proline store the database JDBC URL
-                // adjust memory before starting datastore
                 DataStore dStore = ExecutionSession.getDataStore();
                 startDataStore(ExecutionSession.getDataStore());
-                ProlineAdmin.checkUpdate();
+                ProlineAdmin.checkUpdate("");
             }
             logger.info("Starting Proline");
             SplashScreen.setProgress("Starting JMS Server");
@@ -124,7 +121,7 @@ public class Main {
             boolean b;
             b = fastaFile.mkdir();
             logger.info("create folder {} successful ={}", fastaFile.getName(), b);
-        }      
+        }
         String dataMzdbPath = ExecutionSession.getMzdbFolder().replace("..", ".");//relative under working directory, not relative to cortex directory
         File mzdbFile = new File(dataMzdbPath);
         if (!mzdbFile.isDirectory()) {
@@ -141,9 +138,6 @@ public class Main {
         if (dataStore.getDatastoreName().equals(PostgreSQL.NAME)) {
             ((PostgreSQL) dataStore).verifyVersion();
         }
-        // TODO: check that application.conf PG port == proline_launcher.config PG port because
-        // PG port can be updated only once since Proline store the database JDBC URL
-        // adjust memory before starting datastore
         if (!Config.isDebugMode()) {
             Memory.adjustMemory(Config.getWorkingMemory());
         } else {

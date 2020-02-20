@@ -54,8 +54,18 @@ public class ProlineAdmin {
         logger.info("Proline admin process " + args[0] + " finishes with exit code: " + exitValue);
     }
 
-    public static void checkUpdate() throws Exception {
-        SplashScreen.setMessage("Initializing Proline databases... Check update");
+    public static void checkUpdate(String pred) throws Exception {
+        //SplashScreen
+        if (pred == null) {
+            pred = "";
+        }
+        String msg;
+        if (pred.isEmpty()) {
+            msg = " Datastore check update";
+        } else {
+            msg = pred + "... Check update";
+        }
+        SplashScreen.setMessage(msg);
         runCommand(new String[]{"check_for_updates"}, new checkUpdateLOStream());
     }
 
