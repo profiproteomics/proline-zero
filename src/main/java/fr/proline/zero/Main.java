@@ -138,7 +138,7 @@ public class Main {
         if (dataStore.getDatastoreName().equals(PostgreSQL.NAME)) {
             ((PostgreSQL) dataStore).verifyVersion();
         }
-        if (!Config.isDebugMode()) {
+        if (Config.isAdjustMemory()) {
             Memory.adjustMemory(Config.getWorkingMemory());
         } else {
             if (dataStore.getDatastoreName().equals(PostgreSQL.NAME)) {

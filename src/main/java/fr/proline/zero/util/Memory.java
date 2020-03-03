@@ -285,8 +285,8 @@ public class Memory {
         return "-Xms" + cortexXms + "M";
     }
 
-    public static String getCortexMaxMemory(boolean debugMode) {
-        return !debugMode ? "-Xmx" + cortexXmx + "M" : "-Xmx2G";
+    public static String getCortexMaxMemory(boolean isAdjustMemory) {
+        return !isAdjustMemory ? "-Xmx" + cortexXmx + "M" : "-Xmx2G";
     }
 
     public static String getSeqRepoMinMemory() {

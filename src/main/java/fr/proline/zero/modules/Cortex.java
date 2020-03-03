@@ -33,7 +33,7 @@ public class Cortex extends AbstractProcess {
         logger.info("starting Cortex server from path " + cortexHome.getAbsolutePath());
         List<String> command = new ArrayList<>();
         command.add(Config.getJavaExePath());
-        command.add(Memory.getCortexMaxMemory(Config.isDebugMode()));
+        command.add(Memory.getCortexMaxMemory(Config.isAdjustMemory()));
         command.add("-XX:+UseG1GC");
         command.add("-XX:+UseStringDeduplication");
         command.add("-XX:MinHeapFreeRatio=10");

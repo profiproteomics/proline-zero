@@ -195,6 +195,12 @@ public class Config {
         return Config.isBooleanTrue(debug);
     }
 
+    public static boolean isAdjustMemory() {
+        Config.initialize();
+        String debug = properties.getProperty("adjust_memory");
+        return Config.isBooleanTrue(debug);
+    }
+
     public static boolean isSeqRepoEnabled() {
         Config.initialize();
         String seqRepoDisabled = properties.getProperty("disable_sequence_repository");
