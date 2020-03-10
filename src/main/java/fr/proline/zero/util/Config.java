@@ -197,8 +197,10 @@ public class Config {
 
     public static boolean isAdjustMemory() {
         Config.initialize();
-        String debug = properties.getProperty("adjust_memory");
-        return Config.isBooleanTrue(debug);
+        String adjustMemo = properties.getProperty("adjust_memory");
+        if (adjustMemo == null)
+            return true;
+        return Config.isBooleanTrue(adjustMemo);
     }
 
     public static boolean isSeqRepoEnabled() {

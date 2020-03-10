@@ -78,15 +78,15 @@ public class Memory {
             }
         } else {
             String studioMemo = Config.getStudioMemory();
-            long studioMemoValue = parseMemo("Studio", studioMemo);
-            long seqRepoMax = (Config.isSeqRepoEnabled()) ? seqRepoXmx * M : 0;
-            long serverMemory = memory - jmsXmx * M - studioMemoValue - seqRepoMax;
-            if (serverMemory <= 1 * G) {
+            long studioMemoValue = Config.isServerMode() ? 0 : parseMemo("Studio", studioMemo);
+            long seqRepoMax = (Config.isSeqRepoEnabled()) ? seqRepoXmx * M : 0l;
+            long serverMemory = memory - jmsXmx * M - studioMemoValue - seqRepoMax;//first test reste
+            if (serverMemory <= 1 * G && studioMemoValue != 0) {
                 studioMemoValue = studioXmx * M;
             }
             logger.debug("Zero Memory total ={}, studioMemo request = {}, studioMemo effectif ={}", toHumanReadable(memory), studioMemo, toHumanReadable(studioMemoValue));
             studioXmx = studioMemoValue;
-            serverMemory = memory - jmsXmx * M - studioMemoValue - seqRepoXmx * M;
+            serverMemory = memory - jmsXmx * M - studioMemoValue - seqRepoMax;//real rest
             // split the selected memory: 1G for hornetq, 1G seqrepo and 1G studio, the remaining shared 35% for postgresql (up to 5G), 65% Cortex
             // long serverMemory = memory - jmsXmx * M - studioXmxValue - seqRepoXmx * M;
             long memoryPg = (long) Math.min(PGXmx * M, (serverMemory * 0.35));//PostgreSQL max=5G
@@ -134,6 +134,9 @@ public class Memory {
     }
 
     private static String toHumanReadable(long value) {
+        if (value == 0) {
+            return "0";
+        }
         if (value < K) {
             return String.format("%.1f", value) + "B";
         }
