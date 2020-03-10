@@ -79,8 +79,8 @@ public class Memory {
         } else {
             String studioMemo = Config.getStudioMemory();
             long studioMemoValue = parseMemo("Studio", studioMemo);
-
-            long serverMemory = memory - jmsXmx * M - studioMemoValue - seqRepoXmx * M;
+            long seqRepoMax = (Config.isSeqRepoEnabled()) ? seqRepoXmx * M : 0;
+            long serverMemory = memory - jmsXmx * M - studioMemoValue - seqRepoMax;
             if (serverMemory <= 1 * G) {
                 studioMemoValue = studioXmx * M;
             }
@@ -97,7 +97,7 @@ public class Memory {
             logger.info("Cortex max memory: {}", toHumanReadable(cortexXmx * M));
             logger.info("HornetQ max memory: {}", toHumanReadable(jmsXmx * M));
             logger.info("Studio max memory: {}", toHumanReadable(studioMemoValue));
-            logger.info("SeqRepo max memory: {}", toHumanReadable(seqRepoXmx * M));
+            logger.info("SeqRepo max memory: {}", toHumanReadable(seqRepoMax));
 
             adjustStudioMemory(studioMemoValue);
 
