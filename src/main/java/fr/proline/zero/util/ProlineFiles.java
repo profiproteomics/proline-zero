@@ -12,7 +12,7 @@ public class ProlineFiles {
 
     private static Logger logger = LoggerFactory.getLogger(ProlineFiles.class);
 
-    public final static File WORKING_DIRECTORY = new File("").getAbsoluteFile();
+    public final static File WORKING_DIRECTORY = new File(".").getAbsoluteFile();
     public final static File WORKING_DATA_DIRECTORY = new File(WORKING_DIRECTORY + "/data");
 
     private static String getFormattedDate() {
