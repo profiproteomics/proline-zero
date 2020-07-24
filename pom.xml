@@ -92,7 +92,6 @@
                             <mainClass>fr.proline.zero.Main</mainClass>
                         </manifest>
                     </archive>
-                    <argLine>-Djava.library.path=./lib</argLine>
                 </configuration>
 
             </plugin>
