@@ -42,7 +42,6 @@ public class JMSServer extends AbstractProcess {
             command.add("-Dhornetq.remoting.netty.port=" + Config.getJmsPort());
             command.add("-XX:+UseParallelGC");
             command.add("-XX:+AggressiveOpts");
-            command.add("-XX:+UseFastAccessorMethods");
             command.add(Memory.getJmsMinMemory());
             command.add(Memory.getJmsMaxMemory());
             command.add("-Dhornetq.config.dir=config/stand-alone/non-clustered");
