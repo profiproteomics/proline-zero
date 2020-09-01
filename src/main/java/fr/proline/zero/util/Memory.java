@@ -56,17 +56,17 @@ public class Memory {
         final long availableMemory = Memory.os.getFreePhysicalMemorySize();
         // check that the current computer has at least 4GB (allow a bit less just in case)
         if (totalMemorySize < 3.5 * G) {
-            throw new RuntimeException("This computer does not have enough RAM to run Proline Zero (4GB required, 8GB recommanded)");
+            throw new RuntimeException("This computer does not have enough RAM to run Proline Zero (4GB required, 8GB recommended)");
         }
         long memory = availableMemory;
         if (requestedMemory != null) {
             // take the given memory parameter from the config file and convert it to real values
-            long value = parseMemo("Zero", requestedMemory);
+            long value = parseMemoryValue("Zero", requestedMemory);
             if (value != -1 && value < availableMemory) {
                 memory = value;
             }
         }
-        logger.debug("Memory total ={}, available = {}, request ={}", toHumanReadable(totalMemorySize), toHumanReadable(availableMemory), requestedMemory);
+        logger.debug("Total memory = {}, available = {}, requested = {}", toHumanReadable(totalMemorySize), toHumanReadable(availableMemory), requestedMemory);
         logger.info("Proline Zero will use " + toHumanReadable(memory) + " of RAM");
         // define settings according to the memory requested by the user
         if (memory < 4 * G) {
@@ -77,29 +77,29 @@ public class Memory {
                 restorePostgreSQLDefaultConfig();
             }
         } else {
-            String studioMemo = Config.getStudioMemory();
-            long studioMemoValue = Config.isServerMode() ? 0 : parseMemo("Studio", studioMemo);
-            long seqRepoMax = (Config.isSeqRepoEnabled()) ? seqRepoXmx * M : 0l;
-            long serverMemory = memory - jmsXmx * M - studioMemoValue - seqRepoMax;//first test reste
-            if (serverMemory <= 1 * G && studioMemoValue != 0) {
-                studioMemoValue = studioXmx * M;
+            String studioMaxMemoryStr = Config.getStudioMemory();
+            long studioMaxMemory = Config.isServerMode() ? 0 : parseMemoryValue("Studio", studioMaxMemoryStr);
+            long seqRepoMaxMemory = (Config.isSeqRepoEnabled()) ? seqRepoXmx * M : 0l;
+            long serverMaxMemory = memory - jmsXmx * M - studioMaxMemory - seqRepoMaxMemory;//first test reste
+            if (serverMaxMemory <= 1 * G && studioMaxMemory != 0) {
+                studioMaxMemory = studioXmx * M;
             }
-            logger.debug("Zero Memory total ={}, studioMemo request = {}, studioMemo effectif ={}", toHumanReadable(memory), studioMemo, toHumanReadable(studioMemoValue));
-            studioXmx = studioMemoValue;
-            serverMemory = memory - jmsXmx * M - studioMemoValue - seqRepoMax;//real rest
+            logger.debug("Zero total memory = {}, Studio max memory requested = {}, Studio actual max memory = {}", toHumanReadable(memory), studioMaxMemoryStr, toHumanReadable(studioMaxMemory));
+            studioXmx = studioMaxMemory;
+            serverMaxMemory = memory - jmsXmx * M - studioMaxMemory - seqRepoMaxMemory;//real rest
             // split the selected memory: 1G for hornetq, 1G seqrepo and 1G studio, the remaining shared 35% for postgresql (up to 5G), 65% Cortex
-            // long serverMemory = memory - jmsXmx * M - studioXmxValue - seqRepoXmx * M;
-            long memoryPg = (long) Math.min(PGXmx * M, (serverMemory * 0.35));//PostgreSQL max=5G
-            long memoryCortex = serverMemory - memoryPg;
+            // long serverMaxMemory = memory - jmsXmx * M - studioXmxValue - seqRepoXmx * M;
+            long memoryPg = (long) Math.min(PGXmx * M, (serverMaxMemory * 0.35));//PostgreSQL max=5G
+            long memoryCortex = serverMaxMemory - memoryPg;
             cortexXmx = Math.floorDiv(memoryCortex, M);
 
             logger.info("PostgreSQL max memory: {}", toHumanReadable(memoryPg));
             logger.info("Cortex max memory: {}", toHumanReadable(cortexXmx * M));
             logger.info("HornetQ max memory: {}", toHumanReadable(jmsXmx * M));
-            logger.info("Studio max memory: {}", toHumanReadable(studioMemoValue));
-            logger.info("SeqRepo max memory: {}", toHumanReadable(seqRepoMax));
+            logger.info("Studio max memory: {}", toHumanReadable(studioMaxMemory));
+            logger.info("SeqRepo max memory: {}", toHumanReadable(seqRepoMaxMemory));
 
-            adjustStudioMemory(studioMemoValue);
+            adjustStudioMemory(studioMaxMemory);
 
             if (ExecutionSession.getDataStore().getDatastoreName().equals(PostgreSQL.NAME)) {
                 PostgreSQL datastore = (PostgreSQL) ExecutionSession.getDataStore();
@@ -109,7 +109,7 @@ public class Memory {
 
     }
 
-    private static long parseMemo(String info, String requestedMemory) {
+    private static long parseMemoryValue(String info, String requestedMemory) {
         long memory = -1;
         try {
             int iMemory = Integer.parseInt(requestedMemory.trim().replaceAll("[kmgtKMGT]$", ""));
