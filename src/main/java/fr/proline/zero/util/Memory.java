@@ -289,7 +289,7 @@ public class Memory {
     }
 
     public static String getCortexMaxMemory(boolean isAdjustMemory) {
-        return !isAdjustMemory ? "-Xmx" + cortexXmx + "M" : "-Xmx2G";
+        return isAdjustMemory ? "-Xmx" + cortexXmx + "M" : "-Xmx2G";
     }
 
     public static String getSeqRepoMinMemory() {
