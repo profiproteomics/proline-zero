@@ -62,7 +62,6 @@ public class Main {
                 logger.info("launch, update thread number");
                 SplashScreen.setProgressMax(5); // pgsql, hornetq, cortex, seqrepo, studio
                 ExecutionSession.updateCortexNbParallelizableServiceRunners();//each time, we can change
-                DataStore dStore = ExecutionSession.getDataStore();
                 startDataStore(ExecutionSession.getDataStore());
                 ProlineAdmin.checkUpdate("");
             }
