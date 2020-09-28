@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.sun.management.OperatingSystemMXBean;
 
@@ -14,6 +15,7 @@ import fr.proline.zero.gui.Popup;
 import fr.proline.zero.modules.ExecutionSession;
 import fr.proline.zero.modules.PostgreSQL;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,21 +58,24 @@ public class Memory {
         final long availableMemory = Memory.os.getFreePhysicalMemorySize();
         // check that the current computer has at least 4GB (allow a bit less just in case)
         if (totalMemorySize < 3.5 * G) {
-            throw new RuntimeException("This computer does not have enough RAM to run Proline Zero (4GB required, 8GB recommanded)");
+            throw new RuntimeException("This computer does not have enough memory to run Proline Zero (4GB required, 8GB recommended)");
         }
+        List<String> warnings = new ArrayList<>();
         long memory = availableMemory;
         if (requestedMemory != null) {
             // take the given memory parameter from the config file and convert it to real values
             long value = parseMemo("Zero", requestedMemory);
             if (value != -1 && value < availableMemory) {
                 memory = value;
+            } else {
+                warnings.add("The requested memory ("+toHumanReadable(value)+") is more than the currently free memory (" + toHumanReadable(availableMemory)+") on your computer. Proline will use only " + toHumanReadable(availableMemory));
             }
         }
-        logger.debug("Memory total ={}, available = {}, request ={}", toHumanReadable(totalMemorySize), toHumanReadable(availableMemory), requestedMemory);
+        logger.debug("Total memory = {}, available = {}, requested = {}", toHumanReadable(totalMemorySize), toHumanReadable(availableMemory), requestedMemory);
         logger.info("Proline Zero will use " + toHumanReadable(memory) + " of RAM");
         // define settings according to the memory requested by the user
         if (memory < 4 * G) {
-            Popup.warning("Your computer does not have enough free memory, Proline Zero will likely be running slowly");
+            warnings.add("There is less than 4Go of free memory available on your computer, Proline will likely be running slowly");
             // if selected memory is low, only adjust the cortex memory and use postgresql default config
             cortexXmx = Math.floorDiv(memory, M);
             if (ExecutionSession.getDataStore().getDatastoreName().equals(PostgreSQL.NAME)) {
@@ -80,13 +85,14 @@ public class Memory {
             String studioMemo = Config.getStudioMemory();
             long studioMemoValue = Config.isServerMode() ? 0 : parseMemo("Studio", studioMemo);
             long seqRepoMax = (Config.isSeqRepoEnabled()) ? seqRepoXmx * M : 0l;
-            long serverMemory = memory - jmsXmx * M - studioMemoValue - seqRepoMax;//first test reste
+            long serverMemory = memory - jmsXmx * M - studioMemoValue - seqRepoMax;
             if (serverMemory <= 1 * G && studioMemoValue != 0) {
+                warnings.add("Studio max requested memory cannot be allocated. Studio will be started with the default configuration (" + studioXmx + " Mo)");
                 studioMemoValue = studioXmx * M;
             }
-            logger.debug("Zero Memory total ={}, studioMemo request = {}, studioMemo effectif ={}", toHumanReadable(memory), studioMemo, toHumanReadable(studioMemoValue));
+            logger.debug("Zero Memory total = {}, studioMemo request = {}, studioMemo effectif = {}", toHumanReadable(memory), studioMemo, toHumanReadable(studioMemoValue));
             studioXmx = studioMemoValue;
-            serverMemory = memory - jmsXmx * M - studioMemoValue - seqRepoMax;//real rest
+            serverMemory = memory - jmsXmx * M - studioMemoValue - seqRepoMax;
             // split the selected memory: 1G for hornetq, 1G seqrepo and 1G studio, the remaining shared 35% for postgresql (up to 5G), 65% Cortex
             // long serverMemory = memory - jmsXmx * M - studioXmxValue - seqRepoXmx * M;
             long memoryPg = (long) Math.min(PGXmx * M, (serverMemory * 0.35));//PostgreSQL max=5G
@@ -105,7 +111,24 @@ public class Memory {
                 PostgreSQL datastore = (PostgreSQL) ExecutionSession.getDataStore();
                 adjustPostgreSQLMemory(memoryPg, datastore.isVersion94());
             }
+
+            if (!warnings.isEmpty()) {
+                StringBuffer msg = new StringBuffer("<html>");
+                msg.append("Proline Zero launcher raise some warnings related to memory allocation: ").append("<ul>");
+                warnings.forEach(s -> msg.append("<li>").append(s).append("</li>"));
+                msg.append("</ul><p>The following configuration will finally be used to start Proline: <ul>");
+                msg.append("<li>PostgreSQL memory: ").append(toHumanReadable(memoryPg));
+                msg.append("<li>Cortex memory: ").append(toHumanReadable(cortexXmx * M));
+                msg.append("<li>JMS memory: ").append(toHumanReadable(jmsXmx * M));
+                msg.append("<li>Studio memory: ").append(toHumanReadable(studioMemoValue));
+                msg.append("<li>SeqRepo memory: ").append(toHumanReadable(seqRepoMax));
+                msg.append("</ul></html>");
+                Popup.warning(msg.toString());
+            }
+
         }
+
+
 
     }
 
