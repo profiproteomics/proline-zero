@@ -32,8 +32,8 @@ public class Main {
     public static void main(String[] args) {
 
         logger.info("Starting Proline Zero");
-        manageFolder();
         try {
+            manageFolder();
             ExecutionSession.initialize();
             ZeroTray.initialize();
             // add a shutdown hook that will be executed when the program ends or if the user ends it with Ctrl+C
