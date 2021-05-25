@@ -3,28 +3,28 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>proline-zero</artifactId>
-    <version>2.2.0-SNAPSHOT</version>
+    <version>2.1.2</version>
     <name>Proline-Zero</name>
 
     <parent>
         <groupId>fr.proline</groupId>
         <artifactId>profi-pom</artifactId>
-        <version>0.5.0-SNAPSHOT</version> <!-- Snapshot Trunk version -->
+        <version>1.0.0</version> <!-- Snapshot Trunk version -->
     </parent>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cortex.version>2.2.0-SNAPSHOT</cortex.version>
-        <studio.version>2.2.0-SNAPSHOT</studio.version>
+        <cortex.version>2.1.2</cortex.version>
+        <studio.version>2.1.2</studio.version>
         <hornetq.version>2.4.0.Final</hornetq.version>
-        <admin.version>2.2.0-SNAPSHOT</admin.version>
-        <seqrepo.version>2.2.0-SNAPSHOT</seqrepo.version>
+        <admin.version>2.1.2</admin.version>
+        <seqrepo.version>2.1.2</seqrepo.version>
         <dist.data>${project.basedir}/data/sample</dist.data>
         <!--<pg.win.version>9.4.11-2</pg.win.version>-->
         <pg.win.version>9.6.11-1</pg.win.version>
         <pg.linux.version>10.11-3</pg.linux.version>
         <h2.version>1.4.196</h2.version>
-
+        <raw2mzdb.version>0.9.10</raw2mzdb.version>
     </properties>
     
     <dependencies>
@@ -53,7 +53,7 @@
         <dependency>
             <groupId>fr.profi.util</groupId>
             <artifactId>profi-commons-java</artifactId>
-            <version>0.8.0-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>
@@ -342,6 +342,13 @@
                 <proline.launcher.executable.commandline></proline.launcher.executable.commandline>
             </properties>
             <dependencies>
+                <dependency>
+                    <groupId>fr.profi</groupId>
+                    <artifactId>raw2mzdb</artifactId>
+                    <version>0.9.10</version>
+                    <classifier>windows-x64</classifier>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>

@@ -126,7 +126,7 @@ public class Memory {
                 Popup.warning(msg.toString());
             }
 
-        }
+    }
 
     }
 
