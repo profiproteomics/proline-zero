@@ -68,6 +68,9 @@ public class AdvancedConfigWindow extends JFrame {
 		GridBagConstraints portChoiceConstraints = new GridBagConstraints();
 		portChoiceConstraints.gridx = 0;
 		portChoiceConstraints.gridy = 0;
+		portChoiceConstraints.anchor = GridBagConstraints.NORTHWEST;
+		portChoiceConstraints.fill = GridBagConstraints.BOTH;
+
 		// test d'un texte souligné
 		portChoice.add(new JLabel("<HTML><U>Proline server : </HTML></U>"), portChoiceConstraints);
 

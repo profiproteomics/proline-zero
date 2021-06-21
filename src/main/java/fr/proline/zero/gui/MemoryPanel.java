@@ -1,6 +1,5 @@
 package fr.proline.zero.gui;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -185,7 +184,7 @@ public class MemoryPanel extends JPanel {
 		serverConstraint.weightx = 0;
 		serverConstraint.gridx++;
 		serverAllocation.add(new JLabel("Go"), serverConstraint);
-		serverAllocation.setBorder(BorderFactory.createLineBorder(Color.black));
+		serverAllocation.setBorder(BorderFactory.createTitledBorder(""));
 
 		serverTotalConstraint.weightx = 1;
 		serverTotalConstraint.gridwidth = 3;

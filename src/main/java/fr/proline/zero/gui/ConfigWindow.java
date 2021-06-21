@@ -1,6 +1,5 @@
 package fr.proline.zero.gui;
 
-import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -20,6 +19,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.UIManager;
 
 import fr.proline.zero.util.ProlineFiles;
 
@@ -43,6 +43,7 @@ public class ConfigWindow {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					initialize();
 					frame.setMinimumSize(frame.getSize());
 					frame.setVisible(true);
@@ -62,17 +63,56 @@ public class ConfigWindow {
 		frame.setTitle("Proline zero config window");
 		frame.setBounds(100, 100, 400, 570);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		initializeTab();
-		Container panel = new Container();
-		panel.setLayout(new GridBagLayout());
 
+		JPanel panel = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 3;
 		c.gridx = 0;
 		c.gridy = 0;
 
-		// modules panel
+		panel.add(createModulesPanel(), c);
+		c.weightx = 1;
+		c.weighty = 1;
+		c.gridy++;
+		panel.add(createTabPanel(), c);
+		c.gridwidth = 3;
+		c.gridy++;
+		c.weighty = 0;
+		doNotShowAgainBox = new JCheckBox("Do not show again");
+		panel.add(doNotShowAgainBox, c);
+		c.gridy++;
+		c.weightx = 5;
+		panel.add(createBottomButtonsPanel(), c);
+
+		frame.setContentPane(panel);
+	}
+
+	private JTabbedPane createTabPanel() {
+		tabbedPane = new JTabbedPane();
+		memoryPanel = new MemoryPanel();
+		folderPanel = new FolderPanel();
+		serverPanel = new ServerPanel();
+		parsePanel = new ParsingRulesPanel();
+		tabbedPane.add(memoryPanel, "Memory");
+		tabbedPane.add(folderPanel, "Folders");
+		tabbedPane.add(serverPanel, "Server");
+		tabbedPane.add(parsePanel, "Parsing rules");
+
+		return tabbedPane;
+	}
+
+	// panel des checkBox de modules
+	private JPanel createModulesPanel() {
+
+		// mise en place du panel et layout
+		JPanel modulePane = new JPanel(new GridBagLayout());
+
+		GridBagConstraints moduleConstraint = new GridBagConstraints();
+		moduleConstraint.fill = GridBagConstraints.NONE;
+		moduleConstraint.anchor = GridBagConstraints.WEST;
+
+		// mise en place des widgets
 		serverModuleBox = new JCheckBox("Start proline server");
 		serverModuleBox.setSelected(true);
 		serverModuleBox.setEnabled(false);
@@ -96,12 +136,7 @@ public class ConfigWindow {
 		};
 		seqRepModuleBox.addActionListener(checkSeqRep);
 
-		JPanel modulePane = new JPanel();
-		modulePane.setLayout(new GridBagLayout());
-		GridBagConstraints moduleConstraint = new GridBagConstraints();
-		moduleConstraint.fill = GridBagConstraints.NONE;
-		moduleConstraint.anchor = GridBagConstraints.WEST;
-
+		// ajout des widgets
 		moduleConstraint.gridy = 0;
 		modulePane.add(serverModuleBox, moduleConstraint);
 
@@ -117,39 +152,41 @@ public class ConfigWindow {
 		moduleConstraint.weightx = 1;
 		modulePane.add(Box.createHorizontalGlue(), moduleConstraint);
 		modulePane.setBorder(BorderFactory.createTitledBorder("Modules"));
-		panel.add(modulePane, c);
 
-		c.weightx = 1;
-		c.weighty = 1;
-		c.gridy++;
+		return modulePane;
+	}
 
-		// panel des onglets
-		panel.add(tabbedPane, c);
-
-		c.gridwidth = 3;
-		c.gridy++;
-		c.weighty = 0;
-		doNotShowAgainBox = new JCheckBox("Do not show again");
-		panel.add(doNotShowAgainBox, c);
-
-		// panel des trois boutons (ok restore cancel) + checkbox
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new GridBagLayout());
+	// panel des trois boutons (ok restore cancel) + checkbox
+	private JPanel createBottomButtonsPanel() {
+		// mise en place du panel et du layout
+		JPanel buttonPanel = new JPanel(new GridBagLayout());
 
 		GridBagConstraints buttonconstraint = new GridBagConstraints();
 		buttonconstraint.gridx = 0;
 		buttonconstraint.weightx = 1;
+
+		// mise en place des widgets
+		Icon crossIcon = new ImageIcon("./src/main/resources/cross.png");
+		cancelButton = new JButton("Cancel", crossIcon);
+		restoreButton = new JButton("restore");
+		Icon tickIcon = new ImageIcon("./src/main/resources/tick.png");
+		continueButton = new JButton("Ok", tickIcon);
+		ActionListener actionListener = new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				configContinue();
+			}
+		};
+		continueButton.addActionListener(actionListener);
+
+		// ajout des widgets au layout
 		buttonPanel.add(Box.createHorizontalGlue(), buttonconstraint);
 		buttonconstraint.gridx++;
 		buttonconstraint.weightx = 0;
-		Icon crossIcon = new ImageIcon("./src/main/resources/cross.png");
-		cancelButton = new JButton("Cancel", crossIcon);
 		buttonPanel.add(cancelButton, buttonconstraint);
 		buttonconstraint.gridx++;
 		buttonPanel.add(Box.createHorizontalStrut(20), buttonconstraint);
 
 		buttonconstraint.fill = GridBagConstraints.NONE;
-		restoreButton = new JButton("restore");
 		buttonconstraint.gridx++;
 		buttonconstraint.weightx = 0;
 		buttonPanel.add(restoreButton, buttonconstraint);
@@ -159,33 +196,9 @@ public class ConfigWindow {
 
 		buttonconstraint.gridx++;
 		buttonconstraint.weightx = 0;
-		Icon tickIcon = new ImageIcon("./src/main/resources/tick.png");
-		continueButton = new JButton("Ok", tickIcon);
-		ActionListener actionListener = new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				configContinue();
-			}
-		};
-		continueButton.addActionListener(actionListener);
 		buttonPanel.add(continueButton, buttonconstraint);
 
-		c.gridy++;
-		c.weightx = 5;
-		panel.add(buttonPanel, c);
-
-		frame.setContentPane(panel);
-	}
-
-	private void initializeTab() {
-		tabbedPane = new JTabbedPane();
-		memoryPanel = new MemoryPanel();
-		folderPanel = new FolderPanel();
-		serverPanel = new ServerPanel();
-		parsePanel = new ParsingRulesPanel();
-		tabbedPane.add(memoryPanel, "Memory");
-		tabbedPane.add(folderPanel, "Folders");
-		tabbedPane.add(serverPanel, "Server");
-		tabbedPane.add(parsePanel, "Parsing rules");
+		return buttonPanel;
 	}
 
 	// tests pour l'instant, ecriture dans le fichier plus tard et lancement de la
