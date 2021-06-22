@@ -3,11 +3,16 @@ package fr.proline.zero.gui;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -74,6 +79,7 @@ public class FolderPanel extends JPanel {
 		// creation du panel et du layout
 		JPanel tmpFolderPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints tmpFolderConstraint = new GridBagConstraints();
+		tmpFolderConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
 
 		// creation des widgets
 		maximumTmpFolderSizeField = new JTextField();
@@ -98,6 +104,7 @@ public class FolderPanel extends JPanel {
 		JPanel addFolderPanel = new JPanel(new GridBagLayout());
 		addFolderPanel.setBorder(BorderFactory.createTitledBorder("Add folder"));
 		GridBagConstraints addFolderConstraint = new GridBagConstraints();
+		addFolderConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
 		addFolderConstraint.anchor = GridBagConstraints.EAST;
 
 		// creation des widgets
@@ -114,11 +121,24 @@ public class FolderPanel extends JPanel {
 		folderPathField.setPreferredSize(new Dimension(160, 20));
 
 		JButton addButton = new JButton("add");
-		addButton.addActionListener(addFolderAction());
-
 		JButton clearButton = new JButton("clear");
+		JButton browseButton = new JButton("folder");
+		try {
 
-		JButton browseButton = new JButton("dossier");
+			Icon addIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("plus.png")));
+			addButton = new JButton("add", addIcon);
+			addButton.addActionListener(addFolderAction());
+
+			Icon eraserIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("eraser.png")));
+			clearButton = new JButton("clear", eraserIcon);
+
+			Icon folderIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("folders.png")));
+			browseButton = new JButton(folderIcon);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		// ajout des widgets au layout
 		addFolderConstraint.gridx = 0;
@@ -142,7 +162,11 @@ public class FolderPanel extends JPanel {
 		addFolderPanel.add(new JLabel("Path : ", SwingConstants.RIGHT), addFolderConstraint);
 		addFolderConstraint.gridx++;
 		addFolderConstraint.anchor = GridBagConstraints.WEST;
+		addFolderConstraint.fill = GridBagConstraints.HORIZONTAL;
+		addFolderConstraint.weightx = 1;
 		addFolderPanel.add(folderPathField, addFolderConstraint);
+		addFolderConstraint.fill = GridBagConstraints.NONE;
+		addFolderConstraint.weightx = 0;
 		addFolderConstraint.gridx++;
 		addFolderPanel.add(browseButton, addFolderConstraint);
 
@@ -193,6 +217,7 @@ public class FolderPanel extends JPanel {
 		resultListPanel = new JPanel(new GridBagLayout());
 		resultListPanel.setBorder(BorderFactory.createTitledBorder("Results folders"));
 		resultListPanelConstraints = new GridBagConstraints();
+		resultListPanelConstraints.insets = new Insets(5, 5, 5, 5);
 		resultListPanelConstraints.gridx = 0;
 		resultListPanelConstraints.gridy = 0;
 		resultListPanelConstraints.weightx = 1;
@@ -204,6 +229,7 @@ public class FolderPanel extends JPanel {
 		mzdbListPanel = new JPanel(new GridBagLayout());
 		mzdbListPanel.setBorder(BorderFactory.createTitledBorder("Mzdb files folders"));
 		mzdbListPanelConstraints = new GridBagConstraints();
+		mzdbListPanelConstraints.insets = new Insets(5, 5, 5, 5);
 		mzdbListPanelConstraints.gridx = 0;
 		mzdbListPanelConstraints.gridy = 0;
 		mzdbListPanelConstraints.weightx = 1;
@@ -214,6 +240,7 @@ public class FolderPanel extends JPanel {
 		fastaListPanel = new JPanel(new GridBagLayout());
 		fastaListPanel.setBorder(BorderFactory.createTitledBorder("Fasta files folders"));
 		fastaListPanelConstraints = new GridBagConstraints();
+		fastaListPanelConstraints.insets = new Insets(5, 5, 5, 5);
 		fastaListPanelConstraints.gridx = 0;
 		fastaListPanelConstraints.gridy = 0;
 		fastaListPanelConstraints.weightx = 1;
@@ -227,6 +254,14 @@ public class FolderPanel extends JPanel {
 					JLabel label = new JLabel(folderLabelField.getText());
 					JLabel path = new JLabel(folderPathField.getText());
 					JButton delete = new JButton("x");
+					try {
+						Icon crossIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
+						delete.setText("");
+						delete.setIcon(crossIcon);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 
 					switch ((String) dataTypeBox.getSelectedItem()) {
 					case "Result folder":

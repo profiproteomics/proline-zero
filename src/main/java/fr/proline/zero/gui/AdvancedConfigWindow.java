@@ -3,8 +3,13 @@ package fr.proline.zero.gui;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -38,6 +43,7 @@ public class AdvancedConfigWindow extends JDialog {
 		GridBagConstraints advancedSettingsConstraints = new GridBagConstraints();
 		advancedSettingsConstraints.anchor = GridBagConstraints.NORTHWEST;
 		advancedSettingsConstraints.fill = GridBagConstraints.BOTH;
+		advancedSettingsConstraints.insets = new Insets(5, 5, 5, 5);
 
 		// creation des widgets
 		serverDefaultTimeout = new JTextField();
@@ -55,7 +61,16 @@ public class AdvancedConfigWindow extends JDialog {
 		aide.setText("ici est l'aide concernant l'onglet advanced settings");
 		aide.setEditable(false);
 
-		JButton exploreFolder = new JButton("dossier");
+		JButton foldersButton = new JButton("dossier");
+		foldersButton.setSize(getPreferredSize());
+		try {
+			Icon foldersIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("folders.png")));
+			foldersButton.setText("");
+			foldersButton.setIcon(foldersIcon);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		// ajout des elements au layout
 		advancedSettingsConstraints.gridx = 0;
@@ -93,7 +108,7 @@ public class AdvancedConfigWindow extends JDialog {
 		add(jvmpath, advancedSettingsConstraints);
 
 		advancedSettingsConstraints.gridx++;
-		add(exploreFolder, advancedSettingsConstraints);
+		add(foldersButton, advancedSettingsConstraints);
 
 		advancedSettingsConstraints.gridx = 0;
 		advancedSettingsConstraints.gridy++;
@@ -107,6 +122,7 @@ public class AdvancedConfigWindow extends JDialog {
 		GridBagConstraints portChoiceConstraints = new GridBagConstraints();
 		portChoiceConstraints.anchor = GridBagConstraints.NORTHWEST;
 		portChoiceConstraints.fill = GridBagConstraints.BOTH;
+		portChoiceConstraints.insets = new Insets(5, 5, 5, 5);
 
 		// creation des widgets
 		portlabel = new JTextField();
@@ -116,6 +132,14 @@ public class AdvancedConfigWindow extends JDialog {
 		port.setPreferredSize(new Dimension(60, 20));
 
 		JButton addButton = new JButton("+");
+		try {
+			Icon plusIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("plus.png")));
+			addButton.setText("");
+			addButton.setIcon(plusIcon);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		JButton testButton = new JButton("test");
 

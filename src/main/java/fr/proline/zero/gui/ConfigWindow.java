@@ -3,13 +3,16 @@ package fr.proline.zero.gui;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -61,7 +64,7 @@ public class ConfigWindow {
 		// TODO gerer le resizing
 		frame = new JFrame();
 		frame.setTitle("Proline zero config window");
-		frame.setBounds(100, 100, 400, 570);
+		frame.setBounds(100, 100, 440, 640);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel panel = new JPanel(new GridBagLayout());
@@ -160,17 +163,23 @@ public class ConfigWindow {
 	private JPanel createBottomButtonsPanel() {
 		// mise en place du panel et du layout
 		JPanel buttonPanel = new JPanel(new GridBagLayout());
-
 		GridBagConstraints buttonconstraint = new GridBagConstraints();
 		buttonconstraint.gridx = 0;
 		buttonconstraint.weightx = 1;
+		buttonconstraint.insets = new Insets(5, 5, 5, 5);
 
 		// mise en place des widgets
-		Icon crossIcon = new ImageIcon("./src/main/resources/cross.png");
-		cancelButton = new JButton("Cancel", crossIcon);
-		restoreButton = new JButton("restore");
-		Icon tickIcon = new ImageIcon("./src/main/resources/tick.png");
-		continueButton = new JButton("Ok", tickIcon);
+		try {
+			Icon crossIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
+			Icon tickIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("tick.png")));
+			Icon restoreIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("arrow-circle.png")));
+			continueButton = new JButton("Ok", tickIcon);
+			cancelButton = new JButton("Cancel", crossIcon);
+			restoreButton = new JButton("restore", restoreIcon);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		ActionListener actionListener = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				configContinue();
@@ -183,16 +192,11 @@ public class ConfigWindow {
 		buttonconstraint.gridx++;
 		buttonconstraint.weightx = 0;
 		buttonPanel.add(cancelButton, buttonconstraint);
-		buttonconstraint.gridx++;
-		buttonPanel.add(Box.createHorizontalStrut(20), buttonconstraint);
 
 		buttonconstraint.fill = GridBagConstraints.NONE;
 		buttonconstraint.gridx++;
 		buttonconstraint.weightx = 0;
 		buttonPanel.add(restoreButton, buttonconstraint);
-
-		buttonconstraint.gridx++;
-		buttonPanel.add(Box.createHorizontalStrut(20), buttonconstraint);
 
 		buttonconstraint.gridx++;
 		buttonconstraint.weightx = 0;

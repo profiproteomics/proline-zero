@@ -145,6 +145,7 @@ public class MemoryPanel extends JPanel {
 		GridBagConstraints serverTotalConstraint = new GridBagConstraints();
 		serverTotalConstraint.weighty = 0;
 		serverTotalConstraint.weightx = 0;
+		serverTotalConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
 
 		// creation des widgets
 		this.totalServerMemoryField = new JTextField();
@@ -181,6 +182,7 @@ public class MemoryPanel extends JPanel {
 		GridBagConstraints serverConstraint = new GridBagConstraints();
 		serverConstraint.fill = GridBagConstraints.HORIZONTAL;
 		serverConstraint.weighty = 1;
+		serverConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
 
 		// creation des widgets
 		this.seqrepMemoryField = new JTextField();

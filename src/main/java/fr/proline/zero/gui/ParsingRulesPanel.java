@@ -6,9 +6,13 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -62,6 +66,7 @@ public class ParsingRulesPanel extends JPanel {
 		addParsingRules.setBorder(BorderFactory.createTitledBorder("Parsing rules"));
 		addParsingRulesConstraints = new GridBagConstraints();
 		addParsingRulesConstraints.fill = GridBagConstraints.BOTH;
+		addParsingRulesConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
 
 		// creation des widgets
 		labelField = new JTextField();
@@ -71,9 +76,17 @@ public class ParsingRulesPanel extends JPanel {
 		regExField.setPreferredSize(new Dimension(60, 20));
 
 		fastaFileFIeld = new JTextField();
-		fastaFileFIeld.setPreferredSize(new Dimension(60, 20));
+		fastaFileFIeld.setPreferredSize(new Dimension(200, 20));
 
 		JButton plus = new JButton("+");
+		try {
+			Icon plusIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("plus.png")));
+			plus.setText("");
+			plus.setIcon(plusIcon);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		plus.addActionListener(addParsingRule());
 
 		filler = Box.createHorizontalGlue();
@@ -101,6 +114,7 @@ public class ParsingRulesPanel extends JPanel {
 		addParsingRules.add(regExField, addParsingRulesConstraints);
 
 		addParsingRulesConstraints.gridx++;
+		addParsingRulesConstraints.weightx = 1;
 		addParsingRules.add(fastaFileFIeld, addParsingRulesConstraints);
 
 		addParsingRulesConstraints.gridx++;
@@ -142,6 +156,14 @@ public class ParsingRulesPanel extends JPanel {
 
 					// remove button
 					JButton delete = new JButton("x");
+					try {
+						Icon crossIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
+						delete.setText("");
+						delete.setIcon(crossIcon);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					addParsingRules.add(delete, addParsingRulesConstraints);
 
 					ActionListener delParseRule = new ActionListener() {
