@@ -16,89 +16,115 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 public class ParsingRulesPanel extends JPanel {
-	private JTextField label;
-	private JTextField regEx;
-	private JTextField fastaFile;
-	private JTextArea aide;
+	private JTextField labelField;
+	private JTextField regExField;
+	private JTextField fastaFileFIeld;
 	private Component filler;
+	private JTextArea aide;
+	private JPanel addParsingRules;
+	private GridBagConstraints addParsingRulesConstraints;
 
 	public ParsingRulesPanel() {
-		label = new JTextField();
-		label.setPreferredSize(new Dimension(60, 20));
-		regEx = new JTextField();
-		regEx.setPreferredSize(new Dimension(60, 20));
-		fastaFile = new JTextField();
-		fastaFile.setPreferredSize(new Dimension(60, 20));
-		aide = new JTextArea();
-		aide.setPreferredSize(new Dimension(300, 75));
 		initialize();
 	}
 
 	private void initialize() {
+		// creation du layout
 		setLayout(new GridBagLayout());
 		GridBagConstraints parsingPanelConstraints = new GridBagConstraints();
-		parsingPanelConstraints.gridx = 0;
-		parsingPanelConstraints.gridy = 0;
 		parsingPanelConstraints.fill = GridBagConstraints.BOTH;
 		parsingPanelConstraints.anchor = GridBagConstraints.NORTH;
 		parsingPanelConstraints.weightx = 1;
 
-		// bandeau d'aide
+		// creation des widgets
 		// TODO : texte à changer et centrer avec une icone
+		aide = new JTextArea();
+		aide.setPreferredSize(new Dimension(300, 75));
 		aide.setText("ici est l'aide concernant l'onglet parsing rules");
 		aide.setEditable(false);
-		add(aide, parsingPanelConstraints);
-		parsingPanelConstraints.gridy++;
 
-		// panel des parsing rules
-		JPanel addParsingRules = new JPanel();
+		// ajout des widgets au layout
+		parsingPanelConstraints.gridx = 0;
+		parsingPanelConstraints.gridy = 0;
+		add(aide, parsingPanelConstraints);
+
+		parsingPanelConstraints.gridy++;
+		add(createParsingRulesPanel(), parsingPanelConstraints);
+
+		parsingPanelConstraints.fill = GridBagConstraints.VERTICAL;
+		parsingPanelConstraints.weighty = 1;
+		add(Box.createHorizontalGlue(), parsingPanelConstraints);
+	}
+
+	private JPanel createParsingRulesPanel() {
+		// creation du panel et du layout
+		addParsingRules = new JPanel(new GridBagLayout());
 		addParsingRules.setBorder(BorderFactory.createTitledBorder("Parsing rules"));
-		addParsingRules.setLayout(new GridBagLayout());
-		GridBagConstraints addParsingRulesConstraints = new GridBagConstraints();
-		addParsingRulesConstraints.gridx = 0;
-		addParsingRulesConstraints.gridy = 0;
+		addParsingRulesConstraints = new GridBagConstraints();
 		addParsingRulesConstraints.fill = GridBagConstraints.BOTH;
 
+		// creation des widgets
+		labelField = new JTextField();
+		labelField.setPreferredSize(new Dimension(60, 20));
+
+		regExField = new JTextField();
+		regExField.setPreferredSize(new Dimension(60, 20));
+
+		fastaFileFIeld = new JTextField();
+		fastaFileFIeld.setPreferredSize(new Dimension(60, 20));
+
+		JButton plus = new JButton("+");
+		plus.addActionListener(addParsingRule());
+
+		filler = Box.createHorizontalGlue();
+
+		// ajout des widgets au layout
+		addParsingRulesConstraints.gridx = 0;
+		addParsingRulesConstraints.gridy = 0;
 		addParsingRules.add(new JLabel("Add a parsing rule : "), addParsingRulesConstraints);
+
 		addParsingRulesConstraints.gridy++;
-
-		// add parsing rule
-
-		// add parsing rule label
 		addParsingRules.add(new JLabel("Label : "), addParsingRulesConstraints);
-		addParsingRulesConstraints.gridx++;
 
+		addParsingRulesConstraints.gridx++;
 		addParsingRules.add(new JLabel("Regex : "), addParsingRulesConstraints);
-		addParsingRulesConstraints.gridx++;
 
+		addParsingRulesConstraints.gridx++;
 		addParsingRules.add(new JLabel("Fasta file : "), addParsingRulesConstraints);
-		addParsingRulesConstraints.gridx++;
 
+		addParsingRulesConstraints.gridx++;
 		addParsingRulesConstraints.gridy++;
 		addParsingRulesConstraints.gridx = 0;
+		addParsingRules.add(labelField, addParsingRulesConstraints);
 
-		// add parsing rule text fields
-		label.setToolTipText("label");
-		addParsingRules.add(label, addParsingRulesConstraints);
 		addParsingRulesConstraints.gridx++;
+		addParsingRules.add(regExField, addParsingRulesConstraints);
 
-		regEx.setToolTipText("regEx");
-		addParsingRules.add(regEx, addParsingRulesConstraints);
 		addParsingRulesConstraints.gridx++;
+		addParsingRules.add(fastaFileFIeld, addParsingRulesConstraints);
 
-		fastaFile.setToolTipText("Fasta file");
-		addParsingRules.add(fastaFile, addParsingRulesConstraints);
 		addParsingRulesConstraints.gridx++;
+		addParsingRules.add(plus, addParsingRulesConstraints);
 
-		// add parsing rule button
-		JButton plus = new JButton("+");
+		addParsingRulesConstraints.gridx++;
+		addParsingRulesConstraints.gridy++;
+		addParsingRulesConstraints.gridx = 0;
+		addParsingRulesConstraints.fill = GridBagConstraints.VERTICAL;
+		addParsingRulesConstraints.weighty = 1;
+		addParsingRules.add(filler, addParsingRulesConstraints);
+
+		return addParsingRules;
+	}
+
+	private ActionListener addParsingRule() {
 		ActionListener addParseRule = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				if (!label.getText().isEmpty() && !regEx.getText().isEmpty() && !fastaFile.getText().isEmpty()) {
+				if (!labelField.getText().isEmpty() && !regExField.getText().isEmpty()
+						&& !fastaFileFIeld.getText().isEmpty()) {
 
-					JLabel addedLabel = new JLabel(label.getText());
-					JLabel addedRegex = new JLabel(regEx.getText());
-					JLabel addedFasta = new JLabel(fastaFile.getText());
+					JLabel addedLabel = new JLabel(labelField.getText());
+					JLabel addedRegex = new JLabel(regExField.getText());
+					JLabel addedFasta = new JLabel(fastaFileFIeld.getText());
 
 					addParsingRules.remove(filler);
 					addParsingRulesConstraints.fill = GridBagConstraints.NONE;
@@ -131,9 +157,9 @@ public class ParsingRulesPanel extends JPanel {
 					delete.addActionListener(delParseRule);
 					addParsingRulesConstraints.gridy++;
 
-					label.setText("");
-					regEx.setText("");
-					fastaFile.setText("");
+					labelField.setText("");
+					regExField.setText("");
+					fastaFileFIeld.setText("");
 
 					addParsingRulesConstraints.fill = GridBagConstraints.VERTICAL;
 					addParsingRulesConstraints.weighty = 1;
@@ -143,22 +169,6 @@ public class ParsingRulesPanel extends JPanel {
 				}
 			}
 		};
-		plus.addActionListener(addParseRule);
-		addParsingRules.add(plus, addParsingRulesConstraints);
-		addParsingRulesConstraints.gridx++;
-
-		addParsingRulesConstraints.gridy++;
-		addParsingRulesConstraints.gridx = 0;
-
-		addParsingRulesConstraints.fill = GridBagConstraints.VERTICAL;
-		addParsingRulesConstraints.weighty = 1;
-		filler = Box.createHorizontalGlue();
-		addParsingRules.add(filler, addParsingRulesConstraints);
-
-		add(addParsingRules, parsingPanelConstraints);
-
-		parsingPanelConstraints.fill = GridBagConstraints.VERTICAL;
-		parsingPanelConstraints.weighty = 1;
-		add(Box.createHorizontalGlue(), parsingPanelConstraints);
+		return addParseRule;
 	}
 }
