@@ -71,6 +71,7 @@ public class ConfigWindow {
 		c.gridx = 0;
 		c.gridy = 0;
 
+		// ajout des differents panels
 		panel.add(createModulesPanel(), c);
 		c.weightx = 1;
 		c.weighty = 1;
@@ -102,7 +103,6 @@ public class ConfigWindow {
 		return tabbedPane;
 	}
 
-	// panel des checkBox de modules
 	private JPanel createModulesPanel() {
 
 		// mise en place du panel et layout

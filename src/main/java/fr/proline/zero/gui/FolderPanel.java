@@ -17,171 +17,218 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 public class FolderPanel extends JPanel {
-	private JTextField maximumTmpFolderSize;
-	private JComboBox<String> dataType;
-	private JTextField folderLabel;
-	private JTextField folderPath;
+	private JTextField maximumTmpFolderSizeField;
+	private JComboBox<String> dataTypeBox;
+	private JTextField folderLabelField;
+	private JTextField folderPathField;
+	private JPanel resultListPanel;
+	private GridBagConstraints resultListPanelConstraints;
+	private JPanel mzdbListPanel;
+	private GridBagConstraints mzdbListPanelConstraints;
+	private JPanel fastaListPanel;
+	private GridBagConstraints fastaListPanelConstraints;
 	private JTextArea aide;
 
 	public FolderPanel() {
 		super();
-		aide = new JTextArea();
-		aide.setPreferredSize(new Dimension(300, 75));
-		maximumTmpFolderSize = new JTextField();
-		maximumTmpFolderSize.setPreferredSize(new Dimension(50, 20));
-		dataType = new JComboBox<String>();
-		dataType.setPreferredSize(new Dimension(100, 20));
-		folderLabel = new JTextField();
-		folderLabel.setPreferredSize(new Dimension(60, 20));
-		folderPath = new JTextField();
-		folderPath.setPreferredSize(new Dimension(160, 20));
 		initialize();
 	}
 
 	private void initialize() {
+		// creation du layout
 		setLayout(new GridBagLayout());
 		GridBagConstraints folderPanelConstraints = new GridBagConstraints();
-		folderPanelConstraints.gridx = 0;
-		folderPanelConstraints.gridy = 0;
 		folderPanelConstraints.fill = GridBagConstraints.BOTH;
 		folderPanelConstraints.anchor = GridBagConstraints.NORTH;
 		folderPanelConstraints.weightx = 1;
 
-		// bandeau d'aide
+		// creation des widgets
 		// TODO : texte à changer et centrer avec une icone
+		aide = new JTextArea();
+		aide.setPreferredSize(new Dimension(300, 75));
 		aide.setText("ici est l'aide concernant l'onglet folder");
 		aide.setEditable(false);
+
+		// ajout des widgets au layout
+		folderPanelConstraints.gridx = 0;
+		folderPanelConstraints.gridy = 0;
 		add(aide, folderPanelConstraints);
 		folderPanelConstraints.gridy++;
 
-		// maximum tmp folder size setting
-		JPanel tmpFolderPanel = new JPanel();
-		tmpFolderPanel.setLayout(new GridBagLayout());
+		folderPanelConstraints.weightx = 0;
+		add(createTmpFolderPanel(), folderPanelConstraints);
+
+		folderPanelConstraints.gridy++;
+		add(createAddFolderPanel(), folderPanelConstraints);
+
+		folderPanelConstraints.gridy++;
+		add(createFolderListPanel(), folderPanelConstraints);
+
+		folderPanelConstraints.gridy++;
+		folderPanelConstraints.weighty = 1;
+		add(Box.createHorizontalGlue(), folderPanelConstraints);
+
+	}
+
+	private JPanel createTmpFolderPanel() {
+		// creation du panel et du layout
+		JPanel tmpFolderPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints tmpFolderConstraint = new GridBagConstraints();
+
+		// creation des widgets
+		maximumTmpFolderSizeField = new JTextField();
+		maximumTmpFolderSizeField.setPreferredSize(new Dimension(50, 20));
+
+		// ajout des widgets au layout
 		tmpFolderConstraint.gridx = 0;
 		tmpFolderConstraint.gridy = 0;
 		tmpFolderPanel.add(new JLabel("Maximum size for temp folder : ", SwingConstants.RIGHT), tmpFolderConstraint);
+
 		tmpFolderConstraint.gridx++;
-		tmpFolderPanel.add(maximumTmpFolderSize, tmpFolderConstraint);
+		tmpFolderPanel.add(maximumTmpFolderSizeField, tmpFolderConstraint);
+
 		tmpFolderConstraint.gridx++;
 		tmpFolderPanel.add(new JLabel("Mo"), tmpFolderConstraint);
-		folderPanelConstraints.weightx = 0;
-		add(tmpFolderPanel, folderPanelConstraints);
 
-		// addfolder panel
-		JPanel addFolderPanel = new JPanel();
+		return tmpFolderPanel;
+	}
+
+	private JPanel createAddFolderPanel() {
+		// creation du panel et du layout
+		JPanel addFolderPanel = new JPanel(new GridBagLayout());
 		addFolderPanel.setBorder(BorderFactory.createTitledBorder("Add folder"));
-		addFolderPanel.setLayout(new GridBagLayout());
 		GridBagConstraints addFolderConstraint = new GridBagConstraints();
-		addFolderConstraint.gridx = 0;
-		addFolderConstraint.gridy = 0;
 		addFolderConstraint.anchor = GridBagConstraints.EAST;
 
-		// datatype comboBox
+		// creation des widgets
+		dataTypeBox = new JComboBox<String>();
+		dataTypeBox.addItem("Result folder");
+		dataTypeBox.addItem("Mzdb folder");
+		dataTypeBox.addItem("Fasta folder");
+		dataTypeBox.setPreferredSize(new Dimension(100, 20));
+
+		folderLabelField = new JTextField();
+		folderLabelField.setPreferredSize(new Dimension(60, 20));
+
+		folderPathField = new JTextField();
+		folderPathField.setPreferredSize(new Dimension(160, 20));
+
+		JButton addButton = new JButton("add");
+		addButton.addActionListener(addFolderAction());
+
+		JButton clearButton = new JButton("clear");
+
+		JButton browseButton = new JButton("dossier");
+
+		// ajout des widgets au layout
+		addFolderConstraint.gridx = 0;
+		addFolderConstraint.gridy = 0;
 		addFolderPanel.add(new JLabel("Data type : ", SwingConstants.RIGHT), addFolderConstraint);
 		addFolderConstraint.gridx++;
-		dataType.addItem("Result folder");
-		dataType.addItem("Mzdb folder");
-		dataType.addItem("Fasta folder");
 		addFolderConstraint.anchor = GridBagConstraints.WEST;
-		addFolderPanel.add(dataType, addFolderConstraint);
+		addFolderPanel.add(dataTypeBox, addFolderConstraint);
 
-		// folder label
 		addFolderConstraint.gridx = 0;
 		addFolderConstraint.gridy++;
 		addFolderConstraint.anchor = GridBagConstraints.EAST;
 		addFolderPanel.add(new JLabel("Label : ", SwingConstants.RIGHT), addFolderConstraint);
 		addFolderConstraint.gridx++;
 		addFolderConstraint.anchor = GridBagConstraints.WEST;
-		addFolderPanel.add(folderLabel, addFolderConstraint);
+		addFolderPanel.add(folderLabelField, addFolderConstraint);
 
-		// folder path
 		addFolderConstraint.gridx = 0;
 		addFolderConstraint.gridy++;
 		addFolderConstraint.anchor = GridBagConstraints.EAST;
 		addFolderPanel.add(new JLabel("Path : ", SwingConstants.RIGHT), addFolderConstraint);
 		addFolderConstraint.gridx++;
 		addFolderConstraint.anchor = GridBagConstraints.WEST;
-		addFolderPanel.add(folderPath, addFolderConstraint);
+		addFolderPanel.add(folderPathField, addFolderConstraint);
 		addFolderConstraint.gridx++;
-
-		// browse button
-		// TODO : mettre une icone
-		JButton browseButton = new JButton("dossier");
 		addFolderPanel.add(browseButton, addFolderConstraint);
 
-		// clear button
-		JButton clearButton = new JButton("clear");
 		addFolderConstraint.anchor = GridBagConstraints.EAST;
 		addFolderConstraint.gridy++;
 		addFolderConstraint.gridx = 1;
 		addFolderPanel.add(clearButton, addFolderConstraint);
 
-		// add button
-		JButton addButton = new JButton("add");
 		addFolderConstraint.anchor = GridBagConstraints.CENTER;
 		addFolderConstraint.gridx++;
-
 		addFolderPanel.add(addButton, addFolderConstraint);
 
-		// folder list panel
-		JPanel folderListPanel = new JPanel();
+		return addFolderPanel;
+	}
+
+	private JPanel createFolderListPanel() {
+		// creation du panel et layout
+		JPanel folderListPanel = new JPanel(new GridBagLayout());
 		folderListPanel.setBorder(BorderFactory.createTitledBorder("Folder list"));
-		folderListPanel.setLayout(new GridBagLayout());
 		GridBagConstraints folderListPanelConstraints = new GridBagConstraints();
-		folderListPanelConstraints.gridx = 0;
-		folderListPanelConstraints.gridy = 0;
 		folderListPanelConstraints.weightx = 0;
 		folderListPanelConstraints.weighty = 0;
 		folderListPanelConstraints.fill = GridBagConstraints.BOTH;
 
-		// TODO : rendre la liste des dossiers plus belle
+		// creation des panels en attribut de classe pour pouvoir ajouter dynamiquement
+		// des elements
+		this.initResultFolderPanel();
+		this.initMzdbFolderPanel();
+		this.initFastaFolderPanel();
 
-		// result files folder
-		JPanel resultListPanel = new JPanel();
+		// ajout des panels au layout
+		// TODO : rendre la liste des dossiers plus belle// result files folder
+		folderListPanelConstraints.gridx = 0;
+		folderListPanelConstraints.gridy = 0;
+		folderListPanel.add(resultListPanel, folderListPanelConstraints);
+
+		folderListPanelConstraints.gridy++;
+		folderListPanel.add(mzdbListPanel, folderListPanelConstraints);
+
+		// TODO : desactiver si seqrep décoché;
+		folderListPanelConstraints.gridy++;
+		folderListPanel.add(fastaListPanel, folderListPanelConstraints);
+
+		return folderListPanel;
+	}
+
+	private void initResultFolderPanel() {
+		resultListPanel = new JPanel(new GridBagLayout());
 		resultListPanel.setBorder(BorderFactory.createTitledBorder("Results folders"));
-		resultListPanel.setLayout(new GridBagLayout());
-		GridBagConstraints resultListPanelConstraints = new GridBagConstraints();
+		resultListPanelConstraints = new GridBagConstraints();
 		resultListPanelConstraints.gridx = 0;
 		resultListPanelConstraints.gridy = 0;
 		resultListPanelConstraints.weightx = 1;
 		resultListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-		folderListPanel.add(resultListPanel, folderListPanelConstraints);
 
-		// mzdb files folder panel
-		JPanel mzdbListPanel = new JPanel();
+	}
+
+	private void initMzdbFolderPanel() {
+		mzdbListPanel = new JPanel(new GridBagLayout());
 		mzdbListPanel.setBorder(BorderFactory.createTitledBorder("Mzdb files folders"));
-		mzdbListPanel.setLayout(new GridBagLayout());
-		GridBagConstraints mzdbListPanelConstraints = new GridBagConstraints();
+		mzdbListPanelConstraints = new GridBagConstraints();
 		mzdbListPanelConstraints.gridx = 0;
 		mzdbListPanelConstraints.gridy = 0;
 		mzdbListPanelConstraints.weightx = 1;
 		mzdbListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-		folderListPanelConstraints.gridy++;
-		folderListPanel.add(mzdbListPanel, folderListPanelConstraints);
+	}
 
-		// fasta files folder panel
-		// TODO : desactiver si seqrep décoché;
-		JPanel fastaListPanel = new JPanel();
+	private void initFastaFolderPanel() {
+		fastaListPanel = new JPanel(new GridBagLayout());
 		fastaListPanel.setBorder(BorderFactory.createTitledBorder("Fasta files folders"));
-		fastaListPanel.setLayout(new GridBagLayout());
-		GridBagConstraints fastaListPanelConstraints = new GridBagConstraints();
+		fastaListPanelConstraints = new GridBagConstraints();
 		fastaListPanelConstraints.gridx = 0;
 		fastaListPanelConstraints.gridy = 0;
 		fastaListPanelConstraints.weightx = 1;
 		fastaListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-		folderListPanelConstraints.gridy++;
-		folderListPanel.add(fastaListPanel, folderListPanelConstraints);
+	}
 
-		// action du add button
+	private ActionListener addFolderAction() {
 		ActionListener addFolder = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				if (!folderPath.getText().isEmpty() && !folderLabel.getText().isEmpty()) {
-					JLabel label = new JLabel(folderLabel.getText());
-					JLabel path = new JLabel(folderPath.getText());
+				if (!folderPathField.getText().isEmpty() && !folderLabelField.getText().isEmpty()) {
+					JLabel label = new JLabel(folderLabelField.getText());
+					JLabel path = new JLabel(folderPathField.getText());
 					JButton delete = new JButton("x");
 
-					switch ((String) dataType.getSelectedItem()) {
+					switch ((String) dataTypeBox.getSelectedItem()) {
 					case "Result folder":
 						resultListPanel.add(label, resultListPanelConstraints);
 						resultListPanelConstraints.gridx++;
@@ -247,24 +294,14 @@ public class FolderPanel extends JPanel {
 						break;
 
 					}
-					folderPath.setText("");
-					folderLabel.setText("");
+					folderPathField.setText("");
+					folderLabelField.setText("");
 					revalidate();
 					repaint();
 				}
 			}
 		};
-		addButton.addActionListener(addFolder);
-
-		folderPanelConstraints.gridy++;
-		add(addFolderPanel, folderPanelConstraints);
-
-		folderPanelConstraints.gridy++;
-		add(folderListPanel, folderPanelConstraints);
-
-		folderPanelConstraints.gridy++;
-		folderPanelConstraints.weighty = 1;
-		add(Box.createHorizontalGlue(), folderPanelConstraints);
-
+		return addFolder;
 	}
+
 }
