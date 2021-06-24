@@ -28,7 +28,7 @@ public class ServerPanel extends JPanel {
 		setLayout(new GridBagLayout());
 		GridBagConstraints serverpanelConstraints = new GridBagConstraints();
 		serverpanelConstraints.fill = GridBagConstraints.BOTH;
-		serverpanelConstraints.anchor = GridBagConstraints.NORTH;
+		serverpanelConstraints.anchor = GridBagConstraints.NORTHWEST;
 		serverpanelConstraints.weightx = 1;
 
 		// creation des widgets
@@ -42,7 +42,7 @@ public class ServerPanel extends JPanel {
 
 		aide = new JTextArea();
 		aide.setPreferredSize(new Dimension(300, 75));
-		aide.setText("ici est l'aide concernant l'onglet server");
+		aide.setText("ici est l'aide concernant l'onglet \nserver");
 		aide.setEditable(false);
 
 		// ajout des widgets au layout
@@ -50,18 +50,20 @@ public class ServerPanel extends JPanel {
 		serverpanelConstraints.gridy = 0;
 		add(aide, serverpanelConstraints);
 
+		serverpanelConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+		serverpanelConstraints.fill = GridBagConstraints.NONE;
 		serverpanelConstraints.gridy++;
+		serverpanelConstraints.weightx = 0;
 		add(createDataStorePanel(), serverpanelConstraints);
 
 		serverpanelConstraints.gridy++;
-		serverpanelConstraints.fill = GridBagConstraints.NONE;
 		add(advancedSettingsButton, serverpanelConstraints);
 
 		serverpanelConstraints.gridy++;
 		serverpanelConstraints.fill = GridBagConstraints.VERTICAL;
-		serverpanelConstraints.anchor = GridBagConstraints.NORTH;
+		serverpanelConstraints.anchor = GridBagConstraints.SOUTH;
 		serverpanelConstraints.weighty = 1;
-		add(Box.createHorizontalGlue(), serverpanelConstraints);
+		add(Box.createVerticalGlue(), serverpanelConstraints);
 	}
 
 	private JPanel createDataStorePanel() {

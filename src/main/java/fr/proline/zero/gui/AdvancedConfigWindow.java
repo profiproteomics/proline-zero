@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -32,7 +33,7 @@ public class AdvancedConfigWindow extends JDialog {
 	public AdvancedConfigWindow() {
 		setModal(true);
 		setTitle("Proline zero advanced config window");
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 450, 350);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		initialize();
 	}
@@ -42,8 +43,7 @@ public class AdvancedConfigWindow extends JDialog {
 		setLayout(new GridBagLayout());
 		GridBagConstraints advancedSettingsConstraints = new GridBagConstraints();
 		advancedSettingsConstraints.anchor = GridBagConstraints.NORTHWEST;
-		advancedSettingsConstraints.fill = GridBagConstraints.BOTH;
-		advancedSettingsConstraints.insets = new Insets(5, 5, 5, 5);
+		advancedSettingsConstraints.fill = GridBagConstraints.HORIZONTAL;
 
 		// creation des widgets
 		serverDefaultTimeout = new JTextField();
@@ -58,15 +58,16 @@ public class AdvancedConfigWindow extends JDialog {
 		// TODO : texte à changer et centrer avec une icone
 		aide = new JTextArea();
 		aide.setPreferredSize(new Dimension(300, 75));
-		aide.setText("ici est l'aide concernant l'onglet advanced settings");
+		aide.setMinimumSize(new Dimension(300, 75));
+		aide.setText("ici est l'aide concernant la fenetre \nadvanced settings");
 		aide.setEditable(false);
 
 		JButton foldersButton = new JButton("dossier");
 		foldersButton.setSize(getPreferredSize());
 		try {
-			Icon foldersIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("folders.png")));
+			Icon folderIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("folder-open.png")));
 			foldersButton.setText("");
-			foldersButton.setIcon(foldersIcon);
+			foldersButton.setIcon(folderIcon);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -79,6 +80,7 @@ public class AdvancedConfigWindow extends JDialog {
 		advancedSettingsConstraints.weightx = 1;
 		add(aide, advancedSettingsConstraints);
 
+		advancedSettingsConstraints.insets = new Insets(5, 5, 5, 5);
 		advancedSettingsConstraints.gridy++;
 		advancedSettingsConstraints.weighty = 0;
 		add(createPortChoicePanel(), advancedSettingsConstraints);
@@ -113,6 +115,12 @@ public class AdvancedConfigWindow extends JDialog {
 		advancedSettingsConstraints.gridx = 0;
 		advancedSettingsConstraints.gridy++;
 		add(createForceDatastorePanel(), advancedSettingsConstraints);
+
+		advancedSettingsConstraints.gridy++;
+		advancedSettingsConstraints.fill = GridBagConstraints.VERTICAL;
+		advancedSettingsConstraints.anchor = GridBagConstraints.SOUTH;
+		advancedSettingsConstraints.weighty = 1;
+		add(Box.createVerticalGlue(), advancedSettingsConstraints);
 	}
 
 	private JPanel createPortChoicePanel() {

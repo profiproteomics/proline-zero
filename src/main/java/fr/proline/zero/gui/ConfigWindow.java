@@ -64,7 +64,7 @@ public class ConfigWindow {
 		// TODO gerer le resizing
 		frame = new JFrame();
 		frame.setTitle("Proline zero config window");
-		frame.setBounds(100, 100, 440, 640);
+		frame.setBounds(100, 100, 350, 635);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel panel = new JPanel(new GridBagLayout());
@@ -116,14 +116,11 @@ public class ConfigWindow {
 		moduleConstraint.anchor = GridBagConstraints.WEST;
 
 		// mise en place des widgets
-		serverModuleBox = new JCheckBox("Start proline server");
+		serverModuleBox = new JCheckBox("Start Proline Server");
 		serverModuleBox.setSelected(true);
 		serverModuleBox.setEnabled(false);
 
-		studioModuleBox = new JCheckBox("Start proline studio");
-		studioModuleBox.setSelected(true);
-
-		seqRepModuleBox = new JCheckBox("Start sequence repository");
+		seqRepModuleBox = new JCheckBox("Start Sequence Repository");
 		seqRepModuleBox.setSelected(true);
 		ActionListener checkSeqRep = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -139,15 +136,18 @@ public class ConfigWindow {
 		};
 		seqRepModuleBox.addActionListener(checkSeqRep);
 
+		studioModuleBox = new JCheckBox("Start Proline Studio");
+		studioModuleBox.setSelected(true);
+
 		// ajout des widgets
 		moduleConstraint.gridy = 0;
 		modulePane.add(serverModuleBox, moduleConstraint);
 
 		moduleConstraint.gridy++;
-		modulePane.add(studioModuleBox, moduleConstraint);
+		modulePane.add(seqRepModuleBox, moduleConstraint);
 
 		moduleConstraint.gridy++;
-		modulePane.add(seqRepModuleBox, moduleConstraint);
+		modulePane.add(studioModuleBox, moduleConstraint);
 
 		moduleConstraint.gridy = 0;
 		moduleConstraint.gridheight = 3;
@@ -164,8 +164,6 @@ public class ConfigWindow {
 		// mise en place du panel et du layout
 		JPanel buttonPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints buttonconstraint = new GridBagConstraints();
-		buttonconstraint.gridx = 0;
-		buttonconstraint.weightx = 1;
 		buttonconstraint.insets = new Insets(5, 5, 5, 5);
 
 		// mise en place des widgets
@@ -175,7 +173,7 @@ public class ConfigWindow {
 			Icon restoreIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("arrow-circle.png")));
 			continueButton = new JButton("Ok", tickIcon);
 			cancelButton = new JButton("Cancel", crossIcon);
-			restoreButton = new JButton("restore", restoreIcon);
+			restoreButton = new JButton("Default", restoreIcon);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -188,19 +186,24 @@ public class ConfigWindow {
 		continueButton.addActionListener(actionListener);
 
 		// ajout des widgets au layout
-		buttonPanel.add(Box.createHorizontalGlue(), buttonconstraint);
-		buttonconstraint.gridx++;
-		buttonconstraint.weightx = 0;
-		buttonPanel.add(cancelButton, buttonconstraint);
-
-		buttonconstraint.fill = GridBagConstraints.NONE;
-		buttonconstraint.gridx++;
+		buttonconstraint.gridx = 0;
 		buttonconstraint.weightx = 0;
 		buttonPanel.add(restoreButton, buttonconstraint);
 
 		buttonconstraint.gridx++;
+		buttonconstraint.weightx = 1;
+		buttonconstraint.anchor = GridBagConstraints.NORTHWEST;
+		buttonconstraint.fill = GridBagConstraints.HORIZONTAL;
+		buttonPanel.add(Box.createHorizontalGlue(), buttonconstraint);
+
+		buttonconstraint.fill = GridBagConstraints.NONE;
+		buttonconstraint.gridx++;
 		buttonconstraint.weightx = 0;
 		buttonPanel.add(continueButton, buttonconstraint);
+
+		buttonconstraint.gridx++;
+		buttonconstraint.weightx = 0;
+		buttonPanel.add(cancelButton, buttonconstraint);
 
 		return buttonPanel;
 	}

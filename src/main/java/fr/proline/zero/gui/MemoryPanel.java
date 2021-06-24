@@ -3,6 +3,7 @@ package fr.proline.zero.gui;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -10,18 +11,25 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 public class MemoryPanel extends JPanel {
 	private JComboBox<String> allocModeBox;
-	private JTextField totalMemoryField;
-	private JTextField studioMemoryField;
-	private JTextField totalServerMemoryField;
-	private JTextField seqrepMemoryField;
-	private JTextField dataStoreMemoryField;
-	private JTextField cortexMemoryField;
-	private JTextField jmsMemoryField;
+
+	private MemorySpinner totalMemoryField;
+
+	private MemorySpinner studioMemoryField;
+
+	private MemorySpinner totalServerMemoryField;
+
+	private MemorySpinner seqrepMemoryField;
+
+	private MemorySpinner dataStoreMemoryField;
+
+	private MemorySpinner cortexMemoryField;
+
+	private MemorySpinner jmsMemoryField;
+
 	private JTextArea aide;
 
 	public MemoryPanel() {
@@ -49,9 +57,11 @@ public class MemoryPanel extends JPanel {
 		// ajout des widgets au layout
 		add(aide, memoryPanelConstraint);
 
+		memoryPanelConstraint.insets = new java.awt.Insets(5, 0, 0, 0);
 		memoryPanelConstraint.gridy++;
-		memoryPanelConstraint.fill = GridBagConstraints.NONE;
-		memoryPanelConstraint.weightx = 0;
+		memoryPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
+		memoryPanelConstraint.weightx = 1;
+		memoryPanelConstraint.anchor = GridBagConstraints.NORTHWEST;
 		add(createAllocationTypePanel(), memoryPanelConstraint);
 
 		memoryPanelConstraint.gridy++;
@@ -65,26 +75,36 @@ public class MemoryPanel extends JPanel {
 
 	private JPanel createAllocationTypePanel() {
 		// creation du panel et du layout
-		JPanel allocTypePanel = new JPanel();
+		JPanel allocTypePanel = new JPanel(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.insets = new Insets(5, 5, 5, 5);
 
 		// creation des widgets
 		this.allocModeBox = new JComboBox<String>();
-		allocModeBox.setPreferredSize(new Dimension(80, 20));
-		allocModeBox.addItem("Auto");
-		allocModeBox.addItem("Semi");
+		allocModeBox.setPreferredSize(new Dimension(100, 20));
+		allocModeBox.addItem("Automatic");
+		allocModeBox.addItem("Semi-automatic");
 		allocModeBox.addItem("Manual");
 
 		// ajout des widgets au layout
-		allocTypePanel.add(new JLabel("Allocation mode : ", SwingConstants.RIGHT));
-		allocTypePanel.add(allocModeBox);
+		c.gridx = 0;
+		allocTypePanel.add(new JLabel("Allocation mode :", SwingConstants.RIGHT), c);
 
+		c.gridx++;
+		allocTypePanel.add(allocModeBox, c);
+
+		c.gridx++;
+		c.weightx = 1;
+		allocTypePanel.add(Box.createHorizontalGlue(), c);
 		return allocTypePanel;
 	}
 
 	private JPanel createAllocationPanel() {
 		// creation du panel et du layout
 		JPanel allocationPanel = new JPanel(new GridBagLayout());
-		allocationPanel.setBorder(BorderFactory.createTitledBorder("allocation"));
+		allocationPanel.setBorder(BorderFactory.createTitledBorder("Allocation"));
 		GridBagConstraints allocationConstraint = new GridBagConstraints();
 		allocationConstraint.weighty = 1;
 		allocationConstraint.weightx = 1;
@@ -106,33 +126,65 @@ public class MemoryPanel extends JPanel {
 
 	private JPanel createTotalMemoryPanel() {
 		// creation du panel et du layout
-		JPanel totalPanel = new JPanel();
+		JPanel totalPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.insets = new Insets(5, 5, 5, 5);
 
 		// creation des widgets
-		this.totalMemoryField = new JTextField();
+		this.totalMemoryField = new MemorySpinner(false, 3.2);
 		totalMemoryField.setPreferredSize(new Dimension(50, 20));
 
 		// ajout des widgets au layout
-		totalPanel.add(new JLabel("Total memory : ", SwingConstants.RIGHT));
-		totalPanel.add(totalMemoryField);
-		totalPanel.add(new JLabel("Go"));
+		c.gridx = 0;
+		totalPanel.add(new JLabel("Total memory :", SwingConstants.RIGHT), c);
+
+		c.gridx++;
+		c.weightx = 0.1;
+		c.insets = new Insets(5, 5, 5, 5);
+		totalPanel.add(totalMemoryField, c);
+
+		c.gridx++;
+		c.weightx = 0;
+		totalPanel.add(totalMemoryField.unit, c);
+
+		c.gridx++;
+		c.weightx = 1;
+		totalPanel.add(Box.createHorizontalGlue(), c);
 
 		return totalPanel;
 	}
 
 	private JPanel createStudioMemoryPanel() {
 		// creation du panel et du layout
-		JPanel studioPanel = new JPanel();
-		studioPanel.setBorder(BorderFactory.createTitledBorder("client"));
+		JPanel studioPanel = new JPanel(new GridBagLayout());
+		studioPanel.setBorder(BorderFactory.createTitledBorder("Client"));
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.insets = new Insets(5, 5, 5, 5);
 
 		// creation des widgets
-		this.studioMemoryField = new JTextField();
-		studioMemoryField.setPreferredSize(new Dimension(50, 20));
+		this.studioMemoryField = new MemorySpinner(false, 2.0);
+		studioMemoryField.setPreferredSize(new Dimension(60, 20));
 
 		// ajout des widgets au layout
-		studioPanel.add(new JLabel("Proline Studio : ", SwingConstants.RIGHT));
-		studioPanel.add(studioMemoryField);
-		studioPanel.add(new JLabel("Go"));
+		c.gridx = 0;
+		studioPanel.add(new JLabel("Proline Studio :", SwingConstants.RIGHT), c);
+
+		c.gridx++;
+		c.insets = new java.awt.Insets(5, 5, 5, 5);
+		c.weightx = 0.1;
+		studioPanel.add(studioMemoryField, c);
+
+		c.gridx++;
+		c.weightx = 0;
+		studioPanel.add(studioMemoryField.unit, c);
+
+		c.gridx++;
+		c.weightx = 1;
+		studioPanel.add(Box.createHorizontalGlue(), c);
 
 		return studioPanel;
 	}
@@ -143,33 +195,45 @@ public class MemoryPanel extends JPanel {
 		JPanel serverTotal = new JPanel(new GridBagLayout());
 		serverTotal.setBorder(BorderFactory.createTitledBorder("server"));
 		GridBagConstraints serverTotalConstraint = new GridBagConstraints();
+		serverTotalConstraint.anchor = GridBagConstraints.NORTHWEST;
 		serverTotalConstraint.weighty = 0;
 		serverTotalConstraint.weightx = 0;
 		serverTotalConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
 
 		// creation des widgets
-		this.totalServerMemoryField = new JTextField();
-		totalServerMemoryField.setPreferredSize(new Dimension(50, 20));
+		this.totalServerMemoryField = new MemorySpinner(false, 1.5);
+		totalServerMemoryField.setPreferredSize(new Dimension(53, 20));
 
 		// ajout des widgets au layout
 		serverTotalConstraint.gridx = 0;
 		serverTotalConstraint.gridy = 0;
-		serverTotal.add(new JLabel("Server memory : "), serverTotalConstraint);
+		serverTotalConstraint.gridwidth = 2;
+		serverTotal.add(new JLabel("Server memory :"), serverTotalConstraint);
+
+		serverTotalConstraint.fill = GridBagConstraints.HORIZONTAL;
+		serverTotalConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
+		serverTotalConstraint.gridx++;
+		serverTotalConstraint.gridx++;
+		serverTotalConstraint.gridwidth = 1;
+		serverTotalConstraint.weightx = 0;
+		serverTotal.add(totalServerMemoryField, serverTotalConstraint);
 
 		serverTotalConstraint.fill = GridBagConstraints.HORIZONTAL;
 		serverTotalConstraint.gridx++;
-		serverTotalConstraint.weightx = 1;
-		serverTotal.add(totalServerMemoryField, serverTotalConstraint);
-
-		serverTotalConstraint.fill = GridBagConstraints.NONE;
-		serverTotalConstraint.gridx++;
 		serverTotalConstraint.weightx = 0;
-		serverTotal.add(new JLabel("Go"), serverTotalConstraint);
+		serverTotal.add(totalServerMemoryField.unit, serverTotalConstraint);
 
+		serverTotalConstraint.gridx++;
 		serverTotalConstraint.weightx = 1;
-		serverTotalConstraint.gridwidth = 3;
+		serverTotal.add(Box.createHorizontalGlue(), serverTotalConstraint);
+
+		serverTotalConstraint.gridx = 0;
 		serverTotalConstraint.gridy++;
+		serverTotal.add(Box.createHorizontalStrut(20), serverTotalConstraint);
+
 		serverTotalConstraint.gridx = 1;
+		serverTotalConstraint.gridwidth = 3;
+		serverTotalConstraint.insets = new java.awt.Insets(5, 5, 5, 0);
 		serverTotal.add(createServerDetailPanel(), serverTotalConstraint);
 
 		return serverTotal;
@@ -185,16 +249,16 @@ public class MemoryPanel extends JPanel {
 		serverConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
 
 		// creation des widgets
-		this.seqrepMemoryField = new JTextField();
+		this.seqrepMemoryField = new MemorySpinner(true, 500);
 		seqrepMemoryField.setPreferredSize(new Dimension(50, 20));
 
-		this.dataStoreMemoryField = new JTextField();
+		this.dataStoreMemoryField = new MemorySpinner(true, 500);
 		dataStoreMemoryField.setPreferredSize(new Dimension(50, 20));
 
-		this.cortexMemoryField = new JTextField();
+		this.cortexMemoryField = new MemorySpinner(true, 500);
 		cortexMemoryField.setPreferredSize(new Dimension(50, 20));
 
-		this.jmsMemoryField = new JTextField();
+		this.jmsMemoryField = new MemorySpinner(true, 500);
 		jmsMemoryField.setPreferredSize(new Dimension(50, 20));
 
 		// TODO : griser si seqrep non coché
@@ -209,7 +273,7 @@ public class MemoryPanel extends JPanel {
 
 		serverConstraint.weightx = 0;
 		serverConstraint.gridx++;
-		serverAllocation.add(new JLabel("Go"), serverConstraint);
+		serverAllocation.add(seqrepMemoryField.unit, serverConstraint);
 
 		serverConstraint.gridx = 0;
 		serverConstraint.gridy++;
@@ -221,7 +285,7 @@ public class MemoryPanel extends JPanel {
 
 		serverConstraint.weightx = 0;
 		serverConstraint.gridx++;
-		serverAllocation.add(new JLabel("Go"), serverConstraint);
+		serverAllocation.add(dataStoreMemoryField.unit, serverConstraint);
 
 		serverConstraint.gridx = 0;
 		serverConstraint.gridy++;
@@ -233,7 +297,7 @@ public class MemoryPanel extends JPanel {
 
 		serverConstraint.weightx = 0;
 		serverConstraint.gridx++;
-		serverAllocation.add(new JLabel("Go", SwingConstants.RIGHT), serverConstraint);
+		serverAllocation.add(cortexMemoryField.unit, serverConstraint);
 
 		serverConstraint.gridx = 0;
 		serverConstraint.gridy++;
@@ -245,7 +309,7 @@ public class MemoryPanel extends JPanel {
 
 		serverConstraint.weightx = 0;
 		serverConstraint.gridx++;
-		serverAllocation.add(new JLabel("Go"), serverConstraint);
+		serverAllocation.add(jmsMemoryField.unit, serverConstraint);
 
 		return serverAllocation;
 	}
