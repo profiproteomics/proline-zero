@@ -26,10 +26,10 @@ public class ServerPanel extends JPanel {
 	private void initialize() {
 		// ajout du layout
 		setLayout(new GridBagLayout());
-		GridBagConstraints serverpanelConstraints = new GridBagConstraints();
-		serverpanelConstraints.fill = GridBagConstraints.BOTH;
-		serverpanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-		serverpanelConstraints.weightx = 1;
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.weightx = 1;
 
 		// creation des widgets
 		paramAvancesWindow = new AdvancedConfigWindow();
@@ -46,24 +46,24 @@ public class ServerPanel extends JPanel {
 		aide.setEditable(false);
 
 		// ajout des widgets au layout
-		serverpanelConstraints.gridx = 0;
-		serverpanelConstraints.gridy = 0;
-		add(aide, serverpanelConstraints);
+		c.gridx = 0;
+		c.gridy = 0;
+		add(aide, c);
 
-		serverpanelConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
-		serverpanelConstraints.fill = GridBagConstraints.NONE;
-		serverpanelConstraints.gridy++;
-		serverpanelConstraints.weightx = 0;
-		add(createDataStorePanel(), serverpanelConstraints);
+		c.insets = new java.awt.Insets(5, 5, 0, 0);
+		c.fill = GridBagConstraints.NONE;
+		c.gridy++;
+		c.weightx = 0;
+		add(createDataStorePanel(), c);
 
-		serverpanelConstraints.gridy++;
-		add(advancedSettingsButton, serverpanelConstraints);
+		c.gridy++;
+		add(advancedSettingsButton, c);
 
-		serverpanelConstraints.gridy++;
-		serverpanelConstraints.fill = GridBagConstraints.VERTICAL;
-		serverpanelConstraints.anchor = GridBagConstraints.SOUTH;
-		serverpanelConstraints.weighty = 1;
-		add(Box.createVerticalGlue(), serverpanelConstraints);
+		c.gridy++;
+		c.fill = GridBagConstraints.VERTICAL;
+		c.anchor = GridBagConstraints.SOUTH;
+		c.weighty = 1;
+		add(Box.createVerticalGlue(), c);
 	}
 
 	private JPanel createDataStorePanel() {

@@ -111,9 +111,9 @@ public class ConfigWindow {
 		// mise en place du panel et layout
 		JPanel modulePane = new JPanel(new GridBagLayout());
 
-		GridBagConstraints moduleConstraint = new GridBagConstraints();
-		moduleConstraint.fill = GridBagConstraints.NONE;
-		moduleConstraint.anchor = GridBagConstraints.WEST;
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
 
 		// mise en place des widgets
 		serverModuleBox = new JCheckBox("Start Proline Server");
@@ -140,20 +140,20 @@ public class ConfigWindow {
 		studioModuleBox.setSelected(true);
 
 		// ajout des widgets
-		moduleConstraint.gridy = 0;
-		modulePane.add(serverModuleBox, moduleConstraint);
+		c.gridy = 0;
+		modulePane.add(serverModuleBox, c);
 
-		moduleConstraint.gridy++;
-		modulePane.add(seqRepModuleBox, moduleConstraint);
+		c.gridy++;
+		modulePane.add(seqRepModuleBox, c);
 
-		moduleConstraint.gridy++;
-		modulePane.add(studioModuleBox, moduleConstraint);
+		c.gridy++;
+		modulePane.add(studioModuleBox, c);
 
-		moduleConstraint.gridy = 0;
-		moduleConstraint.gridheight = 3;
-		moduleConstraint.anchor = GridBagConstraints.EAST;
-		moduleConstraint.weightx = 1;
-		modulePane.add(Box.createHorizontalGlue(), moduleConstraint);
+		c.gridy = 0;
+		c.gridheight = 3;
+		c.anchor = GridBagConstraints.EAST;
+		c.weightx = 1;
+		modulePane.add(Box.createHorizontalGlue(), c);
 		modulePane.setBorder(BorderFactory.createTitledBorder("Modules"));
 
 		return modulePane;
@@ -163,8 +163,8 @@ public class ConfigWindow {
 	private JPanel createBottomButtonsPanel() {
 		// mise en place du panel et du layout
 		JPanel buttonPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints buttonconstraint = new GridBagConstraints();
-		buttonconstraint.insets = new Insets(5, 5, 5, 5);
+		GridBagConstraints c = new GridBagConstraints();
+		c.insets = new Insets(5, 5, 5, 5);
 
 		// mise en place des widgets
 		try {
@@ -186,24 +186,24 @@ public class ConfigWindow {
 		continueButton.addActionListener(actionListener);
 
 		// ajout des widgets au layout
-		buttonconstraint.gridx = 0;
-		buttonconstraint.weightx = 0;
-		buttonPanel.add(restoreButton, buttonconstraint);
+		c.gridx = 0;
+		c.weightx = 0;
+		buttonPanel.add(restoreButton, c);
 
-		buttonconstraint.gridx++;
-		buttonconstraint.weightx = 1;
-		buttonconstraint.anchor = GridBagConstraints.NORTHWEST;
-		buttonconstraint.fill = GridBagConstraints.HORIZONTAL;
-		buttonPanel.add(Box.createHorizontalGlue(), buttonconstraint);
+		c.gridx++;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		buttonPanel.add(Box.createHorizontalGlue(), c);
 
-		buttonconstraint.fill = GridBagConstraints.NONE;
-		buttonconstraint.gridx++;
-		buttonconstraint.weightx = 0;
-		buttonPanel.add(continueButton, buttonconstraint);
+		c.fill = GridBagConstraints.NONE;
+		c.gridx++;
+		c.weightx = 0;
+		buttonPanel.add(continueButton, c);
 
-		buttonconstraint.gridx++;
-		buttonconstraint.weightx = 0;
-		buttonPanel.add(cancelButton, buttonconstraint);
+		c.gridx++;
+		c.weightx = 0;
+		buttonPanel.add(cancelButton, c);
 
 		return buttonPanel;
 	}

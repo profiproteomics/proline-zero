@@ -202,11 +202,11 @@ public class FolderPanel extends JPanel {
 		// creation du panel et layout
 		JPanel folderListPanel = new JPanel(new GridBagLayout());
 		folderListPanel.setBorder(BorderFactory.createTitledBorder("Folder list"));
-		GridBagConstraints folderListPanelConstraints = new GridBagConstraints();
-		folderListPanelConstraints.weightx = 1;
-		folderListPanelConstraints.weighty = 1;
-		folderListPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-		folderListPanelConstraints.fill = GridBagConstraints.BOTH;
+		GridBagConstraints c = new GridBagConstraints();
+		c.weightx = 1;
+		c.weighty = 1;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.BOTH;
 
 		// creation des panels en attribut de classe pour pouvoir ajouter dynamiquement
 		// des elements
@@ -216,16 +216,16 @@ public class FolderPanel extends JPanel {
 
 		// ajout des panels au layout
 		// TODO : rendre la liste des dossiers plus belle// result files folder
-		folderListPanelConstraints.gridx = 0;
-		folderListPanelConstraints.gridy = 0;
-		folderListPanel.add(resultListPanel, folderListPanelConstraints);
+		c.gridx = 0;
+		c.gridy = 0;
+		folderListPanel.add(resultListPanel, c);
 
-		folderListPanelConstraints.gridy++;
-		folderListPanel.add(mzdbListPanel, folderListPanelConstraints);
+		c.gridy++;
+		folderListPanel.add(mzdbListPanel, c);
 
 		// TODO : desactiver si seqrep décoché;
-		folderListPanelConstraints.gridy++;
-		folderListPanel.add(fastaListPanel, folderListPanelConstraints);
+		c.gridy++;
+		folderListPanel.add(fastaListPanel, c);
 
 		return folderListPanel;
 	}

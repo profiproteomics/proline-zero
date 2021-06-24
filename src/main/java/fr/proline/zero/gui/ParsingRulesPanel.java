@@ -34,10 +34,10 @@ public class ParsingRulesPanel extends JPanel {
 	private void initialize() {
 		// creation du layout
 		setLayout(new GridBagLayout());
-		GridBagConstraints parsingPanelConstraints = new GridBagConstraints();
-		parsingPanelConstraints.fill = GridBagConstraints.BOTH;
-		parsingPanelConstraints.anchor = GridBagConstraints.NORTH;
-		parsingPanelConstraints.weightx = 1;
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.anchor = GridBagConstraints.NORTH;
+		c.weightx = 1;
 
 		// creation des widgets
 		// TODO : texte à changer et centrer avec une icone
@@ -48,17 +48,17 @@ public class ParsingRulesPanel extends JPanel {
 		aide.setEditable(false);
 
 		// ajout des widgets au layout
-		parsingPanelConstraints.gridx = 0;
-		parsingPanelConstraints.gridy = 0;
-		add(aide, parsingPanelConstraints);
+		c.gridx = 0;
+		c.gridy = 0;
+		add(aide, c);
 
-		parsingPanelConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
-		parsingPanelConstraints.gridy++;
-		add(createParsingRulesPanel(), parsingPanelConstraints);
+		c.insets = new java.awt.Insets(5, 0, 0, 0);
+		c.gridy++;
+		add(createParsingRulesPanel(), c);
 
-		parsingPanelConstraints.fill = GridBagConstraints.VERTICAL;
-		parsingPanelConstraints.weighty = 1;
-		add(Box.createHorizontalGlue(), parsingPanelConstraints);
+		c.fill = GridBagConstraints.VERTICAL;
+		c.weighty = 1;
+		add(Box.createHorizontalGlue(), c);
 	}
 
 	private JPanel createParsingRulesPanel() {
@@ -133,13 +133,10 @@ public class ParsingRulesPanel extends JPanel {
 		addParsingRulesConstraints.gridx++;
 		addParsingRulesConstraints.weightx = 0;
 		addParsingRulesConstraints.fill = GridBagConstraints.NONE;
-		addParsingRulesConstraints.anchor = GridBagConstraints.CENTER;
 		addParsingRules.add(plus, addParsingRulesConstraints);
 
-		addParsingRulesConstraints.gridx++;
 		addParsingRulesConstraints.gridy++;
 		addParsingRulesConstraints.gridx = 0;
-		addParsingRulesConstraints.fill = GridBagConstraints.VERTICAL;
 		addParsingRulesConstraints.weighty = 1;
 		addParsingRules.add(filler, addParsingRulesConstraints);
 

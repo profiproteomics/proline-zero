@@ -41,9 +41,9 @@ public class AdvancedConfigWindow extends JDialog {
 	private void initialize() {
 		// creation du layout
 		setLayout(new GridBagLayout());
-		GridBagConstraints advancedSettingsConstraints = new GridBagConstraints();
-		advancedSettingsConstraints.anchor = GridBagConstraints.NORTHWEST;
-		advancedSettingsConstraints.fill = GridBagConstraints.HORIZONTAL;
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.HORIZONTAL;
 
 		// creation des widgets
 		serverDefaultTimeout = new JTextField();
@@ -74,63 +74,63 @@ public class AdvancedConfigWindow extends JDialog {
 		}
 
 		// ajout des elements au layout
-		advancedSettingsConstraints.gridx = 0;
-		advancedSettingsConstraints.gridy = 0;
-		advancedSettingsConstraints.gridwidth = 3;
-		advancedSettingsConstraints.weightx = 1;
-		add(aide, advancedSettingsConstraints);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 3;
+		c.weightx = 1;
+		add(aide, c);
 
-		advancedSettingsConstraints.insets = new Insets(5, 5, 5, 5);
-		advancedSettingsConstraints.gridy++;
-		advancedSettingsConstraints.weighty = 0;
-		add(createPortChoicePanel(), advancedSettingsConstraints);
+		c.insets = new Insets(5, 5, 5, 5);
+		c.gridy++;
+		c.weighty = 0;
+		add(createPortChoicePanel(), c);
 
-		advancedSettingsConstraints.gridwidth = 1;
-		advancedSettingsConstraints.gridy++;
-		add(new JLabel("Server default timeout : ", SwingConstants.RIGHT), advancedSettingsConstraints);
+		c.gridwidth = 1;
+		c.gridy++;
+		add(new JLabel("Server default timeout : ", SwingConstants.RIGHT), c);
 
-		advancedSettingsConstraints.gridx++;
-		add(serverDefaultTimeout, advancedSettingsConstraints);
+		c.gridx++;
+		add(serverDefaultTimeout, c);
 
-		advancedSettingsConstraints.gridx++;
-		add(new JLabel("ms"), advancedSettingsConstraints);
+		c.gridx++;
+		add(new JLabel("ms"), c);
 
-		advancedSettingsConstraints.gridx = 0;
-		advancedSettingsConstraints.gridy++;
-		add(new JLabel("Server thread pool size : ", SwingConstants.RIGHT), advancedSettingsConstraints);
+		c.gridx = 0;
+		c.gridy++;
+		add(new JLabel("Server thread pool size : ", SwingConstants.RIGHT), c);
 
-		advancedSettingsConstraints.gridx++;
-		add(threadPoolSize, advancedSettingsConstraints);
+		c.gridx++;
+		add(threadPoolSize, c);
 
-		advancedSettingsConstraints.gridx = 0;
-		advancedSettingsConstraints.gridy++;
-		add(new JLabel("JVM path : ", SwingConstants.RIGHT), advancedSettingsConstraints);
+		c.gridx = 0;
+		c.gridy++;
+		add(new JLabel("JVM path : ", SwingConstants.RIGHT), c);
 
-		advancedSettingsConstraints.gridx++;
-		add(jvmpath, advancedSettingsConstraints);
+		c.gridx++;
+		add(jvmpath, c);
 
-		advancedSettingsConstraints.gridx++;
-		add(foldersButton, advancedSettingsConstraints);
+		c.gridx++;
+		add(foldersButton, c);
 
-		advancedSettingsConstraints.gridx = 0;
-		advancedSettingsConstraints.gridy++;
-		add(createForceDatastorePanel(), advancedSettingsConstraints);
+		c.gridx = 0;
+		c.gridy++;
+		add(createForceDatastorePanel(), c);
 
-		advancedSettingsConstraints.gridy++;
-		advancedSettingsConstraints.fill = GridBagConstraints.VERTICAL;
-		advancedSettingsConstraints.anchor = GridBagConstraints.SOUTH;
-		advancedSettingsConstraints.weighty = 1;
-		add(Box.createVerticalGlue(), advancedSettingsConstraints);
+		c.gridy++;
+		c.fill = GridBagConstraints.VERTICAL;
+		c.anchor = GridBagConstraints.SOUTH;
+		c.weighty = 1;
+		add(Box.createVerticalGlue(), c);
 	}
 
 	private JPanel createPortChoicePanel() {
 		// creation du panel et du layout
 		JPanel portChoice = new JPanel(new GridBagLayout());
 		portChoice.setBorder(BorderFactory.createTitledBorder("Ports choice"));
-		GridBagConstraints portChoiceConstraints = new GridBagConstraints();
-		portChoiceConstraints.anchor = GridBagConstraints.NORTHWEST;
-		portChoiceConstraints.fill = GridBagConstraints.BOTH;
-		portChoiceConstraints.insets = new Insets(5, 5, 5, 5);
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.BOTH;
+		c.insets = new Insets(5, 5, 5, 5);
 
 		// creation des widgets
 		portlabel = new JTextField();
@@ -152,21 +152,21 @@ public class AdvancedConfigWindow extends JDialog {
 		JButton testButton = new JButton("test");
 
 		// ajout des widgets au layout
-		portChoiceConstraints.gridx = 0;
-		portChoiceConstraints.gridy = 0;
-		portChoice.add(new JLabel("<HTML><U>Proline server : </HTML></U>"), portChoiceConstraints);
+		c.gridx = 0;
+		c.gridy = 0;
+		portChoice.add(new JLabel("<HTML><U>Proline server : </HTML></U>"), c);
 
-		portChoiceConstraints.gridx++;
-		portChoice.add(portlabel, portChoiceConstraints);
+		c.gridx++;
+		portChoice.add(portlabel, c);
 
-		portChoiceConstraints.gridx++;
-		portChoice.add(port, portChoiceConstraints);
+		c.gridx++;
+		portChoice.add(port, c);
 
-		portChoiceConstraints.gridx++;
-		portChoice.add(addButton, portChoiceConstraints);
+		c.gridx++;
+		portChoice.add(addButton, c);
 
-		portChoiceConstraints.gridx++;
-		portChoice.add(testButton, portChoiceConstraints);
+		c.gridx++;
+		portChoice.add(testButton, c);
 
 		return portChoice;
 	}
