@@ -7,6 +7,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -16,11 +17,13 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileSystemView;
 
 public class FolderPanel extends JPanel {
 	private JTextField maximumTmpFolderSizeField;
@@ -61,7 +64,7 @@ public class FolderPanel extends JPanel {
 		folderPanelConstraints.gridy = 0;
 		add(aide, folderPanelConstraints);
 
-		folderPanelConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+		folderPanelConstraints.insets = new java.awt.Insets(20, 15, 0, 15);
 		folderPanelConstraints.gridy++;
 		folderPanelConstraints.weightx = 0;
 		add(createTmpFolderPanel(), folderPanelConstraints);
@@ -127,6 +130,7 @@ public class FolderPanel extends JPanel {
 		dataTypeBox.addItem("Fasta folder");
 		dataTypeBox.setPreferredSize(new Dimension(100, 20));
 		dataTypeBox.setMinimumSize(new Dimension(100, 20));
+		dataTypeBox.addActionListener(greyLabelforFasta());
 
 		folderLabelField = new JTextField();
 		folderLabelField.setPreferredSize(new Dimension(60, 20));
@@ -134,6 +138,7 @@ public class FolderPanel extends JPanel {
 
 		folderPathField = new JTextField();
 		folderPathField.setPreferredSize(new Dimension(160, 20));
+		folderPathField.setEditable(false);
 
 		JButton addButton = new JButton("add");
 		JButton clearButton = new JButton("clear");
@@ -154,6 +159,8 @@ public class FolderPanel extends JPanel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		clearButton.addActionListener(clearAction());
+		browseButton.addActionListener(openFolderView());
 
 		// ajout des widgets au layout
 		addFolderConstraint.gridx = 0;
@@ -267,7 +274,9 @@ public class FolderPanel extends JPanel {
 	private ActionListener addFolderAction() {
 		ActionListener addFolder = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				if (!folderPathField.getText().isEmpty() && !folderLabelField.getText().isEmpty()) {
+				if ((!folderPathField.getText().isEmpty() && !folderLabelField.getText().isEmpty())
+						|| (!folderPathField.getText().isEmpty()
+								&& dataTypeBox.getSelectedItem().equals("Fasta folder"))) {
 					JLabel label = new JLabel(folderLabelField.getText());
 					JLabel path = new JLabel(folderPathField.getText());
 					JButton delete = new JButton("x");
@@ -329,8 +338,6 @@ public class FolderPanel extends JPanel {
 						break;
 					case "Fasta folder":
 						fastaListPanelConstraints.weightx = 1;
-						fastaListPanel.add(label, fastaListPanelConstraints);
-						fastaListPanelConstraints.gridx++;
 						fastaListPanel.add(path, fastaListPanelConstraints);
 						fastaListPanelConstraints.gridx++;
 						fastaListPanelConstraints.weightx = 0;
@@ -362,4 +369,46 @@ public class FolderPanel extends JPanel {
 		return addFolder;
 	}
 
+	private ActionListener greyLabelforFasta() {
+		ActionListener greyLabel = new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				if (dataTypeBox.getSelectedItem().equals("Fasta folder")) {
+					folderLabelField.setText("");
+					folderLabelField.setEnabled(false);
+				} else {
+					folderLabelField.setEnabled(true);
+				}
+			}
+		};
+		return greyLabel;
+	}
+
+	private ActionListener openFolderView() {
+		ActionListener openFolderView = new ActionListener() {
+
+			public void actionPerformed(ActionEvent event) {
+				JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+				jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int returnValue = jfc.showOpenDialog(null);
+
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					File selectedFile = jfc.getSelectedFile();
+					folderPathField.setToolTipText(selectedFile.getAbsolutePath());
+					folderPathField.setText(selectedFile.getAbsolutePath());
+				}
+			}
+		};
+		return openFolderView;
+	}
+
+	private ActionListener clearAction() {
+		ActionListener clearFields = new ActionListener() {
+
+			public void actionPerformed(ActionEvent event) {
+				folderPathField.setText("");
+				folderLabelField.setText("");
+			}
+		};
+		return clearFields;
+	}
 }

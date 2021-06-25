@@ -25,7 +25,7 @@ public class ParsingRulesPanel extends JPanel {
 	private Component filler;
 	private JTextArea aide;
 	private JPanel addParsingRules;
-	private GridBagConstraints addParsingRulesConstraints;
+	private GridBagConstraints c;
 
 	public ParsingRulesPanel() {
 		initialize();
@@ -35,7 +35,7 @@ public class ParsingRulesPanel extends JPanel {
 		// creation du layout
 		setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.BOTH;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.NORTH;
 		c.weightx = 1;
 
@@ -52,7 +52,7 @@ public class ParsingRulesPanel extends JPanel {
 		c.gridy = 0;
 		add(aide, c);
 
-		c.insets = new java.awt.Insets(5, 0, 0, 0);
+		c.insets = new java.awt.Insets(20, 15, 0, 15);
 		c.gridy++;
 		add(createParsingRulesPanel(), c);
 
@@ -65,9 +65,54 @@ public class ParsingRulesPanel extends JPanel {
 		// creation du panel et du layout
 		addParsingRules = new JPanel(new GridBagLayout());
 		addParsingRules.setBorder(BorderFactory.createTitledBorder("Parsing rules"));
-		addParsingRulesConstraints = new GridBagConstraints();
-		addParsingRulesConstraints.fill = GridBagConstraints.BOTH;
-		addParsingRulesConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets = new java.awt.Insets(5, 5, 5, 5);
+		c.gridwidth = 2;
+
+		// creation des elements
+		JButton plus = new JButton("+");
+		try {
+			Icon plusIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("plus.png")));
+			plus.setText("");
+			plus.setIcon(plusIcon);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		// ajout des widgets au layout
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weightx = 1;
+		addParsingRules.add(new JLabel("Add a parsing rule : "), c);
+
+		c.gridy++;
+		addParsingRules.add(createParsingRuleFieldsPanel(), c);
+
+		c.gridwidth = 1;
+		c.gridy++;
+		c.gridx = 0;
+		addParsingRules.add(Box.createHorizontalGlue(), c);
+
+		c.gridheight = 3;
+		c.gridx++;
+		c.weightx = 0;
+		c.fill = GridBagConstraints.NONE;
+		addParsingRules.add(plus, c);
+
+		return addParsingRules;
+	}
+
+	private JPanel createParsingRuleFieldsPanel() {
+		// creation du panel et du layout
+		JPanel parsingRuleFields = new JPanel(new GridBagLayout());
+		parsingRuleFields.setBorder(BorderFactory.createTitledBorder(""));
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets = new java.awt.Insets(5, 5, 5, 5);
 
 		// creation des widgets
 		labelField = new JTextField();
@@ -82,65 +127,40 @@ public class ParsingRulesPanel extends JPanel {
 		fastaVersionField = new JTextField();
 		fastaVersionField.setPreferredSize(new Dimension(200, 20));
 
-		JButton plus = new JButton("+");
-		try {
-			Icon plusIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("plus.png")));
-			plus.setText("");
-			plus.setIcon(plusIcon);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		// plus.addActionListener(addParsingRule());
-
 		filler = Box.createHorizontalGlue();
 
 		// ajout des widgets au layout
-		addParsingRulesConstraints.gridx = 0;
-		addParsingRulesConstraints.gridy = 0;
-		addParsingRules.add(new JLabel("Add a parsing rule : "), addParsingRulesConstraints);
+		c.gridx = 0;
+		c.gridy = 0;
+		parsingRuleFields.add(new JLabel("Label : "), c);
 
-		addParsingRulesConstraints.gridy++;
-		addParsingRules.add(new JLabel("Label : "), addParsingRulesConstraints);
+		c.gridx++;
+		parsingRuleFields.add(new JLabel("Accession Parse Rule : "), c);
 
-		addParsingRulesConstraints.gridx++;
-		addParsingRules.add(new JLabel("Accession Parse Rule : "), addParsingRulesConstraints);
+		c.gridy++;
+		c.gridx = 0;
+		parsingRuleFields.add(labelField, c);
 
-		addParsingRulesConstraints.gridy++;
-		addParsingRulesConstraints.gridx = 0;
-		addParsingRules.add(labelField, addParsingRulesConstraints);
+		c.gridx++;
+		parsingRuleFields.add(accessionParseRuleField, c);
 
-		addParsingRulesConstraints.gridx++;
-		addParsingRules.add(accessionParseRuleField, addParsingRulesConstraints);
+		c.gridy++;
+		c.gridx = 0;
+		parsingRuleFields.add(new JLabel("Fasta Pattern : "), c);
 
-		addParsingRulesConstraints.gridy++;
-		addParsingRulesConstraints.gridx = 0;
-		addParsingRules.add(new JLabel("Fasta Pattern : "), addParsingRulesConstraints);
+		c.gridx++;
+		parsingRuleFields.add(new JLabel("Fasta file : "), c);
 
-		addParsingRulesConstraints.gridx++;
-		addParsingRules.add(new JLabel("Fasta file : "), addParsingRulesConstraints);
+		c.gridy++;
+		c.gridx = 0;
+		c.weightx = 1;
+		parsingRuleFields.add(fastaPatternField, c);
 
-		addParsingRulesConstraints.gridy++;
-		addParsingRulesConstraints.gridx = 0;
-		addParsingRulesConstraints.weightx = 1;
-		addParsingRules.add(fastaPatternField, addParsingRulesConstraints);
+		c.gridx++;
+		parsingRuleFields.add(fastaVersionField, c);
 
-		addParsingRulesConstraints.gridx++;
-		addParsingRules.add(fastaVersionField, addParsingRulesConstraints);
+		return parsingRuleFields;
 
-		addParsingRulesConstraints.gridy = 2;
-		addParsingRulesConstraints.gridheight = 3;
-		addParsingRulesConstraints.gridx++;
-		addParsingRulesConstraints.weightx = 0;
-		addParsingRulesConstraints.fill = GridBagConstraints.NONE;
-		addParsingRules.add(plus, addParsingRulesConstraints);
-
-		addParsingRulesConstraints.gridy++;
-		addParsingRulesConstraints.gridx = 0;
-		addParsingRulesConstraints.weighty = 1;
-		addParsingRules.add(filler, addParsingRulesConstraints);
-
-		return addParsingRules;
 	}
 
 	// TODO : à refaire avec un nouveau panel

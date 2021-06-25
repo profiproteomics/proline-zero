@@ -50,7 +50,7 @@ public class ServerPanel extends JPanel {
 		c.gridy = 0;
 		add(aide, c);
 
-		c.insets = new java.awt.Insets(5, 5, 0, 0);
+		c.insets = new java.awt.Insets(20, 15, 0, 15);
 		c.fill = GridBagConstraints.NONE;
 		c.gridy++;
 		c.weightx = 0;

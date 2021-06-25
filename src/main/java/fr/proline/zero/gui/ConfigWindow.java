@@ -64,7 +64,7 @@ public class ConfigWindow {
 		// TODO gerer le resizing
 		frame = new JFrame();
 		frame.setTitle("Proline zero config window");
-		frame.setBounds(100, 100, 350, 635);
+		frame.setBounds(100, 100, 400, 700);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -177,7 +177,7 @@ public class ConfigWindow {
 			Icon restoreIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("arrow-circle.png")));
 			continueButton = new JButton("Ok", tickIcon);
 			cancelButton = new JButton("Cancel", crossIcon);
-			restoreButton = new JButton("Default", restoreIcon);
+			restoreButton = new JButton("Restore", restoreIcon);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

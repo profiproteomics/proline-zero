@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -16,12 +17,14 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileSystemView;
 
 public class AdvancedConfigWindow extends JDialog {
 	private JTextField jmsPortField;
@@ -41,7 +44,7 @@ public class AdvancedConfigWindow extends JDialog {
 		setModal(true);
 		setResizable(false);
 		setTitle("Proline zero advanced config window");
-		setBounds(100, 100, 450, 500);
+		setBounds(100, 100, 450, 550);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		initialize();
 	}
@@ -62,6 +65,7 @@ public class AdvancedConfigWindow extends JDialog {
 
 		jvmPathField = new JTextField();
 		jvmPathField.setPreferredSize(new Dimension(60, 20));
+		jvmPathField.setEditable(false);
 
 		// TODO : texte à changer et centrer avec une icone
 		aide = new JTextArea();
@@ -80,6 +84,7 @@ public class AdvancedConfigWindow extends JDialog {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		foldersButton.addActionListener(openFolderView());
 
 		// ajout des elements au layout
 		c.gridx = 0;
@@ -88,7 +93,7 @@ public class AdvancedConfigWindow extends JDialog {
 		c.weightx = 1;
 		add(aide, c);
 
-		c.insets = new Insets(5, 5, 5, 5);
+		c.insets = new java.awt.Insets(20, 15, 0, 15);
 		c.gridy++;
 		c.weightx = 0;
 		add(createPortChoicePanel(), c);
@@ -258,7 +263,7 @@ public class AdvancedConfigWindow extends JDialog {
 			Icon restoreIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("arrow-circle.png")));
 			continueButton = new JButton("Ok", tickIcon);
 			cancelButton = new JButton("Cancel", crossIcon);
-			restoreButton = new JButton("Default", restoreIcon);
+			restoreButton = new JButton("Restore", restoreIcon);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -299,5 +304,23 @@ public class AdvancedConfigWindow extends JDialog {
 		// TODO faire le actionlistener
 
 		return testButton;
+	}
+
+	private ActionListener openFolderView() {
+		ActionListener openFolderView = new ActionListener() {
+
+			public void actionPerformed(ActionEvent event) {
+				JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+				jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int returnValue = jfc.showOpenDialog(null);
+
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					File selectedFile = jfc.getSelectedFile();
+					jvmPathField.setToolTipText(selectedFile.getAbsolutePath());
+					jvmPathField.setText(selectedFile.getAbsolutePath());
+				}
+			}
+		};
+		return openFolderView;
 	}
 }

@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -58,7 +60,7 @@ public class MemoryPanel extends JPanel {
 		// ajout des widgets au layout
 		add(aide, c);
 
-		c.insets = new java.awt.Insets(5, 0, 0, 0);
+		c.insets = new java.awt.Insets(20, 15, 0, 15);
 		c.gridy++;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
@@ -79,7 +81,8 @@ public class MemoryPanel extends JPanel {
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.insets = new Insets(5, 5, 5, 5);
+
+		c.insets = new java.awt.Insets(2, 10, 0, 0);
 
 		// creation des widgets
 		this.allocModeBox = new JComboBox<String>();
@@ -87,12 +90,14 @@ public class MemoryPanel extends JPanel {
 		allocModeBox.addItem("Automatic");
 		allocModeBox.addItem("Semi-automatic");
 		allocModeBox.addItem("Manual");
+		allocModeBox.addActionListener(greyMemory());
 
 		// ajout des widgets au layout
 		c.gridx = 0;
 		allocTypePanel.add(new JLabel("Allocation mode :", SwingConstants.RIGHT), c);
 
 		c.gridx++;
+		c.insets = new java.awt.Insets(0, 10, 0, 0);
 		allocTypePanel.add(allocModeBox, c);
 
 		c.gridx++;
@@ -109,6 +114,7 @@ public class MemoryPanel extends JPanel {
 		c.weighty = 1;
 		c.weightx = 1;
 		c.fill = GridBagConstraints.BOTH;
+		c.insets = new java.awt.Insets(20, 0, 0, 0);
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -166,6 +172,7 @@ public class MemoryPanel extends JPanel {
 		// creation des widgets
 		this.studioMemoryField = new MemorySpinner(false, 2.0);
 		studioMemoryField.setPreferredSize(new Dimension(50, 20));
+		studioMemoryField.setEnabled(false);
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -197,6 +204,7 @@ public class MemoryPanel extends JPanel {
 		// creation des widgets
 		this.totalServerMemoryField = new MemorySpinner(false, 1.5);
 		totalServerMemoryField.setPreferredSize(new Dimension(50, 20));
+		totalServerMemoryField.setEnabled(false);
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -241,15 +249,19 @@ public class MemoryPanel extends JPanel {
 		// creation des widgets
 		this.seqrepMemoryField = new MemorySpinner(true, 500);
 		seqrepMemoryField.setPreferredSize(new Dimension(50, 20));
+		seqrepMemoryField.setEnabled(false);
 
 		this.dataStoreMemoryField = new MemorySpinner(true, 500);
 		dataStoreMemoryField.setPreferredSize(new Dimension(50, 20));
+		dataStoreMemoryField.setEnabled(false);
 
 		this.cortexMemoryField = new MemorySpinner(true, 500);
 		cortexMemoryField.setPreferredSize(new Dimension(50, 20));
+		cortexMemoryField.setEnabled(false);
 
 		this.jmsMemoryField = new MemorySpinner(true, 500);
 		jmsMemoryField.setPreferredSize(new Dimension(50, 20));
+		jmsMemoryField.setEnabled(false);
 
 		// TODO : griser si seqrep non coché
 		// ajout des widgets au layout
@@ -294,5 +306,40 @@ public class MemoryPanel extends JPanel {
 		serverAllocation.add(jmsMemoryField.unit, serverConstraint);
 
 		return serverAllocation;
+	}
+
+	private ActionListener greyMemory() {
+		ActionListener greyLabel = new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				if (allocModeBox.getSelectedItem().equals("Automatic")) {
+					totalMemoryField.setEnabled(true);
+					studioMemoryField.setEnabled(false);
+					totalServerMemoryField.setEnabled(false);
+					seqrepMemoryField.setEnabled(false);
+					dataStoreMemoryField.setEnabled(false);
+					cortexMemoryField.setEnabled(false);
+					jmsMemoryField.setEnabled(false);
+				} else if (allocModeBox.getSelectedItem().equals("Semi-automatic")) {
+					totalMemoryField.setEnabled(false);
+					studioMemoryField.setEnabled(true);
+					totalServerMemoryField.setEnabled(true);
+					seqrepMemoryField.setEnabled(false);
+					dataStoreMemoryField.setEnabled(false);
+					cortexMemoryField.setEnabled(false);
+					jmsMemoryField.setEnabled(false);
+				} else {
+					totalMemoryField.setEnabled(false);
+					studioMemoryField.setEnabled(true);
+					totalServerMemoryField.setEnabled(false);
+					seqrepMemoryField.setEnabled(true);
+					dataStoreMemoryField.setEnabled(true);
+					cortexMemoryField.setEnabled(true);
+					jmsMemoryField.setEnabled(true);
+
+				}
+			}
+		};
+		return greyLabel;
+
 	}
 }
