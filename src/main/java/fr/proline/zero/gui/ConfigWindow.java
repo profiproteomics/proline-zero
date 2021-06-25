@@ -23,7 +23,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
+import fr.proline.zero.util.Config;
 import fr.proline.zero.util.ProlineFiles;
 
 public class ConfigWindow {
@@ -48,7 +51,7 @@ public class ConfigWindow {
 				try {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					initialize();
-					frame.setMinimumSize(frame.getSize());
+					// frame.setMinimumSize(frame.getSize());
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -106,6 +109,10 @@ public class ConfigWindow {
 		tabbedPane.add(folderPanel, "Folders");
 		tabbedPane.add(serverPanel, "Server");
 		tabbedPane.add(parsePanel, "Parsing rules");
+		if (!Config.isSeqRepoEnabled()) {
+			tabbedPane.setEnabledAt(3, false);
+		}
+		tabbedPane.addChangeListener(resizeDynamique());
 
 		return tabbedPane;
 	}
@@ -125,7 +132,8 @@ public class ConfigWindow {
 		serverModuleBox.setEnabled(false);
 
 		seqRepModuleBox = new JCheckBox("Start Sequence Repository");
-		seqRepModuleBox.setSelected(true);
+		seqRepModuleBox.setSelected(Config.isSeqRepoEnabled());
+
 		ActionListener checkSeqRep = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				if (seqRepModuleBox.isSelected()) {
@@ -141,7 +149,7 @@ public class ConfigWindow {
 		seqRepModuleBox.addActionListener(checkSeqRep);
 
 		studioModuleBox = new JCheckBox("Start Proline Studio");
-		studioModuleBox.setSelected(true);
+		studioModuleBox.setSelected(!Config.isServerMode());
 
 		// ajout des widgets
 		c.gridy = 0;
@@ -236,7 +244,7 @@ public class ConfigWindow {
 			String line;
 
 			while ((line = file.readLine()) != null) {
-				line = line + "yo";
+				line = line;
 				inputBuffer.append(line);
 				inputBuffer.append('\n');
 			}
@@ -250,6 +258,28 @@ public class ConfigWindow {
 		} catch (Exception e) {
 			System.out.println("Problem reading file.");
 		}
+	}
+
+	private ChangeListener resizeDynamique() {
+		ChangeListener resize = new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				switch (tabbedPane.getSelectedIndex()) {
+				case 0:
+					frame.setBounds(100, 100, 400, 700);
+					break;
+				case 1:
+					frame.setBounds(100, 100, 400, 640);
+					break;
+				case 2:
+					frame.setBounds(100, 100, 400, 410);
+					break;
+				case 3:
+					frame.setBounds(100, 100, 400, 530);
+					break;
+				}
+			}
+		};
+		return resize;
 	}
 
 }

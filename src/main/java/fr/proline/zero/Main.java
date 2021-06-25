@@ -43,7 +43,7 @@ public class Main {
 //			// add a shutdown hook that will be executed when the program ends or if the
 //			// user ends it with Ctrl+C
 //			Runtime.getRuntime().addShutdownHook(new ShutdownHook());
-//			if (!ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists()) {// first launche
+//			if (!ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists()) {// first launch
 //				logger.info("First launch, update port");
 //				ExecutionSession.updateConfigPort();// can be change only 1 time at the first time
 //				logger.info("launch, update thread number");

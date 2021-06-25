@@ -13,6 +13,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import fr.proline.zero.util.Config;
+
 public class ServerPanel extends JPanel {
 	private JTextField dataStorePortField;
 	private JButton advancedSettingsButton;
@@ -35,6 +37,7 @@ public class ServerPanel extends JPanel {
 		paramAvancesWindow = new AdvancedConfigWindow();
 
 		this.dataStorePortField = new JTextField();
+		dataStorePortField.setText(String.valueOf(Config.getDataStorePort()));
 		dataStorePortField.setPreferredSize(new Dimension(50, 20));
 
 		this.advancedSettingsButton = new JButton("Advanced settings...");

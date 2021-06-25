@@ -26,6 +26,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileSystemView;
 
+import fr.proline.zero.util.Config;
+
 public class AdvancedConfigWindow extends JDialog {
 	private JTextField jmsPortField;
 	private JTextField jmsBatchPortField;
@@ -106,6 +108,7 @@ public class AdvancedConfigWindow extends JDialog {
 
 		c.gridx++;
 		c.anchor = GridBagConstraints.NORTHWEST;
+		serverDefaultTimeoutField.setText((String.valueOf(Config.getDefaultTimeout())));
 		add(serverDefaultTimeoutField, c);
 
 		c.gridx++;
@@ -119,6 +122,7 @@ public class AdvancedConfigWindow extends JDialog {
 
 		c.gridx++;
 		c.anchor = GridBagConstraints.NORTHWEST;
+		threadPoolSizeField.setText((String.valueOf(Config.getCortexNbParallelizableServiceRunners())));
 		add(threadPoolSizeField, c);
 
 		c.gridx++;
@@ -136,6 +140,8 @@ public class AdvancedConfigWindow extends JDialog {
 		c.gridwidth = 2;
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.fill = GridBagConstraints.HORIZONTAL;
+		jvmPathField.setToolTipText(Config.getJavaExePath());
+		jvmPathField.setText(Config.getJavaExePath());
 		add(jvmPathField, c);
 
 		c.gridx++;
@@ -172,16 +178,24 @@ public class AdvancedConfigWindow extends JDialog {
 
 		// creation des widgets
 		jmsPortField = new JTextField();
-		jmsPortField.setPreferredSize(new Dimension(60, 20));
+		jmsPortField.setText(String.valueOf(Config.getJmsPort()));
+		jmsPortField.setHorizontalAlignment(SwingConstants.RIGHT);
+		jmsPortField.setPreferredSize(new Dimension(50, 20));
 
 		jmsBatchPortField = new JTextField();
-		jmsBatchPortField.setPreferredSize(new Dimension(60, 20));
+		jmsBatchPortField.setText(String.valueOf(Config.getJmsBatchPort()));
+		jmsBatchPortField.setHorizontalAlignment(SwingConstants.RIGHT);
+		jmsBatchPortField.setPreferredSize(new Dimension(50, 20));
 
 		jnpPortField = new JTextField();
-		jnpPortField.setPreferredSize(new Dimension(60, 20));
+		jnpPortField.setText(String.valueOf(Config.getJnpPort()));
+		jnpPortField.setHorizontalAlignment(SwingConstants.RIGHT);
+		jnpPortField.setPreferredSize(new Dimension(50, 20));
 
 		jnpRmiPortField = new JTextField();
-		jnpRmiPortField.setPreferredSize(new Dimension(60, 20));
+		jnpRmiPortField.setText(String.valueOf(Config.getJnpRmiPort()));
+		jnpRmiPortField.setHorizontalAlignment(SwingConstants.RIGHT);
+		jnpRmiPortField.setPreferredSize(new Dimension(50, 20));
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -234,6 +248,7 @@ public class AdvancedConfigWindow extends JDialog {
 		c.insets = new Insets(5, 5, 5, 5);
 
 		forceDatastoreUpdate = new JCheckBox();
+		forceDatastoreUpdate.setSelected(Config.getForceUpdate());
 
 		c.gridx = 0;
 		forceDatastorePanel.add(forceDatastoreUpdate, c);
