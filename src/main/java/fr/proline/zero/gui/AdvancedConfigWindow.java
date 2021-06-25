@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -22,18 +24,24 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 public class AdvancedConfigWindow extends JDialog {
-	private JTextField portlabel;
-	private JTextField port;
-	private JTextField serverDefaultTimeout;
-	private JTextField threadPoolSize;
-	private JTextField jvmpath;
+	private JTextField jmsPortField;
+	private JTextField jmsBatchPortField;
+	private JTextField jnpPortField;
+	private JTextField jnpRmiPortField;
+	private JTextField serverDefaultTimeoutField;
+	private JTextField threadPoolSizeField;
+	private JTextField jvmPathField;
 	private JTextArea aide;
 	private JCheckBox forceDatastoreUpdate;
+	private JButton continueButton;
+	private JButton cancelButton;
+	private JButton restoreButton;
 
 	public AdvancedConfigWindow() {
 		setModal(true);
+		setResizable(false);
 		setTitle("Proline zero advanced config window");
-		setBounds(100, 100, 450, 350);
+		setBounds(100, 100, 450, 500);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		initialize();
 	}
@@ -46,14 +54,14 @@ public class AdvancedConfigWindow extends JDialog {
 		c.fill = GridBagConstraints.HORIZONTAL;
 
 		// creation des widgets
-		serverDefaultTimeout = new JTextField();
-		serverDefaultTimeout.setPreferredSize(new Dimension(60, 20));
+		serverDefaultTimeoutField = new JTextField();
+		serverDefaultTimeoutField.setPreferredSize(new Dimension(60, 20));
 
-		threadPoolSize = new JTextField();
-		threadPoolSize.setPreferredSize(new Dimension(60, 20));
+		threadPoolSizeField = new JTextField();
+		threadPoolSizeField.setPreferredSize(new Dimension(60, 20));
 
-		jvmpath = new JTextField();
-		jvmpath.setPreferredSize(new Dimension(60, 20));
+		jvmPathField = new JTextField();
+		jvmPathField.setPreferredSize(new Dimension(60, 20));
 
 		// TODO : texte à changer et centrer avec une icone
 		aide = new JTextArea();
@@ -63,7 +71,7 @@ public class AdvancedConfigWindow extends JDialog {
 		aide.setEditable(false);
 
 		JButton foldersButton = new JButton("dossier");
-		foldersButton.setSize(getPreferredSize());
+		// foldersButton.setPreferredSize(new Dimension(30, 30));
 		try {
 			Icon folderIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("folder-open.png")));
 			foldersButton.setText("");
@@ -76,51 +84,76 @@ public class AdvancedConfigWindow extends JDialog {
 		// ajout des elements au layout
 		c.gridx = 0;
 		c.gridy = 0;
-		c.gridwidth = 3;
+		c.gridwidth = 4;
 		c.weightx = 1;
 		add(aide, c);
 
 		c.insets = new Insets(5, 5, 5, 5);
 		c.gridy++;
-		c.weighty = 0;
+		c.weightx = 0;
 		add(createPortChoicePanel(), c);
 
+		c.fill = GridBagConstraints.NONE;
 		c.gridwidth = 1;
 		c.gridy++;
+		c.anchor = GridBagConstraints.EAST;
 		add(new JLabel("Server default timeout : ", SwingConstants.RIGHT), c);
 
 		c.gridx++;
-		add(serverDefaultTimeout, c);
+		c.anchor = GridBagConstraints.NORTHWEST;
+		add(serverDefaultTimeoutField, c);
 
 		c.gridx++;
+		c.weightx = 0;
 		add(new JLabel("ms"), c);
 
 		c.gridx = 0;
 		c.gridy++;
+		c.anchor = GridBagConstraints.EAST;
 		add(new JLabel("Server thread pool size : ", SwingConstants.RIGHT), c);
 
 		c.gridx++;
-		add(threadPoolSize, c);
+		c.anchor = GridBagConstraints.NORTHWEST;
+		add(threadPoolSizeField, c);
+
+		c.gridx++;
+		c.weightx = 1;
+		add(Box.createHorizontalGlue(), c);
 
 		c.gridx = 0;
 		c.gridy++;
+		c.weightx = 0;
+		c.anchor = GridBagConstraints.EAST;
 		add(new JLabel("JVM path : ", SwingConstants.RIGHT), c);
 
 		c.gridx++;
-		add(jvmpath, c);
+		c.weightx = 1;
+		c.gridwidth = 2;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		add(jvmPathField, c);
 
 		c.gridx++;
+		c.gridx++;
+		c.weightx = 0;
+		c.gridwidth = 1;
+		c.fill = GridBagConstraints.NONE;
 		add(foldersButton, c);
 
+		c.gridwidth = 5;
 		c.gridx = 0;
 		c.gridy++;
 		add(createForceDatastorePanel(), c);
 
 		c.gridy++;
-		c.fill = GridBagConstraints.VERTICAL;
-		c.anchor = GridBagConstraints.SOUTH;
 		c.weighty = 1;
 		add(Box.createVerticalGlue(), c);
+
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridy++;
+		c.weighty = 0;
+		c.weightx = 1;
+		add(createBottomButtonsPanel(), c);
 	}
 
 	private JPanel createPortChoicePanel() {
@@ -129,55 +162,142 @@ public class AdvancedConfigWindow extends JDialog {
 		portChoice.setBorder(BorderFactory.createTitledBorder("Ports choice"));
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.NORTHWEST;
-		c.fill = GridBagConstraints.BOTH;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		c.insets = new Insets(5, 5, 5, 5);
 
 		// creation des widgets
-		portlabel = new JTextField();
-		portlabel.setPreferredSize(new Dimension(60, 20));
+		jmsPortField = new JTextField();
+		jmsPortField.setPreferredSize(new Dimension(60, 20));
 
-		port = new JTextField();
-		port.setPreferredSize(new Dimension(60, 20));
+		jmsBatchPortField = new JTextField();
+		jmsBatchPortField.setPreferredSize(new Dimension(60, 20));
 
-		JButton addButton = new JButton("+");
-		try {
-			Icon plusIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("plus.png")));
-			addButton.setText("");
-			addButton.setIcon(plusIcon);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		jnpPortField = new JTextField();
+		jnpPortField.setPreferredSize(new Dimension(60, 20));
 
-		JButton testButton = new JButton("test");
+		jnpRmiPortField = new JTextField();
+		jnpRmiPortField.setPreferredSize(new Dimension(60, 20));
 
 		// ajout des widgets au layout
 		c.gridx = 0;
 		c.gridy = 0;
-		portChoice.add(new JLabel("<HTML><U>Proline server : </HTML></U>"), c);
+		portChoice.add(new JLabel("<HTML><U>JMS Server Port : </HTML></U>", SwingConstants.RIGHT), c);
 
 		c.gridx++;
-		portChoice.add(portlabel, c);
+		portChoice.add(jmsPortField, c);
 
 		c.gridx++;
-		portChoice.add(port, c);
+		portChoice.add(createbuttonTest(jmsPortField), c);
+
+		c.gridx = 0;
+		c.gridy++;
+		portChoice.add(new JLabel("<HTML><U>JMS Batch Server Port : </HTML></U>", SwingConstants.RIGHT), c);
 
 		c.gridx++;
-		portChoice.add(addButton, c);
+		portChoice.add(jmsBatchPortField, c);
 
 		c.gridx++;
-		portChoice.add(testButton, c);
+		portChoice.add(createbuttonTest(jmsBatchPortField), c);
+
+		c.gridx = 0;
+		c.gridy++;
+		portChoice.add(new JLabel("<HTML><U>JNP Server Port : </HTML></U>", SwingConstants.RIGHT), c);
+
+		c.gridx++;
+		portChoice.add(jnpPortField, c);
+
+		c.gridx++;
+		portChoice.add(createbuttonTest(jnpPortField), c);
+
+		c.gridx = 0;
+		c.gridy++;
+		portChoice.add(new JLabel("<HTML><U>JNP RMI Server Port : </HTML></U>", SwingConstants.RIGHT), c);
+
+		c.gridx++;
+		portChoice.add(jnpRmiPortField, c);
+
+		c.gridx++;
+		portChoice.add(createbuttonTest(jnpRmiPortField), c);
 
 		return portChoice;
 	}
 
 	private JPanel createForceDatastorePanel() {
-		JPanel forceDatastorePanel = new JPanel();
+		JPanel forceDatastorePanel = new JPanel(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets = new Insets(5, 5, 5, 5);
 
 		forceDatastoreUpdate = new JCheckBox();
 
-		forceDatastorePanel.add(forceDatastoreUpdate);
-		forceDatastorePanel.add(new JLabel(" Force DataStore update"));
+		c.gridx = 0;
+		forceDatastorePanel.add(forceDatastoreUpdate, c);
+
+		c.gridx++;
+		c.insets = new Insets(10, 0, 0, 0);
+		forceDatastorePanel.add(new JLabel("Force DataStore update"), c);
+
+		c.gridx++;
+		c.weightx = 1;
+		forceDatastorePanel.add(Box.createVerticalGlue(), c);
+
 		return forceDatastorePanel;
+	}
+
+	// panel des trois boutons (ok restore cancel) + checkbox
+	private JPanel createBottomButtonsPanel() {
+		// mise en place du panel et du layout
+		JPanel buttonPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.insets = new Insets(5, 5, 5, 5);
+
+		// mise en place des widgets
+		try {
+			Icon crossIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
+			Icon tickIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("tick.png")));
+			Icon restoreIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("arrow-circle.png")));
+			continueButton = new JButton("Ok", tickIcon);
+			cancelButton = new JButton("Cancel", crossIcon);
+			restoreButton = new JButton("Default", restoreIcon);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		ActionListener actionListener = new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+			}
+		};
+		continueButton.addActionListener(actionListener);
+
+		// ajout des widgets au layout
+		c.gridx = 0;
+		c.weightx = 0;
+		buttonPanel.add(restoreButton, c);
+
+		c.gridx++;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		buttonPanel.add(Box.createHorizontalGlue(), c);
+
+		c.fill = GridBagConstraints.NONE;
+		c.gridx++;
+		c.weightx = 0;
+		buttonPanel.add(continueButton, c);
+
+		c.gridx++;
+		c.weightx = 0;
+		buttonPanel.add(cancelButton, c);
+
+		return buttonPanel;
+	}
+
+	JButton createbuttonTest(JTextField port) {
+		JButton testButton = new JButton("test");
+		JPanel panel = (JPanel) port.getParent();
+
+		// TODO faire le actionlistener
+
+		return testButton;
 	}
 }

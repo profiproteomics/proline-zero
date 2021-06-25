@@ -141,12 +141,10 @@ public class MemoryPanel extends JPanel {
 		totalPanel.add(new JLabel("Total memory :", SwingConstants.RIGHT), c);
 
 		c.gridx++;
-		c.weightx = 0.1;
 		c.insets = new Insets(5, 5, 5, 5);
 		totalPanel.add(totalMemoryField, c);
 
 		c.gridx++;
-		c.weightx = 0;
 		totalPanel.add(totalMemoryField.unit, c);
 
 		c.gridx++;
@@ -167,7 +165,7 @@ public class MemoryPanel extends JPanel {
 
 		// creation des widgets
 		this.studioMemoryField = new MemorySpinner(false, 2.0);
-		studioMemoryField.setPreferredSize(new Dimension(60, 20));
+		studioMemoryField.setPreferredSize(new Dimension(50, 20));
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -175,11 +173,9 @@ public class MemoryPanel extends JPanel {
 
 		c.gridx++;
 		c.insets = new java.awt.Insets(5, 5, 5, 5);
-		c.weightx = 0.1;
 		studioPanel.add(studioMemoryField, c);
 
 		c.gridx++;
-		c.weightx = 0;
 		studioPanel.add(studioMemoryField.unit, c);
 
 		c.gridx++;
@@ -200,7 +196,7 @@ public class MemoryPanel extends JPanel {
 
 		// creation des widgets
 		this.totalServerMemoryField = new MemorySpinner(false, 1.5);
-		totalServerMemoryField.setPreferredSize(new Dimension(53, 20));
+		totalServerMemoryField.setPreferredSize(new Dimension(50, 20));
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -261,11 +257,9 @@ public class MemoryPanel extends JPanel {
 		serverConstraint.gridx = 0;
 		serverAllocation.add(new JLabel("Sequence repository : ", SwingConstants.RIGHT), serverConstraint);
 
-		serverConstraint.weightx = 1;
 		serverConstraint.gridx++;
 		serverAllocation.add(seqrepMemoryField, serverConstraint);
 
-		serverConstraint.weightx = 0;
 		serverConstraint.gridx++;
 		serverAllocation.add(seqrepMemoryField.unit, serverConstraint);
 
@@ -273,11 +267,9 @@ public class MemoryPanel extends JPanel {
 		serverConstraint.gridy++;
 		serverAllocation.add(new JLabel("DataStore : ", SwingConstants.RIGHT), serverConstraint);
 
-		serverConstraint.weightx = 1;
 		serverConstraint.gridx++;
 		serverAllocation.add(dataStoreMemoryField, serverConstraint);
 
-		serverConstraint.weightx = 0;
 		serverConstraint.gridx++;
 		serverAllocation.add(dataStoreMemoryField.unit, serverConstraint);
 
@@ -285,11 +277,9 @@ public class MemoryPanel extends JPanel {
 		serverConstraint.gridy++;
 		serverAllocation.add(new JLabel("Proline server : ", SwingConstants.RIGHT), serverConstraint);
 
-		serverConstraint.weightx = 1;
 		serverConstraint.gridx++;
 		serverAllocation.add(cortexMemoryField, serverConstraint);
 
-		serverConstraint.weightx = 0;
 		serverConstraint.gridx++;
 		serverAllocation.add(cortexMemoryField.unit, serverConstraint);
 
@@ -297,11 +287,9 @@ public class MemoryPanel extends JPanel {
 		serverConstraint.gridy++;
 		serverAllocation.add(new JLabel("JMS : ", SwingConstants.RIGHT), serverConstraint);
 
-		serverConstraint.weightx = 1;
 		serverConstraint.gridx++;
 		serverAllocation.add(jmsMemoryField, serverConstraint);
 
-		serverConstraint.weightx = 0;
 		serverConstraint.gridx++;
 		serverAllocation.add(jmsMemoryField.unit, serverConstraint);
 

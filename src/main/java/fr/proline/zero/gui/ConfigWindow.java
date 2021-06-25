@@ -65,26 +65,30 @@ public class ConfigWindow {
 		frame = new JFrame();
 		frame.setTitle("Proline zero config window");
 		frame.setBounds(100, 100, 350, 635);
+		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel panel = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
+
+		// ajout des differents panels
 		c.gridwidth = 3;
 		c.gridx = 0;
 		c.gridy = 0;
-
-		// ajout des differents panels
 		panel.add(createModulesPanel(), c);
+
 		c.weightx = 1;
 		c.weighty = 1;
 		c.gridy++;
 		panel.add(createTabPanel(), c);
+
 		c.gridwidth = 3;
 		c.gridy++;
 		c.weighty = 0;
 		doNotShowAgainBox = new JCheckBox("Do not show again");
 		panel.add(doNotShowAgainBox, c);
+
 		c.gridy++;
 		c.weightx = 5;
 		panel.add(createBottomButtonsPanel(), c);
