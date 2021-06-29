@@ -25,6 +25,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileSystemView;
 
+import fr.proline.zero.util.Config;
+
 public class FolderPanel extends JPanel {
 	private JTextField maximumTmpFolderSizeField;
 	private JComboBox<String> dataTypeBox;
@@ -92,6 +94,7 @@ public class FolderPanel extends JPanel {
 		maximumTmpFolderSizeField = new JTextField();
 		maximumTmpFolderSizeField.setPreferredSize(new Dimension(50, 20));
 		maximumTmpFolderSizeField.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+		maximumTmpFolderSizeField.setText(String.valueOf(Config.getMaxTmpFolderSize()));
 
 		// ajout des widgets au layout
 		tmpFolderConstraint.gridx = 0;

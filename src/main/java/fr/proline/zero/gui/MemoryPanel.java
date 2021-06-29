@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -14,6 +15,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import fr.proline.zero.util.MemoryUtils;
 
 public class MemoryPanel extends JPanel {
 	private JComboBox<String> allocModeBox;
@@ -31,6 +36,8 @@ public class MemoryPanel extends JPanel {
 	private MemorySpinner cortexMemoryField;
 
 	private MemorySpinner jmsMemoryField;
+
+	private MemoryUtils memoryManager;
 
 	private JTextArea aide;
 
@@ -73,6 +80,11 @@ public class MemoryPanel extends JPanel {
 		c.weighty = 1;
 		add(Box.createHorizontalGlue(), c);
 
+		// TODO : gerer les long et les doubles et les int
+		memoryManager = new MemoryUtils((Long) this.totalMemoryField.getValue(),
+				(Long) this.studioMemoryField.getValue(), (Long) this.totalServerMemoryField.getValue(),
+				(Long) this.seqrepMemoryField.getValue(), (Long) this.dataStoreMemoryField.getValue(),
+				(Long) this.cortexMemoryField.getValue(), (Long) this.jmsMemoryField.getValue());
 	}
 
 	private JPanel createAllocationTypePanel() {
@@ -141,6 +153,7 @@ public class MemoryPanel extends JPanel {
 		// creation des widgets
 		this.totalMemoryField = new MemorySpinner(false, 3.2);
 		totalMemoryField.setPreferredSize(new Dimension(50, 20));
+		totalMemoryField.addChangeListener(updateMemory());
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -341,5 +354,29 @@ public class MemoryPanel extends JPanel {
 		};
 		return greyLabel;
 
+	}
+
+	private ChangeListener updateMemory() {
+		ChangeListener adjustMemory = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (allocModeBox.getSelectedItem().equals("Manual")) {
+					memoryManager.updateManual((Long) studioMemoryField.getValue(), (Long) seqrepMemoryField.getValue(),
+							(Long) dataStoreMemoryField.getValue(), (Long) cortexMemoryField.getValue(),
+							(Long) jmsMemoryField.getValue());
+				}
+			}
+		};
+		return adjustMemory;
+	}
+
+	private void updateValues(ArrayList<Long> valueList) {
+		totalMemoryField.setValue(valueList.get(0));
+		studioMemoryField.setValue(valueList.get(1));
+		totalServerMemoryField.setValue(valueList.get(2));
+		seqrepMemoryField.setValue(valueList.get(3));
+		dataStoreMemoryField.setValue(valueList.get(4));
+		cortexMemoryField.setValue(valueList.get(5));
+		jmsMemoryField.setValue(valueList.get(6));
 	}
 }
