@@ -11,7 +11,6 @@ public class MemoryUtils {
 	private long datastore_memory;
 	private long proline_server_memory;
 	private long jms_memory;
-	ArrayList<Long> memory = new ArrayList<Long>();
 
 	public MemoryUtils(long total_memory, long proline_studio_memory, long server_total_memory, long seqrep_memory,
 			long datastore_memory, long proline_server_memory, long jms_memory) {
@@ -22,15 +21,6 @@ public class MemoryUtils {
 		this.datastore_memory = datastore_memory;
 		this.proline_server_memory = proline_server_memory;
 		this.jms_memory = jms_memory;
-		this.memory = new ArrayList<Long>();
-
-		memory.add(this.total_memory);
-		memory.add(this.studio_memory);
-		memory.add(this.server_total_memory);
-		memory.add(this.seqrep_memory);
-		memory.add(this.datastore_memory);
-		memory.add(this.proline_server_memory);
-		memory.add(this.jms_memory);
 	}
 
 	// public ArrayList<Long> updateAuto() {
@@ -39,6 +29,7 @@ public class MemoryUtils {
 
 	public ArrayList<Long> updateManual(Long studioMem, Long jmsMem, Long seqrepMem, Long datastoreMem,
 			Long cortexMem) {
+
 		this.studio_memory = studioMem;
 		this.seqrep_memory = seqrepMem;
 		this.datastore_memory = datastoreMem;
@@ -48,7 +39,17 @@ public class MemoryUtils {
 				+ this.seqrep_memory;
 		this.total_memory = this.studio_memory + this.server_total_memory;
 
-		return this.memory;
+		ArrayList<Long> memory = new ArrayList<Long>();
+
+		memory.add(this.total_memory);
+		memory.add(this.studio_memory);
+		memory.add(this.server_total_memory);
+		memory.add(this.seqrep_memory);
+		memory.add(this.datastore_memory);
+		memory.add(this.proline_server_memory);
+		memory.add(this.jms_memory);
+
+		return memory;
 	}
 
 	public long getTotal_memory() {

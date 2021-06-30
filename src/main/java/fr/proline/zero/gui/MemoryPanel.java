@@ -388,26 +388,39 @@ public class MemoryPanel extends JPanel {
 				}
 
 				if (allocModeBox.getSelectedItem().equals("Manual")) {
-					System.out.println(studioMemoryField.getValue());
 					ArrayList<Long> valueList = memoryManager.updateManual(studioMemoryField.getMoLongValue(),
 							seqrepMemoryField.getMoLongValue(), dataStoreMemoryField.getMoLongValue(),
 							cortexMemoryField.getMoLongValue(), jmsMemoryField.getMoLongValue());
-					updateValues(valueList);
+					updateValues(valueList, ((MemorySpinner) e.getSource()).getName());
 				}
 			}
 		};
 		return adjustMemory;
 	}
 
-	private void updateValues(ArrayList<Long> valueList) {
-		System.out.println(valueList.get(1));
-		totalMemoryField.setValue(valueList.get(0));
-		studioMemoryField.setValue(valueList.get(1));
-		totalServerMemoryField.setValue(valueList.get(2));
-		seqrepMemoryField.setValue(valueList.get(3));
-		dataStoreMemoryField.setValue(valueList.get(4));
-		cortexMemoryField.setValue(valueList.get(5));
-		jmsMemoryField.setValue(valueList.get(6));
+	private void updateValues(ArrayList<Long> valueList, String name) {
+		System.out.println(name);
+		if (name != "totalMemoryField") {
+			totalMemoryField.setValue(valueList.get(0));
+		}
+		if (name != "studioMemoryField") {
+			studioMemoryField.setValue(valueList.get(1));
+		}
+		if (name != "totalServerMemoryField") {
+			totalServerMemoryField.setValue(valueList.get(2));
+		}
+		if (name != "seqrepMemoryField") {
+			seqrepMemoryField.setValue(valueList.get(3));
+		}
+		if (name != "dataStoreMemoryField") {
+			dataStoreMemoryField.setValue(valueList.get(4));
+		}
+		if (name != "cortexMemoryField") {
+			cortexMemoryField.setValue(valueList.get(5));
+		}
+		if (name != "jmsMemoryField") {
+			jmsMemoryField.setValue(valueList.get(6));
+		}
 	}
 
 }
