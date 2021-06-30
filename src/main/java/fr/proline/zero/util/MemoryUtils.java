@@ -37,8 +37,8 @@ public class MemoryUtils {
 	//
 	// }
 
-	public ArrayList<Long> updateManual(long studioMem, long jmsMem, long seqrepMem, long datastoreMem,
-			long cortexMem) {
+	public ArrayList<Long> updateManual(Long studioMem, Long jmsMem, Long seqrepMem, Long datastoreMem,
+			Long cortexMem) {
 		System.out.println("test boucle");
 		this.studio_memory = studioMem;
 		this.seqrep_memory = seqrepMem;

@@ -73,11 +73,20 @@ public class MemorySpinner extends JSpinner {
 	}
 
 	private SpinnerNumberModel memorySpinnerModel(int value) {
-		SpinnerNumberModel truc = new SpinnerNumberModel(value, 0, 1000, 100);
-		return truc;
+		return new SpinnerNumberModel(value, 0, 1000, 100);
 	}
 
 	private SpinnerNumberModel memorySpinnerModel(double value) {
-		return new SpinnerNumberModel(value, 0.9, 10.0, 0.1);
+		return new SpinnerNumberModel(value, 0.9, 100.0, 0.1);
+	}
+
+	long getMoLongValue() {
+		Long valueMo;
+		if (this.isMo) {
+			valueMo = ((Number) getValue()).longValue();
+		} else {
+			valueMo = (long) 500;
+		}
+		return valueMo;
 	}
 }

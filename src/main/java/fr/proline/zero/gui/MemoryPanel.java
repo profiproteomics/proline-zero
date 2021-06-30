@@ -81,10 +81,10 @@ public class MemoryPanel extends JPanel {
 		add(Box.createHorizontalGlue(), c);
 
 		// TODO : gerer les long et les doubles et les int
-		memoryManager = new MemoryUtils((Long) this.totalMemoryField.getValue(),
-				(Long) this.studioMemoryField.getValue(), (Long) this.totalServerMemoryField.getValue(),
-				(Long) this.seqrepMemoryField.getValue(), (Long) this.dataStoreMemoryField.getValue(),
-				(Long) this.cortexMemoryField.getValue(), (Long) this.jmsMemoryField.getValue());
+		memoryManager = new MemoryUtils(this.totalMemoryField.getMoLongValue(), this.studioMemoryField.getMoLongValue(),
+				this.totalServerMemoryField.getMoLongValue(), this.seqrepMemoryField.getMoLongValue(),
+				this.dataStoreMemoryField.getMoLongValue(), this.cortexMemoryField.getMoLongValue(),
+				this.jmsMemoryField.getMoLongValue());
 	}
 
 	private JPanel createAllocationTypePanel() {
@@ -186,6 +186,7 @@ public class MemoryPanel extends JPanel {
 		this.studioMemoryField = new MemorySpinner(false, 2.0);
 		studioMemoryField.setPreferredSize(new Dimension(50, 20));
 		studioMemoryField.setEnabled(false);
+		studioMemoryField.addChangeListener(updateMemory());
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -361,9 +362,10 @@ public class MemoryPanel extends JPanel {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				if (allocModeBox.getSelectedItem().equals("Manual")) {
-					memoryManager.updateManual((Long) studioMemoryField.getValue(), (Long) seqrepMemoryField.getValue(),
-							(Long) dataStoreMemoryField.getValue(), (Long) cortexMemoryField.getValue(),
-							(Long) jmsMemoryField.getValue());
+					ArrayList<Long> valueList = memoryManager.updateManual(studioMemoryField.getMoLongValue(),
+							seqrepMemoryField.getMoLongValue(), dataStoreMemoryField.getMoLongValue(),
+							cortexMemoryField.getMoLongValue(), jmsMemoryField.getMoLongValue());
+					updateValues(valueList);
 				}
 			}
 		};
@@ -371,12 +373,53 @@ public class MemoryPanel extends JPanel {
 	}
 
 	private void updateValues(ArrayList<Long> valueList) {
+		if (valueList.get(0) < 100) {
+			totalMemoryField.setIsMo(false);
+		} else {
+			totalMemoryField.setIsMo(true);
+		}
 		totalMemoryField.setValue(valueList.get(0));
+
+		if (valueList.get(1) < 100) {
+			studioMemoryField.setIsMo(false);
+		} else {
+			studioMemoryField.setIsMo(true);
+		}
 		studioMemoryField.setValue(valueList.get(1));
+
+		if (valueList.get(2) < 100) {
+			totalServerMemoryField.setIsMo(false);
+		} else {
+			totalServerMemoryField.setIsMo(true);
+		}
 		totalServerMemoryField.setValue(valueList.get(2));
+
+		if (valueList.get(3) < 100) {
+			seqrepMemoryField.setIsMo(false);
+		} else {
+			seqrepMemoryField.setIsMo(true);
+		}
 		seqrepMemoryField.setValue(valueList.get(3));
+
+		if (valueList.get(4) < 100) {
+			dataStoreMemoryField.setIsMo(false);
+		} else {
+			dataStoreMemoryField.setIsMo(true);
+		}
 		dataStoreMemoryField.setValue(valueList.get(4));
+
+		if (valueList.get(5) < 100) {
+			cortexMemoryField.setIsMo(false);
+		} else {
+			cortexMemoryField.setIsMo(true);
+		}
 		cortexMemoryField.setValue(valueList.get(5));
+
+		if (valueList.get(6) < 100) {
+			jmsMemoryField.setIsMo(false);
+		} else {
+			jmsMemoryField.setIsMo(true);
+		}
 		jmsMemoryField.setValue(valueList.get(6));
 	}
 }
