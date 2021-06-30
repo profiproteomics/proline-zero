@@ -151,7 +151,7 @@ public class MemoryPanel extends JPanel {
 		c.insets = new Insets(5, 5, 5, 5);
 
 		// creation des widgets
-		this.totalMemoryField = new MemorySpinner(false, 3.2);
+		this.totalMemoryField = new MemorySpinner(false, 3.2, "totalMemoryField");
 		totalMemoryField.setPreferredSize(new Dimension(50, 20));
 		totalMemoryField.addChangeListener(updateMemory());
 
@@ -183,7 +183,7 @@ public class MemoryPanel extends JPanel {
 		c.insets = new Insets(5, 5, 5, 5);
 
 		// creation des widgets
-		this.studioMemoryField = new MemorySpinner(false, 2.0);
+		this.studioMemoryField = new MemorySpinner(false, 2.0, "studioMemoryField");
 		studioMemoryField.setPreferredSize(new Dimension(50, 20));
 		studioMemoryField.setEnabled(false);
 		studioMemoryField.addChangeListener(updateMemory());
@@ -216,7 +216,7 @@ public class MemoryPanel extends JPanel {
 		c.insets = new java.awt.Insets(5, 5, 5, 5);
 
 		// creation des widgets
-		this.totalServerMemoryField = new MemorySpinner(false, 1.5);
+		this.totalServerMemoryField = new MemorySpinner(false, 1.5, "totalServerMemoryField");
 		totalServerMemoryField.setPreferredSize(new Dimension(50, 20));
 		totalServerMemoryField.setEnabled(false);
 
@@ -261,19 +261,19 @@ public class MemoryPanel extends JPanel {
 		serverConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
 
 		// creation des widgets
-		this.seqrepMemoryField = new MemorySpinner(true, 500);
+		this.seqrepMemoryField = new MemorySpinner(true, 500, "seqrepMemoryField");
 		seqrepMemoryField.setPreferredSize(new Dimension(50, 20));
 		seqrepMemoryField.setEnabled(false);
 
-		this.dataStoreMemoryField = new MemorySpinner(true, 500);
+		this.dataStoreMemoryField = new MemorySpinner(true, 500, "dataStoreMemoryField");
 		dataStoreMemoryField.setPreferredSize(new Dimension(50, 20));
 		dataStoreMemoryField.setEnabled(false);
 
-		this.cortexMemoryField = new MemorySpinner(true, 500);
+		this.cortexMemoryField = new MemorySpinner(true, 500, "cortexMemoryField");
 		cortexMemoryField.setPreferredSize(new Dimension(50, 20));
 		cortexMemoryField.setEnabled(false);
 
-		this.jmsMemoryField = new MemorySpinner(true, 500);
+		this.jmsMemoryField = new MemorySpinner(true, 500, "jmsMemoryField");
 		jmsMemoryField.setPreferredSize(new Dimension(50, 20));
 		jmsMemoryField.setEnabled(false);
 
@@ -361,7 +361,34 @@ public class MemoryPanel extends JPanel {
 		ChangeListener adjustMemory = new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
+				long updatedSourceValue = ((MemorySpinner) e.getSource()).getMoLongValue();
+
+				switch (((MemorySpinner) e.getSource()).getName()) {
+				case "totalMemoryField":
+					memoryManager.setTotal_memory(updatedSourceValue);
+					break;
+				case "studioMemoryField":
+					memoryManager.setStudio_memory(updatedSourceValue);
+					break;
+				case "totalServerMemoryField":
+					memoryManager.setServer_total_memory(updatedSourceValue);
+					break;
+				case "seqrepMemoryField":
+					memoryManager.setSeqrep_memory(updatedSourceValue);
+					break;
+				case "dataStoreMemoryField":
+					memoryManager.setDatastore_memory(updatedSourceValue);
+					break;
+				case "cortexMemoryField":
+					memoryManager.setProline_server_memory(updatedSourceValue);
+					break;
+				case "jmsMemoryField":
+					memoryManager.setJms_memory(updatedSourceValue);
+					break;
+				}
+
 				if (allocModeBox.getSelectedItem().equals("Manual")) {
+					System.out.println(studioMemoryField.getValue());
 					ArrayList<Long> valueList = memoryManager.updateManual(studioMemoryField.getMoLongValue(),
 							seqrepMemoryField.getMoLongValue(), dataStoreMemoryField.getMoLongValue(),
 							cortexMemoryField.getMoLongValue(), jmsMemoryField.getMoLongValue());
@@ -373,53 +400,14 @@ public class MemoryPanel extends JPanel {
 	}
 
 	private void updateValues(ArrayList<Long> valueList) {
-		if (valueList.get(0) < 100) {
-			totalMemoryField.setIsMo(false);
-		} else {
-			totalMemoryField.setIsMo(true);
-		}
+		System.out.println(valueList.get(1));
 		totalMemoryField.setValue(valueList.get(0));
-
-		if (valueList.get(1) < 100) {
-			studioMemoryField.setIsMo(false);
-		} else {
-			studioMemoryField.setIsMo(true);
-		}
 		studioMemoryField.setValue(valueList.get(1));
-
-		if (valueList.get(2) < 100) {
-			totalServerMemoryField.setIsMo(false);
-		} else {
-			totalServerMemoryField.setIsMo(true);
-		}
 		totalServerMemoryField.setValue(valueList.get(2));
-
-		if (valueList.get(3) < 100) {
-			seqrepMemoryField.setIsMo(false);
-		} else {
-			seqrepMemoryField.setIsMo(true);
-		}
 		seqrepMemoryField.setValue(valueList.get(3));
-
-		if (valueList.get(4) < 100) {
-			dataStoreMemoryField.setIsMo(false);
-		} else {
-			dataStoreMemoryField.setIsMo(true);
-		}
 		dataStoreMemoryField.setValue(valueList.get(4));
-
-		if (valueList.get(5) < 100) {
-			cortexMemoryField.setIsMo(false);
-		} else {
-			cortexMemoryField.setIsMo(true);
-		}
 		cortexMemoryField.setValue(valueList.get(5));
-
-		if (valueList.get(6) < 100) {
-			jmsMemoryField.setIsMo(false);
-		} else {
-			jmsMemoryField.setIsMo(true);
-		}
 		jmsMemoryField.setValue(valueList.get(6));
 	}
+
 }

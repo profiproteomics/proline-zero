@@ -9,12 +9,13 @@ import javax.swing.event.ChangeListener;
 public class MemorySpinner extends JSpinner {
 	Boolean isMo;
 	JLabel unit;
+	String name;
 
 	public void setIsMo(Boolean isMo) {
 		this.isMo = isMo;
 	}
 
-	public MemorySpinner(Boolean isMo, double value) {
+	public MemorySpinner(Boolean isMo, double value, String name) {
 		super();
 		setModel(memorySpinnerModel(value));
 		unit = new JLabel("Go");
@@ -41,9 +42,10 @@ public class MemorySpinner extends JSpinner {
 				}
 			}
 		});
+		this.name = name;
 	}
 
-	public MemorySpinner(Boolean isMo, int value) {
+	public MemorySpinner(Boolean isMo, int value, String name) {
 		super();
 		setModel(memorySpinnerModel(value));
 		unit = new JLabel("Mo");
@@ -85,8 +87,35 @@ public class MemorySpinner extends JSpinner {
 		if (this.isMo) {
 			valueMo = ((Number) getValue()).longValue();
 		} else {
-			valueMo = (long) 500;
+			valueMo = Math.round(((double) getValue()) * 1024);
 		}
 		return valueMo;
+	}
+
+	public void setValue(Long value) {
+		if (value > 950) {
+			setIsMo(false);
+			unit.setText("Go");
+
+			double doubleValue = ((double) value) / 1000;
+			doubleValue = Math.round(doubleValue * 10.0);
+			doubleValue = doubleValue / 10.0;
+			setValue(doubleValue);
+
+			getParent().repaint();
+
+		} else {
+			setIsMo(true);
+			unit.setText("Mo");
+
+			int valueInt = (int) Math.round(value / 100.0) * 100;
+			setValue(valueInt);
+
+			getParent().repaint();
+		}
+	}
+
+	public String getName() {
+		return this.name;
 	}
 }
