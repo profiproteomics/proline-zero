@@ -52,6 +52,38 @@ public class MemoryUtils {
 		return memory;
 	}
 
+	public ArrayList<Long> updateAuto(Long total_memory) {
+
+		this.total_memory = total_memory;
+		if (total_memory < 20000) {
+			this.studio_memory = 1000;
+		} else {
+			this.studio_memory = 2000;
+		}
+		this.seqrep_memory = 1000;
+		this.jms_memory = 1000;
+		long resteMemory = this.total_memory - this.studio_memory - this.seqrep_memory - this.jms_memory;
+
+		this.proline_server_memory = Math.round(resteMemory * 0.65);
+		resteMemory = resteMemory - this.proline_server_memory;
+		this.datastore_memory = resteMemory;
+
+		this.server_total_memory = this.datastore_memory + this.jms_memory + this.proline_server_memory
+				+ this.seqrep_memory;
+
+		ArrayList<Long> memory = new ArrayList<Long>();
+
+		memory.add(this.total_memory);
+		memory.add(this.studio_memory);
+		memory.add(this.server_total_memory);
+		memory.add(this.seqrep_memory);
+		memory.add(this.datastore_memory);
+		memory.add(this.proline_server_memory);
+		memory.add(this.jms_memory);
+
+		return memory;
+	}
+
 	public long getTotal_memory() {
 		return total_memory;
 	}

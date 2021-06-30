@@ -88,7 +88,7 @@ public class MemorySpinner extends JSpinner {
 		if (this.isMo) {
 			valueMo = ((Number) getValue()).longValue();
 		} else {
-			valueMo = Math.round(((double) getValue()) * 1000);
+			valueMo = Math.round(((double) getValue()) * 1000.0);
 		}
 		return valueMo;
 	}
@@ -101,8 +101,8 @@ public class MemorySpinner extends JSpinner {
 			double doubleValue = ((double) value) / 1000;
 			doubleValue = Math.round(doubleValue * 10.0);
 			doubleValue = doubleValue / 10.0;
-			setValue(doubleValue);
 
+			setModel((memorySpinnerModel(doubleValue)));
 			getParent().repaint();
 
 		} else {
@@ -110,7 +110,8 @@ public class MemorySpinner extends JSpinner {
 			unit.setText("Mo");
 
 			int valueInt = (int) Math.round(value / 100.0) * 100;
-			setValue(valueInt);
+
+			setModel((memorySpinnerModel(valueInt)));
 
 			getParent().repaint();
 		}

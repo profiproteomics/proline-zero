@@ -156,7 +156,7 @@ public class MemoryPanel extends JPanel {
 		// creation des widgets
 		this.totalMemoryField = new MemorySpinner(false, 3.2, "totalMemoryField");
 		totalMemoryField.setPreferredSize(new Dimension(50, 20));
-		// totalMemoryField.addChangeListener(updateMemory());
+		totalMemoryField.addChangeListener(updateMemory());
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -402,6 +402,9 @@ public class MemoryPanel extends JPanel {
 						ArrayList<Long> valueList = memoryManager.updateManual(studioMemoryField.getMoLongValue(),
 								jmsMemoryField.getMoLongValue(), seqrepMemoryField.getMoLongValue(),
 								dataStoreMemoryField.getMoLongValue(), cortexMemoryField.getMoLongValue());
+						updateValues(valueList);
+					} else if (allocModeBox.getSelectedItem().equals("Automatic")) {
+						ArrayList<Long> valueList = memoryManager.updateAuto(totalMemoryField.getMoLongValue());
 						updateValues(valueList);
 					}
 					firstClick = true;
