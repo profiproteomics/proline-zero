@@ -41,8 +41,11 @@ public class MemoryPanel extends JPanel {
 
 	private JTextArea aide;
 
+	protected boolean firstClick;
+
 	public MemoryPanel() {
 		super();
+		firstClick = true;
 		initialize();
 	}
 
@@ -153,7 +156,7 @@ public class MemoryPanel extends JPanel {
 		// creation des widgets
 		this.totalMemoryField = new MemorySpinner(false, 3.2, "totalMemoryField");
 		totalMemoryField.setPreferredSize(new Dimension(50, 20));
-		totalMemoryField.addChangeListener(updateMemory());
+		// totalMemoryField.addChangeListener(updateMemory());
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -264,18 +267,22 @@ public class MemoryPanel extends JPanel {
 		this.seqrepMemoryField = new MemorySpinner(true, 500, "seqrepMemoryField");
 		seqrepMemoryField.setPreferredSize(new Dimension(50, 20));
 		seqrepMemoryField.setEnabled(false);
+		seqrepMemoryField.addChangeListener(updateMemory());
 
 		this.dataStoreMemoryField = new MemorySpinner(true, 500, "dataStoreMemoryField");
 		dataStoreMemoryField.setPreferredSize(new Dimension(50, 20));
 		dataStoreMemoryField.setEnabled(false);
+		dataStoreMemoryField.addChangeListener(updateMemory());
 
 		this.cortexMemoryField = new MemorySpinner(true, 500, "cortexMemoryField");
 		cortexMemoryField.setPreferredSize(new Dimension(50, 20));
 		cortexMemoryField.setEnabled(false);
+		cortexMemoryField.addChangeListener(updateMemory());
 
 		this.jmsMemoryField = new MemorySpinner(true, 500, "jmsMemoryField");
 		jmsMemoryField.setPreferredSize(new Dimension(50, 20));
 		jmsMemoryField.setEnabled(false);
+		jmsMemoryField.addChangeListener(updateMemory());
 
 		// TODO : griser si seqrep non coché
 		// ajout des widgets au layout
@@ -361,66 +368,82 @@ public class MemoryPanel extends JPanel {
 		ChangeListener adjustMemory = new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				long updatedSourceValue = ((MemorySpinner) e.getSource()).getMoLongValue();
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					long updatedSourceValue = ((MemorySpinner) e.getSource()).getMoLongValue();
 
-				switch (((MemorySpinner) e.getSource()).getName()) {
-				case "totalMemoryField":
-					memoryManager.setTotal_memory(updatedSourceValue);
-					break;
-				case "studioMemoryField":
-					memoryManager.setStudio_memory(updatedSourceValue);
-					break;
-				case "totalServerMemoryField":
-					memoryManager.setServer_total_memory(updatedSourceValue);
-					break;
-				case "seqrepMemoryField":
-					memoryManager.setSeqrep_memory(updatedSourceValue);
-					break;
-				case "dataStoreMemoryField":
-					memoryManager.setDatastore_memory(updatedSourceValue);
-					break;
-				case "cortexMemoryField":
-					memoryManager.setProline_server_memory(updatedSourceValue);
-					break;
-				case "jmsMemoryField":
-					memoryManager.setJms_memory(updatedSourceValue);
-					break;
-				}
+					switch (((MemorySpinner) e.getSource()).getName()) {
+					case "totalMemoryField":
+						memoryManager.setTotal_memory(updatedSourceValue);
+						break;
+					case "studioMemoryField":
+						memoryManager.setStudio_memory(updatedSourceValue);
+						break;
+					case "totalServerMemoryField":
+						memoryManager.setServer_total_memory(updatedSourceValue);
+						break;
+					case "seqrepMemoryField":
+						memoryManager.setSeqrep_memory(updatedSourceValue);
+						break;
+					case "dataStoreMemoryField":
+						memoryManager.setDatastore_memory(updatedSourceValue);
+						break;
+					case "cortexMemoryField":
+						memoryManager.setProline_server_memory(updatedSourceValue);
+						break;
+					case "jmsMemoryField":
+						memoryManager.setJms_memory(updatedSourceValue);
+						break;
+					}
 
-				if (allocModeBox.getSelectedItem().equals("Manual")) {
-					ArrayList<Long> valueList = memoryManager.updateManual(studioMemoryField.getMoLongValue(),
-							seqrepMemoryField.getMoLongValue(), dataStoreMemoryField.getMoLongValue(),
-							cortexMemoryField.getMoLongValue(), jmsMemoryField.getMoLongValue());
-					updateValues(valueList, ((MemorySpinner) e.getSource()).getName());
+					if (allocModeBox.getSelectedItem().equals("Manual")) {
+						ArrayList<Long> valueList = memoryManager.updateManual(studioMemoryField.getMoLongValue(),
+								jmsMemoryField.getMoLongValue(), seqrepMemoryField.getMoLongValue(),
+								dataStoreMemoryField.getMoLongValue(), cortexMemoryField.getMoLongValue());
+						updateValues(valueList);
+					}
+					firstClick = true;
 				}
 			}
 		};
 		return adjustMemory;
 	}
 
-	private void updateValues(ArrayList<Long> valueList, String name) {
-		System.out.println(name);
-		if (name != "totalMemoryField") {
-			totalMemoryField.setValue(valueList.get(0));
-		}
-		if (name != "studioMemoryField") {
-			studioMemoryField.setValue(valueList.get(1));
-		}
-		if (name != "totalServerMemoryField") {
-			totalServerMemoryField.setValue(valueList.get(2));
-		}
-		if (name != "seqrepMemoryField") {
-			seqrepMemoryField.setValue(valueList.get(3));
-		}
-		if (name != "dataStoreMemoryField") {
-			dataStoreMemoryField.setValue(valueList.get(4));
-		}
-		if (name != "cortexMemoryField") {
-			cortexMemoryField.setValue(valueList.get(5));
-		}
-		if (name != "jmsMemoryField") {
-			jmsMemoryField.setValue(valueList.get(6));
-		}
+//	private void updateValues(ArrayList<Long> valueList, String name) {
+//		System.out.println(name);
+//		if (name != "totalMemoryField") {
+//			totalMemoryField.setValue(valueList.get(0));
+//		}
+//		if (name != "studioMemoryField") {
+//			studioMemoryField.setValue(valueList.get(1));
+//		}
+//		if (name != "totalServerMemoryField") {
+//			totalServerMemoryField.setValue(valueList.get(2));
+//		}
+//		if (name != "seqrepMemoryField") {
+//			seqrepMemoryField.setValue(valueList.get(3));
+//		}
+//		if (name != "dataStoreMemoryField") {
+//			dataStoreMemoryField.setValue(valueList.get(4));
+//		}
+//		if (name != "cortexMemoryField") {
+//			cortexMemoryField.setValue(valueList.get(5));
+//		}
+//		if (name != "jmsMemoryField") {
+//			jmsMemoryField.setValue(valueList.get(6));
+//		}
+//	}
+
+	private void updateValues(ArrayList<Long> valueList) {
+		totalMemoryField.setValue(valueList.get(0));
+		studioMemoryField.setValue(valueList.get(1));
+		totalServerMemoryField.setValue(valueList.get(2));
+		seqrepMemoryField.setValue(valueList.get(3));
+		dataStoreMemoryField.setValue(valueList.get(4));
+		cortexMemoryField.setValue(valueList.get(5));
+		jmsMemoryField.setValue(valueList.get(6));
 	}
 
 }

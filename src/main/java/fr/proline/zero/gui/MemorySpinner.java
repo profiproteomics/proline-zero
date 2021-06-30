@@ -26,16 +26,16 @@ public class MemorySpinner extends JSpinner {
 			public void stateChanged(ChangeEvent e) {
 				if (((MemorySpinner) e.getSource()).isMo) {
 					if ((int) getValue() > 900) {
-						setModel((memorySpinnerModel(1.0)));
 						((MemorySpinner) e.getSource()).setIsMo(false);
+						setModel((memorySpinnerModel(1.0)));
 						((MemorySpinner) e.getSource()).unit.setText("Go");
 						((MemorySpinner) e.getSource()).getParent().repaint();
 					}
 
 				} else {
 					if ((double) getValue() < 1.0) {
-						setModel((memorySpinnerModel(900)));
 						((MemorySpinner) e.getSource()).setIsMo(true);
+						setModel((memorySpinnerModel(900)));
 						((MemorySpinner) e.getSource()).unit.setText("Mo");
 						((MemorySpinner) e.getSource()).getParent().repaint();
 					}
@@ -56,22 +56,23 @@ public class MemorySpinner extends JSpinner {
 			public void stateChanged(ChangeEvent e) {
 				if (((MemorySpinner) e.getSource()).isMo) {
 					if ((int) getValue() > 900) {
-						setModel((memorySpinnerModel(1.0)));
 						((MemorySpinner) e.getSource()).setIsMo(false);
+						setModel((memorySpinnerModel(1.0)));
 						((MemorySpinner) e.getSource()).unit.setText("Go");
 						((MemorySpinner) e.getSource()).getParent().repaint();
 					}
 
 				} else {
 					if ((double) getValue() < 1.0) {
-						setModel((memorySpinnerModel(900)));
 						((MemorySpinner) e.getSource()).setIsMo(true);
+						setModel((memorySpinnerModel(900)));
 						((MemorySpinner) e.getSource()).unit.setText("Mo");
 						((MemorySpinner) e.getSource()).getParent().repaint();
 					}
 				}
 			}
 		});
+		this.name = name;
 	}
 
 	private SpinnerNumberModel memorySpinnerModel(int value) {
@@ -87,7 +88,7 @@ public class MemorySpinner extends JSpinner {
 		if (this.isMo) {
 			valueMo = ((Number) getValue()).longValue();
 		} else {
-			valueMo = Math.round(((double) getValue()) * 1024);
+			valueMo = Math.round(((double) getValue()) * 1000);
 		}
 		return valueMo;
 	}
