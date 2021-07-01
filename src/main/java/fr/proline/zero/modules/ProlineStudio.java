@@ -1,6 +1,7 @@
 package fr.proline.zero.modules;
 
 import fr.proline.zero.gui.ZeroTray;
+import fr.proline.zero.util.Memory;
 import fr.proline.zero.util.ProlineFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class ProlineStudio extends AbstractProcess {
     public void cleanCache() {
         String cacheFolder = ProlineFiles.WORKING_DATA_DIRECTORY + studioUserDir + "/var/cache";
         File cacheFolderFile = new File(cacheFolder);
-        if (cacheFolderFile.isDirectory()) {
+        if (cacheFolderFile.isDirectory() && cacheFolderFile.exists()) {
             try {
                 logger.info("clean folder: " + cacheFolderFile.getAbsolutePath());
                 FileUtils.cleanDirectory(cacheFolderFile);
@@ -46,8 +47,48 @@ public class ProlineStudio extends AbstractProcess {
     }
 
     @Override
-
     public void start() throws Exception {
+        String classpath = new StringBuilder().append(ProlineFiles.STUDIO_JAR_FILE.getName()).append(SystemUtils.toSystemClassPath(";lib/*")).toString();
+        logger.info("starting Studio  from path " + ProlineFiles.STUDIO_DIRECTORY.getAbsolutePath());
+
+        List<String> command = new ArrayList<>();
+        command.add(Config.getJavaExePath());
+        command.add(Memory.getStudioMinMemory());
+		command.add(Memory.getStudioMaxMemory());
+//        command.add("-XX:+UseG1GC");
+//        command.add("-XX:+UseStringDeduplication");
+//        command.add("-XX:MinHeapFreeRatio=10");
+//        command.add("-XX:MaxHeapFreeRatio=30");
+//        command.add("-Duser.language=en");
+//        command.add("-Duser.country=US");
+      //  command.add("-Dlogback.configurationFile=config/logback.xml");
+        command.add("-classpath");
+        command.add(classpath);
+        command.add("fr.proline.studio.main.Main");
+        logger.info("starting Studio using " +command.toString());
+        process = new ProcessExecutor()
+                .command(command)
+                .directory(ProlineFiles.STUDIO_DIRECTORY)
+                .destroyOnExit()
+                .start();
+
+        // wait a moment before closing the splash screen, because Studio  is only displayed a moment after the process is started
+        SplashScreen.stop(2000);
+//		logger.info("Proline Studio is running...");
+        isProcessAlive = true;
+        logger.info("Process {} successfully started (name = {}, pid = {}, alive = {})", getProcessName(), process.getProcess(), getProcessPidSafely(process), isProcessAlive);
+        ZeroTray.update();
+        // check every 2.5 seconds that Studio is still alive
+        // the ending of Proline Zero is invisible to the user, so it does not matter if it happens directly when Studio is stopped
+        while (process.getProcess().isAlive()) {
+            // update system tray
+            ZeroTray.update();
+            Thread.sleep(25000);
+        }
+        stop();
+    }
+
+    public void startOld() throws Exception {
         cleanCache();
         List<String> command = new ArrayList<>();
 //		command.add(Config.getJavaExePath());

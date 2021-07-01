@@ -209,11 +209,11 @@ public class Memory {
     }
 
     private static void adjustStudioMemory(long memory) {
-        File studioConfig = ProlineFiles.STUDIO_CONFIG_FILE;
-//        String regexMin = "-J-Xms(\\d+)m";
-        String regexMax = "-J-Xmx(\\d+)m";
-        String newMax = "-J-Xmx" + Math.floorDiv(memory, M) + "m";
-        ExecutionSession.updateProperty(studioConfig, regexMax, newMax);
+//        File studioConfig = ProlineFiles.STUDIO_CONFIG_FILE;
+////        String regexMin = "-J-Xms(\\d+)m";
+//        String regexMax = "-J-Xmx(\\d+)m";
+//        String newMax = "-J-Xmx" + Math.floorDiv(memory, M) + "m";
+//        ExecutionSession.updateProperty(studioConfig, regexMax, newMax);
     }
 
     private static void adjustPostgreSQLMemory(long memory, boolean isVersion94) {
@@ -322,11 +322,13 @@ public class Memory {
     }
 
     public static String getStudioMinMemory() {
-        return "-Xms" + studioXms + "M";
+        long studioXmxInMo = Math.floorDiv(studioXmx, M);
+        return "-Xms" + studioXmxInMo + "M";
     }
 
     public static String getStudioMaxMemory() {
-        return "-Xmx" + studioXmx + "M";
+        long studioXmxInMo = Math.floorDiv(studioXmx, M);
+        return "-Xmx" + studioXmxInMo + "M";
     }
 
     public static String getAdminMaxMemory() {
