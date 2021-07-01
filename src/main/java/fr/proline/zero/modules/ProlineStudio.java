@@ -65,6 +65,9 @@ public class ProlineStudio extends AbstractProcess {
         command.add("-classpath");
         command.add(classpath);
         command.add("fr.proline.studio.main.Main");
+        command.add("--userdir");
+        command.add("../data" + studioUserDir);//"../data/.prolinestudio", relative directory
+
         logger.info("starting Studio using " +command.toString());
         process = new ProcessExecutor()
                 .command(command)
