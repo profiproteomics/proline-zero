@@ -6,7 +6,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -19,6 +18,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import fr.proline.zero.util.MemoryUtils;
+import fr.proline.zero.util.MemoryUtils.AttributionMode;
 
 public class MemoryPanel extends JPanel {
 	private JComboBox<String> allocModeBox;
@@ -41,6 +41,7 @@ public class MemoryPanel extends JPanel {
 
 	private JTextArea aide;
 
+	// boolean to prevent the values of changing in an infinite loop
 	protected boolean firstClick;
 
 	public MemoryPanel() {
@@ -83,11 +84,17 @@ public class MemoryPanel extends JPanel {
 		c.weighty = 1;
 		add(Box.createHorizontalGlue(), c);
 
-		// TODO : gerer les long et les doubles et les int
-		memoryManager = new MemoryUtils(this.totalMemoryField.getMoLongValue(), this.studioMemoryField.getMoLongValue(),
-				this.totalServerMemoryField.getMoLongValue(), this.seqrepMemoryField.getMoLongValue(),
-				this.dataStoreMemoryField.getMoLongValue(), this.cortexMemoryField.getMoLongValue(),
-				this.jmsMemoryField.getMoLongValue());
+		// TODO : construire a partir de la lecture du fichier
+		memoryManager = new MemoryUtils();
+		AttributionMode mode = memoryManager.getAttributionMode();
+		if (mode.equals(AttributionMode.AUTO)) {
+			allocModeBox.setSelectedIndex(0);
+		} else if (mode.equals(AttributionMode.SEMIAUTO)) {
+			allocModeBox.setSelectedIndex(1);
+		} else {
+			allocModeBox.setSelectedIndex(2);
+		}
+		updateValues();
 	}
 
 	private JPanel createAllocationTypePanel() {
@@ -105,7 +112,7 @@ public class MemoryPanel extends JPanel {
 		allocModeBox.addItem("Automatic");
 		allocModeBox.addItem("Semi-automatic");
 		allocModeBox.addItem("Manual");
-		allocModeBox.addActionListener(greyMemory());
+		allocModeBox.addActionListener(allocationModeAction());
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -222,6 +229,7 @@ public class MemoryPanel extends JPanel {
 		this.totalServerMemoryField = new MemorySpinner(false, 1.5, "totalServerMemoryField");
 		totalServerMemoryField.setPreferredSize(new Dimension(50, 20));
 		totalServerMemoryField.setEnabled(false);
+		totalServerMemoryField.addChangeListener(updateMemory());
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -329,10 +337,19 @@ public class MemoryPanel extends JPanel {
 		return serverAllocation;
 	}
 
-	private ActionListener greyMemory() {
-		ActionListener greyLabel = new ActionListener() {
+	// method called when the value of the allocation mode is changed
+	private ActionListener allocationModeAction() {
+		ActionListener allocationModeAction = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				if (allocModeBox.getSelectedItem().equals("Automatic")) {
+
+					memoryManager.setAttributionMode(AttributionMode.AUTO);
+
+					firstClick = false;
+					memoryManager.update(memoryManager.getTotalMemory());
+					updateValues();
+					firstClick = true;
+
 					totalMemoryField.setEnabled(true);
 					studioMemoryField.setEnabled(false);
 					totalServerMemoryField.setEnabled(false);
@@ -341,6 +358,9 @@ public class MemoryPanel extends JPanel {
 					cortexMemoryField.setEnabled(false);
 					jmsMemoryField.setEnabled(false);
 				} else if (allocModeBox.getSelectedItem().equals("Semi-automatic")) {
+
+					memoryManager.setAttributionMode(AttributionMode.SEMIAUTO);
+
 					totalMemoryField.setEnabled(false);
 					studioMemoryField.setEnabled(true);
 					totalServerMemoryField.setEnabled(true);
@@ -349,6 +369,9 @@ public class MemoryPanel extends JPanel {
 					cortexMemoryField.setEnabled(false);
 					jmsMemoryField.setEnabled(false);
 				} else {
+
+					memoryManager.setAttributionMode(AttributionMode.MANUAL);
+
 					totalMemoryField.setEnabled(false);
 					studioMemoryField.setEnabled(true);
 					totalServerMemoryField.setEnabled(false);
@@ -360,10 +383,13 @@ public class MemoryPanel extends JPanel {
 				}
 			}
 		};
-		return greyLabel;
+		return allocationModeAction;
 
 	}
 
+	// method called when the value of memoryspinner is changed
+	// changes the value in the memorymanager and calls for the update of all other
+	// values
 	private ChangeListener updateMemory() {
 		ChangeListener adjustMemory = new ChangeListener() {
 			@Override
@@ -376,37 +402,31 @@ public class MemoryPanel extends JPanel {
 
 					switch (((MemorySpinner) e.getSource()).getName()) {
 					case "totalMemoryField":
-						memoryManager.setTotal_memory(updatedSourceValue);
+						memoryManager.setTotalMemory(updatedSourceValue);
 						break;
 					case "studioMemoryField":
-						memoryManager.setStudio_memory(updatedSourceValue);
+						memoryManager.setStudioBeingChanged(true);
+						memoryManager.setStudioMemory(updatedSourceValue);
 						break;
 					case "totalServerMemoryField":
-						memoryManager.setServer_total_memory(updatedSourceValue);
+						memoryManager.setServerTotalMemory(updatedSourceValue);
 						break;
 					case "seqrepMemoryField":
-						memoryManager.setSeqrep_memory(updatedSourceValue);
+						memoryManager.setSeqrepMemory(updatedSourceValue);
 						break;
 					case "dataStoreMemoryField":
-						memoryManager.setDatastore_memory(updatedSourceValue);
+						memoryManager.setDatastoreMemory(updatedSourceValue);
 						break;
 					case "cortexMemoryField":
-						memoryManager.setProline_server_memory(updatedSourceValue);
+						memoryManager.setProlineServerMemory(updatedSourceValue);
 						break;
 					case "jmsMemoryField":
-						memoryManager.setJms_memory(updatedSourceValue);
+						memoryManager.setJmsMemory(updatedSourceValue);
 						break;
 					}
-
-					if (allocModeBox.getSelectedItem().equals("Manual")) {
-						ArrayList<Long> valueList = memoryManager.updateManual(studioMemoryField.getMoLongValue(),
-								jmsMemoryField.getMoLongValue(), seqrepMemoryField.getMoLongValue(),
-								dataStoreMemoryField.getMoLongValue(), cortexMemoryField.getMoLongValue());
-						updateValues(valueList);
-					} else if (allocModeBox.getSelectedItem().equals("Automatic")) {
-						ArrayList<Long> valueList = memoryManager.updateAuto(totalMemoryField.getMoLongValue());
-						updateValues(valueList);
-					}
+					memoryManager.update(updatedSourceValue);
+					updateValues();
+					memoryManager.setStudioBeingChanged(false);
 					firstClick = true;
 				}
 			}
@@ -414,39 +434,15 @@ public class MemoryPanel extends JPanel {
 		return adjustMemory;
 	}
 
-//	private void updateValues(ArrayList<Long> valueList, String name) {
-//		System.out.println(name);
-//		if (name != "totalMemoryField") {
-//			totalMemoryField.setValue(valueList.get(0));
-//		}
-//		if (name != "studioMemoryField") {
-//			studioMemoryField.setValue(valueList.get(1));
-//		}
-//		if (name != "totalServerMemoryField") {
-//			totalServerMemoryField.setValue(valueList.get(2));
-//		}
-//		if (name != "seqrepMemoryField") {
-//			seqrepMemoryField.setValue(valueList.get(3));
-//		}
-//		if (name != "dataStoreMemoryField") {
-//			dataStoreMemoryField.setValue(valueList.get(4));
-//		}
-//		if (name != "cortexMemoryField") {
-//			cortexMemoryField.setValue(valueList.get(5));
-//		}
-//		if (name != "jmsMemoryField") {
-//			jmsMemoryField.setValue(valueList.get(6));
-//		}
-//	}
-
-	private void updateValues(ArrayList<Long> valueList) {
-		totalMemoryField.setValue(valueList.get(0));
-		studioMemoryField.setValue(valueList.get(1));
-		totalServerMemoryField.setValue(valueList.get(2));
-		seqrepMemoryField.setValue(valueList.get(3));
-		dataStoreMemoryField.setValue(valueList.get(4));
-		cortexMemoryField.setValue(valueList.get(5));
-		jmsMemoryField.setValue(valueList.get(6));
+	// displays all the new values taken from the memorymanager
+	private void updateValues() {
+		totalMemoryField.setValue(memoryManager.getTotalMemory());
+		studioMemoryField.setValue(memoryManager.getStudioMemory());
+		totalServerMemoryField.setValue(memoryManager.getServerTotalMemory());
+		seqrepMemoryField.setValue(memoryManager.getSeqrepMemory());
+		dataStoreMemoryField.setValue(memoryManager.getDatastoreMemory());
+		cortexMemoryField.setValue(memoryManager.getProlineServerMemory());
+		jmsMemoryField.setValue(memoryManager.getJmsMemory());
 	}
 
 }

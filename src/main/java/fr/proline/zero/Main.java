@@ -148,7 +148,7 @@ public class Main {
 			((PostgreSQL) dataStore).verifyVersion();
 		}
 		if (Config.isAdjustMemory()) {// VDS: POurquoi adjust memory ici.... en amont ?
-			Memory.adjustMemory(Config.getWorkingMemory());
+			Memory.adjustMemory(Config.getTotalMemory());
 		} else {
 			if (dataStore.getDatastoreName().equals(PostgreSQL.NAME)) {
 				Memory.restorePostgreSQLDefaultConfig();

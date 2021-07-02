@@ -1,142 +1,203 @@
 package fr.proline.zero.util;
 
-import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MemoryUtils {
 
-	private long total_memory;
-	private long studio_memory;
-	private long server_total_memory;
-	private long seqrep_memory;
-	private long datastore_memory;
-	private long proline_server_memory;
-	private long jms_memory;
+	private static Logger logger = LoggerFactory.getLogger(Memory.class);
 
-	public MemoryUtils(long total_memory, long proline_studio_memory, long server_total_memory, long seqrep_memory,
-			long datastore_memory, long proline_server_memory, long jms_memory) {
-		this.total_memory = total_memory;
-		this.studio_memory = proline_studio_memory;
-		this.server_total_memory = server_total_memory;
-		this.seqrep_memory = seqrep_memory;
-		this.datastore_memory = datastore_memory;
-		this.proline_server_memory = proline_server_memory;
-		this.jms_memory = jms_memory;
-	}
+	// units
+	private static final long M = 1;
+	private static final long G = 1024;
 
-	// public ArrayList<Long> updateAuto() {
-	//
-	// }
+	// values
+	private long totalMemory;
+	private long studioMemory;
+	private long serverTotalMemory;
+	private long seqrepMemory;
+	private long datastoreMemory;
+	private long prolineServerMemory;
+	private long jmsMemory;
 
-	public ArrayList<Long> updateManual(Long studioMem, Long jmsMem, Long seqrepMem, Long datastoreMem,
-			Long cortexMem) {
+	private boolean isStudioBeingChanged;
 
-		this.studio_memory = studioMem;
-		this.seqrep_memory = seqrepMem;
-		this.datastore_memory = datastoreMem;
-		this.proline_server_memory = cortexMem;
-		this.jms_memory = jmsMem;
-		this.server_total_memory = this.datastore_memory + this.jms_memory + this.proline_server_memory
-				+ this.seqrep_memory;
-		this.total_memory = this.studio_memory + this.server_total_memory;
+	public enum AttributionMode {
+		AUTO, SEMIAUTO, MANUAL
+	};
 
-		ArrayList<Long> memory = new ArrayList<Long>();
+	private AttributionMode attributionMode;
 
-		memory.add(this.total_memory);
-		memory.add(this.studio_memory);
-		memory.add(this.server_total_memory);
-		memory.add(this.seqrep_memory);
-		memory.add(this.datastore_memory);
-		memory.add(this.proline_server_memory);
-		memory.add(this.jms_memory);
-
-		return memory;
-	}
-
-	public ArrayList<Long> updateAuto(Long total_memory) {
-
-		this.total_memory = total_memory;
-		if (total_memory < 20000) {
-			this.studio_memory = 1000;
-		} else {
-			this.studio_memory = 2000;
+	// TODO : changer le constructeur pour lire le fichier
+	public MemoryUtils() {
+		switch (Config.getAllocationMode()) {
+		case "auto":
+			setAttributionMode(AttributionMode.AUTO);
+			this.totalMemory = parseMemoryValue("Total memory value", Config.getTotalMemory());
+			update(totalMemory);
+			break;
+		case "semi":
+			setAttributionMode(AttributionMode.SEMIAUTO);
+			this.studioMemory = parseMemoryValue("Total memory value", Config.getStudioMemory());
+			this.serverTotalMemory = parseMemoryValue("Total memory value", Config.getServerTotalMemory());
+			update(serverTotalMemory);
+			break;
+		case "manual":
+			setAttributionMode(AttributionMode.MANUAL);
+			break;
 		}
-		this.seqrep_memory = 1000;
-		this.jms_memory = 1000;
-		long resteMemory = this.total_memory - this.studio_memory - this.seqrep_memory - this.jms_memory;
+		;
+		this.isStudioBeingChanged = false;
+	}
 
-		this.proline_server_memory = Math.round(resteMemory * 0.65);
-		resteMemory = resteMemory - this.proline_server_memory;
-		this.datastore_memory = resteMemory;
+	// - method called for an update of all the memory values when one of the values
+	// is changed
+	// - depends on the mode of allocation
+	// - refValue is the value of the spinner from Memorypannel that changed and
+	// called for an update
+	// - refValue is either :
+	// - total memory value (Automatic mode)
+	// - server total memory value (Semi automatic mode)
+	// - studio memory value (Semi automatic mode)
+	// we check which one it is with the boolean attribute isStudioBeingChanged to
+	// check if we need to
+	// update server modules values
+	// - a particular server module value (Manual mode)
+	// it is then useless because no processign will be done with it
+	//
+	public Boolean update(long refValue) {
+		if (attributionMode.equals(AttributionMode.AUTO)) {
+			for (MemoryAllocationRule rule : MemoryAllocationRule.values()) {
+				if (rule.containsAuto(refValue)) {
+					MemoryAllocationRule calcul = rule;
 
-		this.server_total_memory = this.datastore_memory + this.jms_memory + this.proline_server_memory
-				+ this.seqrep_memory;
+					this.studioMemory = calcul.getStudioMemory();
+					this.seqrepMemory = calcul.getSeqRepoMemory();
+					this.jmsMemory = calcul.getJmsMemory();
+					long resteMemory = this.totalMemory - this.studioMemory - this.seqrepMemory - this.jmsMemory;
 
-		ArrayList<Long> memory = new ArrayList<Long>();
+					this.prolineServerMemory = Math.round(resteMemory * 0.65);
+					resteMemory = resteMemory - this.prolineServerMemory;
+					this.datastoreMemory = resteMemory;
 
-		memory.add(this.total_memory);
-		memory.add(this.studio_memory);
-		memory.add(this.server_total_memory);
-		memory.add(this.seqrep_memory);
-		memory.add(this.datastore_memory);
-		memory.add(this.proline_server_memory);
-		memory.add(this.jms_memory);
+					this.serverTotalMemory = this.datastoreMemory + this.jmsMemory + this.prolineServerMemory
+							+ this.seqrepMemory;
+					break;
+				}
+			}
+		} else if (attributionMode.equals(AttributionMode.SEMIAUTO)) {
+			if (!isStudioBeingChanged) {
+				for (MemoryAllocationRule rule : MemoryAllocationRule.values()) {
+					if (rule.containsSemiAuto(refValue)) {
+						MemoryAllocationRule calcul = rule;
 
+						this.seqrepMemory = calcul.getSeqRepoMemory();
+						this.jmsMemory = calcul.getJmsMemory();
+
+						long resteMemory = refValue - this.jmsMemory - this.seqrepMemory;
+
+						this.prolineServerMemory = Math.round(resteMemory * 0.65);
+						resteMemory = resteMemory - this.prolineServerMemory;
+						this.datastoreMemory = resteMemory;
+						break;
+					}
+				}
+			}
+			this.totalMemory = this.studioMemory + this.serverTotalMemory;
+		} else {
+			this.serverTotalMemory = this.datastoreMemory + this.jmsMemory + this.prolineServerMemory
+					+ this.seqrepMemory;
+			this.totalMemory = this.studioMemory + this.serverTotalMemory;
+		}
+		return true;
+	}
+
+	private static long parseMemoryValue(String info, String requestedMemory) {
+		long memory = -1;
+		try {
+			int iMemory = Integer.parseInt(requestedMemory.trim().replaceAll("[kmgtKMGT]$", ""));
+			String unit = requestedMemory.trim().replaceAll("\\d", "");
+			if (unit.equals("M")) {
+				memory = iMemory * M;
+			} else if (unit.equals("G")) {
+				memory = iMemory * G;
+			} else if (unit.equals("")) {
+				memory = iMemory;
+			}
+			// extract last letter
+		} catch (Exception e) {
+			// if requested memory is unreadable, use available memory, show warning popup
+			// and go on
+			logger.warn(info + " allocated memory could not be read, Proline Zero will use available memory");
+		}
 		return memory;
 	}
 
-	public long getTotal_memory() {
-		return total_memory;
+	public long getTotalMemory() {
+		return totalMemory;
 	}
 
-	public void setTotal_memory(long total_memory) {
-		this.total_memory = total_memory;
+	public void setTotalMemory(long total_memory) {
+		this.totalMemory = total_memory;
 	}
 
-	public long getStudio_memory() {
-		return studio_memory;
+	public long getStudioMemory() {
+		return studioMemory;
 	}
 
-	public void setStudio_memory(long studio_memory) {
-		this.studio_memory = studio_memory;
+	public void setStudioMemory(long studio_memory) {
+		this.studioMemory = studio_memory;
 	}
 
-	public long getServer_total_memory() {
-		return server_total_memory;
+	public long getServerTotalMemory() {
+		return serverTotalMemory;
 	}
 
-	public void setServer_total_memory(long server_total_memory) {
-		this.server_total_memory = server_total_memory;
+	public void setServerTotalMemory(long serverTotalMemory) {
+		this.serverTotalMemory = serverTotalMemory;
 	}
 
-	public long getSeqrep_memory() {
-		return seqrep_memory;
+	public long getSeqrepMemory() {
+		return seqrepMemory;
 	}
 
-	public void setSeqrep_memory(long seqrep_memory) {
-		this.seqrep_memory = seqrep_memory;
+	public void setSeqrepMemory(long seqrepMemory) {
+		this.seqrepMemory = seqrepMemory;
 	}
 
-	public long getDatastore_memory() {
-		return datastore_memory;
+	public long getDatastoreMemory() {
+		return datastoreMemory;
 	}
 
-	public void setDatastore_memory(long datastore_memory) {
-		this.datastore_memory = datastore_memory;
+	public void setDatastoreMemory(long datastoreMemory) {
+		this.datastoreMemory = datastoreMemory;
 	}
 
-	public long getProline_server_memory() {
-		return proline_server_memory;
+	public long getProlineServerMemory() {
+		return prolineServerMemory;
 	}
 
-	public void setProline_server_memory(long proline_server_memory) {
-		this.proline_server_memory = proline_server_memory;
+	public void setProlineServerMemory(long prolineServerMemory) {
+		this.prolineServerMemory = prolineServerMemory;
 	}
 
-	public long getJms_memory() {
-		return jms_memory;
+	public long getJmsMemory() {
+		return jmsMemory;
 	}
 
-	public void setJms_memory(long jms_memory) {
-		this.jms_memory = jms_memory;
+	public void setJmsMemory(long jmsMemory) {
+		this.jmsMemory = jmsMemory;
+	}
+
+	public AttributionMode getAttributionMode() {
+		return attributionMode;
+	}
+
+	public void setAttributionMode(AttributionMode attributionMode) {
+		this.attributionMode = attributionMode;
+	}
+
+	public void setStudioBeingChanged(boolean isStudioBeingChanged) {
+		this.isStudioBeingChanged = isStudioBeingChanged;
 	}
 }

@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cortex.version>2.2.0-SNAPSHOT</cortex.version>
-        <studio.version>2.2.0-SNAPSHOT</studio.version>
+        <studio.version>2.1.2</studio.version>
         <hornetq.version>2.4.0.Final</hornetq.version>
         <admin.version>2.2.0-SNAPSHOT</admin.version>
         <seqrepo.version>2.2.0-SNAPSHOT</seqrepo.version>
@@ -66,12 +66,6 @@
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <version>4.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-db</artifactId>
-            <version>RELEASE801</version>
-            <type>jar</type>
         </dependency>
     </dependencies>
 
