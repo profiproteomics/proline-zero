@@ -173,6 +173,26 @@ public class Config {
 		return properties.getProperty("server_total_memory");
 	}
 
+	public static String getSeqRepMemory() {
+		Config.initialize();
+		return properties.getProperty("seqrep_memory");
+	}
+
+	public static String getDatastoreMemory() {
+		Config.initialize();
+		return properties.getProperty("datastore_memory");
+	}
+
+	public static String getCortexMemory() {
+		Config.initialize();
+		return properties.getProperty("proline_cortex_memory");
+	}
+
+	public static String getJMSMemory() {
+		Config.initialize();
+		return properties.getProperty("JMS_memory");
+	}
+
 	public static String getAdminVersion() {
 		Config.initialize();
 		return properties.getProperty("admin_version");

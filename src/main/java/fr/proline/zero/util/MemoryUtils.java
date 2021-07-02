@@ -33,17 +33,23 @@ public class MemoryUtils {
 		switch (Config.getAllocationMode()) {
 		case "auto":
 			setAttributionMode(AttributionMode.AUTO);
-			this.totalMemory = parseMemoryValue("Total memory value", Config.getTotalMemory());
+			setTotalMemory(parseMemoryValue("Total memory value ", Config.getTotalMemory()));
 			update(totalMemory);
 			break;
 		case "semi":
 			setAttributionMode(AttributionMode.SEMIAUTO);
-			this.studioMemory = parseMemoryValue("Total memory value", Config.getStudioMemory());
-			this.serverTotalMemory = parseMemoryValue("Total memory value", Config.getServerTotalMemory());
+			setStudioMemory(parseMemoryValue("Studio memory value ", Config.getStudioMemory()));
+			setServerTotalMemory(parseMemoryValue("Total server memory value ", Config.getServerTotalMemory()));
 			update(serverTotalMemory);
 			break;
 		case "manual":
 			setAttributionMode(AttributionMode.MANUAL);
+			setStudioMemory(parseMemoryValue("Studio memory value ", Config.getStudioMemory()));
+			setSeqrepMemory(parseMemoryValue("SeqRep memory value ", Config.getSeqRepMemory()));
+			setDatastoreMemory(parseMemoryValue("PG memory value ", Config.getDatastoreMemory()));
+			setProlineServerMemory(parseMemoryValue("Cortex memory value ", Config.getCortexMemory()));
+			setJmsMemory(parseMemoryValue("JMS memory value ", Config.getJMSMemory()));
+			update(0);
 			break;
 		}
 		;
