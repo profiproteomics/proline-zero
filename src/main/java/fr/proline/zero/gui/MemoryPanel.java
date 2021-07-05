@@ -163,7 +163,7 @@ public class MemoryPanel extends JPanel {
 		// creation des widgets
 		this.totalMemoryField = new MemorySpinner(false, 3.2, "totalMemoryField");
 		totalMemoryField.setPreferredSize(new Dimension(50, 20));
-		totalMemoryField.addChangeListener(updateMemory());
+		totalMemoryField.addChangeListener(updateMemoryTotal());
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -196,7 +196,7 @@ public class MemoryPanel extends JPanel {
 		this.studioMemoryField = new MemorySpinner(false, 2.0, "studioMemoryField");
 		studioMemoryField.setPreferredSize(new Dimension(50, 20));
 		studioMemoryField.setEnabled(false);
-		studioMemoryField.addChangeListener(updateMemory());
+		studioMemoryField.addChangeListener(updateMemoryStudio());
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -229,7 +229,7 @@ public class MemoryPanel extends JPanel {
 		this.totalServerMemoryField = new MemorySpinner(false, 1.5, "totalServerMemoryField");
 		totalServerMemoryField.setPreferredSize(new Dimension(50, 20));
 		totalServerMemoryField.setEnabled(false);
-		totalServerMemoryField.addChangeListener(updateMemory());
+		totalServerMemoryField.addChangeListener(updateMemoryServerTotal());
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -275,22 +275,22 @@ public class MemoryPanel extends JPanel {
 		this.seqrepMemoryField = new MemorySpinner(true, 500, "seqrepMemoryField");
 		seqrepMemoryField.setPreferredSize(new Dimension(50, 20));
 		seqrepMemoryField.setEnabled(false);
-		seqrepMemoryField.addChangeListener(updateMemory());
+		seqrepMemoryField.addChangeListener(updateMemorySeqRep());
 
 		this.dataStoreMemoryField = new MemorySpinner(true, 500, "dataStoreMemoryField");
 		dataStoreMemoryField.setPreferredSize(new Dimension(50, 20));
 		dataStoreMemoryField.setEnabled(false);
-		dataStoreMemoryField.addChangeListener(updateMemory());
+		dataStoreMemoryField.addChangeListener(updateMemoryDatastore());
 
 		this.cortexMemoryField = new MemorySpinner(true, 500, "cortexMemoryField");
 		cortexMemoryField.setPreferredSize(new Dimension(50, 20));
 		cortexMemoryField.setEnabled(false);
-		cortexMemoryField.addChangeListener(updateMemory());
+		cortexMemoryField.addChangeListener(updateMemoryCortex());
 
 		this.jmsMemoryField = new MemorySpinner(true, 500, "jmsMemoryField");
 		jmsMemoryField.setPreferredSize(new Dimension(50, 20));
 		jmsMemoryField.setEnabled(false);
-		jmsMemoryField.addChangeListener(updateMemory());
+		jmsMemoryField.addChangeListener(updateMemoryJMS());
 
 		// TODO : griser si seqrep non coché
 		// ajout des widgets au layout
@@ -346,7 +346,7 @@ public class MemoryPanel extends JPanel {
 					memoryManager.setAttributionMode(AttributionMode.AUTO);
 
 					firstClick = false;
-					memoryManager.update(memoryManager.getTotalMemory());
+					memoryManager.update();
 					updateValues();
 					firstClick = true;
 
@@ -387,10 +387,9 @@ public class MemoryPanel extends JPanel {
 
 	}
 
-	// method called when the value of memoryspinner is changed
-	// changes the value in the memorymanager and calls for the update of all other
-	// values
-	private ChangeListener updateMemory() {
+	// ActionListeners for the spinners
+
+	private ChangeListener updateMemoryTotal() {
 		ChangeListener adjustMemory = new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -398,35 +397,119 @@ public class MemoryPanel extends JPanel {
 					return;
 				} else {
 					firstClick = false;
-					long updatedSourceValue = ((MemorySpinner) e.getSource()).getMoLongValue();
-
-					switch (((MemorySpinner) e.getSource()).getName()) {
-					case "totalMemoryField":
-						memoryManager.setTotalMemory(updatedSourceValue);
-						break;
-					case "studioMemoryField":
-						memoryManager.setStudioBeingChanged(true);
-						memoryManager.setStudioMemory(updatedSourceValue);
-						break;
-					case "totalServerMemoryField":
-						memoryManager.setServerTotalMemory(updatedSourceValue);
-						break;
-					case "seqrepMemoryField":
-						memoryManager.setSeqrepMemory(updatedSourceValue);
-						break;
-					case "dataStoreMemoryField":
-						memoryManager.setDatastoreMemory(updatedSourceValue);
-						break;
-					case "cortexMemoryField":
-						memoryManager.setProlineServerMemory(updatedSourceValue);
-						break;
-					case "jmsMemoryField":
-						memoryManager.setJmsMemory(updatedSourceValue);
-						break;
-					}
-					memoryManager.update(updatedSourceValue);
+					memoryManager.setTotalMemory(totalMemoryField.getMoLongValue());
+					memoryManager.update();
 					updateValues();
+					firstClick = true;
+				}
+			}
+		};
+		return adjustMemory;
+	}
+
+	private ChangeListener updateMemoryStudio() {
+		ChangeListener adjustMemory = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					memoryManager.setStudioMemory(studioMemoryField.getMoLongValue());
+					memoryManager.setStudioBeingChanged(true);
+					memoryManager.update();
 					memoryManager.setStudioBeingChanged(false);
+					updateValues();
+					firstClick = true;
+				}
+			}
+		};
+		return adjustMemory;
+	}
+
+	private ChangeListener updateMemoryServerTotal() {
+		ChangeListener adjustMemory = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					memoryManager.setTotalMemory(totalServerMemoryField.getMoLongValue());
+					memoryManager.update();
+					updateValues();
+					firstClick = true;
+				}
+			}
+		};
+		return adjustMemory;
+	}
+
+	private ChangeListener updateMemorySeqRep() {
+		ChangeListener adjustMemory = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					memoryManager.setSeqrepMemory(seqrepMemoryField.getMoLongValue());
+					memoryManager.update();
+					updateValues();
+					firstClick = true;
+				}
+			}
+		};
+		return adjustMemory;
+	}
+
+	private ChangeListener updateMemoryCortex() {
+		ChangeListener adjustMemory = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					memoryManager.setProlineServerMemory(cortexMemoryField.getMoLongValue());
+					memoryManager.update();
+					updateValues();
+					firstClick = true;
+				}
+			}
+		};
+		return adjustMemory;
+	}
+
+	private ChangeListener updateMemoryJMS() {
+		ChangeListener adjustMemory = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					memoryManager.setJmsMemory(jmsMemoryField.getMoLongValue());
+					memoryManager.update();
+					updateValues();
+					firstClick = true;
+				}
+			}
+		};
+		return adjustMemory;
+	}
+
+	private ChangeListener updateMemoryDatastore() {
+		ChangeListener adjustMemory = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					memoryManager.setDatastoreMemory(dataStoreMemoryField.getMoLongValue());
+					memoryManager.update();
+					updateValues();
 					firstClick = true;
 				}
 			}

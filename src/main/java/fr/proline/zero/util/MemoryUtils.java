@@ -34,13 +34,13 @@ public class MemoryUtils {
 		case "auto":
 			setAttributionMode(AttributionMode.AUTO);
 			setTotalMemory(parseMemoryValue("Total memory value ", Config.getTotalMemory()));
-			update(totalMemory);
+			update();
 			break;
 		case "semi":
 			setAttributionMode(AttributionMode.SEMIAUTO);
 			setStudioMemory(parseMemoryValue("Studio memory value ", Config.getStudioMemory()));
 			setServerTotalMemory(parseMemoryValue("Total server memory value ", Config.getServerTotalMemory()));
-			update(serverTotalMemory);
+			update();
 			break;
 		case "manual":
 			setAttributionMode(AttributionMode.MANUAL);
@@ -49,7 +49,7 @@ public class MemoryUtils {
 			setDatastoreMemory(parseMemoryValue("PG memory value ", Config.getDatastoreMemory()));
 			setProlineServerMemory(parseMemoryValue("Cortex memory value ", Config.getCortexMemory()));
 			setJmsMemory(parseMemoryValue("JMS memory value ", Config.getJMSMemory()));
-			update(0);
+			update();
 			break;
 		}
 		;
@@ -59,22 +59,10 @@ public class MemoryUtils {
 	// - method called for an update of all the memory values when one of the values
 	// is changed
 	// - depends on the mode of allocation
-	// - refValue is the value of the spinner from Memorypannel that changed and
-	// called for an update
-	// - refValue is either :
-	// - total memory value (Automatic mode)
-	// - server total memory value (Semi automatic mode)
-	// - studio memory value (Semi automatic mode)
-	// we check which one it is with the boolean attribute isStudioBeingChanged to
-	// check if we need to
-	// update server modules values
-	// - a particular server module value (Manual mode)
-	// it is then useless because no processign will be done with it
-	//
-	public Boolean update(long refValue) {
+	public Boolean update() {
 		if (attributionMode.equals(AttributionMode.AUTO)) {
 			for (MemoryAllocationRule rule : MemoryAllocationRule.values()) {
-				if (rule.containsAuto(refValue)) {
+				if (rule.containsAuto(this.totalMemory)) {
 					MemoryAllocationRule calcul = rule;
 
 					this.studioMemory = calcul.getStudioMemory();
@@ -94,13 +82,13 @@ public class MemoryUtils {
 		} else if (attributionMode.equals(AttributionMode.SEMIAUTO)) {
 			if (!isStudioBeingChanged) {
 				for (MemoryAllocationRule rule : MemoryAllocationRule.values()) {
-					if (rule.containsSemiAuto(refValue)) {
+					if (rule.containsSemiAuto(this.serverTotalMemory)) {
 						MemoryAllocationRule calcul = rule;
 
 						this.seqrepMemory = calcul.getSeqRepoMemory();
 						this.jmsMemory = calcul.getJmsMemory();
 
-						long resteMemory = refValue - this.jmsMemory - this.seqrepMemory;
+						long resteMemory = this.serverTotalMemory - this.jmsMemory - this.seqrepMemory;
 
 						this.prolineServerMemory = Math.round(resteMemory * 0.65);
 						resteMemory = resteMemory - this.prolineServerMemory;
