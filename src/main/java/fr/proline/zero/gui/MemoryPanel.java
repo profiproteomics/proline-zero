@@ -163,7 +163,19 @@ public class MemoryPanel extends JPanel {
 		// creation des widgets
 		this.totalMemoryField = new MemorySpinner(false, 3.2, "totalMemoryField");
 		totalMemoryField.setPreferredSize(new Dimension(50, 20));
-		totalMemoryField.addChangeListener(updateMemoryTotal());
+		totalMemoryField.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					memoryManager.setTotalMemory(totalMemoryField.getMoLongValue());
+					memoryManager.update();
+					updateValues();
+					firstClick = true;
+				}
+			}
+		});
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -196,7 +208,21 @@ public class MemoryPanel extends JPanel {
 		this.studioMemoryField = new MemorySpinner(false, 2.0, "studioMemoryField");
 		studioMemoryField.setPreferredSize(new Dimension(50, 20));
 		studioMemoryField.setEnabled(false);
-		studioMemoryField.addChangeListener(updateMemoryStudio());
+		studioMemoryField.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					memoryManager.setStudioMemory(studioMemoryField.getMoLongValue());
+					memoryManager.setStudioBeingChanged(true);
+					memoryManager.update();
+					memoryManager.setStudioBeingChanged(false);
+					updateValues();
+					firstClick = true;
+				}
+			}
+		});
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -229,7 +255,19 @@ public class MemoryPanel extends JPanel {
 		this.totalServerMemoryField = new MemorySpinner(false, 1.5, "totalServerMemoryField");
 		totalServerMemoryField.setPreferredSize(new Dimension(50, 20));
 		totalServerMemoryField.setEnabled(false);
-		totalServerMemoryField.addChangeListener(updateMemoryServerTotal());
+		totalServerMemoryField.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					memoryManager.setTotalMemory(totalServerMemoryField.getMoLongValue());
+					memoryManager.update();
+					updateValues();
+					firstClick = true;
+				}
+			}
+		});
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -275,22 +313,72 @@ public class MemoryPanel extends JPanel {
 		this.seqrepMemoryField = new MemorySpinner(true, 500, "seqrepMemoryField");
 		seqrepMemoryField.setPreferredSize(new Dimension(50, 20));
 		seqrepMemoryField.setEnabled(false);
-		seqrepMemoryField.addChangeListener(updateMemorySeqRep());
+		seqrepMemoryField.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					memoryManager.setSeqrepMemory(seqrepMemoryField.getMoLongValue());
+					memoryManager.update();
+					updateValues();
+					firstClick = true;
+				}
+			}
+		});
 
 		this.dataStoreMemoryField = new MemorySpinner(true, 500, "dataStoreMemoryField");
 		dataStoreMemoryField.setPreferredSize(new Dimension(50, 20));
 		dataStoreMemoryField.setEnabled(false);
-		dataStoreMemoryField.addChangeListener(updateMemoryDatastore());
+		dataStoreMemoryField.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					memoryManager.setDatastoreMemory(dataStoreMemoryField.getMoLongValue());
+					memoryManager.update();
+					updateValues();
+					firstClick = true;
+				}
+			}
+		});
 
 		this.cortexMemoryField = new MemorySpinner(true, 500, "cortexMemoryField");
 		cortexMemoryField.setPreferredSize(new Dimension(50, 20));
 		cortexMemoryField.setEnabled(false);
-		cortexMemoryField.addChangeListener(updateMemoryCortex());
+		cortexMemoryField.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					memoryManager.setProlineServerMemory(cortexMemoryField.getMoLongValue());
+					memoryManager.update();
+					updateValues();
+					firstClick = true;
+				}
+			}
+		});
 
 		this.jmsMemoryField = new MemorySpinner(true, 500, "jmsMemoryField");
 		jmsMemoryField.setPreferredSize(new Dimension(50, 20));
 		jmsMemoryField.setEnabled(false);
-		jmsMemoryField.addChangeListener(updateMemoryJMS());
+		jmsMemoryField.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					memoryManager.setJmsMemory(jmsMemoryField.getMoLongValue());
+					memoryManager.update();
+					updateValues();
+					firstClick = true;
+				}
+			}
+		});
 
 		// TODO : griser si seqrep non coché
 		// ajout des widgets au layout
@@ -385,136 +473,6 @@ public class MemoryPanel extends JPanel {
 		};
 		return allocationModeAction;
 
-	}
-
-	// ActionListeners for the spinners
-
-	private ChangeListener updateMemoryTotal() {
-		ChangeListener adjustMemory = new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (!firstClick) {
-					return;
-				} else {
-					firstClick = false;
-					memoryManager.setTotalMemory(totalMemoryField.getMoLongValue());
-					memoryManager.update();
-					updateValues();
-					firstClick = true;
-				}
-			}
-		};
-		return adjustMemory;
-	}
-
-	private ChangeListener updateMemoryStudio() {
-		ChangeListener adjustMemory = new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (!firstClick) {
-					return;
-				} else {
-					firstClick = false;
-					memoryManager.setStudioMemory(studioMemoryField.getMoLongValue());
-					memoryManager.setStudioBeingChanged(true);
-					memoryManager.update();
-					memoryManager.setStudioBeingChanged(false);
-					updateValues();
-					firstClick = true;
-				}
-			}
-		};
-		return adjustMemory;
-	}
-
-	private ChangeListener updateMemoryServerTotal() {
-		ChangeListener adjustMemory = new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (!firstClick) {
-					return;
-				} else {
-					firstClick = false;
-					memoryManager.setTotalMemory(totalServerMemoryField.getMoLongValue());
-					memoryManager.update();
-					updateValues();
-					firstClick = true;
-				}
-			}
-		};
-		return adjustMemory;
-	}
-
-	private ChangeListener updateMemorySeqRep() {
-		ChangeListener adjustMemory = new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (!firstClick) {
-					return;
-				} else {
-					firstClick = false;
-					memoryManager.setSeqrepMemory(seqrepMemoryField.getMoLongValue());
-					memoryManager.update();
-					updateValues();
-					firstClick = true;
-				}
-			}
-		};
-		return adjustMemory;
-	}
-
-	private ChangeListener updateMemoryCortex() {
-		ChangeListener adjustMemory = new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (!firstClick) {
-					return;
-				} else {
-					firstClick = false;
-					memoryManager.setProlineServerMemory(cortexMemoryField.getMoLongValue());
-					memoryManager.update();
-					updateValues();
-					firstClick = true;
-				}
-			}
-		};
-		return adjustMemory;
-	}
-
-	private ChangeListener updateMemoryJMS() {
-		ChangeListener adjustMemory = new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (!firstClick) {
-					return;
-				} else {
-					firstClick = false;
-					memoryManager.setJmsMemory(jmsMemoryField.getMoLongValue());
-					memoryManager.update();
-					updateValues();
-					firstClick = true;
-				}
-			}
-		};
-		return adjustMemory;
-	}
-
-	private ChangeListener updateMemoryDatastore() {
-		ChangeListener adjustMemory = new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (!firstClick) {
-					return;
-				} else {
-					firstClick = false;
-					memoryManager.setDatastoreMemory(dataStoreMemoryField.getMoLongValue());
-					memoryManager.update();
-					updateValues();
-					firstClick = true;
-				}
-			}
-		};
-		return adjustMemory;
 	}
 
 	// displays all the new values taken from the memorymanager
