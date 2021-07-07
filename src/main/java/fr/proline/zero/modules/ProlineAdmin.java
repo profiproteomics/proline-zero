@@ -17,12 +17,26 @@ import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.StartedProcess;
 import org.zeroturnaround.exec.stream.LogOutputStream;
 
-public class ProlineAdmin {
+public class ProlineAdmin  implements  IZeroModule {
 
-    private static Logger logger = LoggerFactory.getLogger(ProlineAdmin.class);
+    protected boolean isProcessAlive = false;
+    private static Logger logger = LoggerFactory.getLogger("Zero-Module");
 
-    public static void setUp() throws Exception {
-        //OutputStream logStream = Slf4jStream.ofCaller().asInfo();
+    protected String moduleName;
+    public ProlineAdmin() {
+        moduleName = "Proline Admin";
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    @Override
+    public boolean isProcessAlive() {
+        return isProcessAlive;
+    }
+
+    public void init() throws Exception {
         OutputStream logStream = null;
         runCommand(new String[]{"setup"}, logStream);
         runCommand(new String[]{"create_user", "-l", "proline", "-p", "proline"}, logStream);
@@ -70,8 +84,6 @@ public class ProlineAdmin {
     }
 
     private static class checkUpdateLOStream extends LogOutputStream {
-
-        private StartedProcess process;
 
         @Override
         protected void processLine(String line) {
@@ -128,11 +140,21 @@ public class ProlineAdmin {
             }
         }
     }
-    //	private static StartedProcess process;
-    //    private static String getProcessName() { return "Proline Admin"; }
-    //    private static boolean isProcessAlive = false;
 
-    public static void start() throws Exception {
+    public void start() throws Exception {
+        try {
+            isProcessAlive = true;
+            checkUpdate("");
+        } finally {
+            isProcessAlive = false;
+        }
+    }
+
+    public void stop() throws Exception {
+
+    }
+
+    public static void startGui() throws Exception {
 //		if(process == null) {
         File adminHome = ProlineFiles.ADMIN_DIRECTORY;
         String classpath = new StringBuilder().append(SystemUtils.toSystemClassPath("config;lib/*;")).append(ProlineFiles.ADMIN_JAR_FILE.getName()).toString();
@@ -165,12 +187,4 @@ public class ProlineAdmin {
 //        }
     }
 
-//    @Override
-//    public void stop() throws Exception {
-//        if (process != null) {
-//            if (!isProcessAlive) {
-//                process = null;
-//            }
-//        }
-//    }
 }

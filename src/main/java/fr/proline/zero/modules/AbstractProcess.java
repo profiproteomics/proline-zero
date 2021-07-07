@@ -11,15 +11,26 @@ import org.zeroturnaround.process.SystemProcess;
 
 import java.util.concurrent.TimeUnit;
 
-public abstract class AbstractProcess {
+public abstract class AbstractProcess implements  IZeroModule {
 
-    private static Logger logger = LoggerFactory.getLogger(AbstractProcess.class);
+    protected static Logger logger = LoggerFactory.getLogger("Zero-Module");
 
-    protected boolean isProcessAlive = false;
+    protected boolean m_isProcessAlive = false;
+    protected StartedProcess process;
 
-    public abstract String getProcessName();
-    public abstract void start() throws Exception;
-    public abstract void stop() throws Exception;
+    protected String moduleName;
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void init() throws Exception {
+
+    }
+
+    public void stop() throws Exception {
+        kill(process);
+    }
 
     protected void updateProcessStatus(String line, String keyPhrase) {
         updateProcessStatus(line, keyPhrase, true);
@@ -27,14 +38,14 @@ public abstract class AbstractProcess {
 
     protected void updateProcessStatus(String line, String keyPhrase, boolean keyPhraseMustBeAtTheEnd) {
         if (keyPhraseMustBeAtTheEnd) {
-            isProcessAlive = isProcessAlive || line.trim().endsWith(keyPhrase);
+            m_isProcessAlive = m_isProcessAlive || line.trim().endsWith(keyPhrase);
         } else {
-            isProcessAlive = isProcessAlive || line.trim().contains(keyPhrase);
+            m_isProcessAlive = m_isProcessAlive || line.trim().contains(keyPhrase);
         }
     }
 
     public synchronized boolean isProcessAlive() {
-        return isProcessAlive;
+        return m_isProcessAlive;
     }
 
     protected void waitForStartCompletion(long timeout) throws Exception {
@@ -44,7 +55,7 @@ public abstract class AbstractProcess {
         }
 
         if (!isProcessAlive()) {
-            throw new RuntimeException("Could not start " + getProcessName() + " server (process timeout after " + (timeout / 1000) + " seconds)");
+            throw new RuntimeException("Could not start " + getModuleName()+ " server (process timeout after " + (timeout / 1000) + " seconds)");
         }
     }
 
@@ -62,6 +73,9 @@ public abstract class AbstractProcess {
     protected static boolean kill(StartedProcess process, String name, boolean isAlive) {
         int pid = getProcessPidSafely(process);
         try {
+            if(process == null )
+                return  false; //process invaid.
+
 //            logger.info("Trying to stop " + name + ", pid = " + pid + " is alive: " + isAlive);
             SystemProcess sysProcess = Processes.newStandardProcess(process.getProcess(), pid);
             ProcessUtil.destroyGracefullyOrForcefullyAndWait(sysProcess, 30, TimeUnit.SECONDS, 5, TimeUnit.SECONDS);
@@ -81,6 +95,9 @@ public abstract class AbstractProcess {
     }
 
     protected void kill(StartedProcess process) {
-        isProcessAlive = kill(process, getProcessName(), isProcessAlive);
+        m_isProcessAlive = kill(process, getModuleName(), m_isProcessAlive);
     }
+
+
+
 }

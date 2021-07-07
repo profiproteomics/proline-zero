@@ -9,21 +9,14 @@ import fr.proline.zero.util.Config;
 import fr.proline.zero.util.Memory;
 import fr.proline.zero.util.ProlineFiles;
 import fr.proline.zero.util.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.zeroturnaround.exec.ProcessExecutor;
-import org.zeroturnaround.exec.StartedProcess;
 import org.zeroturnaround.exec.stream.LogOutputStream;
 import org.zeroturnaround.process.PidUtil;
 
 public class Cortex extends AbstractProcess {
 
-    private static Logger logger = LoggerFactory.getLogger(Cortex.class);
-    private StartedProcess process;
-
-    @Override
-    public String getProcessName() {
-        return "Cortex";
+    public Cortex() {
+        moduleName  = "Proline Cortex";
     }
 
     public void start() throws Exception {
@@ -62,13 +55,10 @@ public class Cortex extends AbstractProcess {
                 .start();
 
         waitForStartCompletion(Config.getDefaultTimeout());
-        logger.info("Process {} successfully started (name = {}, pid = {}, alive = {})", getProcessName(), process.getProcess(), PidUtil.getPid(process.getProcess()), isProcessAlive);
+        logger.info("Process {} successfully started (name = {}, pid = {}, alive = {})", getModuleName(), process.getProcess(), PidUtil.getPid(process.getProcess()), m_isProcessAlive);
 
         ZeroTray.update();
     }
 
-    public void stop() throws Exception {
-        kill(process);
-    }
 
 }

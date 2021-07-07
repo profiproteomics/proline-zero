@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -24,12 +25,43 @@ public class ExecutionSession {
 
     private static JMSServer jmsServer;
     private static Cortex cortex;
+    private  static ProlineAdmin admin;
     private static SequenceRepository seqRepo;
-    private static DataStore datastore;
+    private static IZeroModule datastore;
     private static ProlineStudio studio;
-    private static boolean isActive = false;
 
-    public static void initialize() throws Exception {
+    private static boolean isActive = false;
+    private static boolean checkStudioActive = true;
+    private static List<IZeroModule> activeModules = null;
+
+    public static List<IZeroModule> getActiveModules(){
+        if (activeModules == null){
+            activeModules = new ArrayList<>();
+            activeModules.add(getDataStore());
+            activeModules.add(getJMSServer());
+            activeModules.add(getProlineAdmin());
+            activeModules.add(getCortex());
+            if(Config.isSeqRepoEnabled())
+                activeModules.add(getSeqRepo());
+            if(!Config.isServerMode())
+                activeModules.add(getStudio());
+
+        }
+        return activeModules;
+    }
+
+    public static int getModuleCount(){
+        return getActiveModules().size();
+    }
+
+    public static IZeroModule getModuleAt(int index){
+        if(index <0 || index >= getActiveModules().size())
+            return  null;
+        return getActiveModules().get(index);
+    }
+
+
+    public static void initialize()  {
         logger.info("Operating system is " + SystemUtils.getOSType().name());
         logger.info("Working directory is " + ProlineFiles.WORKING_DIRECTORY.getAbsolutePath());
 
@@ -42,8 +74,17 @@ public class ExecutionSession {
             logger.info("Debug mode is activated");
         }
 
+        //Check Studio is Alive to keep Zero alive only if not in server mode
+        checkStudioActive = !Config.isServerMode();
+
         SplashScreen.initialize();
         isActive = true;
+    }
+
+    public static ProlineAdmin getProlineAdmin(){
+        if(admin== null)
+            admin = new ProlineAdmin();
+        return admin;
     }
 
     public static JMSServer getJMSServer() {
@@ -67,7 +108,7 @@ public class ExecutionSession {
         return seqRepo;
     }
 
-    public static DataStore getDataStore() {
+    public static IZeroModule getDataStore() {
         if (datastore == null) {
             String datastoreType = Config.getDatastoreType();
 
@@ -88,7 +129,7 @@ public class ExecutionSession {
     }
 
     public synchronized static void updateConfigPort() {
-        if (getDataStore().getDatastoreName().equals(PostgreSQL.NAME)) {
+        if (getDataStore().getModuleName().equals(PostgreSQL.NAME)) {
             updatePostgreSQLPortConfig();
         }
         updateJmsPortConfig();
@@ -177,35 +218,45 @@ public class ExecutionSession {
     }
 
     public static void end() throws Exception {
-//        ProlineAdmin.stop();
-        if (studio != null && studio.isProcessAlive()) {//when config server mode,  studio is null
-            studio.stop();
+        for(IZeroModule m: activeModules){
+            if(m.isProcessAlive())
+                m.stop();
         }
-        if (seqRepo != null && seqRepo.isProcessAlive()) {//when config disable, seqRepo is null
-            seqRepo.stop();
-        }
-        if (cortex != null && cortex.isProcessAlive()) {
-            cortex.stop();
-        }
-        if (jmsServer != null && jmsServer.isProcessAlive()) {
-            jmsServer.stop();
-        }
-        if (datastore != null && datastore.isProcessAlive()) {
-            datastore.stop();
-        }
+////        ProlineAdmin.stop();
+//        if (studio != null && studio.isProcessAlive()) {//when config server mode,  studio is null
+//            studio.stop();
+//        }
+//        if (seqRepo != null && seqRepo.isProcessAlive()) {//when config disable, seqRepo is null
+//            seqRepo.stop();
+//        }
+//        if (cortex != null && cortex.isProcessAlive()) {
+//            cortex.stop();
+//        }
+//        if (jmsServer != null && jmsServer.isProcessAlive()) {
+//            jmsServer.stop();
+//        }
+//        if (datastore != null && datastore.isProcessAlive()) {
+//            datastore.stop();
+//        }
         isActive = false;
+    }
+
+    public static boolean isSessionToBeClose() {
+        if(checkStudioActive)
+            return !getStudio().isProcessAlive();
+        return false;
     }
 
     public static boolean isSessionActive() {
         return isActive;
     }
 
-    private static int getJMSServerPort() {
-        String regex_port = ProlineFiles.CORTEX_JMS_NODE_PORT + "\\s*=\\s*([\\d]+)";
-        File configFile = ProlineFiles.CORTEX_JMS_CONFIG_FILE;
-        String value = getProperty(configFile, regex_port);
-        return Integer.parseInt(value);
-    }
+//    private static int getJMSServerPort() {
+//        String regex_port = ProlineFiles.CORTEX_JMS_NODE_PORT + "\\s*=\\s*([\\d]+)";
+//        File configFile = ProlineFiles.CORTEX_JMS_CONFIG_FILE;
+//        String value = getProperty(configFile, regex_port);
+//        return Integer.parseInt(value);
+//    }
 
     public static String getMzdbFolder() {
         File configFile = ProlineFiles.CORTEX_CONFIG_FILE;
@@ -226,8 +277,7 @@ public class ExecutionSession {
                 String line = fileScanner.nextLine();
                 matcher = pattern.matcher(line);
                 if (matcher.find()) {
-                    String value = matcher.group(1);
-                    return value;
+                    return matcher.group(1);
                 }
             }
         } catch (FileNotFoundException ex) {

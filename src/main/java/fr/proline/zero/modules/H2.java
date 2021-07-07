@@ -25,14 +25,19 @@ import fr.proline.zero.util.SystemUtils;
  * The dbName used is "seq_db" instead of "./data/databases/h2/seq_db"
  * This can be fixed in PM-SequenceRepository but not in the launcher.
  */
-public class H2 extends DataStore {
+public class H2 implements IZeroModule {
 
+    private  boolean isProcessAlive = false;
     private static final String relativeDatastorePath = "data/databases/h2";
     private static Logger logger = LoggerFactory.getLogger(H2.class);
     private StartedProcess process;
     private boolean datastoreIsRunning;
 
-    public String getDatastoreName() {
+    public boolean isProcessAlive(){
+        return isProcessAlive;
+    }
+
+    public String getModuleName() {
         return "H2";
     }
 
@@ -111,6 +116,7 @@ public class H2 extends DataStore {
             SystemProcess sysProcess = Processes.newStandardProcess(process.getProcess());
 
             ProcessUtil.destroyGracefullyOrForcefullyAndWait(sysProcess, 30, TimeUnit.SECONDS, 5, TimeUnit.SECONDS);
+            isProcessAlive = false;
         } else {
             logger.info("Can't stop H2, process is not running");
         }
