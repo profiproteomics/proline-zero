@@ -84,4 +84,9 @@ public class ServerPanel extends JPanel {
 		};
 		return openAdvancedConfig;
 	}
+
+	public void restoreValues() {
+		// TODO Auto-generated method stub
+
+	}
 }

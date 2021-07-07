@@ -22,8 +22,25 @@ public class MemoryUtils {
 
 	private boolean isStudioBeingChanged;
 
+	private boolean hasBeenChanged;
+
 	public enum AttributionMode {
-		AUTO, SEMIAUTO, MANUAL
+		AUTO {
+			public String toString() {
+				return "auto";
+			}
+		},
+		SEMIAUTO {
+			public String toString() {
+				return "semi";
+			}
+		},
+		MANUAL {
+			public String toString() {
+				return "manual";
+			}
+		};
+
 	};
 
 	private AttributionMode attributionMode;
@@ -53,6 +70,7 @@ public class MemoryUtils {
 			break;
 		}
 		;
+		hasBeenChanged = false;
 		this.isStudioBeingChanged = false;
 	}
 
@@ -70,9 +88,12 @@ public class MemoryUtils {
 					this.jmsMemory = calcul.getJmsMemory();
 					long resteMemory = this.totalMemory - this.studioMemory - this.seqrepMemory - this.jmsMemory;
 
-					this.prolineServerMemory = Math.round(resteMemory * 0.65);
-					resteMemory = resteMemory - this.prolineServerMemory;
-					this.datastoreMemory = resteMemory;
+					this.datastoreMemory = Math.round(resteMemory * 0.35);
+					if (this.datastoreMemory > 5120) {
+						this.datastoreMemory = 5120;
+					}
+					resteMemory = resteMemory - this.datastoreMemory;
+					this.prolineServerMemory = resteMemory;
 
 					this.serverTotalMemory = this.datastoreMemory + this.jmsMemory + this.prolineServerMemory
 							+ this.seqrepMemory;
@@ -109,13 +130,16 @@ public class MemoryUtils {
 	private static long parseMemoryValue(String info, String requestedMemory) {
 		long memory = -1;
 		try {
-			int iMemory = Integer.parseInt(requestedMemory.trim().replaceAll("[kmgtKMGT]$", ""));
-			String unit = requestedMemory.trim().replaceAll("\\d", "");
+			String string = requestedMemory.trim().replaceAll("[kmgtKMGT]$", "");
+			String unit = requestedMemory.trim().replaceAll("[^A-Za-z ]", "");
 			if (unit.equals("M")) {
+				int iMemory = Integer.parseInt(string);
 				memory = iMemory * M;
 			} else if (unit.equals("G")) {
-				memory = iMemory * G;
+				double iMemory = Double.parseDouble(string);
+				memory = Math.round((iMemory) * G);
 			} else if (unit.equals("")) {
+				int iMemory = Integer.parseInt(string);
 				memory = iMemory;
 			}
 			// extract last letter
@@ -127,60 +151,105 @@ public class MemoryUtils {
 		return memory;
 	}
 
+	private static String toConfigFile(long value) {
+		if (value == 0) {
+			return "0";
+		}
+		if (value < G) {
+			return value + "M";
+		}
+		return String.valueOf(value / (float) G) + "G";
+	}
+
 	public long getTotalMemory() {
 		return totalMemory;
 	}
 
+	public String getTotalMemoryString() {
+		return toConfigFile(totalMemory);
+	}
+
 	public void setTotalMemory(long total_memory) {
 		this.totalMemory = total_memory;
+		hasBeenChanged = true;
 	}
 
 	public long getStudioMemory() {
 		return studioMemory;
 	}
 
+	public String getStudioMemoryString() {
+		return toConfigFile(studioMemory);
+	}
+
 	public void setStudioMemory(long studio_memory) {
 		this.studioMemory = studio_memory;
+		hasBeenChanged = true;
 	}
 
 	public long getServerTotalMemory() {
 		return serverTotalMemory;
 	}
 
+	public String getServerTotalMemoryString() {
+		return toConfigFile(serverTotalMemory);
+	}
+
 	public void setServerTotalMemory(long serverTotalMemory) {
 		this.serverTotalMemory = serverTotalMemory;
+		hasBeenChanged = true;
 	}
 
 	public long getSeqrepMemory() {
 		return seqrepMemory;
 	}
 
+	public String getSeqrepMemoryString() {
+		return toConfigFile(seqrepMemory);
+	}
+
 	public void setSeqrepMemory(long seqrepMemory) {
 		this.seqrepMemory = seqrepMemory;
+		hasBeenChanged = true;
 	}
 
 	public long getDatastoreMemory() {
 		return datastoreMemory;
 	}
 
+	public String getDatastoreMemoryString() {
+		return toConfigFile(datastoreMemory);
+	}
+
 	public void setDatastoreMemory(long datastoreMemory) {
 		this.datastoreMemory = datastoreMemory;
+		hasBeenChanged = true;
 	}
 
 	public long getProlineServerMemory() {
 		return prolineServerMemory;
 	}
 
+	public String getProlineServerMemoryString() {
+		return toConfigFile(prolineServerMemory);
+	}
+
 	public void setProlineServerMemory(long prolineServerMemory) {
 		this.prolineServerMemory = prolineServerMemory;
+		hasBeenChanged = true;
 	}
 
 	public long getJmsMemory() {
 		return jmsMemory;
 	}
 
+	public String getJmsMemoryString() {
+		return toConfigFile(jmsMemory);
+	}
+
 	public void setJmsMemory(long jmsMemory) {
 		this.jmsMemory = jmsMemory;
+		hasBeenChanged = true;
 	}
 
 	public AttributionMode getAttributionMode() {
@@ -189,9 +258,21 @@ public class MemoryUtils {
 
 	public void setAttributionMode(AttributionMode attributionMode) {
 		this.attributionMode = attributionMode;
+		hasBeenChanged = true;
 	}
 
 	public void setStudioBeingChanged(boolean isStudioBeingChanged) {
 		this.isStudioBeingChanged = isStudioBeingChanged;
+	}
+
+	public void restoreValues() {
+		setTotalMemory(parseMemoryValue("total memory", Config.getTotalMemory()));
+		setStudioMemory(parseMemoryValue("studio memory", Config.getStudioMemory()));
+		setServerTotalMemory(parseMemoryValue("total server memory", Config.getServerTotalMemory()));
+		setSeqrepMemory(parseMemoryValue("seqrep memory", Config.getSeqRepMemory()));
+		setDatastoreMemory(parseMemoryValue("datastore memory", Config.getDatastoreMemory()));
+		setProlineServerMemory(parseMemoryValue("cortex memory", Config.getCortexMemory()));
+		setJmsMemory(parseMemoryValue("jms memory", Config.getJMSMemory()));
+		hasBeenChanged = false;
 	}
 }

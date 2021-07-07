@@ -163,6 +163,11 @@ public class ParsingRulesPanel extends JPanel {
 
 	}
 
+	public void restoreValues() {
+		// TODO Auto-generated method stub
+
+	}
+
 	// TODO : à refaire avec un nouveau panel
 //	private ActionListener addParsingRule() {
 //		ActionListener addParseRule = new ActionListener() {

@@ -30,9 +30,7 @@ public class Main {
 	 */
 	private static Logger logger = LoggerFactory.getLogger(Main.class);
 
-	public static void main(String[] args) {/*
-											 * ConfigWindow config = new ConfigWindow();
-											 */
+	public static void main(String[] args) {
 
 		logger.info("Starting Proline Zero");
 		try {

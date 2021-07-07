@@ -414,4 +414,8 @@ public class FolderPanel extends JPanel {
 		};
 		return clearFields;
 	}
+
+	public void restoreValues() {
+		// TODO
+	}
 }

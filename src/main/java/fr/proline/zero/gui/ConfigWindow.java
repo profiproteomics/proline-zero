@@ -7,9 +7,6 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -26,8 +23,10 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.apache.commons.configuration2.ex.ConfigurationException;
+
 import fr.proline.zero.util.Config;
-import fr.proline.zero.util.ProlineFiles;
+import fr.proline.zero.util.ConfigManager;
 
 public class ConfigWindow {
 
@@ -67,7 +66,7 @@ public class ConfigWindow {
 		// TODO gerer le resizing
 		frame = new JFrame();
 		frame.setTitle("Proline zero config window");
-		frame.setBounds(100, 100, 400, 700);
+		frame.setBounds(100, 100, 400, 750);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -184,18 +183,33 @@ public class ConfigWindow {
 			Icon tickIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("tick.png")));
 			Icon restoreIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("arrow-circle.png")));
 			continueButton = new JButton("Ok", tickIcon);
+			continueButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent event) {
+					configContinue();
+					try {
+						ConfigManager.getInstance().updateFileMemory();
+					} catch (ConfigurationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			});
 			cancelButton = new JButton("Cancel", crossIcon);
+			cancelButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent event) {
+					System.exit(0);
+				}
+			});
 			restoreButton = new JButton("Restore", restoreIcon);
+			restoreButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent event) {
+					restoreValues();
+				}
+			});
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		ActionListener actionListener = new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				configContinue();
-			}
-		};
-		continueButton.addActionListener(actionListener);
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -229,34 +243,8 @@ public class ConfigWindow {
 		System.out.println("h : " + h + " et r : " + w);
 		if (doNotShowAgainBox.isSelected()) {
 			System.out.println("checked");
-			replaceLines();
 		} else {
 			System.out.println("unchecked");
-		}
-	}
-
-	// methode test d'ecriture dans un fichier
-	public static void replaceLines() {
-		try {
-			// input the (modified) file content to the StringBuffer "input"
-			BufferedReader file = new BufferedReader(new FileReader(ProlineFiles.PROLINE_ZERO_CONFIG_FILE));
-			StringBuffer inputBuffer = new StringBuffer();
-			String line;
-
-			while ((line = file.readLine()) != null) {
-				line = line;
-				inputBuffer.append(line);
-				inputBuffer.append('\n');
-			}
-			file.close();
-
-			// write the new string with the replaced line OVER the same file
-			FileOutputStream fileOut = new FileOutputStream(ProlineFiles.PROLINE_ZERO_CONFIG_FILE);
-			fileOut.write(inputBuffer.toString().getBytes());
-			fileOut.close();
-
-		} catch (Exception e) {
-			System.out.println("Problem reading file.");
 		}
 	}
 
@@ -265,13 +253,13 @@ public class ConfigWindow {
 			public void stateChanged(ChangeEvent e) {
 				switch (tabbedPane.getSelectedIndex()) {
 				case 0:
-					frame.setBounds(100, 100, 400, 700);
+					frame.setBounds(100, 100, 400, 750);
 					break;
 				case 1:
-					frame.setBounds(100, 100, 400, 640);
+					frame.setBounds(100, 100, 400, 660);
 					break;
 				case 2:
-					frame.setBounds(100, 100, 400, 410);
+					frame.setBounds(100, 100, 400, 430);
 					break;
 				case 3:
 					frame.setBounds(100, 100, 400, 530);
@@ -280,6 +268,13 @@ public class ConfigWindow {
 			}
 		};
 		return resize;
+	}
+
+	private void restoreValues() {
+		memoryPanel.restoreValues();
+		folderPanel.restoreValues();
+		serverPanel.restoreValues();
+		parsePanel.restoreValues();
 	}
 
 }

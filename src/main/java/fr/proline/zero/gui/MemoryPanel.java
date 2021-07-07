@@ -17,25 +17,26 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.MemoryUtils;
 import fr.proline.zero.util.MemoryUtils.AttributionMode;
 
 public class MemoryPanel extends JPanel {
 	private JComboBox<String> allocModeBox;
 
-	private MemorySpinner totalMemoryField;
+	private MemorySpinner totalMemorySpinner;
 
-	private MemorySpinner studioMemoryField;
+	private MemorySpinner studioMemorySpinner;
 
-	private MemorySpinner totalServerMemoryField;
+	private MemorySpinner totalServerMemorySpinner;
 
-	private MemorySpinner seqrepMemoryField;
+	private MemorySpinner seqrepMemorySpinner;
 
-	private MemorySpinner dataStoreMemoryField;
+	private MemorySpinner dataStoreMemorySpinner;
 
-	private MemorySpinner cortexMemoryField;
+	private MemorySpinner cortexMemorySpinner;
 
-	private MemorySpinner jmsMemoryField;
+	private MemorySpinner jmsMemorySpinner;
 
 	private MemoryUtils memoryManager;
 
@@ -84,8 +85,9 @@ public class MemoryPanel extends JPanel {
 		c.weighty = 1;
 		add(Box.createHorizontalGlue(), c);
 
-		// TODO : construire a partir de la lecture du fichier
-		memoryManager = new MemoryUtils();
+		ConfigManager configManager = ConfigManager.getInstance();
+		memoryManager = configManager.getMemoryManager(null);
+
 		AttributionMode mode = memoryManager.getAttributionMode();
 		if (mode.equals(AttributionMode.AUTO)) {
 			allocModeBox.setSelectedIndex(0);
@@ -161,15 +163,15 @@ public class MemoryPanel extends JPanel {
 		c.insets = new Insets(5, 5, 5, 5);
 
 		// creation des widgets
-		this.totalMemoryField = new MemorySpinner(false, 3.2, "totalMemoryField");
-		totalMemoryField.setPreferredSize(new Dimension(50, 20));
-		totalMemoryField.addChangeListener(new ChangeListener() {
+		this.totalMemorySpinner = new MemorySpinner(false, 3.2, "totalMemoryField");
+		totalMemorySpinner.setPreferredSize(new Dimension(50, 20));
+		totalMemorySpinner.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				if (!firstClick) {
 					return;
 				} else {
 					firstClick = false;
-					memoryManager.setTotalMemory(totalMemoryField.getMoLongValue());
+					memoryManager.setTotalMemory(totalMemorySpinner.getMoLongValue());
 					memoryManager.update();
 					updateValues();
 					firstClick = true;
@@ -183,10 +185,10 @@ public class MemoryPanel extends JPanel {
 
 		c.gridx++;
 		c.insets = new Insets(5, 5, 5, 5);
-		totalPanel.add(totalMemoryField, c);
+		totalPanel.add(totalMemorySpinner, c);
 
 		c.gridx++;
-		totalPanel.add(totalMemoryField.unit, c);
+		totalPanel.add(totalMemorySpinner.unit, c);
 
 		c.gridx++;
 		c.weightx = 1;
@@ -205,16 +207,15 @@ public class MemoryPanel extends JPanel {
 		c.insets = new Insets(5, 5, 5, 5);
 
 		// creation des widgets
-		this.studioMemoryField = new MemorySpinner(false, 2.0, "studioMemoryField");
-		studioMemoryField.setPreferredSize(new Dimension(50, 20));
-		studioMemoryField.setEnabled(false);
-		studioMemoryField.addChangeListener(new ChangeListener() {
+		this.studioMemorySpinner = new MemorySpinner(false, 2.0, "studioMemoryField");
+		studioMemorySpinner.setPreferredSize(new Dimension(50, 20));
+		studioMemorySpinner.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				if (!firstClick) {
 					return;
 				} else {
 					firstClick = false;
-					memoryManager.setStudioMemory(studioMemoryField.getMoLongValue());
+					memoryManager.setStudioMemory(studioMemorySpinner.getMoLongValue());
 					memoryManager.setStudioBeingChanged(true);
 					memoryManager.update();
 					memoryManager.setStudioBeingChanged(false);
@@ -230,10 +231,10 @@ public class MemoryPanel extends JPanel {
 
 		c.gridx++;
 		c.insets = new java.awt.Insets(5, 5, 5, 5);
-		studioPanel.add(studioMemoryField, c);
+		studioPanel.add(studioMemorySpinner, c);
 
 		c.gridx++;
-		studioPanel.add(studioMemoryField.unit, c);
+		studioPanel.add(studioMemorySpinner.unit, c);
 
 		c.gridx++;
 		c.weightx = 1;
@@ -252,16 +253,15 @@ public class MemoryPanel extends JPanel {
 		c.insets = new java.awt.Insets(5, 5, 5, 5);
 
 		// creation des widgets
-		this.totalServerMemoryField = new MemorySpinner(false, 1.5, "totalServerMemoryField");
-		totalServerMemoryField.setPreferredSize(new Dimension(50, 20));
-		totalServerMemoryField.setEnabled(false);
-		totalServerMemoryField.addChangeListener(new ChangeListener() {
+		this.totalServerMemorySpinner = new MemorySpinner(false, 1.5, "totalServerMemoryField");
+		totalServerMemorySpinner.setPreferredSize(new Dimension(50, 20));
+		totalServerMemorySpinner.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				if (!firstClick) {
 					return;
 				} else {
 					firstClick = false;
-					memoryManager.setTotalMemory(totalServerMemoryField.getMoLongValue());
+					memoryManager.setServerTotalMemory(totalServerMemorySpinner.getMoLongValue());
 					memoryManager.update();
 					updateValues();
 					firstClick = true;
@@ -278,10 +278,10 @@ public class MemoryPanel extends JPanel {
 		c.gridx++;
 		c.gridx++;
 		c.gridwidth = 1;
-		serverTotal.add(totalServerMemoryField, c);
+		serverTotal.add(totalServerMemorySpinner, c);
 
 		c.gridx++;
-		serverTotal.add(totalServerMemoryField.unit, c);
+		serverTotal.add(totalServerMemorySpinner.unit, c);
 
 		c.gridx++;
 		c.weightx = 1;
@@ -310,16 +310,15 @@ public class MemoryPanel extends JPanel {
 		serverConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
 
 		// creation des widgets
-		this.seqrepMemoryField = new MemorySpinner(true, 500, "seqrepMemoryField");
-		seqrepMemoryField.setPreferredSize(new Dimension(50, 20));
-		seqrepMemoryField.setEnabled(false);
-		seqrepMemoryField.addChangeListener(new ChangeListener() {
+		this.seqrepMemorySpinner = new MemorySpinner(true, 500, "seqrepMemoryField");
+		seqrepMemorySpinner.setPreferredSize(new Dimension(50, 20));
+		seqrepMemorySpinner.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				if (!firstClick) {
 					return;
 				} else {
 					firstClick = false;
-					memoryManager.setSeqrepMemory(seqrepMemoryField.getMoLongValue());
+					memoryManager.setSeqrepMemory(seqrepMemorySpinner.getMoLongValue());
 					memoryManager.update();
 					updateValues();
 					firstClick = true;
@@ -327,17 +326,16 @@ public class MemoryPanel extends JPanel {
 			}
 		});
 
-		this.dataStoreMemoryField = new MemorySpinner(true, 500, "dataStoreMemoryField");
-		dataStoreMemoryField.setPreferredSize(new Dimension(50, 20));
-		dataStoreMemoryField.setEnabled(false);
-		dataStoreMemoryField.addChangeListener(new ChangeListener() {
+		this.dataStoreMemorySpinner = new MemorySpinner(true, 500, "dataStoreMemoryField");
+		dataStoreMemorySpinner.setPreferredSize(new Dimension(50, 20));
+		dataStoreMemorySpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				if (!firstClick) {
 					return;
 				} else {
 					firstClick = false;
-					memoryManager.setDatastoreMemory(dataStoreMemoryField.getMoLongValue());
+					memoryManager.setDatastoreMemory(dataStoreMemorySpinner.getMoLongValue());
 					memoryManager.update();
 					updateValues();
 					firstClick = true;
@@ -345,16 +343,15 @@ public class MemoryPanel extends JPanel {
 			}
 		});
 
-		this.cortexMemoryField = new MemorySpinner(true, 500, "cortexMemoryField");
-		cortexMemoryField.setPreferredSize(new Dimension(50, 20));
-		cortexMemoryField.setEnabled(false);
-		cortexMemoryField.addChangeListener(new ChangeListener() {
+		this.cortexMemorySpinner = new MemorySpinner(true, 500, "cortexMemoryField");
+		cortexMemorySpinner.setPreferredSize(new Dimension(50, 20));
+		cortexMemorySpinner.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				if (!firstClick) {
 					return;
 				} else {
 					firstClick = false;
-					memoryManager.setProlineServerMemory(cortexMemoryField.getMoLongValue());
+					memoryManager.setProlineServerMemory(cortexMemorySpinner.getMoLongValue());
 					memoryManager.update();
 					updateValues();
 					firstClick = true;
@@ -362,17 +359,16 @@ public class MemoryPanel extends JPanel {
 			}
 		});
 
-		this.jmsMemoryField = new MemorySpinner(true, 500, "jmsMemoryField");
-		jmsMemoryField.setPreferredSize(new Dimension(50, 20));
-		jmsMemoryField.setEnabled(false);
-		jmsMemoryField.addChangeListener(new ChangeListener() {
+		this.jmsMemorySpinner = new MemorySpinner(true, 500, "jmsMemoryField");
+		jmsMemorySpinner.setPreferredSize(new Dimension(50, 20));
+		jmsMemorySpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				if (!firstClick) {
 					return;
 				} else {
 					firstClick = false;
-					memoryManager.setJmsMemory(jmsMemoryField.getMoLongValue());
+					memoryManager.setJmsMemory(jmsMemorySpinner.getMoLongValue());
 					memoryManager.update();
 					updateValues();
 					firstClick = true;
@@ -387,40 +383,40 @@ public class MemoryPanel extends JPanel {
 		serverAllocation.add(new JLabel("Sequence repository : ", SwingConstants.RIGHT), serverConstraint);
 
 		serverConstraint.gridx++;
-		serverAllocation.add(seqrepMemoryField, serverConstraint);
+		serverAllocation.add(seqrepMemorySpinner, serverConstraint);
 
 		serverConstraint.gridx++;
-		serverAllocation.add(seqrepMemoryField.unit, serverConstraint);
+		serverAllocation.add(seqrepMemorySpinner.unit, serverConstraint);
 
 		serverConstraint.gridx = 0;
 		serverConstraint.gridy++;
 		serverAllocation.add(new JLabel("DataStore : ", SwingConstants.RIGHT), serverConstraint);
 
 		serverConstraint.gridx++;
-		serverAllocation.add(dataStoreMemoryField, serverConstraint);
+		serverAllocation.add(dataStoreMemorySpinner, serverConstraint);
 
 		serverConstraint.gridx++;
-		serverAllocation.add(dataStoreMemoryField.unit, serverConstraint);
+		serverAllocation.add(dataStoreMemorySpinner.unit, serverConstraint);
 
 		serverConstraint.gridx = 0;
 		serverConstraint.gridy++;
 		serverAllocation.add(new JLabel("Proline server : ", SwingConstants.RIGHT), serverConstraint);
 
 		serverConstraint.gridx++;
-		serverAllocation.add(cortexMemoryField, serverConstraint);
+		serverAllocation.add(cortexMemorySpinner, serverConstraint);
 
 		serverConstraint.gridx++;
-		serverAllocation.add(cortexMemoryField.unit, serverConstraint);
+		serverAllocation.add(cortexMemorySpinner.unit, serverConstraint);
 
 		serverConstraint.gridx = 0;
 		serverConstraint.gridy++;
 		serverAllocation.add(new JLabel("JMS : ", SwingConstants.RIGHT), serverConstraint);
 
 		serverConstraint.gridx++;
-		serverAllocation.add(jmsMemoryField, serverConstraint);
+		serverAllocation.add(jmsMemorySpinner, serverConstraint);
 
 		serverConstraint.gridx++;
-		serverAllocation.add(jmsMemoryField.unit, serverConstraint);
+		serverAllocation.add(jmsMemorySpinner.unit, serverConstraint);
 
 		return serverAllocation;
 	}
@@ -430,7 +426,6 @@ public class MemoryPanel extends JPanel {
 		ActionListener allocationModeAction = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				if (allocModeBox.getSelectedItem().equals("Automatic")) {
-
 					memoryManager.setAttributionMode(AttributionMode.AUTO);
 
 					firstClick = false;
@@ -438,35 +433,35 @@ public class MemoryPanel extends JPanel {
 					updateValues();
 					firstClick = true;
 
-					totalMemoryField.setEnabled(true);
-					studioMemoryField.setEnabled(false);
-					totalServerMemoryField.setEnabled(false);
-					seqrepMemoryField.setEnabled(false);
-					dataStoreMemoryField.setEnabled(false);
-					cortexMemoryField.setEnabled(false);
-					jmsMemoryField.setEnabled(false);
+					totalMemorySpinner.setEnabled(true);
+					studioMemorySpinner.setEnabled(false);
+					totalServerMemorySpinner.setEnabled(false);
+					seqrepMemorySpinner.setEnabled(false);
+					dataStoreMemorySpinner.setEnabled(false);
+					cortexMemorySpinner.setEnabled(false);
+					jmsMemorySpinner.setEnabled(false);
 				} else if (allocModeBox.getSelectedItem().equals("Semi-automatic")) {
 
 					memoryManager.setAttributionMode(AttributionMode.SEMIAUTO);
 
-					totalMemoryField.setEnabled(false);
-					studioMemoryField.setEnabled(true);
-					totalServerMemoryField.setEnabled(true);
-					seqrepMemoryField.setEnabled(false);
-					dataStoreMemoryField.setEnabled(false);
-					cortexMemoryField.setEnabled(false);
-					jmsMemoryField.setEnabled(false);
+					totalMemorySpinner.setEnabled(false);
+					studioMemorySpinner.setEnabled(true);
+					totalServerMemorySpinner.setEnabled(true);
+					seqrepMemorySpinner.setEnabled(false);
+					dataStoreMemorySpinner.setEnabled(false);
+					cortexMemorySpinner.setEnabled(false);
+					jmsMemorySpinner.setEnabled(false);
 				} else {
 
 					memoryManager.setAttributionMode(AttributionMode.MANUAL);
 
-					totalMemoryField.setEnabled(false);
-					studioMemoryField.setEnabled(true);
-					totalServerMemoryField.setEnabled(false);
-					seqrepMemoryField.setEnabled(true);
-					dataStoreMemoryField.setEnabled(true);
-					cortexMemoryField.setEnabled(true);
-					jmsMemoryField.setEnabled(true);
+					totalMemorySpinner.setEnabled(false);
+					studioMemorySpinner.setEnabled(true);
+					totalServerMemorySpinner.setEnabled(false);
+					seqrepMemorySpinner.setEnabled(true);
+					dataStoreMemorySpinner.setEnabled(true);
+					cortexMemorySpinner.setEnabled(true);
+					jmsMemorySpinner.setEnabled(true);
 
 				}
 			}
@@ -477,13 +472,19 @@ public class MemoryPanel extends JPanel {
 
 	// displays all the new values taken from the memorymanager
 	private void updateValues() {
-		totalMemoryField.setValue(memoryManager.getTotalMemory());
-		studioMemoryField.setValue(memoryManager.getStudioMemory());
-		totalServerMemoryField.setValue(memoryManager.getServerTotalMemory());
-		seqrepMemoryField.setValue(memoryManager.getSeqrepMemory());
-		dataStoreMemoryField.setValue(memoryManager.getDatastoreMemory());
-		cortexMemoryField.setValue(memoryManager.getProlineServerMemory());
-		jmsMemoryField.setValue(memoryManager.getJmsMemory());
+		totalMemorySpinner.setValue(memoryManager.getTotalMemory());
+		studioMemorySpinner.setValue(memoryManager.getStudioMemory());
+		totalServerMemorySpinner.setValue(memoryManager.getServerTotalMemory());
+		seqrepMemorySpinner.setValue(memoryManager.getSeqrepMemory());
+		dataStoreMemorySpinner.setValue(memoryManager.getDatastoreMemory());
+		cortexMemorySpinner.setValue(memoryManager.getProlineServerMemory());
+		jmsMemorySpinner.setValue(memoryManager.getJmsMemory());
+	}
+
+	// reset the values to those in the config file
+	public void restoreValues() {
+		memoryManager.restoreValues();
+		updateValues();
 	}
 
 }
