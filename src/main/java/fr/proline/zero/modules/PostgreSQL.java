@@ -16,15 +16,16 @@ import org.zeroturnaround.exec.StartedProcess;
 import org.zeroturnaround.exec.stream.LogOutputStream;
 import org.zeroturnaround.exec.stream.slf4j.Slf4jStream;
 
-public class PostgreSQL extends DataStore {
+public class PostgreSQL implements IZeroModule {
 
+    private  boolean isProcessAlive = false;
     private static Logger logger = LoggerFactory.getLogger(PostgreSQL.class);
     private static String PG_DATA = SystemUtils.toSystemPath(ProlineFiles.PG_DATASTORE_RELATIVE_PATH);
     public static String NAME = "PostgreSQL";
     private static String VERSION_9_4 = "9.4";
     private boolean _isVersion94 = false;
 
-    public String getDatastoreName() {
+    public String getModuleName() {
         return NAME;
     }
 
@@ -32,6 +33,11 @@ public class PostgreSQL extends DataStore {
         return _isVersion94;
     }
 
+    public boolean isProcessAlive(){
+        return isProcessAlive;
+    }
+
+    //VDS TODO : To move to 'Main' : Java requested for all Module
     private String getJavaPath() throws Exception {
         File path = Config.getJavaHome();
         if (!path.exists()) {
@@ -127,6 +133,9 @@ public class PostgreSQL extends DataStore {
     }
 
     public void start() throws Exception {
+
+        verifyVersion();
+
         int dataStorePort = Config.getDataStorePort();
         int JmsServerPort = Config.getJmsPort();
         if (SystemUtils.isPortAvailable(dataStorePort) && SystemUtils.isPortAvailable(JmsServerPort)) {

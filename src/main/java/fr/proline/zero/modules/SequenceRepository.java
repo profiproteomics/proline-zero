@@ -6,10 +6,7 @@ import java.util.List;
 
 import fr.proline.zero.gui.ZeroTray;
 import fr.proline.zero.util.ProlineFiles;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.zeroturnaround.exec.ProcessExecutor;
-import org.zeroturnaround.exec.StartedProcess;
 import org.zeroturnaround.exec.stream.LogOutputStream;
 import org.zeroturnaround.process.PidUtil;
 
@@ -19,12 +16,8 @@ import fr.proline.zero.util.SystemUtils;
 
 public class SequenceRepository extends AbstractProcess {
 
-    private static Logger logger = LoggerFactory.getLogger(SequenceRepository.class);
-    private StartedProcess process;
-
-    @Override
-    public String getProcessName() {
-        return "Sequence Repository";
+    public SequenceRepository() {
+        moduleName= "Sequence Repository";
     }
 
     @Override
@@ -53,16 +46,10 @@ public class SequenceRepository extends AbstractProcess {
             }
         }).destroyOnExit().start();
         waitForStartCompletion(Config.getDefaultTimeout());
-        logger.info("Process {} successfully started (name = {}, pid = {}, alive = {})", getProcessName(),
-                process.getProcess(), PidUtil.getPid(process.getProcess()), isProcessAlive);
+        logger.info("Process {} successfully started (name = {}, pid = {}, alive = {})", getModuleName(),
+                process.getProcess(), PidUtil.getPid(process.getProcess()), m_isProcessAlive);
         ZeroTray.update();
     }
 
-    @Override
-    public synchronized void stop() throws Exception {
-        if (process != null) {
-            kill(process);
-        }
-    }
 
 }

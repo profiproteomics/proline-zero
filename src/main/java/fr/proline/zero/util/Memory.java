@@ -86,7 +86,7 @@ public class Memory {
 			// if selected memory is low, only adjust the cortex memory and use postgresql
 			// default config
 			cortexXmx = Math.floorDiv(memory, M);
-			if (ExecutionSession.getDataStore().getDatastoreName().equals(PostgreSQL.NAME)) {
+			if (ExecutionSession.getDataStore().getModuleName().equals(PostgreSQL.NAME)) {
 				restorePostgreSQLDefaultConfig();
 			}
 		} else {
@@ -119,7 +119,7 @@ public class Memory {
 
 			adjustStudioMemory(studioMaxMemory);
 
-			if (ExecutionSession.getDataStore().getDatastoreName().equals(PostgreSQL.NAME)) {
+			if (ExecutionSession.getDataStore().getModuleName().equals(PostgreSQL.NAME)) {
 				PostgreSQL datastore = (PostgreSQL) ExecutionSession.getDataStore();
 				adjustPostgreSQLMemory(memoryPg, datastore.isVersion94());
 			}
