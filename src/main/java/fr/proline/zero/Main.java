@@ -14,6 +14,8 @@ import fr.proline.zero.util.Config;
 import fr.proline.zero.util.ProlineFiles;
 import fr.proline.zero.util.SystemUtils;
 
+import javax.swing.*;
+
 public class Main {
 
 	/*
@@ -35,8 +37,19 @@ public class Main {
 
 			// if specified in config load IHM
 			ConfigWindow test = new ConfigWindow();
+			test.setVisible(true);
+			if(test.getButtonClicked() == ConfigWindow.BUTTON_CANCEL){
+				int reply = JOptionPane.showConfirmDialog(null, "Continue with previous configuration (No = exit) ?", "Warning", JOptionPane.YES_NO_OPTION);
+				if (reply == JOptionPane.YES_OPTION) {
+					//VDS  Restore & continue ??!!
 
-			// VDS TODO: test and save new config here !!
+				} else {
+					System.exit(0);
+				}
+			} else { //OK ...
+				JOptionPane.showMessageDialog(null, "Config Done","Config Done", JOptionPane.INFORMATION_MESSAGE);
+
+				// VDS TODO: test and save new config here !!
 
 //			//Load modules
 //			manageFolder(); //create missing folders inside Proline Zero (don't create folder elsewhere on disk...)
@@ -48,7 +61,7 @@ public class Main {
 //			// add a shutdown hook that will be executed when the program ends or if the
 //			// user ends it with Ctrl+C
 //			Runtime.getRuntime().addShutdownHook(new ShutdownHook());
-//			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists(); // first launch
+				boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists(); // first launch
 //
 //			//VDS TODO --  To be moved in config part above
 //			logger.info("First launch, update port");
@@ -91,7 +104,7 @@ public class Main {
 //				logger.info("Session should be closed, stop all modules");
 //				SystemUtils.end();
 //			} //else already closed...
-
+			}
 		} catch (Throwable t) {
 			// provide a msgbox to warn the user of the problem
 			logger.error("Severe Error while running Proline Launcher. The application will close due to:", t);
