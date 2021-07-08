@@ -7,8 +7,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class MemorySpinner extends JSpinner {
-	Boolean isMo;
-	JLabel unit;
+	public Boolean isMo;
+	public JLabel unit;
 	String name;
 
 	public void setIsMo(Boolean isMo) {

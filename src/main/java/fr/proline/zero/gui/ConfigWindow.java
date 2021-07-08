@@ -7,6 +7,8 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -23,10 +25,8 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.commons.configuration2.ex.ConfigurationException;
-
-import fr.proline.zero.util.Config;
 import fr.proline.zero.util.ConfigManager;
+import fr.proline.zero.util.MemoryUtils;
 
 public class ConfigWindow {
 
@@ -43,6 +43,8 @@ public class ConfigWindow {
 	private JButton continueButton;
 	private JButton cancelButton;
 	private JButton restoreButton;
+
+	private ConfigManager configManager;
 
 	public ConfigWindow() {
 		EventQueue.invokeLater(new Runnable() {
@@ -63,6 +65,8 @@ public class ConfigWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		configManager = ConfigManager.getInstance();
+
 		// TODO gerer le resizing
 		frame = new JFrame();
 		frame.setTitle("Proline zero config window");
@@ -89,6 +93,7 @@ public class ConfigWindow {
 		c.gridy++;
 		c.weighty = 0;
 		doNotShowAgainBox = new JCheckBox("Do not show again");
+		doNotShowAgainBox.setSelected(configManager.getHideConfigDialog());
 		panel.add(doNotShowAgainBox, c);
 
 		c.gridy++;
@@ -108,7 +113,7 @@ public class ConfigWindow {
 		tabbedPane.add(folderPanel, "Folders");
 		tabbedPane.add(serverPanel, "Server");
 		tabbedPane.add(parsePanel, "Parsing rules");
-		if (!Config.isSeqRepoEnabled()) {
+		if (!configManager.getSeqRepActive()) {
 			tabbedPane.setEnabledAt(3, false);
 		}
 		tabbedPane.addChangeListener(resizeDynamique());
@@ -131,24 +136,44 @@ public class ConfigWindow {
 		serverModuleBox.setEnabled(false);
 
 		seqRepModuleBox = new JCheckBox("Start Sequence Repository");
-		seqRepModuleBox.setSelected(Config.isSeqRepoEnabled());
+		seqRepModuleBox.setSelected(configManager.getSeqRepActive());
+		ItemListener checkSeqRep = new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				MemoryUtils memoryManager = ConfigManager.getInstance().getMemoryManager();
 
-		ActionListener checkSeqRep = new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
 				if (seqRepModuleBox.isSelected()) {
 					tabbedPane.setEnabledAt(3, true);
+					memoryManager.setSeqRepActive(true);
+					memoryPanel.seqRepBeingActive(true);
 				} else {
 					if (tabbedPane.getSelectedIndex() == 3) {
 						tabbedPane.setSelectedIndex(0);
 					}
 					tabbedPane.setEnabledAt(3, false);
+					memoryManager.setSeqRepActive(false);
+					memoryPanel.seqRepBeingActive(false);
 				}
+				memoryPanel.updateValues();
 			}
 		};
-		seqRepModuleBox.addActionListener(checkSeqRep);
+		seqRepModuleBox.addItemListener(checkSeqRep);
 
 		studioModuleBox = new JCheckBox("Start Proline Studio");
-		studioModuleBox.setSelected(!Config.isServerMode());
+		studioModuleBox.setSelected(configManager.getStudioActive());
+		ItemListener checkStudio = new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+
+				if (studioModuleBox.isSelected()) {
+					configManager.setStudioActive(true);
+					memoryPanel.studioBeingActive(true);
+				} else {
+					configManager.setStudioActive(false);
+					memoryPanel.studioBeingActive(false);
+				}
+				memoryPanel.updateValues();
+			}
+		};
+		studioModuleBox.addItemListener(checkStudio);
 
 		// ajout des widgets
 		c.gridy = 0;
@@ -186,12 +211,7 @@ public class ConfigWindow {
 			continueButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent event) {
 					configContinue();
-					try {
-						ConfigManager.getInstance().updateFileMemory();
-					} catch (ConfigurationException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					ConfigManager.getInstance().updateFileZero();
 				}
 			});
 			cancelButton = new JButton("Cancel", crossIcon);
@@ -271,10 +291,18 @@ public class ConfigWindow {
 	}
 
 	private void restoreValues() {
-		memoryPanel.restoreValues();
-		folderPanel.restoreValues();
-		serverPanel.restoreValues();
-		parsePanel.restoreValues();
+		configManager.restoreValues();
+		updateValues();
+		memoryPanel.updateValues();
+		folderPanel.updateValues();
+		serverPanel.updateValues();
+		parsePanel.updateValues();
+	}
+
+	private void updateValues() {
+		doNotShowAgainBox.setSelected(configManager.getHideConfigDialog());
+		studioModuleBox.setSelected(configManager.getStudioActive());
+		seqRepModuleBox.setSelected(configManager.getSeqRepActive());
 	}
 
 }

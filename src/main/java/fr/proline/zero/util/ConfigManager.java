@@ -1,9 +1,5 @@
 package fr.proline.zero.util;
 
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
@@ -13,12 +9,20 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 
 public final class ConfigManager {
 
+	boolean studioBeingActive;
+
+	boolean seqRepBeingActive;
+
+	boolean hideConfigDialog;
+
 	private static ConfigManager instance;
 
 	private MemoryUtils memoryManager;
 
 	private ConfigManager() {
 		memoryManager = new MemoryUtils();
+		setStudioActive(Config.getStudioActive());
+		setSeqRepActive(Config.getSeqRepActive());
 	}
 
 	public static ConfigManager getInstance() {
@@ -28,11 +32,51 @@ public final class ConfigManager {
 		return instance;
 	}
 
-	public MemoryUtils getMemoryManager(String value) {
+	public MemoryUtils getMemoryManager() {
 		return memoryManager;
 	}
 
-	// update config files
+	public void setStudioActive(boolean b) {
+		studioBeingActive = b;
+		memoryManager.setStudioActive(b);
+	}
+
+	public boolean getStudioActive() {
+		return this.studioBeingActive;
+	}
+
+	public void setSeqRepActive(boolean b) {
+		seqRepBeingActive = b;
+		memoryManager.setSeqRepActive(b);
+	}
+
+	public boolean getSeqRepActive() {
+		return this.seqRepBeingActive;
+	}
+
+	public void setHideConfigDialog(Boolean b) {
+		hideConfigDialog = b;
+	}
+
+	public boolean getHideConfigDialog() {
+		return this.hideConfigDialog;
+	}
+
+	// updates config files
+	public void updateFileZero() {
+		try {
+			if (memoryManager.hasBeenChanged()) {
+				updateFileMemory();
+			}
+			// TODO faire la verif des param generaux
+			if (true) {
+				updateFileGeneral();
+			}
+		} catch (ConfigurationException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void updateFileMemory() throws ConfigurationException {
 		Parameters params = new Parameters();
 		FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(
@@ -48,32 +92,36 @@ public final class ConfigManager {
 		config.setProperty("proline_cortex_memory", memoryManager.getProlineServerMemoryString());
 		config.setProperty("JMS_memory", memoryManager.getJmsMemoryString());
 
+		// writes in the file
 		builder.save();
 	}
 
-	// methode test d'ecriture dans un fichier
-	public static void replaceLines() {
-		try {
-			// input the (modified) file content to the StringBuffer "input"
-			BufferedReader file = new BufferedReader(new FileReader(ProlineFiles.PROLINE_ZERO_CONFIG_FILE));
-			StringBuffer inputBuffer = new StringBuffer();
-			String line;
-
-			while ((line = file.readLine()) != null) {
-				line = line;
-				inputBuffer.append(line);
-				inputBuffer.append('\n');
-			}
-			file.close();
-
-			// write the new string with the replaced line OVER the same file
-			FileOutputStream fileOut = new FileOutputStream(ProlineFiles.PROLINE_ZERO_CONFIG_FILE);
-			fileOut.write(inputBuffer.toString().getBytes());
-			fileOut.close();
-
-		} catch (Exception e) {
-			System.out.println("Problem reading file.");
+	// TODO verifier à partir d'autre chose que le memoryManager
+	private void updateFileGeneral() throws ConfigurationException {
+		Parameters params = new Parameters();
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(
+				PropertiesConfiguration.class).configure(params.properties().setFileName("proline_launcher.config"));
+		Configuration config = builder.getConfiguration();
+		if (memoryManager.getStudioActive()) {
+			config.setProperty("sequence_repository_active", "on");
+		} else {
+			config.setProperty("sequence_repository_active", "off");
 		}
+		if (memoryManager.getSeqRepActive()) {
+			config.setProperty("proline_studio_active", "on");
+		} else {
+			config.setProperty("proline_studio_active", "off");
+		}
+
+		// writes in the file
+		builder.save();
 	}
 
+	public void restoreValues() {
+		setStudioActive(Config.getStudioActive());
+		setSeqRepActive(Config.getSeqRepActive());
+		setHideConfigDialog(Config.getHideConfigDialog());
+		memoryManager.restoreValues();
+		// TODO other utils resotre to their originals
+	}
 }

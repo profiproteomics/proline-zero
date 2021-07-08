@@ -248,4 +248,22 @@ public class Config {
 		return properties.getProperty("allocation_mode");
 	}
 
+	public static Boolean getStudioActive() {
+		Config.initialize();
+		String StudioActive = properties.getProperty("proline_studio_active");
+		return Config.isBooleanTrue(StudioActive);
+	}
+
+	public static Boolean getSeqRepActive() {
+		Config.initialize();
+		String seqRepActive = properties.getProperty("sequence_repository_active");
+		return Config.isBooleanTrue(seqRepActive);
+	}
+
+	public static Boolean getHideConfigDialog() {
+		Config.initialize();
+		String hideConfigDialog = properties.getProperty("hide_config_dialog");
+		return Config.isBooleanTrue(hideConfigDialog);
+	}
+
 }

@@ -163,7 +163,7 @@ public class ParsingRulesPanel extends JPanel {
 
 	}
 
-	public void restoreValues() {
+	public void updateValues() {
 		// TODO Auto-generated method stub
 
 	}

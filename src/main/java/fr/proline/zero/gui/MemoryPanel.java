@@ -26,10 +26,14 @@ public class MemoryPanel extends JPanel {
 
 	private MemorySpinner totalMemorySpinner;
 
+	// jlabels attributes to disable it when studio is disabled
+	private JLabel studioLabel;
 	private MemorySpinner studioMemorySpinner;
 
 	private MemorySpinner totalServerMemorySpinner;
 
+	// jlabels attributes to disable it when seqrep is disabled
+	private JLabel seqrepLabel;
 	private MemorySpinner seqrepMemorySpinner;
 
 	private MemorySpinner dataStoreMemorySpinner;
@@ -86,7 +90,7 @@ public class MemoryPanel extends JPanel {
 		add(Box.createHorizontalGlue(), c);
 
 		ConfigManager configManager = ConfigManager.getInstance();
-		memoryManager = configManager.getMemoryManager(null);
+		memoryManager = configManager.getMemoryManager();
 
 		AttributionMode mode = memoryManager.getAttributionMode();
 		if (mode.equals(AttributionMode.AUTO)) {
@@ -97,6 +101,7 @@ public class MemoryPanel extends JPanel {
 			allocModeBox.setSelectedIndex(2);
 		}
 		updateValues();
+		memoryManager.setHasBeenChanged(false);
 	}
 
 	private JPanel createAllocationTypePanel() {
@@ -227,7 +232,8 @@ public class MemoryPanel extends JPanel {
 
 		// ajout des widgets au layout
 		c.gridx = 0;
-		studioPanel.add(new JLabel("Proline Studio :", SwingConstants.RIGHT), c);
+		studioLabel = new JLabel("Proline Studio :", SwingConstants.RIGHT);
+		studioPanel.add(studioLabel, c);
 
 		c.gridx++;
 		c.insets = new java.awt.Insets(5, 5, 5, 5);
@@ -380,7 +386,8 @@ public class MemoryPanel extends JPanel {
 		// ajout des widgets au layout
 		serverConstraint.gridy = 0;
 		serverConstraint.gridx = 0;
-		serverAllocation.add(new JLabel("Sequence repository : ", SwingConstants.RIGHT), serverConstraint);
+		seqrepLabel = new JLabel("Sequence repository : ", SwingConstants.RIGHT);
+		serverAllocation.add(seqrepLabel, serverConstraint);
 
 		serverConstraint.gridx++;
 		serverAllocation.add(seqrepMemorySpinner, serverConstraint);
@@ -445,7 +452,9 @@ public class MemoryPanel extends JPanel {
 					memoryManager.setAttributionMode(AttributionMode.SEMIAUTO);
 
 					totalMemorySpinner.setEnabled(false);
-					studioMemorySpinner.setEnabled(true);
+					if (memoryManager.getStudioActive()) {
+						studioMemorySpinner.setEnabled(true);
+					}
 					totalServerMemorySpinner.setEnabled(true);
 					seqrepMemorySpinner.setEnabled(false);
 					dataStoreMemorySpinner.setEnabled(false);
@@ -456,9 +465,13 @@ public class MemoryPanel extends JPanel {
 					memoryManager.setAttributionMode(AttributionMode.MANUAL);
 
 					totalMemorySpinner.setEnabled(false);
-					studioMemorySpinner.setEnabled(true);
+					if (memoryManager.getStudioActive()) {
+						studioMemorySpinner.setEnabled(true);
+					}
 					totalServerMemorySpinner.setEnabled(false);
-					seqrepMemorySpinner.setEnabled(true);
+					if (memoryManager.getSeqRepActive()) {
+						seqrepMemorySpinner.setEnabled(true);
+					}
 					dataStoreMemorySpinner.setEnabled(true);
 					cortexMemorySpinner.setEnabled(true);
 					jmsMemorySpinner.setEnabled(true);
@@ -471,7 +484,15 @@ public class MemoryPanel extends JPanel {
 	}
 
 	// displays all the new values taken from the memorymanager
-	private void updateValues() {
+	public void updateValues() {
+		AttributionMode mode = memoryManager.getAttributionMode();
+		if (mode.equals(AttributionMode.AUTO)) {
+			allocModeBox.setSelectedIndex(0);
+		} else if (mode.equals(AttributionMode.SEMIAUTO)) {
+			allocModeBox.setSelectedIndex(1);
+		} else {
+			allocModeBox.setSelectedIndex(2);
+		}
 		totalMemorySpinner.setValue(memoryManager.getTotalMemory());
 		studioMemorySpinner.setValue(memoryManager.getStudioMemory());
 		totalServerMemorySpinner.setValue(memoryManager.getServerTotalMemory());
@@ -481,10 +502,33 @@ public class MemoryPanel extends JPanel {
 		jmsMemorySpinner.setValue(memoryManager.getJmsMemory());
 	}
 
-	// reset the values to those in the config file
-	public void restoreValues() {
-		memoryManager.restoreValues();
-		updateValues();
+	public void studioBeingActive(boolean b) {
+		if (b) {
+			studioLabel.setEnabled(true);
+			if (!memoryManager.getAttributionMode().equals(AttributionMode.AUTO)) {
+				studioMemorySpinner.setEnabled(true);
+			}
+			studioMemorySpinner.unit.setEnabled(true);
+		} else {
+			studioLabel.setEnabled(false);
+			studioMemorySpinner.setEnabled(false);
+			studioMemorySpinner.unit.setEnabled(false);
+		}
+		repaint();
 	}
 
+	public void seqRepBeingActive(boolean b) {
+		if (b) {
+			seqrepLabel.setEnabled(true);
+			if (memoryManager.getAttributionMode().equals(AttributionMode.MANUAL)) {
+				seqrepMemorySpinner.setEnabled(true);
+			}
+			seqrepMemorySpinner.unit.setEnabled(true);
+		} else {
+			seqrepLabel.setEnabled(false);
+			seqrepMemorySpinner.setEnabled(false);
+			seqrepMemorySpinner.unit.setEnabled(false);
+		}
+		repaint();
+	}
 }

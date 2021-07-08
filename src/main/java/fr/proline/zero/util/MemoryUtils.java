@@ -24,6 +24,10 @@ public class MemoryUtils {
 
 	private boolean hasBeenChanged;
 
+	private boolean studioActive;
+
+	private boolean seqRepActive;
+
 	public enum AttributionMode {
 		AUTO {
 			public String toString() {
@@ -45,7 +49,6 @@ public class MemoryUtils {
 
 	private AttributionMode attributionMode;
 
-	// TODO : changer le constructeur pour lire le fichier
 	public MemoryUtils() {
 		switch (Config.getAllocationMode()) {
 		case "auto":
@@ -70,7 +73,7 @@ public class MemoryUtils {
 			break;
 		}
 		;
-		hasBeenChanged = false;
+		this.hasBeenChanged = false;
 		this.isStudioBeingChanged = false;
 	}
 
@@ -79,12 +82,20 @@ public class MemoryUtils {
 	// - depends on the mode of allocation
 	public Boolean update() {
 		if (attributionMode.equals(AttributionMode.AUTO)) {
+			// attribution mode = auto
 			for (MemoryAllocationRule rule : MemoryAllocationRule.values()) {
 				if (rule.containsAuto(this.totalMemory)) {
 					MemoryAllocationRule calcul = rule;
-
-					this.studioMemory = calcul.getStudioMemory();
-					this.seqrepMemory = calcul.getSeqRepoMemory();
+					if (studioActive) {
+						this.studioMemory = calcul.getStudioMemory();
+					} else {
+						this.studioMemory = 0;
+					}
+					if (seqRepActive) {
+						this.seqrepMemory = calcul.getSeqRepoMemory();
+					} else {
+						this.seqrepMemory = 0;
+					}
 					this.jmsMemory = calcul.getJmsMemory();
 					long resteMemory = this.totalMemory - this.studioMemory - this.seqrepMemory - this.jmsMemory;
 
@@ -101,12 +112,17 @@ public class MemoryUtils {
 				}
 			}
 		} else if (attributionMode.equals(AttributionMode.SEMIAUTO)) {
+			// attribution mode = semi-auto
 			if (!isStudioBeingChanged) {
 				for (MemoryAllocationRule rule : MemoryAllocationRule.values()) {
 					if (rule.containsSemiAuto(this.serverTotalMemory)) {
 						MemoryAllocationRule calcul = rule;
 
-						this.seqrepMemory = calcul.getSeqRepoMemory();
+						if (seqRepActive) {
+							this.seqrepMemory = calcul.getSeqRepoMemory();
+						} else {
+							this.seqrepMemory = 0;
+						}
 						this.jmsMemory = calcul.getJmsMemory();
 
 						long resteMemory = this.serverTotalMemory - this.jmsMemory - this.seqrepMemory;
@@ -120,6 +136,7 @@ public class MemoryUtils {
 			}
 			this.totalMemory = this.studioMemory + this.serverTotalMemory;
 		} else {
+			// attribution mode = manual
 			this.serverTotalMemory = this.datastoreMemory + this.jmsMemory + this.prolineServerMemory
 					+ this.seqrepMemory;
 			this.totalMemory = this.studioMemory + this.serverTotalMemory;
@@ -127,11 +144,16 @@ public class MemoryUtils {
 		return true;
 	}
 
+	// reads the memory values in the "String" (eg : 5.5G or 700M) format and
+	// returns it in long "Mo" format (eg : 5632 or 700)
 	private static long parseMemoryValue(String info, String requestedMemory) {
 		long memory = -1;
 		try {
 			String string = requestedMemory.trim().replaceAll("[kmgtKMGT]$", "");
+
+			// extract last letter
 			String unit = requestedMemory.trim().replaceAll("[^A-Za-z ]", "");
+
 			if (unit.equals("M")) {
 				int iMemory = Integer.parseInt(string);
 				memory = iMemory * M;
@@ -142,7 +164,6 @@ public class MemoryUtils {
 				int iMemory = Integer.parseInt(string);
 				memory = iMemory;
 			}
-			// extract last letter
 		} catch (Exception e) {
 			// if requested memory is unreadable, use available memory, show warning popup
 			// and go on
@@ -151,6 +172,8 @@ public class MemoryUtils {
 		return memory;
 	}
 
+	// does the opposite of the previous method; takes the memory value from long
+	// (Mo) format and returns them in String format (eg : 5.5G or 700M)
 	private static String toConfigFile(long value) {
 		if (value == 0) {
 			return "0";
@@ -165,91 +188,63 @@ public class MemoryUtils {
 		return totalMemory;
 	}
 
-	public String getTotalMemoryString() {
-		return toConfigFile(totalMemory);
-	}
-
 	public void setTotalMemory(long total_memory) {
 		this.totalMemory = total_memory;
-		hasBeenChanged = true;
+		this.hasBeenChanged = true;
 	}
 
 	public long getStudioMemory() {
 		return studioMemory;
 	}
 
-	public String getStudioMemoryString() {
-		return toConfigFile(studioMemory);
-	}
-
 	public void setStudioMemory(long studio_memory) {
 		this.studioMemory = studio_memory;
-		hasBeenChanged = true;
+		this.hasBeenChanged = true;
 	}
 
 	public long getServerTotalMemory() {
 		return serverTotalMemory;
 	}
 
-	public String getServerTotalMemoryString() {
-		return toConfigFile(serverTotalMemory);
-	}
-
 	public void setServerTotalMemory(long serverTotalMemory) {
 		this.serverTotalMemory = serverTotalMemory;
-		hasBeenChanged = true;
+		this.hasBeenChanged = true;
 	}
 
 	public long getSeqrepMemory() {
 		return seqrepMemory;
 	}
 
-	public String getSeqrepMemoryString() {
-		return toConfigFile(seqrepMemory);
-	}
-
 	public void setSeqrepMemory(long seqrepMemory) {
 		this.seqrepMemory = seqrepMemory;
-		hasBeenChanged = true;
+		this.hasBeenChanged = true;
 	}
 
 	public long getDatastoreMemory() {
 		return datastoreMemory;
 	}
 
-	public String getDatastoreMemoryString() {
-		return toConfigFile(datastoreMemory);
-	}
-
 	public void setDatastoreMemory(long datastoreMemory) {
 		this.datastoreMemory = datastoreMemory;
-		hasBeenChanged = true;
+		this.hasBeenChanged = true;
 	}
 
 	public long getProlineServerMemory() {
 		return prolineServerMemory;
 	}
 
-	public String getProlineServerMemoryString() {
-		return toConfigFile(prolineServerMemory);
-	}
-
 	public void setProlineServerMemory(long prolineServerMemory) {
 		this.prolineServerMemory = prolineServerMemory;
-		hasBeenChanged = true;
+		this.hasBeenChanged = true;
 	}
 
 	public long getJmsMemory() {
 		return jmsMemory;
 	}
 
-	public String getJmsMemoryString() {
-		return toConfigFile(jmsMemory);
-	}
-
 	public void setJmsMemory(long jmsMemory) {
 		this.jmsMemory = jmsMemory;
-		hasBeenChanged = true;
+		this.hasBeenChanged = true;
 	}
 
 	public AttributionMode getAttributionMode() {
@@ -258,14 +253,90 @@ public class MemoryUtils {
 
 	public void setAttributionMode(AttributionMode attributionMode) {
 		this.attributionMode = attributionMode;
-		hasBeenChanged = true;
+		this.hasBeenChanged = true;
 	}
 
 	public void setStudioBeingChanged(boolean isStudioBeingChanged) {
 		this.isStudioBeingChanged = isStudioBeingChanged;
 	}
 
+	// methods to get memory values in config file format (eg : 5.5G or 500M)
+	public String getTotalMemoryString() {
+		return toConfigFile(totalMemory);
+	}
+
+	public String getStudioMemoryString() {
+		return toConfigFile(studioMemory);
+	}
+
+	public String getServerTotalMemoryString() {
+		return toConfigFile(serverTotalMemory);
+	}
+
+	public String getSeqrepMemoryString() {
+		return toConfigFile(seqrepMemory);
+	}
+
+	public String getDatastoreMemoryString() {
+		return toConfigFile(datastoreMemory);
+	}
+
+	public String getProlineServerMemoryString() {
+		return toConfigFile(prolineServerMemory);
+	}
+
+	public String getJmsMemoryString() {
+		return toConfigFile(jmsMemory);
+	}
+
+	public void setHasBeenChanged(boolean bool) {
+		this.hasBeenChanged = bool;
+	}
+
+	public boolean hasBeenChanged() {
+		return this.hasBeenChanged;
+	}
+
+	public void setStudioActive(boolean b) {
+		this.studioActive = b;
+		if (!b) {
+			setStudioMemory(0);
+		}
+		update();
+	}
+
+	public boolean getStudioActive() {
+		return this.studioActive;
+	}
+
+	public void setSeqRepActive(boolean b) {
+		this.seqRepActive = b;
+		if (!b) {
+			setSeqrepMemory(0);
+		}
+		update();
+	}
+
+	public boolean getSeqRepActive() {
+		return this.seqRepActive;
+	}
+
+	private static AttributionMode getFromConfig(String attributionMode) {
+		switch (attributionMode) {
+		case "auto":
+			return AttributionMode.AUTO;
+		case "semi":
+			return AttributionMode.SEMIAUTO;
+		case "manual":
+			return AttributionMode.MANUAL;
+		default:
+			return null;
+		}
+	}
+
+	// reset the values to those in the config file
 	public void restoreValues() {
+		setAttributionMode(getFromConfig(Config.getAllocationMode()));
 		setTotalMemory(parseMemoryValue("total memory", Config.getTotalMemory()));
 		setStudioMemory(parseMemoryValue("studio memory", Config.getStudioMemory()));
 		setServerTotalMemory(parseMemoryValue("total server memory", Config.getServerTotalMemory()));
@@ -273,6 +344,6 @@ public class MemoryUtils {
 		setDatastoreMemory(parseMemoryValue("datastore memory", Config.getDatastoreMemory()));
 		setProlineServerMemory(parseMemoryValue("cortex memory", Config.getCortexMemory()));
 		setJmsMemory(parseMemoryValue("jms memory", Config.getJMSMemory()));
-		hasBeenChanged = false;
+		setHasBeenChanged(false);
 	}
 }
