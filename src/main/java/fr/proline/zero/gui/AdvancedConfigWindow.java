@@ -377,11 +377,22 @@ public class AdvancedConfigWindow extends JDialog {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		ActionListener actionListener = new ActionListener() {
+
+		ActionListener actionContinue = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
+				dispose();
 			}
 		};
-		continueButton.addActionListener(actionListener);
+		continueButton.addActionListener(actionContinue);
+
+		ActionListener actionCancel = new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				advancedManager.restoreAdvancedValues();
+				updateValues();
+				dispose();
+			}
+		};
+		cancelButton.addActionListener(actionCancel);
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -433,10 +444,10 @@ public class AdvancedConfigWindow extends JDialog {
 		serverDefaultTimeoutField.setText((String.valueOf(advancedManager.getServerDefaultTimeout())));
 		threadPoolSizeField.setText((String.valueOf(advancedManager.getServerThreadPoolSize())));
 		jvmPathField.setText(advancedManager.getJvmPath());
-		jmsPortField.setText(String.valueOf(advancedManager.getJmsServerPort()));
-		jmsBatchPortField.setText(String.valueOf(advancedManager.getJmsBatchServerPort()));
-		jnpPortField.setText(String.valueOf(advancedManager.getJnpServerPort()));
-		jnpRmiPortField.setText(String.valueOf(advancedManager.getJnpRmiServerPort()));
+		jmsPortField.setValue(String.valueOf(advancedManager.getJmsServerPort()));
+		jmsBatchPortField.setValue(String.valueOf(advancedManager.getJmsBatchServerPort()));
+		jnpPortField.setValue(String.valueOf(advancedManager.getJnpServerPort()));
+		jnpRmiPortField.setValue(String.valueOf(advancedManager.getJnpRmiServerPort()));
 	}
 
 	public class JMSPortListener implements PropertyChangeListener {
