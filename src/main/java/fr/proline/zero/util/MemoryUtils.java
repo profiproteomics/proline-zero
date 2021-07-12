@@ -100,8 +100,8 @@ public class MemoryUtils {
 					long resteMemory = this.totalMemory - this.studioMemory - this.seqrepMemory - this.jmsMemory;
 
 					this.datastoreMemory = Math.round(resteMemory * 0.35);
-					if (this.datastoreMemory > 5120) {
-						this.datastoreMemory = 5120;
+					if (this.datastoreMemory > calcul.getMaxPGMemory()) {
+						this.datastoreMemory = (long) calcul.getMaxPGMemory();
 					}
 					resteMemory = resteMemory - this.datastoreMemory;
 					this.prolineServerMemory = resteMemory;
@@ -127,9 +127,12 @@ public class MemoryUtils {
 
 						long resteMemory = this.serverTotalMemory - this.jmsMemory - this.seqrepMemory;
 
-						this.prolineServerMemory = Math.round(resteMemory * 0.65);
-						resteMemory = resteMemory - this.prolineServerMemory;
-						this.datastoreMemory = resteMemory;
+						this.datastoreMemory = Math.round(resteMemory * 0.35);
+						if (this.datastoreMemory > calcul.getMaxPGMemory()) {
+							this.datastoreMemory = (long) calcul.getMaxPGMemory();
+						}
+						resteMemory = resteMemory - this.datastoreMemory;
+						this.prolineServerMemory = resteMemory;
 						break;
 					}
 				}
