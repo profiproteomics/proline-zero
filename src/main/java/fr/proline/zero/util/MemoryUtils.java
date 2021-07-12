@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 public class MemoryUtils {
 
-	private static Logger logger = LoggerFactory.getLogger(Memory.class);
+	private static Logger logger = LoggerFactory.getLogger(MemoryUtils.class);
 
 	// units
 	private static final long M = 1;
@@ -72,7 +72,7 @@ public class MemoryUtils {
 			update();
 			break;
 		}
-		;
+
 		this.hasBeenChanged = false;
 		this.isStudioBeingChanged = false;
 	}
@@ -174,6 +174,7 @@ public class MemoryUtils {
 
 	// does the opposite of the previous method; takes the memory value from long
 	// (Mo) format and returns them in String format (eg : 5.5G or 700M)
+	//VDS: peut etre plus un nom comme toPrintableString toHumanReadable ... parce que la au final pas de config file
 	private static String toConfigFile(long value) {
 		if (value == 0) {
 			return "0";

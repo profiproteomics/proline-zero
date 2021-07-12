@@ -6,7 +6,6 @@ import dorkbox.systemTray.SystemTray;
 import dorkbox.util.SwingUtil;
 import fr.proline.zero.modules.ExecutionSession;
 import fr.proline.zero.util.Config;
-import fr.proline.zero.util.Memory;
 import fr.proline.zero.util.ProlineFiles;
 import fr.proline.zero.util.SystemUtils;
 import org.slf4j.Logger;
@@ -180,13 +179,14 @@ public class ZeroTray  {
             menuDatastore = new Menu(ExecutionSession.getDataStore().getModuleName(), ProlineFiles.PROGRESS_ICON);
 
             menuDatastore.add(new MenuItem("Edit configuration", ProlineFiles.EDIT_ICON, e -> ZeroTray.editFile(ProlineFiles.PG_CONFIG_FILE)), 0);
-            menuDatastore.add(new MenuItem("Restore default configuration", ProlineFiles.DEFAULT_ICON, e -> {
-                // ask if user is certain
-                if (Popup.okCancel("Restore file '" + ProlineFiles.PG_DEFAULT_CONFIG_FILE.getName() + "' ?")) {
-                    Memory.restorePostgreSQLDefaultConfig();
-                }
-            }), 1);
-            menuDatastore.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openPostgreSqlLog()), 2);
+            //VDS: Y a t il toujours un default PG ??
+//            menuDatastore.add(new MenuItem("Restore default configuration", ProlineFiles.DEFAULT_ICON, e -> {
+//                // ask if user is certain
+//                if (Popup.okCancel("Restore file '" + ProlineFiles.PG_DEFAULT_CONFIG_FILE.getName() + "' ?")) {
+//                    Memory.restorePostgreSQLDefaultConfig();
+//                }
+//            }), 1);
+            menuDatastore.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openPostgreSqlLog()), 1);
         }
         return menuDatastore;
     }
