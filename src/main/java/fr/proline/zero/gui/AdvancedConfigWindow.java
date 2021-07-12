@@ -6,8 +6,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -18,21 +21,26 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileSystemView;
+import javax.swing.text.MaskFormatter;
 
-import fr.proline.zero.util.Config;
+import fr.proline.zero.util.AdvancedAndServerUtils;
+import fr.proline.zero.util.ConfigManager;
 
 public class AdvancedConfigWindow extends JDialog {
-	private JTextField jmsPortField;
-	private JTextField jmsBatchPortField;
-	private JTextField jnpPortField;
-	private JTextField jnpRmiPortField;
+	private JFormattedTextField jmsPortField;
+	private JFormattedTextField jmsBatchPortField;
+	private JFormattedTextField jnpPortField;
+	private JFormattedTextField jnpRmiPortField;
 	private JTextField serverDefaultTimeoutField;
 	private JTextField threadPoolSizeField;
 	private JTextField jvmPathField;
@@ -40,9 +48,14 @@ public class AdvancedConfigWindow extends JDialog {
 	private JCheckBox forceDatastoreUpdate;
 	private JButton continueButton;
 	private JButton cancelButton;
-	private JButton restoreButton;
+
+	AdvancedAndServerUtils advancedManager;
 
 	public AdvancedConfigWindow() {
+
+		ConfigManager configManager = ConfigManager.getInstance();
+		advancedManager = configManager.getAdvancedManager();
+
 		setModal(true);
 		setResizable(false);
 		setTitle("Proline zero advanced config window");
@@ -61,13 +74,76 @@ public class AdvancedConfigWindow extends JDialog {
 		// creation des widgets
 		serverDefaultTimeoutField = new JTextField();
 		serverDefaultTimeoutField.setPreferredSize(new Dimension(60, 20));
+		serverDefaultTimeoutField.setHorizontalAlignment(SwingConstants.RIGHT);
+		serverDefaultTimeoutField.setText((String.valueOf(advancedManager.getServerDefaultTimeout())));
+		serverDefaultTimeoutField.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				int timeout = Integer.parseInt(serverDefaultTimeoutField.getText());
+				advancedManager.setServerDefaultTimeout(timeout);
+				advancedManager.setHasBeenChanged(true);
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+
+			}
+		});
 
 		threadPoolSizeField = new JTextField();
 		threadPoolSizeField.setPreferredSize(new Dimension(60, 20));
+		threadPoolSizeField.setHorizontalAlignment(SwingConstants.RIGHT);
+		threadPoolSizeField.setText((String.valueOf(advancedManager.getServerThreadPoolSize())));
+		threadPoolSizeField.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				int size = Integer.parseInt(threadPoolSizeField.getText());
+				advancedManager.setServerThreadPoolSize(size);
+				advancedManager.setHasBeenChanged(true);
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+
+			}
+		});
 
 		jvmPathField = new JTextField();
 		jvmPathField.setPreferredSize(new Dimension(60, 20));
 		jvmPathField.setEditable(false);
+		jvmPathField.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				advancedManager.setJvmPath(jvmPathField.getText());
+				advancedManager.setHasBeenChanged(true);
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+
+			}
+		});
 
 		// TODO : texte à changer et centrer avec une icone
 		aide = new JTextArea();
@@ -108,12 +184,11 @@ public class AdvancedConfigWindow extends JDialog {
 
 		c.gridx++;
 		c.anchor = GridBagConstraints.NORTHWEST;
-		serverDefaultTimeoutField.setText((String.valueOf(Config.getDefaultTimeout())));
 		add(serverDefaultTimeoutField, c);
 
 		c.gridx++;
 		c.weightx = 0;
-		add(new JLabel("ms"), c);
+		add(new JLabel("s"), c);
 
 		c.gridx = 0;
 		c.gridy++;
@@ -122,7 +197,6 @@ public class AdvancedConfigWindow extends JDialog {
 
 		c.gridx++;
 		c.anchor = GridBagConstraints.NORTHWEST;
-		threadPoolSizeField.setText((String.valueOf(Config.getCortexNbParallelizableServiceRunners())));
 		add(threadPoolSizeField, c);
 
 		c.gridx++;
@@ -140,8 +214,8 @@ public class AdvancedConfigWindow extends JDialog {
 		c.gridwidth = 2;
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		jvmPathField.setToolTipText(Config.getJavaExePath());
-		jvmPathField.setText(Config.getJavaExePath());
+		jvmPathField.setToolTipText(advancedManager.getJvmPath());
+		jvmPathField.setText(advancedManager.getJvmPath());
 		add(jvmPathField, c);
 
 		c.gridx++;
@@ -177,25 +251,39 @@ public class AdvancedConfigWindow extends JDialog {
 		c.insets = new Insets(5, 5, 5, 5);
 
 		// creation des widgets
-		jmsPortField = new JTextField();
-		jmsPortField.setText(String.valueOf(Config.getJmsPort()));
-		jmsPortField.setHorizontalAlignment(SwingConstants.RIGHT);
-		jmsPortField.setPreferredSize(new Dimension(50, 20));
+		MaskFormatter portMask;
+		try {
+			portMask = new MaskFormatter("####");
+			portMask.setPlaceholderCharacter('_');
 
-		jmsBatchPortField = new JTextField();
-		jmsBatchPortField.setText(String.valueOf(Config.getJmsBatchPort()));
-		jmsBatchPortField.setHorizontalAlignment(SwingConstants.RIGHT);
-		jmsBatchPortField.setPreferredSize(new Dimension(50, 20));
+			jmsPortField = new JFormattedTextField(portMask);
+			jmsPortField.setValue(String.valueOf(advancedManager.getJmsServerPort()));
+			jmsPortField.setHorizontalAlignment(SwingConstants.RIGHT);
+			jmsPortField.setPreferredSize(new Dimension(50, 20));
+			jmsPortField.addPropertyChangeListener("value", new JMSPortListener());
 
-		jnpPortField = new JTextField();
-		jnpPortField.setText(String.valueOf(Config.getJnpPort()));
-		jnpPortField.setHorizontalAlignment(SwingConstants.RIGHT);
-		jnpPortField.setPreferredSize(new Dimension(50, 20));
+			jmsBatchPortField = new JFormattedTextField(portMask);
+			jmsBatchPortField.setValue(String.valueOf(advancedManager.getJmsBatchServerPort()));
+			jmsBatchPortField.setHorizontalAlignment(SwingConstants.RIGHT);
+			jmsBatchPortField.setPreferredSize(new Dimension(50, 20));
+			jmsBatchPortField.addPropertyChangeListener("value", new JmsBatchPortListener());
 
-		jnpRmiPortField = new JTextField();
-		jnpRmiPortField.setText(String.valueOf(Config.getJnpRmiPort()));
-		jnpRmiPortField.setHorizontalAlignment(SwingConstants.RIGHT);
-		jnpRmiPortField.setPreferredSize(new Dimension(50, 20));
+			jnpPortField = new JFormattedTextField(portMask);
+			jnpPortField.setValue(String.valueOf(advancedManager.getJnpServerPort()));
+			jnpPortField.setHorizontalAlignment(SwingConstants.RIGHT);
+			jnpPortField.setPreferredSize(new Dimension(50, 20));
+			jnpPortField.addPropertyChangeListener("value", new JNPPortListener());
+
+			jnpRmiPortField = new JFormattedTextField(portMask);
+			jnpRmiPortField.setValue(String.valueOf(advancedManager.getJnpRmiServerPort()));
+			jnpRmiPortField.setHorizontalAlignment(SwingConstants.RIGHT);
+			jnpRmiPortField.setPreferredSize(new Dimension(50, 20));
+			jnpRmiPortField.addPropertyChangeListener("value", new JnpRmiPortListener());
+
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		// ajout des widgets au layout
 		c.gridx = 0;
@@ -248,7 +336,15 @@ public class AdvancedConfigWindow extends JDialog {
 		c.insets = new Insets(5, 5, 5, 5);
 
 		forceDatastoreUpdate = new JCheckBox();
-		forceDatastoreUpdate.setSelected(Config.getForceUpdate());
+		forceDatastoreUpdate.setSelected(advancedManager.getForceDataStoreUpdate());
+		forceDatastoreUpdate.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				advancedManager.setForceDataStoreUpdate(forceDatastoreUpdate.isSelected());
+				advancedManager.setHasBeenChanged(true);
+			}
+		});
 
 		c.gridx = 0;
 		forceDatastorePanel.add(forceDatastoreUpdate, c);
@@ -275,10 +371,8 @@ public class AdvancedConfigWindow extends JDialog {
 		try {
 			Icon crossIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
 			Icon tickIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("tick.png")));
-			Icon restoreIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("arrow-circle.png")));
 			continueButton = new JButton("Ok", tickIcon);
 			cancelButton = new JButton("Cancel", crossIcon);
-			restoreButton = new JButton("Restore", restoreIcon);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -291,10 +385,6 @@ public class AdvancedConfigWindow extends JDialog {
 
 		// ajout des widgets au layout
 		c.gridx = 0;
-		c.weightx = 0;
-		buttonPanel.add(restoreButton, c);
-
-		c.gridx++;
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -337,5 +427,39 @@ public class AdvancedConfigWindow extends JDialog {
 			}
 		};
 		return openFolderView;
+	}
+
+	public void updateValues() {
+		serverDefaultTimeoutField.setText((String.valueOf(advancedManager.getServerDefaultTimeout())));
+		threadPoolSizeField.setText((String.valueOf(advancedManager.getServerThreadPoolSize())));
+		jvmPathField.setText(advancedManager.getJvmPath());
+		jmsPortField.setText(String.valueOf(advancedManager.getJmsServerPort()));
+		jmsBatchPortField.setText(String.valueOf(advancedManager.getJmsBatchServerPort()));
+		jnpPortField.setText(String.valueOf(advancedManager.getJnpServerPort()));
+		jnpRmiPortField.setText(String.valueOf(advancedManager.getJnpRmiServerPort()));
+	}
+
+	public class JMSPortListener implements PropertyChangeListener {
+		public void propertyChange(PropertyChangeEvent e) {
+			advancedManager.setJmsServerPort(Integer.parseInt((String) jmsPortField.getValue()));
+		}
+	}
+
+	public class JmsBatchPortListener implements PropertyChangeListener {
+		public void propertyChange(PropertyChangeEvent e) {
+			advancedManager.setJmsBatchServerPort(Integer.parseInt((String) jmsBatchPortField.getValue()));
+		}
+	}
+
+	public class JNPPortListener implements PropertyChangeListener {
+		public void propertyChange(PropertyChangeEvent e) {
+			advancedManager.setJnpServerPort(Integer.parseInt((String) jnpPortField.getValue()));
+		}
+	}
+
+	public class JnpRmiPortListener implements PropertyChangeListener {
+		public void propertyChange(PropertyChangeEvent e) {
+			advancedManager.setJnpRmiServerPort(Integer.parseInt((String) jnpRmiPortField.getValue()));
+		}
 	}
 }

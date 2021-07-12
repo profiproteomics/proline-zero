@@ -63,6 +63,19 @@ public class Config {
 		return timeout * 1000;
 	}
 
+	public static int getDefaultTimeoutSeconds() {
+		Config.initialize();
+		int timeout;
+		try {
+			timeout = Integer.parseInt(properties.getProperty("server_default_timeout"));
+		} catch (Throwable t) {
+			timeout = 60;
+			logger.warn("No timeout has been defined or timeout is not readable, using default timeout (" + timeout
+					+ " seconds).");
+		}
+		return timeout;
+	}
+
 	public static long getMaxTmpFolderSize() {
 		Config.initialize();
 		String value = properties.getProperty("max_tmp_folder_size");
@@ -158,39 +171,76 @@ public class Config {
 		return new File(Config.getJavaHome() + "/bin/java").getAbsolutePath();
 	}
 
+	public static String getAllocationMode() {
+		Config.initialize();
+		String allocationMode = properties.getProperty("allocation_mode");
+		if (allocationMode == null) {
+			allocationMode = "auto";
+		}
+		return allocationMode;
+	}
+
 	public static String getTotalMemory() {
 		Config.initialize();
-		return properties.getProperty("total_max_memory");
+		String totalMemory = properties.getProperty("total_max_memory");
+		if (totalMemory == null) {
+			totalMemory = "6G";
+		}
+		return totalMemory;
 	}
 
 	public static String getStudioMemory() {
 		Config.initialize();
-		return properties.getProperty("studio_memory");
+		String studioMemory = properties.getProperty("studio_memory");
+		if (studioMemory == null) {
+			studioMemory = "1G";
+		}
+		return studioMemory;
 	}
 
 	public static String getServerTotalMemory() {
 		Config.initialize();
-		return properties.getProperty("server_total_memory");
+		String serverTotalMemory = properties.getProperty("server_total_memory");
+		if (serverTotalMemory == null) {
+			serverTotalMemory = "0";
+		}
+		return serverTotalMemory;
 	}
 
 	public static String getSeqRepMemory() {
 		Config.initialize();
-		return properties.getProperty("seqrep_memory");
+		String SeqRepMemory = properties.getProperty("seqrep_memory");
+		if (SeqRepMemory == null) {
+			SeqRepMemory = "0";
+		}
+		return SeqRepMemory;
 	}
 
 	public static String getDatastoreMemory() {
 		Config.initialize();
-		return properties.getProperty("datastore_memory");
+		String DatastoreMemory = properties.getProperty("datastore_memory");
+		if (DatastoreMemory == null) {
+			DatastoreMemory = "0";
+		}
+		return DatastoreMemory;
 	}
 
 	public static String getCortexMemory() {
 		Config.initialize();
-		return properties.getProperty("proline_cortex_memory");
+		String CortexMemory = properties.getProperty("proline_cortex_memory");
+		if (CortexMemory == null) {
+			CortexMemory = "0";
+		}
+		return CortexMemory;
 	}
 
 	public static String getJMSMemory() {
 		Config.initialize();
-		return properties.getProperty("JMS_memory");
+		String JMSMemory = properties.getProperty("JMS_memory");
+		if (JMSMemory == null) {
+			JMSMemory = "0";
+		}
+		return JMSMemory;
 	}
 
 	public static String getAdminVersion() {
@@ -241,11 +291,6 @@ public class Config {
 		Config.initialize();
 		String databaseUpdate = properties.getProperty("force_datastore_update");
 		return Config.isBooleanTrue(databaseUpdate);
-	}
-
-	public static String getAllocationMode() {
-		Config.initialize();
-		return properties.getProperty("allocation_mode");
 	}
 
 	public static Boolean getStudioActive() {

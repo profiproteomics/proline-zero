@@ -19,8 +19,11 @@ public final class ConfigManager {
 
 	private MemoryUtils memoryManager;
 
+	private AdvancedAndServerUtils advancedManager;
+
 	private ConfigManager() {
 		memoryManager = new MemoryUtils();
+		advancedManager = new AdvancedAndServerUtils();
 		setStudioActive(Config.getStudioActive());
 		setSeqRepActive(Config.getSeqRepActive());
 	}
@@ -34,6 +37,10 @@ public final class ConfigManager {
 
 	public MemoryUtils getMemoryManager() {
 		return memoryManager;
+	}
+
+	public AdvancedAndServerUtils getAdvancedManager() {
+		return advancedManager;
 	}
 
 	public void setStudioActive(boolean b) {
@@ -72,6 +79,9 @@ public final class ConfigManager {
 			if (true) {
 				updateFileGeneral();
 			}
+			if (advancedManager.hasBeenChanged()) {
+				updateFileAdvanced();
+			}
 		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		}
@@ -91,6 +101,26 @@ public final class ConfigManager {
 		config.setProperty("datastore_memory", memoryManager.getDatastoreMemoryString());
 		config.setProperty("proline_cortex_memory", memoryManager.getProlineServerMemoryString());
 		config.setProperty("JMS_memory", memoryManager.getJmsMemoryString());
+
+		// writes in the file
+		builder.save();
+	}
+
+	public void updateFileAdvanced() throws ConfigurationException {
+		Parameters params = new Parameters();
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(
+				PropertiesConfiguration.class).configure(params.properties().setFileName("proline_launcher.config"));
+		Configuration config = builder.getConfiguration();
+
+		config.setProperty("server_default_timeout", String.valueOf(advancedManager.getServerDefaultTimeout()));
+		config.setProperty("service_thread_pool_size", String.valueOf(advancedManager.getServerThreadPoolSize()));
+		config.setProperty("java_home", advancedManager.getJvmPath());
+		config.setProperty("force_datastore_update", advancedManager.getForceDataStoreUpdateString());
+		config.setProperty("data_store_port", String.valueOf(advancedManager.getDataStorePort()));
+		config.setProperty("jms_server_port", String.valueOf(advancedManager.getJmsServerPort()));
+		config.setProperty("jms_server_batch_port", String.valueOf(advancedManager.getJmsBatchServerPort()));
+		config.setProperty("jnp_port", String.valueOf(advancedManager.getJnpServerPort()));
+		config.setProperty("jnp_rmi_port", String.valueOf(advancedManager.getJnpRmiServerPort()));
 
 		// writes in the file
 		builder.save();
@@ -122,6 +152,7 @@ public final class ConfigManager {
 		setSeqRepActive(Config.getSeqRepActive());
 		setHideConfigDialog(Config.getHideConfigDialog());
 		memoryManager.restoreValues();
-		// TODO other utils resotre to their originals
+		advancedManager.restoreValues();
+		// TODO other utils restore to their originals
 	}
 }

@@ -5,27 +5,41 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.text.ParseException;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.text.MaskFormatter;
 
-import fr.proline.zero.util.Config;
+import fr.proline.zero.util.AdvancedAndServerUtils;
+import fr.proline.zero.util.ConfigManager;
 
 public class ServerPanel extends JPanel {
-	private JTextField dataStorePortField;
+	private JFormattedTextField dataStorePortField;
 	private JButton advancedSettingsButton;
 	private AdvancedConfigWindow paramAvancesWindow;
 	private JTextArea aide;
 
+	AdvancedAndServerUtils advancedManager;
+
 	public ServerPanel() {
-		initialize();
+		ConfigManager configManager = ConfigManager.getInstance();
+		advancedManager = configManager.getAdvancedManager();
+		try {
+			initialize();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	private void initialize() {
+	private void initialize() throws ParseException {
 		// ajout du layout
 		setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -36,9 +50,12 @@ public class ServerPanel extends JPanel {
 		// creation des widgets
 		paramAvancesWindow = new AdvancedConfigWindow();
 
-		this.dataStorePortField = new JTextField();
-		dataStorePortField.setText(String.valueOf(Config.getDataStorePort()));
+		MaskFormatter portMask = new MaskFormatter("####");
+		portMask.setPlaceholderCharacter('_');
+		this.dataStorePortField = new JFormattedTextField(portMask);
+		dataStorePortField.setValue(String.valueOf(advancedManager.getDataStorePort()));
 		dataStorePortField.setPreferredSize(new Dimension(50, 20));
+		dataStorePortField.addPropertyChangeListener("value", new DatastorePortListener());
 
 		this.advancedSettingsButton = new JButton("Advanced settings...");
 		advancedSettingsButton.addActionListener(openAdvancedConfig());
@@ -86,7 +103,13 @@ public class ServerPanel extends JPanel {
 	}
 
 	public void updateValues() {
-		// TODO Auto-generated method stub
+		dataStorePortField.setText(String.valueOf(advancedManager.getDataStorePort()));
+		paramAvancesWindow.updateValues();
+	}
 
+	public class DatastorePortListener implements PropertyChangeListener {
+		public void propertyChange(PropertyChangeEvent e) {
+			advancedManager.setDataStorePort(Integer.parseInt((String) dataStorePortField.getValue()));
+		}
 	}
 }
