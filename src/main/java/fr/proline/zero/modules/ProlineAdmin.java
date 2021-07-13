@@ -2,20 +2,16 @@ package fr.proline.zero.modules;
 
 import fr.proline.zero.gui.Popup;
 import fr.proline.zero.gui.SplashScreen;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import fr.proline.zero.util.Config;
-import fr.proline.zero.util.Memory;
-import fr.proline.zero.util.ProlineFiles;
-import fr.proline.zero.util.SystemUtils;
-import java.io.OutputStream;
+import fr.proline.zero.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeroturnaround.exec.ProcessExecutor;
-import org.zeroturnaround.exec.StartedProcess;
 import org.zeroturnaround.exec.stream.LogOutputStream;
+
+import java.io.File;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProlineAdmin  implements  IZeroModule {
 
@@ -47,7 +43,7 @@ public class ProlineAdmin  implements  IZeroModule {
         String classpath = SystemUtils.toSystemClassPath("lib/*;config;" + ProlineFiles.ADMIN_JAR_FILE.getName());
 
         List<String> command = new ArrayList<>();
-        command.add(Config.getJavaExePath());
+        command.add(ConfigManager.getInstance().getAdvancedManager().getJvmExePath());
         command.add("-Xmx1024m");
 
         command.add("-Djava.io.tmpdir=../data/tmp");
@@ -111,7 +107,7 @@ public class ProlineAdmin  implements  IZeroModule {
             String[] options = {"Do upgrade", "No"};
             yes = Popup.optionYesNO("\"Update Databse Necessary\" detected", options);
         } else {
-            boolean isForeceUpdate = Config.getForceUpdate();
+            boolean isForeceUpdate = ConfigManager.getInstance().getAdvancedManager().getForceDataStoreUpdate();
             logger.debug("isForeceUpdate={}", isForeceUpdate);
             if (isForeceUpdate) {
                 String[] options = {"Force an upgrade", "No"};
@@ -160,7 +156,7 @@ public class ProlineAdmin  implements  IZeroModule {
         String classpath = new StringBuilder().append(SystemUtils.toSystemClassPath("config;lib/*;")).append(ProlineFiles.ADMIN_JAR_FILE.getName()).toString();
         logger.info("starting Proline Admin from path " + adminHome.getAbsolutePath());
         List<String> command = new ArrayList<>();
-        command.add(Config.getJavaExePath());
+        command.add(ConfigManager.getInstance().getAdvancedManager().getJvmExePath());
         command.add(Memory.getAdminMaxMemory());
         command.add("-classpath");
         command.add(classpath);

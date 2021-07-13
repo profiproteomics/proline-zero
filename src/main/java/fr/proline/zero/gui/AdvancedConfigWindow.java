@@ -100,7 +100,7 @@ public class AdvancedConfigWindow extends JDialog {
 		threadPoolSizeField = new JTextField();
 		threadPoolSizeField.setPreferredSize(new Dimension(60, 20));
 		threadPoolSizeField.setHorizontalAlignment(SwingConstants.RIGHT);
-		threadPoolSizeField.setText((String.valueOf(advancedManager.getServerThreadPoolSize())));
+		threadPoolSizeField.setText((String.valueOf(advancedManager.getCortexNbParallelizableServiceRunners())));
 		threadPoolSizeField.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
@@ -112,7 +112,7 @@ public class AdvancedConfigWindow extends JDialog {
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				int size = Integer.parseInt(threadPoolSizeField.getText());
-				advancedManager.setServerThreadPoolSize(size);
+				advancedManager.setCortexNbParallelizableServiceRunners(size);
 				advancedManager.setHasBeenChanged(true);
 			}
 
@@ -442,7 +442,7 @@ public class AdvancedConfigWindow extends JDialog {
 
 	public void updateValues() {
 		serverDefaultTimeoutField.setText((String.valueOf(advancedManager.getServerDefaultTimeout())));
-		threadPoolSizeField.setText((String.valueOf(advancedManager.getServerThreadPoolSize())));
+		threadPoolSizeField.setText((String.valueOf(advancedManager.getCortexNbParallelizableServiceRunners())));
 		jvmPathField.setText(advancedManager.getJvmPath());
 		jmsPortField.setValue(String.valueOf(advancedManager.getJmsServerPort()));
 		jmsBatchPortField.setValue(String.valueOf(advancedManager.getJmsBatchServerPort()));

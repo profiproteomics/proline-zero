@@ -3,6 +3,10 @@ package fr.proline.zero;
 import java.io.File;
 import java.io.IOException;
 
+import fr.proline.zero.gui.SplashScreen;
+import fr.proline.zero.gui.ZeroTray;
+import fr.proline.zero.modules.IZeroModule;
+import fr.proline.zero.util.*;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +14,6 @@ import org.slf4j.LoggerFactory;
 import fr.proline.zero.gui.ConfigWindow;
 import fr.proline.zero.gui.Popup;
 import fr.proline.zero.modules.ExecutionSession;
-import fr.proline.zero.util.Config;
-import fr.proline.zero.util.ProlineFiles;
-import fr.proline.zero.util.SystemUtils;
 
 import javax.swing.*;
 
@@ -35,81 +36,93 @@ public class Main {
 
 			// VDS TODO Add load config and first verif here !!
 
-			// if specified in config load IHM
-			ConfigWindow test = new ConfigWindow();
-			test.setVisible(true);
-			if(test.getButtonClicked() == ConfigWindow.BUTTON_CANCEL){
-				int reply = JOptionPane.showConfirmDialog(null, "Continue with previous configuration (No = exit) ?", "Warning", JOptionPane.YES_NO_OPTION);
-				if (reply == JOptionPane.YES_OPTION) {
-					//VDS  Restore & continue ??!!
 
-				} else {
-					System.exit(0);
-				}
-			} else { //OK ...
-				JOptionPane.showMessageDialog(null, "Config Done","Config Done", JOptionPane.INFORMATION_MESSAGE);
+			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists(); // first launch
 
-				// VDS TODO: test and save new config here !!
-
-//			//Load modules
-//			manageFolder(); //create missing folders inside Proline Zero (don't create folder elsewhere on disk...)
-//
-//			//Init
-//			ExecutionSession.initialize();
-//			ZeroTray.initialize();
-//
-//			// add a shutdown hook that will be executed when the program ends or if the
-//			// user ends it with Ctrl+C
-//			Runtime.getRuntime().addShutdownHook(new ShutdownHook());
-				boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists(); // first launch
-//
-//			//VDS TODO --  To be moved in config part above
+			//VDS TODO : A mettre dans l'init
+			// VDS Moved from bellow  ==> Nathan c'est fait dans les Utils !.?
 //			logger.info("First launch, update port");
 //			ExecutionSession.updateConfigPort();// can be change only 1 time at the first time
 //			logger.info("launch, update thread number");
 //			ExecutionSession.updateCortexNbParallelizableServiceRunners();
 //			ExecutionSession.updateCortexNbParallelizableServiceRunners();// each time, we can change
-//			//VDS TODO --  To be moved in config part above END
-//
-//
-//			int nbrStep = initBeforeStart ? ExecutionSession.getModuleCount() * 2 : ExecutionSession.getModuleCount() ;
-//			SplashScreen.setProgressMax(nbrStep); // init, pgsql, admin, hornetq, cortex, seqrepo, studio
-//			IZeroModule nextModule = null;
-//			try {
-//					for (int i = 0; i < ExecutionSession.getModuleCount(); i++) {
-//						nextModule = ExecutionSession.getModuleAt(i);
-//						if(initBeforeStart) {
-//							SplashScreen.setProgress("Initializing " + nextModule.getModuleName());
-//							logger.info("Initializing module +", nextModule.getModuleName());
-//							nextModule.init();
-//						}
-//						SplashScreen.setProgress("Starting " + nextModule.getModuleName());
-//						logger.info("Starting module +", nextModule.getModuleName());
-//						nextModule.start();
-//						logger.info("Module +", nextModule.getModuleName()+" started");
-//					}
-//
-//			} catch (Exception e) {
-//				logger.error("Error during  initialization or starting module ", e);
-//				SystemUtils.end();
-//				System.exit(1);
-//			}
-//
-//			SplashScreen.stop(2000);
-//			while (ExecutionSession.isSessionActive() && !ExecutionSession.isSessionToBeClose()) {
-//				Thread.sleep(2500);
-//			}
-//			// Execution stopped. Test how and close if needed
-//			if(ExecutionSession.isSessionToBeClose()){
-//				logger.info("Session should be closed, stop all modules");
-//				SystemUtils.end();
-//			} //else already closed...
+
+			// if specified in config load IHM
+			ConfigWindow test = new ConfigWindow();
+			test.setVisible(true);
+			if(test.getButtonClicked() == ConfigWindow.BUTTON_CANCEL){
+				boolean yesPressed = Popup.yesNo("Continue with previous configuration (No = exit) ?");
+				if (yesPressed) {
+					//VDS TODO  Restore & continue ??!!
+
+				} else {
+					System.exit(0);
+				}
 			}
+
+			//Popup.info("Config Done");
+
+			// VDS TODO: test and save new config here !!?? Or in Util . IHM
+
+			//Load modules
+			manageFolder(); //create missing folders inside Proline Zero (don't create folder elsewhere on disk...)
+
+			//Init
+			ExecutionSession.initialize();
+//				ZeroTray.initialize(); //VDS TO TEST
+
+			// add a shutdown hook that will be executed when the program ends or if the
+			// user ends it with Ctrl+C
+			Runtime.getRuntime().addShutdownHook(new ShutdownHook());
+
+
+			int nbrStep = initBeforeStart ? ExecutionSession.getModuleCount() * 2 : ExecutionSession.getModuleCount() ;
+			SplashScreen.setProgressMax(nbrStep); // init, pgsql, admin, hornetq, cortex, seqrepo, studio
+			IZeroModule nextModule = null;
+			try {
+					for (int i = 0; i < ExecutionSession.getModuleCount(); i++) {
+						nextModule = ExecutionSession.getModuleAt(i);
+						if(nextModule!= null) {
+							if (initBeforeStart) {
+								SplashScreen.setProgress("Initializing " + nextModule.getModuleName());
+								logger.info("Initializing module +", nextModule.getModuleName());
+//									nextModule.init();
+								Thread.sleep(2000);
+
+							}
+							SplashScreen.setProgress("Starting " + nextModule.getModuleName());
+							logger.info("Starting module +", nextModule.getModuleName());
+//								nextModule.start();
+							Thread.sleep(2000);
+							logger.info("Module +", nextModule.getModuleName() + " started");
+						} else {
+							Popup.error(" A Module is null, at index "+i );
+						}
+					}
+
+			} catch (Exception e) {
+				logger.error("Error during  initialization or starting module ", e);
+				SystemUtils.end();
+				System.exit(1);
+			}
+
+			SplashScreen.stop(2000);
+			while (ExecutionSession.isSessionActive() && !ExecutionSession.isSessionToBeClose()) {
+				Thread.sleep(2500);
+			}
+			// Execution stopped. Test how and close if needed
+			if(ExecutionSession.isSessionToBeClose()){
+				logger.info("Session should be closed, stop all modules");
+				SystemUtils.end();
+				System.exit(0);
+			} //else already closed...
+
 		} catch (Throwable t) {
 			// provide a msgbox to warn the user of the problem
 			logger.error("Severe Error while running Proline Launcher. The application will close due to:", t);
 			SystemUtils.end();
 			Popup.error(t.getMessage());
+			System.exit(1);
 		}
 	}
 
@@ -126,15 +139,16 @@ public class Main {
 			b = fastaFile.mkdir();
 			logger.info("create folder {} successful ={}", fastaFile.getName(), b);
 		}
-		String dataMzdbPath = ExecutionSession.getMzdbFolder().replace("..", ".");// relative under working directory,
-																					// not relative to cortex directory
-		File mzdbFile = new File(dataMzdbPath);
-		if (!mzdbFile.isDirectory()) {
-			boolean b;
-			b = mzdbFile.mkdir();
-			logger.info("create folder {} successful={}", mzdbFile.getName(), b);
-			mzdbFile.mkdir();
-		}
+		//VDS TO TEST
+//		String dataMzdbPath = ExecutionSession.getMzdbFolder().replace("..", ".");// relative under working directory,
+//																					// not relative to cortex directory
+//		File mzdbFile = new File(dataMzdbPath);
+//		if (!mzdbFile.isDirectory()) {
+//			boolean b;
+//			b = mzdbFile.mkdir();
+//			logger.info("create folder {} successful={}", mzdbFile.getName(), b);
+//			mzdbFile.mkdir();
+//		}
 		cleanTmpFolder(tmpFile);
 	}
 
@@ -157,7 +171,7 @@ public class Main {
 
 	private static synchronized void cleanTmpFolder(File tmpFile) {
 		long folderSize = tmpFile.length();
-		long maxSize = Config.getMaxTmpFolderSize(); // in Mo
+		long maxSize = ConfigManager.getInstance().getMaxTmpFolderSize(); // in Mo
 		if (maxSize < 0) {
 			return;
 		}

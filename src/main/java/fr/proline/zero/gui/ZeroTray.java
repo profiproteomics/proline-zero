@@ -5,7 +5,7 @@ import dorkbox.systemTray.MenuItem;
 import dorkbox.systemTray.SystemTray;
 import dorkbox.util.SwingUtil;
 import fr.proline.zero.modules.ExecutionSession;
-import fr.proline.zero.util.Config;
+import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.ProlineFiles;
 import fr.proline.zero.util.SystemUtils;
 import org.slf4j.Logger;
@@ -101,7 +101,7 @@ public class ZeroTray  {
                     Popup.error(t);
                 }
             }));
-            if (Config.isServerMode()) {
+            if (!ConfigManager.getInstance().isStudioActive()) {
                 // exit button
                 mainMenu.add(new MenuItem("Exit", ProlineFiles.QUIT_ICON, e -> {
                     // FIXME this command Kills Studio and Proline Zero, but not the Studio child process that provides the GUI (so user don't feel like it's close)
@@ -193,7 +193,7 @@ public class ZeroTray  {
 
     private static Menu _hornetqMenu() {
         if (menuHornetQ == null) {
-            menuHornetQ = new Menu(ExecutionSession.getJMSServer().getModuleName() + " " + Config.getHornetQVersion(), ProlineFiles.PROGRESS_ICON);
+            menuHornetQ = new Menu(ExecutionSession.getJMSServer().getModuleName() + " " + ConfigManager.getInstance().getHornetQVersion(), ProlineFiles.PROGRESS_ICON);
             menuHornetQ.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openHornetQLog()));
         }
         return menuHornetQ;
@@ -201,7 +201,7 @@ public class ZeroTray  {
 
     private static Menu _cortexMenu() {
         if (menuCortex == null) {
-            menuCortex = new Menu(ExecutionSession.getCortex().getModuleName() + " " + Config.getCortexVersion(), ProlineFiles.PROGRESS_ICON);
+            menuCortex = new Menu(ExecutionSession.getCortex().getModuleName() + " " + ConfigManager.getInstance().getCortexVersion(), ProlineFiles.PROGRESS_ICON);
 //            menuCortex.add(new MenuItem("Edit configuration", ProlineFiles.EDIT_ICON, e -> ZeroTray.editFile(ProlineFiles.CORTEX_CONFIG_FILE)));
             menuCortex.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openCortexLog()));
             menuCortex.add(new MenuItem("mzDB log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openCortexMzdbLog()));
@@ -211,7 +211,7 @@ public class ZeroTray  {
 
     private static Menu _seqRepoMenu() {
         if (menuSeqRepo == null) {
-            menuSeqRepo = new Menu(ExecutionSession.getSeqRepo().getModuleName() + " " + Config.getSeqRepoVersion(), ProlineFiles.PROGRESS_ICON);
+            menuSeqRepo = new Menu(ExecutionSession.getSeqRepo().getModuleName() + " " + ConfigManager.getInstance().getSeqRepoVersion(), ProlineFiles.PROGRESS_ICON);
             menuSeqRepo.add(new MenuItem("Edit parse rules", ProlineFiles.EDIT_ICON, e -> ZeroTray.editFile(ProlineFiles.SEQREPO_PARSE_RULES_CONFIG_FILE)));
             menuSeqRepo.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openSeqRepoLog()));
         }
@@ -220,7 +220,7 @@ public class ZeroTray  {
 
     private static Menu getStudioMenu() {
         if (menuStudio == null) {
-            menuStudio = new Menu(ExecutionSession.getStudio().getModuleName() + " " + Config.getStudioVersion(), ProlineFiles.PROGRESS_ICON);
+            menuStudio = new Menu(ExecutionSession.getStudio().getModuleName() + " " + ConfigManager.getInstance().getStudioVersion(), ProlineFiles.PROGRESS_ICON);
 //            menuStudio.add(new MenuItem("Edit configuration", ProlineFiles.EDIT_ICON, e -> ZeroTray.editFile(ProlineFiles.STUDIO_CONFIG_FILE)));
             menuStudio.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openStudioLog()));
             menuStudio.add(new MenuItem("Error log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openStudioErrorLog()));

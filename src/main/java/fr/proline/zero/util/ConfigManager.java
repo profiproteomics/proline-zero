@@ -48,7 +48,7 @@ public final class ConfigManager {
 		memoryManager.setStudioActive(b);
 	}
 
-	public boolean getStudioActive() {
+	public boolean isStudioActive() {
 		return this.studioBeingActive;
 	}
 
@@ -57,7 +57,7 @@ public final class ConfigManager {
 		memoryManager.setSeqRepActive(b);
 	}
 
-	public boolean getSeqRepActive() {
+	public boolean isSeqReppActive() {
 		return this.seqRepBeingActive;
 	}
 
@@ -106,6 +106,29 @@ public final class ConfigManager {
 		builder.save();
 	}
 
+	// Access to Config values
+	public static boolean isDebugMode() {
+		return Config.isDebugMode();
+	}
+	public static String getDatastoreType() {
+		return Config.getDatastoreType();
+	}
+	public static String getStudioVersion() {
+		return Config.getStudioVersion();
+	}
+	public static String getHornetQVersion() {
+		return Config.getHornetQVersion();
+	}
+	public static String getCortexVersion() {
+		return Config.getCortexVersion();
+	}
+	public static String getSeqRepoVersion() {
+		return Config.getSeqRepoVersion();
+	}
+	public static long getMaxTmpFolderSize(){
+		return Config.getMaxTmpFolderSize();
+	}
+
 	public void updateFileAdvanced() throws ConfigurationException {
 		Parameters params = new Parameters();
 		FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(
@@ -113,7 +136,7 @@ public final class ConfigManager {
 		Configuration config = builder.getConfiguration();
 
 		config.setProperty("server_default_timeout", String.valueOf(advancedManager.getServerDefaultTimeout()));
-		config.setProperty("service_thread_pool_size", String.valueOf(advancedManager.getServerThreadPoolSize()));
+		config.setProperty("service_thread_pool_size", String.valueOf(advancedManager.getCortexNbParallelizableServiceRunners()));
 		config.setProperty("java_home", advancedManager.getJvmPath());
 		config.setProperty("force_datastore_update", advancedManager.getForceDataStoreUpdateString());
 		config.setProperty("data_store_port", String.valueOf(advancedManager.getDataStorePort()));

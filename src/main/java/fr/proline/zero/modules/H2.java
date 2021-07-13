@@ -15,7 +15,7 @@ import org.zeroturnaround.process.ProcessUtil;
 import org.zeroturnaround.process.Processes;
 import org.zeroturnaround.process.SystemProcess;
 
-import fr.proline.zero.util.Config;
+import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.SystemUtils;
 
 /*
@@ -53,15 +53,15 @@ public class H2 implements IZeroModule {
 
     public void start() throws Exception {
         datastoreIsRunning = false;
-        int dataStorePort = Config.getDataStorePort();
-        int JmsServerPort = Config.getJmsPort();
+        int dataStorePort = ConfigManager.getInstance().getAdvancedManager().getDataStorePort();
+        int JmsServerPort = ConfigManager.getInstance().getAdvancedManager().getJmsServerPort();
         if (SystemUtils.isPortAvailable(dataStorePort) && SystemUtils.isPortAvailable(JmsServerPort)) {
 
             logger.info("Initializing H2 datastore");
             // start H2
-            String classpath = new StringBuilder().append(SystemUtils.toSystemClassPath("Proline-Cortex-")).append(Config.getCortexVersion()).append(SystemUtils.toSystemClassPath("/lib/*")).toString();
+            String classpath = new StringBuilder().append(SystemUtils.toSystemClassPath("Proline-Cortex-")).append(ConfigManager.getInstance().getCortexVersion()).append(SystemUtils.toSystemClassPath("/lib/*")).toString();
             List<String> command = new ArrayList<>();
-            command.add(Config.getJavaExePath());
+            command.add(ConfigManager.getInstance().getAdvancedManager().getJvmExePath());
             command.add("-cp");
             command.add(classpath);
             command.add("org.h2.tools.Console");
@@ -73,7 +73,7 @@ public class H2 implements IZeroModule {
                     .redirectOutput(new LogOutputStream() {
                         @Override
                         protected void processLine(String line) {
-                            if (Config.isDebugMode()) {
+                            if (ConfigManager.getInstance().isDebugMode()) {
                                 logger.debug(line);
                             }
                             if (line.contains("PG server running at")) {
@@ -84,7 +84,7 @@ public class H2 implements IZeroModule {
                     .start();
 
             long start = System.currentTimeMillis();
-            while (!datastoreIsRunning && ((System.currentTimeMillis() - start) <= Config.getDefaultTimeout())) {
+            while (!datastoreIsRunning && ((System.currentTimeMillis() - start) <= ConfigManager.getInstance().getAdvancedManager().getServerDefaultTimeout())) {
                 Thread.sleep(200);
             }
             if (datastoreIsRunning) {

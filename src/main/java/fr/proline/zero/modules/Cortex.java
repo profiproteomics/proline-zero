@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.proline.zero.gui.ZeroTray;
-import fr.proline.zero.util.Config;
-import fr.proline.zero.util.Memory;
+import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.ProlineFiles;
 import fr.proline.zero.util.SystemUtils;
 import org.zeroturnaround.exec.ProcessExecutor;
@@ -25,8 +24,8 @@ public class Cortex extends AbstractProcess {
         String classpath = new StringBuilder().append(SystemUtils.toSystemClassPath("config;")).append(ProlineFiles.CORTEX_JAR_FILE.getName()).append(SystemUtils.toSystemClassPath(";lib/*")).toString();
         logger.info("starting Cortex server from path " + cortexHome.getAbsolutePath());
         List<String> command = new ArrayList<>();
-        command.add(Config.getJavaExePath());
-        command.add(Memory.getCortexMaxMemory(Config.isAdjustMemory()));
+        command.add(ConfigManager.getInstance().getAdvancedManager().getJvmPath());
+        command.add("-Xmx"+ConfigManager.getInstance().getMemoryManager().getProlineServerMemory()+"M");
         command.add("-XX:+UseG1GC");
         command.add("-XX:+UseStringDeduplication");
         command.add("-XX:MinHeapFreeRatio=10");
@@ -45,7 +44,7 @@ public class Cortex extends AbstractProcess {
                 .redirectOutput(new LogOutputStream() {
                     @Override
                     protected void processLine(String line) {
-                        if (Config.isDebugMode()) {
+                        if (ConfigManager.isDebugMode()) {
                             logger.debug(line);
                         }
                         updateProcessStatus(line, "Proline Cortex successfully started !");
@@ -54,7 +53,7 @@ public class Cortex extends AbstractProcess {
                 .destroyOnExit()
                 .start();
 
-        waitForStartCompletion(Config.getDefaultTimeout());
+        waitForStartCompletion(ConfigManager.getInstance().getAdvancedManager().getServerDefaultTimeout());
         logger.info("Process {} successfully started (name = {}, pid = {}, alive = {})", getModuleName(), process.getProcess(), PidUtil.getPid(process.getProcess()), m_isProcessAlive);
 
         ZeroTray.update();

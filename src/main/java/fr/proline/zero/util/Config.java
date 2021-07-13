@@ -12,18 +12,12 @@ import org.slf4j.LoggerFactory;
 import fr.proline.zero.Main;
 import fr.proline.zero.modules.PostgreSQL;
 
-public class Config {
+class Config {
 
 	private static Logger logger = LoggerFactory.getLogger(Config.class);
 	private static Properties properties;
-	public static String JMS_PORT = "jms_server_port";
+
 	public static String DATA_STORE_PORT = "data_store_port";
-	public static int DEFAULT_POSTGRESQL_PORT = 5433;
-	public static int DEFAULT_H2_PORT = 9092;
-	public static int DEFAULT_JMS_PORT = 5445;
-	public static int DEFAULT_JMS_BATCH_PORT = 5455;
-	public static int DEFAULT_JMS_JNP_PORT = 1099;
-	public static int DEFAULT_JMS_JNP_RMI_PORT = 1098;
 
 	private static void initialize() {
 		if (properties == null) {
@@ -87,9 +81,9 @@ public class Config {
 		String value = properties.getProperty(DATA_STORE_PORT);
 		if (value == null) {
 			if (getDatastoreType().equalsIgnoreCase(PostgreSQL.NAME)) {
-				return DEFAULT_POSTGRESQL_PORT;
+				return SettingsConstant.DEFAULT_POSTGRESQL_PORT;
 			} else {
-				return DEFAULT_H2_PORT;
+				return SettingsConstant.DEFAULT_H2_PORT;
 			}
 		} else {
 			return Integer.parseInt(value);
@@ -98,9 +92,9 @@ public class Config {
 
 	public static int getJmsPort() {
 		Config.initialize();
-		String value = properties.getProperty(JMS_PORT);
+		String value = properties.getProperty(SettingsConstant.JMS_PORT);
 		if (value == null) {
-			return DEFAULT_JMS_PORT;
+			return SettingsConstant.DEFAULT_JMS_PORT;
 		} else {
 			return Integer.parseInt(value);
 		}
@@ -110,7 +104,7 @@ public class Config {
 		Config.initialize();
 		String value = properties.getProperty("jms_server_batch_port");
 		if (value == null) {
-			return DEFAULT_JMS_BATCH_PORT;
+			return SettingsConstant.DEFAULT_JMS_BATCH_PORT;
 		} else {
 			return Integer.parseInt(value);
 		}
@@ -120,7 +114,7 @@ public class Config {
 		Config.initialize();
 		String value = properties.getProperty("jnp_port");
 		if (value == null) {
-			return DEFAULT_JMS_JNP_PORT;
+			return SettingsConstant.DEFAULT_JMS_JNP_PORT;
 		} else {
 			return Integer.parseInt(value);
 		}
@@ -130,7 +124,7 @@ public class Config {
 		Config.initialize();
 		String value = properties.getProperty("jnp_rmi_port");
 		if (value == null) {
-			return DEFAULT_JMS_JNP_RMI_PORT;
+			return SettingsConstant.DEFAULT_JMS_JNP_RMI_PORT;
 		} else {
 			return Integer.parseInt(value);
 		}
@@ -156,7 +150,7 @@ public class Config {
 		return properties.getProperty("seqrepo_version");
 	}
 
-	public static File getJavaHome() {
+	public static File getJavaHomeFile() {
 		Config.initialize();
 		// if null try to find studio's jre, if still null return current jre
 		String javaPath = properties.getProperty("java_home");
@@ -164,6 +158,16 @@ public class Config {
 			javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jre";
 		}
 		return new File(javaPath);
+	}
+
+	public static String getJavaHome() {
+		Config.initialize();
+		// if null try to find studio's jre, if still null return current jre
+		String javaPath = properties.getProperty("java_home");
+		if (javaPath == null) {
+			javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jre";
+		}
+		return new File(javaPath).getAbsolutePath();
 	}
 
 	public static String getJavaExePath() {

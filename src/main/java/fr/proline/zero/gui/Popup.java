@@ -36,6 +36,13 @@ public class Popup {
         return (r == JOptionPane.OK_OPTION);
     }
 
+    public static boolean yesNo(String message) {
+        SplashScreen.setModal(false);
+        int r = JOptionPane.showConfirmDialog(null, message, DEFAULT_TITLE, JOptionPane.YES_NO_OPTION);
+        SplashScreen.setModal(true);
+        return (r == JOptionPane.YES_OPTION);
+    }
+
     public static boolean optionYesNO(String message, String[] options) {
         SplashScreen.setModal(false);
         int r = JOptionPane.showOptionDialog(null, message, DEFAULT_TITLE, JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, message);
