@@ -189,4 +189,8 @@ public class Main {
 			}
 		}
 	}
-}
+}			} catch (Exception e) {
+				logger.error("Error during  initialization or starting module ", e);
+				SystemUtils.end();
+				System.exit(1);
+			}

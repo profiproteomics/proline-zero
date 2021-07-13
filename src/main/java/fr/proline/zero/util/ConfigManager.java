@@ -22,6 +22,9 @@ public final class ConfigManager {
 	private AdvancedAndServerUtils advancedManager;
 
 	private ConfigManager() {
+	}
+
+	public void initialize() {
 		memoryManager = new MemoryUtils();
 		advancedManager = new AdvancedAndServerUtils();
 		setStudioActive(Config.getStudioActive());
