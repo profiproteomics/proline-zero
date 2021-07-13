@@ -125,15 +125,4 @@ public class AdvancedAndServerUtils {
 		setForceDataStoreUpdate(Config.getForceUpdate());
 	}
 
-	public void restoreAdvancedValues() {
-		setJmsServerPort(Config.getJmsPort());
-		setJmsBatchServerPort(Config.getJmsBatchPort());
-		setJnpServerPort(Config.getJnpPort());
-		setJnpRmiServerPort(Config.getJnpRmiPort());
-		setServerDefaultTimeout(Config.getDefaultTimeout());
-		setServerThreadPoolSize(Config.getCortexNbParallelizableServiceRunners());
-		setJvmPath(Config.getJavaExePath());
-		setForceDataStoreUpdate(Config.getForceUpdate());
-	}
-
 }

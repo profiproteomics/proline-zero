@@ -3,6 +3,8 @@ package fr.proline.zero;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +13,9 @@ import fr.proline.zero.gui.ConfigWindow;
 import fr.proline.zero.gui.Popup;
 import fr.proline.zero.modules.ExecutionSession;
 import fr.proline.zero.util.Config;
+import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.ProlineFiles;
 import fr.proline.zero.util.SystemUtils;
-
-import javax.swing.*;
 
 public class Main {
 
@@ -34,20 +35,22 @@ public class Main {
 		try {
 
 			// VDS TODO Add load config and first verif here !!
+			ConfigManager.getInstance().initialize();
 
 			// if specified in config load IHM
 			ConfigWindow test = new ConfigWindow();
 			test.setVisible(true);
-			if(test.getButtonClicked() == ConfigWindow.BUTTON_CANCEL){
-				int reply = JOptionPane.showConfirmDialog(null, "Continue with previous configuration (No = exit) ?", "Warning", JOptionPane.YES_NO_OPTION);
+			if (test.getButtonClicked() == ConfigWindow.BUTTON_CANCEL) {
+				int reply = JOptionPane.showConfirmDialog(null, "Continue with previous configuration (No = exit) ?",
+						"Warning", JOptionPane.YES_NO_OPTION);
 				if (reply == JOptionPane.YES_OPTION) {
-					//VDS  Restore & continue ??!!
+					// VDS Restore & continue ??!!
 
 				} else {
 					System.exit(0);
 				}
-			} else { //OK ...
-				JOptionPane.showMessageDialog(null, "Config Done","Config Done", JOptionPane.INFORMATION_MESSAGE);
+			} else { // OK ...
+				JOptionPane.showMessageDialog(null, "Config Done", "Config Done", JOptionPane.INFORMATION_MESSAGE);
 
 				// VDS TODO: test and save new config here !!
 
@@ -61,7 +64,8 @@ public class Main {
 //			// add a shutdown hook that will be executed when the program ends or if the
 //			// user ends it with Ctrl+C
 //			Runtime.getRuntime().addShutdownHook(new ShutdownHook());
-				boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists(); // first launch
+				boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists(); // first
+																														// launch
 //
 //			//VDS TODO --  To be moved in config part above
 //			logger.info("First launch, update port");

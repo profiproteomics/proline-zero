@@ -111,8 +111,6 @@ public class AdvancedConfigWindow extends JDialog {
 
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				int size = Integer.parseInt(threadPoolSizeField.getText());
-				advancedManager.setServerThreadPoolSize(size);
 				advancedManager.setHasBeenChanged(true);
 			}
 
@@ -135,7 +133,6 @@ public class AdvancedConfigWindow extends JDialog {
 
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				advancedManager.setJvmPath(jvmPathField.getText());
 				advancedManager.setHasBeenChanged(true);
 			}
 
@@ -341,7 +338,6 @@ public class AdvancedConfigWindow extends JDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				advancedManager.setForceDataStoreUpdate(forceDatastoreUpdate.isSelected());
 				advancedManager.setHasBeenChanged(true);
 			}
 		});
@@ -380,6 +376,14 @@ public class AdvancedConfigWindow extends JDialog {
 
 		ActionListener actionContinue = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
+				advancedManager.setJmsServerPort(Integer.parseInt((String) jmsPortField.getValue()));
+				advancedManager.setJmsBatchServerPort(Integer.parseInt((String) jmsBatchPortField.getValue()));
+				advancedManager.setJnpRmiServerPort(Integer.parseInt((String) jnpRmiPortField.getValue()));
+				advancedManager.setJnpServerPort(Integer.parseInt((String) jnpPortField.getValue()));
+				advancedManager.setForceDataStoreUpdate(forceDatastoreUpdate.isSelected());
+				int size = Integer.parseInt(threadPoolSizeField.getText());
+				advancedManager.setJvmPath(jvmPathField.getText());
+				advancedManager.setServerThreadPoolSize(size);
 				dispose();
 			}
 		};
@@ -387,7 +391,7 @@ public class AdvancedConfigWindow extends JDialog {
 
 		ActionListener actionCancel = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				advancedManager.restoreAdvancedValues();
+				advancedManager.setHasBeenChanged(true);
 				updateValues();
 				dispose();
 			}
@@ -452,25 +456,25 @@ public class AdvancedConfigWindow extends JDialog {
 
 	public class JMSPortListener implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent e) {
-			advancedManager.setJmsServerPort(Integer.parseInt((String) jmsPortField.getValue()));
+			advancedManager.setHasBeenChanged(true);
 		}
 	}
 
 	public class JmsBatchPortListener implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent e) {
-			advancedManager.setJmsBatchServerPort(Integer.parseInt((String) jmsBatchPortField.getValue()));
+			advancedManager.setHasBeenChanged(true);
 		}
 	}
 
 	public class JNPPortListener implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent e) {
-			advancedManager.setJnpServerPort(Integer.parseInt((String) jnpPortField.getValue()));
+			advancedManager.setHasBeenChanged(true);
 		}
 	}
 
 	public class JnpRmiPortListener implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent e) {
-			advancedManager.setJnpRmiServerPort(Integer.parseInt((String) jnpRmiPortField.getValue()));
+			advancedManager.setHasBeenChanged(true);
 		}
 	}
 }
