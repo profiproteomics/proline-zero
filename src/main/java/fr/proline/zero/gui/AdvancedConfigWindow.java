@@ -75,7 +75,7 @@ public class AdvancedConfigWindow extends JDialog {
 		serverDefaultTimeoutField = new JTextField();
 		serverDefaultTimeoutField.setPreferredSize(new Dimension(60, 20));
 		serverDefaultTimeoutField.setHorizontalAlignment(SwingConstants.RIGHT);
-		serverDefaultTimeoutField.setText((String.valueOf(advancedManager.getServerDefaultTimeout())));
+		serverDefaultTimeoutField.setText((String.valueOf(advancedManager.getServerDefaultTimeout()/1000)));
 		serverDefaultTimeoutField.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
@@ -87,7 +87,7 @@ public class AdvancedConfigWindow extends JDialog {
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				int timeout = Integer.parseInt(serverDefaultTimeoutField.getText());
-				advancedManager.setServerDefaultTimeout(timeout);
+				advancedManager.setServerDefaultTimeout(timeout*1000); // in ms
 				advancedManager.setHasBeenChanged(true);
 			}
 
@@ -447,7 +447,7 @@ public class AdvancedConfigWindow extends JDialog {
 	}
 
 	public void updateValues() {
-		serverDefaultTimeoutField.setText((String.valueOf(advancedManager.getServerDefaultTimeout())));
+		serverDefaultTimeoutField.setText((String.valueOf(advancedManager.getServerDefaultTimeout()/1000)));
 		threadPoolSizeField.setText((String.valueOf(advancedManager.getCortexNbParallelizableServiceRunners())));
 		jvmPathField.setText(advancedManager.getJvmPath());
 		jmsPortField.setValue(String.valueOf(advancedManager.getJmsServerPort()));

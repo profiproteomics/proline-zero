@@ -57,7 +57,7 @@ public final class ConfigManager {
 
 	public void setSeqRepActive(boolean b) {
 		seqRepBeingActive = b;
-		memoryManager.setSeqRepActive(b);
+		memoryManager.setSeqRepoActive(b);
 	}
 
 	public boolean isSeqReppActive() {
@@ -138,11 +138,11 @@ public final class ConfigManager {
 				PropertiesConfiguration.class).configure(params.properties().setFileName("proline_launcher.config"));
 		Configuration config = builder.getConfiguration();
 
-		config.setProperty("server_default_timeout", String.valueOf(advancedManager.getServerDefaultTimeout()));
+		config.setProperty("server_default_timeout", String.valueOf(advancedManager.getServerDefaultTimeout()/1000));
 		config.setProperty("service_thread_pool_size", String.valueOf(advancedManager.getCortexNbParallelizableServiceRunners()));
 		config.setProperty("java_home", advancedManager.getJvmPath());
 		config.setProperty("force_datastore_update", advancedManager.getForceDataStoreUpdateString());
-		config.setProperty("data_store_port", String.valueOf(advancedManager.getDataStorePort()));
+		config.setProperty("datastore_port", String.valueOf(advancedManager.getDataStorePort()));
 		config.setProperty("jms_server_port", String.valueOf(advancedManager.getJmsServerPort()));
 		config.setProperty("jms_server_batch_port", String.valueOf(advancedManager.getJmsBatchServerPort()));
 		config.setProperty("jnp_port", String.valueOf(advancedManager.getJnpServerPort()));
@@ -158,15 +158,20 @@ public final class ConfigManager {
 		FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(
 				PropertiesConfiguration.class).configure(params.properties().setFileName("proline_launcher.config"));
 		Configuration config = builder.getConfiguration();
-		if (memoryManager.getStudioActive()) {
+		if (memoryManager.isStudioActive()) {
 			config.setProperty("sequence_repository_active", "on");
 		} else {
 			config.setProperty("sequence_repository_active", "off");
 		}
-		if (memoryManager.getSeqRepActive()) {
+		if (memoryManager.isSeqRepoActive()) {
 			config.setProperty("proline_studio_active", "on");
 		} else {
 			config.setProperty("proline_studio_active", "off");
+		}
+		if(isDebugMode()) {
+			config.setProperty("log_debug","on");
+		}else{
+			config.setProperty("log_debug","off");
 		}
 
 		// writes in the file

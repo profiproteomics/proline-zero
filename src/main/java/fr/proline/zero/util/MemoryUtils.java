@@ -321,11 +321,11 @@ public class MemoryUtils {
 		update();
 	}
 
-	public boolean getStudioActive() {
+	public boolean isStudioActive() {
 		return this.studioActive;
 	}
 
-	public void setSeqRepActive(boolean b) {
+	public void setSeqRepoActive(boolean b) {
 		this.seqRepActive = b;
 		if (!b) {
 			setSeqrepMemory(0);
@@ -333,7 +333,7 @@ public class MemoryUtils {
 		update();
 	}
 
-	public boolean getSeqRepActive() {
+	public boolean isSeqRepoActive() {
 		return this.seqRepActive;
 	}
 
@@ -390,7 +390,7 @@ public class MemoryUtils {
 				|| (getAttributionMode() == AttributionMode.SEMIAUTO))) {
 			Popup.warning("The specified total memory value is below 4Go : \n"
 					+ "The Sequence Repository Module cannot be active ");
-			setSeqRepActive(false);
+			setSeqRepoActive(false);
 		}
 		if (totalMemory < 3 * G) {
 			Popup.warning("The specified total memory value is below what is necessary : \n"

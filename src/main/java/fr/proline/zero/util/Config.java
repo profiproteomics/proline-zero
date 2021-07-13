@@ -18,7 +18,6 @@ class Config {
 	private static Logger logger = LoggerFactory.getLogger(Config.class);
 	private static Properties properties;
 
-	public static String DATA_STORE_PORT = "data_store_port";
 
 	private static void initialize() {
 		if (properties == null) {
@@ -58,18 +57,6 @@ class Config {
 		return timeout * 1000;
 	}
 
-	public static int getDefaultTimeoutSeconds() {
-		Config.initialize();
-		int timeout;
-		try {
-			timeout = Integer.parseInt(properties.getProperty("server_default_timeout"));
-		} catch (Throwable t) {
-			timeout = 60;
-			logger.warn("No timeout has been defined or timeout is not readable, using default timeout (" + timeout
-					+ " seconds).");
-		}
-		return timeout;
-	}
 
 	public static long getMaxTmpFolderSize() {
 		Config.initialize();
@@ -79,7 +66,7 @@ class Config {
 
 	public static int getDataStorePort() {
 		Config.initialize();
-		String value = properties.getProperty(DATA_STORE_PORT);
+		String value = properties.getProperty("datastore_port");
 		if (value == null) {
 			Popup.warning("The datastore port could not be read, using the default one instead");
 			if (getDatastoreType().equalsIgnoreCase(PostgreSQL.NAME)) {
@@ -156,16 +143,16 @@ class Config {
 		return properties.getProperty("seqrepo_version");
 	}
 
-	public static File getJavaHomeFile() {
-		Config.initialize();
-		// if null try to find studio's jre, if still null return current jre
-		String javaPath = properties.getProperty("java_home");
-		if (javaPath == null) {
-			Popup.warning("The JRE path could not be read, trying to find studio's jre");
-			javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jre";
-		}
-		return new File(javaPath);
-	}
+//	public static File getJavaHomeFile() {
+//		Config.initialize();
+//		// if null try to find studio's jre, if still null return current jre
+//		String javaPath = properties.getProperty("java_home");
+//		if (javaPath == null) {
+//			Popup.warning("The JRE path could not be read, trying to find studio's jre");
+//			javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jre";
+//		}
+//		return new File(javaPath);
+//	}
 
 	public static String getJavaHome() {
 		Config.initialize();
@@ -281,30 +268,11 @@ class Config {
 		return false;
 	}
 
-	public static boolean isServerMode() {
-		Config.initialize();
-		String debug = properties.getProperty("server_mode");
-		return Config.isBooleanTrue(debug);
-	}
 
 	public static boolean isDebugMode() {
 		Config.initialize();
-		String debug = properties.getProperty("debug_mode");
+		String debug = properties.getProperty("log_debug");
 		return Config.isBooleanTrue(debug);
-	}
-
-	public static boolean isAdjustMemory() {
-		Config.initialize();
-		String adjustMemo = properties.getProperty("adjust_memory");
-		if (adjustMemo == null)
-			return true;
-		return Config.isBooleanTrue(adjustMemo);
-	}
-
-	public static boolean isSeqRepoEnabled() {
-		Config.initialize();
-		String seqRepoDisabled = properties.getProperty("disable_sequence_repository");
-		return !Config.isBooleanTrue(seqRepoDisabled);
 	}
 
 	public static boolean getForceUpdate() {

@@ -23,7 +23,7 @@ public class SequenceRepository extends AbstractProcess {
         logger.info("starting Sequence Repository from path " + seqRepoHome.getAbsolutePath());
         List<String> command = new ArrayList<>();
         command.add(ConfigManager.getInstance().getAdvancedManager().getJvmExePath());
-        command.add(Memory.getSeqRepoMaxMemory());
+        command.add("-Xmx"+ConfigManager.getInstance().getMemoryManager().getSeqrepMemory()+"M");
         command.add("-XX:+UseG1GC");
         command.add("-XX:+UseStringDeduplication");
         command.add("-XX:MinHeapFreeRatio=10");

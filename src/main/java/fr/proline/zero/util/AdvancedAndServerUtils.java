@@ -21,7 +21,7 @@ public class AdvancedAndServerUtils {
 		setJmsBatchServerPort(Config.getJmsBatchPort());
 		setJnpServerPort(Config.getJnpPort());
 		setJnpRmiServerPort(Config.getJnpRmiPort());
-		setServerDefaultTimeout(Config.getDefaultTimeoutSeconds());
+		setServerDefaultTimeout(Config.getDefaultTimeout());
 		setCortexNbParallelizableServiceRunners(Config.getCortexNbParallelizableServiceRunners());
 		setJvmPath(Config.getJavaHome());
 		setForceDataStoreUpdate(Config.getForceUpdate());
@@ -67,6 +67,9 @@ public class AdvancedAndServerUtils {
 		this.jnpRmiServerPort = jnpRmiServerPort;
 	}
 
+	/**
+	 * Return the timeout to wait process to start, in millisecond
+	 */
 	public int getServerDefaultTimeout() {
 		return serverDefaultTimeout;
 	}

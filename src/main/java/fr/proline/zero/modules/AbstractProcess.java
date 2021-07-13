@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractProcess implements  IZeroModule {
 
-    protected static Logger logger = LoggerFactory.getLogger("Zero-Module");
+    protected static Logger logger = LoggerFactory.getLogger("ZeroModule");
 
     protected boolean m_isProcessAlive = false;
     protected StartedProcess process;

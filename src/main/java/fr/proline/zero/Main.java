@@ -80,25 +80,25 @@ public class Main {
 			SplashScreen.setProgressMax(nbrStep); // init, pgsql, admin, hornetq, cortex, seqrepo, studio
 			IZeroModule nextModule = null;
 			try {
-				for (int i = 0; i < ExecutionSession.getModuleCount(); i++) {
-					nextModule = ExecutionSession.getModuleAt(i);
-					if (nextModule != null) {
-						if (initBeforeStart) {
-							SplashScreen.setProgress("Initializing " + nextModule.getModuleName());
-							logger.info("Initializing module +", nextModule.getModuleName());
+					for (int i = 0; i < ExecutionSession.getModuleCount(); i++) {
+						nextModule = ExecutionSession.getModuleAt(i);
+						if(nextModule!= null) {
+							if (initBeforeStart) {
+								SplashScreen.setProgress("Initializing " + nextModule.getModuleName());
+								logger.info("Initializing module "+ nextModule.getModuleName());
 //									nextModule.init();
-							Thread.sleep(2000);
+								Thread.sleep(2000);
 
+							}
+							SplashScreen.setProgress("Starting " + nextModule.getModuleName());
+							logger.info("Starting module "+ nextModule.getModuleName());
+							//	nextModule.start();
+							Thread.sleep(2000);
+							logger.info("Module +", nextModule.getModuleName() + " started");
+						} else {
+							Popup.error(" A Module is null, at index "+i );
 						}
-						SplashScreen.setProgress("Starting " + nextModule.getModuleName());
-						logger.info("Starting module +", nextModule.getModuleName());
-//								nextModule.start();
-						Thread.sleep(2000);
-						logger.info("Module +", nextModule.getModuleName() + " started");
-					} else {
-						Popup.error(" A Module is null, at index " + i);
 					}
-				}
 
 			} catch (Exception e) {
 				logger.error("Error during  initialization or starting module ", e);

@@ -84,7 +84,7 @@ public class H2 implements IZeroModule {
                     .start();
 
             long start = System.currentTimeMillis();
-            while (!datastoreIsRunning && ((System.currentTimeMillis() - start) <= ConfigManager.getInstance().getAdvancedManager().getServerDefaultTimeout())) {
+            while (!datastoreIsRunning && ((System.currentTimeMillis() - start) <= (ConfigManager.getInstance().getAdvancedManager().getServerDefaultTimeout()) )) {
                 Thread.sleep(200);
             }
             if (datastoreIsRunning) {

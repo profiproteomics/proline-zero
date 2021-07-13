@@ -16,7 +16,7 @@ import java.util.List;
 public class ProlineAdmin  implements  IZeroModule {
 
     protected boolean isProcessAlive = false;
-    private static Logger logger = LoggerFactory.getLogger("Zero-Module");
+    private static Logger logger = LoggerFactory.getLogger("ZeroModule");
 
     protected String moduleName;
     public ProlineAdmin() {
@@ -157,7 +157,7 @@ public class ProlineAdmin  implements  IZeroModule {
         logger.info("starting Proline Admin from path " + adminHome.getAbsolutePath());
         List<String> command = new ArrayList<>();
         command.add(ConfigManager.getInstance().getAdvancedManager().getJvmExePath());
-        command.add(Memory.getAdminMaxMemory());
+        command.add("-Xmx"+ConfigManager.getInstance().getMemoryManager().getStudioMemory()+"M"); // VDS TODO : Run with Studio Mem ... Or create other... how admin in launch in any case !
         command.add("-classpath");
         command.add(classpath);
         command.add("-Dlogback.configurationFile=config/logback.xml");

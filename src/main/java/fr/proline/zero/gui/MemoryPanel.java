@@ -452,7 +452,7 @@ public class MemoryPanel extends JPanel {
 					memoryManager.setAttributionMode(AttributionMode.SEMIAUTO);
 
 					totalMemorySpinner.setEnabled(false);
-					if (memoryManager.getStudioActive()) {
+					if (memoryManager.isStudioActive()) {
 						studioMemorySpinner.setEnabled(true);
 					}
 					totalServerMemorySpinner.setEnabled(true);
@@ -465,11 +465,11 @@ public class MemoryPanel extends JPanel {
 					memoryManager.setAttributionMode(AttributionMode.MANUAL);
 
 					totalMemorySpinner.setEnabled(false);
-					if (memoryManager.getStudioActive()) {
+					if (memoryManager.isStudioActive()) {
 						studioMemorySpinner.setEnabled(true);
 					}
 					totalServerMemorySpinner.setEnabled(false);
-					if (memoryManager.getSeqRepActive()) {
+					if (memoryManager.isSeqRepoActive()) {
 						seqrepMemorySpinner.setEnabled(true);
 					}
 					dataStoreMemorySpinner.setEnabled(true);

@@ -149,14 +149,14 @@ public class ConfigWindow extends JDialog {
 
 				if (seqRepModuleBox.isSelected()) {
 					tabbedPane.setEnabledAt(3, true);
-					memoryManager.setSeqRepActive(true);
+					memoryManager.setSeqRepoActive(true);
 					memoryPanel.seqRepBeingActive(true);
 				} else {
 					if (tabbedPane.getSelectedIndex() == 3) {
 						tabbedPane.setSelectedIndex(0);
 					}
 					tabbedPane.setEnabledAt(3, false);
-					memoryManager.setSeqRepActive(false);
+					memoryManager.setSeqRepoActive(false);
 					memoryPanel.seqRepBeingActive(false);
 				}
 				memoryPanel.updateValues();
