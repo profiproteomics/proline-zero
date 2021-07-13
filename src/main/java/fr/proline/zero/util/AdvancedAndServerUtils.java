@@ -87,10 +87,9 @@ public class AdvancedAndServerUtils {
 		return jvmPath;
 	}
 
-	public  String getJvmExePath() {
+	public String getJvmExePath() {
 		return new File(getJvmPath() + "/bin/java").getAbsolutePath();
 	}
-
 
 	public void setJvmPath(String jvmPath) {
 		this.jvmPath = jvmPath;

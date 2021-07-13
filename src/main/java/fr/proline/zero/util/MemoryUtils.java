@@ -188,7 +188,8 @@ public class MemoryUtils {
 
 	// does the opposite of the previous method; takes the memory value from long
 	// (Mo) format and returns them in String format (eg : 5.5G or 700M)
-	//VDS: peut etre plus un nom comme toPrintableString toHumanReadable ... parce que la au final pas de config file
+	// VDS: peut etre plus un nom comme toPrintableString toHumanReadable ... parce
+	// que la au final pas de config file
 	private static String toConfigFile(long value) {
 		if (value == 0) {
 			return "0";
@@ -385,7 +386,8 @@ public class MemoryUtils {
 			setTotalMemory((long) Math.round(totalMemorySize * 0.8));
 			update();
 		}
-		if ((totalMemory < 4 * G) && seqRepActive) {
+		if ((totalMemory < 4 * G) && seqRepActive && ((getAttributionMode() == AttributionMode.AUTO)
+				|| (getAttributionMode() == AttributionMode.SEMIAUTO))) {
 			Popup.warning("The specified total memory value is below 4Go : \n"
 					+ "The Sequence Repository Module cannot be active ");
 			setSeqRepActive(false);

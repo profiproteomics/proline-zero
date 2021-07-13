@@ -385,7 +385,7 @@ public class AdvancedConfigWindow extends JDialog {
 				advancedManager.setForceDataStoreUpdate(forceDatastoreUpdate.isSelected());
 				int size = Integer.parseInt(threadPoolSizeField.getText());
 				advancedManager.setJvmPath(jvmPathField.getText());
-				advancedManager.setServerThreadPoolSize(size);
+				advancedManager.setCortexNbParallelizableServiceRunners(size);
 				dispose();
 			}
 		};
