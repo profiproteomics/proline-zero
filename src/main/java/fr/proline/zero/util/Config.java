@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.proline.zero.Main;
+import fr.proline.zero.gui.Popup;
 import fr.proline.zero.modules.PostgreSQL;
 
 class Config {
@@ -80,6 +81,7 @@ class Config {
 		Config.initialize();
 		String value = properties.getProperty(DATA_STORE_PORT);
 		if (value == null) {
+			Popup.warning("The datastore port could not be read, using the default one instead");
 			if (getDatastoreType().equalsIgnoreCase(PostgreSQL.NAME)) {
 				return SettingsConstant.DEFAULT_POSTGRESQL_PORT;
 			} else {
@@ -94,6 +96,7 @@ class Config {
 		Config.initialize();
 		String value = properties.getProperty(SettingsConstant.JMS_PORT);
 		if (value == null) {
+			Popup.warning("The JMS server port could not be read, using the default one instead");
 			return SettingsConstant.DEFAULT_JMS_PORT;
 		} else {
 			return Integer.parseInt(value);
@@ -104,6 +107,7 @@ class Config {
 		Config.initialize();
 		String value = properties.getProperty("jms_server_batch_port");
 		if (value == null) {
+			Popup.warning("The JMS Batch port could not be read, using the default one instead");
 			return SettingsConstant.DEFAULT_JMS_BATCH_PORT;
 		} else {
 			return Integer.parseInt(value);
@@ -114,6 +118,7 @@ class Config {
 		Config.initialize();
 		String value = properties.getProperty("jnp_port");
 		if (value == null) {
+			Popup.warning("The JNP server port could not be read, using the default one instead");
 			return SettingsConstant.DEFAULT_JMS_JNP_PORT;
 		} else {
 			return Integer.parseInt(value);
@@ -124,6 +129,7 @@ class Config {
 		Config.initialize();
 		String value = properties.getProperty("jnp_rmi_port");
 		if (value == null) {
+			Popup.warning("The JNP RMI port could not be read, using the default one instead");
 			return SettingsConstant.DEFAULT_JMS_JNP_RMI_PORT;
 		} else {
 			return Integer.parseInt(value);
@@ -155,6 +161,7 @@ class Config {
 		// if null try to find studio's jre, if still null return current jre
 		String javaPath = properties.getProperty("java_home");
 		if (javaPath == null) {
+			Popup.warning("The JRE path could not be read, trying to find studio's jre");
 			javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jre";
 		}
 		return new File(javaPath);
@@ -165,6 +172,7 @@ class Config {
 		// if null try to find studio's jre, if still null return current jre
 		String javaPath = properties.getProperty("java_home");
 		if (javaPath == null) {
+			Popup.warning("The JRE path could not be read, trying to find studio's jre");
 			javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jre";
 		}
 		return new File(javaPath).getAbsolutePath();
@@ -179,6 +187,7 @@ class Config {
 		Config.initialize();
 		String allocationMode = properties.getProperty("allocation_mode");
 		if (allocationMode == null) {
+			Popup.warning("The JRE path could not be read, trying to find studio's jre");
 			allocationMode = "auto";
 		}
 		return allocationMode;
@@ -188,6 +197,7 @@ class Config {
 		Config.initialize();
 		String totalMemory = properties.getProperty("total_max_memory");
 		if (totalMemory == null) {
+			Popup.warning("The total memory value could not be read : \n set to 6Go");
 			totalMemory = "6G";
 		}
 		return totalMemory;
@@ -197,6 +207,7 @@ class Config {
 		Config.initialize();
 		String studioMemory = properties.getProperty("studio_memory");
 		if (studioMemory == null) {
+			Popup.warning("The studio memory value could not be read : \n set to 1Go");
 			studioMemory = "1G";
 		}
 		return studioMemory;
@@ -206,7 +217,8 @@ class Config {
 		Config.initialize();
 		String serverTotalMemory = properties.getProperty("server_total_memory");
 		if (serverTotalMemory == null) {
-			serverTotalMemory = "0";
+			Popup.warning("The total server memory value could not be read : \n set to 2Go");
+			serverTotalMemory = "5G";
 		}
 		return serverTotalMemory;
 	}
@@ -215,7 +227,8 @@ class Config {
 		Config.initialize();
 		String SeqRepMemory = properties.getProperty("seqrep_memory");
 		if (SeqRepMemory == null) {
-			SeqRepMemory = "0";
+			Popup.warning("The sequence repository memory value could not be read : \n set to 1Go");
+			SeqRepMemory = "1G";
 		}
 		return SeqRepMemory;
 	}
@@ -224,7 +237,8 @@ class Config {
 		Config.initialize();
 		String DatastoreMemory = properties.getProperty("datastore_memory");
 		if (DatastoreMemory == null) {
-			DatastoreMemory = "0";
+			Popup.warning("The datastore memory value could not be read : \n set to 1Go");
+			DatastoreMemory = "1G";
 		}
 		return DatastoreMemory;
 	}
@@ -233,7 +247,8 @@ class Config {
 		Config.initialize();
 		String CortexMemory = properties.getProperty("proline_cortex_memory");
 		if (CortexMemory == null) {
-			CortexMemory = "0";
+			Popup.warning("The server (cortex) memory value could not be read : \n set to 2Go");
+			CortexMemory = "2G";
 		}
 		return CortexMemory;
 	}
@@ -242,7 +257,8 @@ class Config {
 		Config.initialize();
 		String JMSMemory = properties.getProperty("JMS_memory");
 		if (JMSMemory == null) {
-			JMSMemory = "0";
+			Popup.warning("The JMS server memory value could not be read : \n set to 1Go");
+			JMSMemory = "1G";
 		}
 		return JMSMemory;
 	}
@@ -294,24 +310,40 @@ class Config {
 	public static boolean getForceUpdate() {
 		Config.initialize();
 		String databaseUpdate = properties.getProperty("force_datastore_update");
+		if (databaseUpdate == null) {
+			Popup.warning("The Force update setting could not be read : \n set to on");
+			databaseUpdate = "on";
+		}
 		return Config.isBooleanTrue(databaseUpdate);
 	}
 
 	public static Boolean getStudioActive() {
 		Config.initialize();
 		String StudioActive = properties.getProperty("proline_studio_active");
+		if (StudioActive == null) {
+			Popup.warning("The Studio active setting could not be read : \n set to on");
+			StudioActive = "on";
+		}
 		return Config.isBooleanTrue(StudioActive);
 	}
 
 	public static Boolean getSeqRepActive() {
 		Config.initialize();
 		String seqRepActive = properties.getProperty("sequence_repository_active");
+		if (seqRepActive == null) {
+			Popup.warning("The sequence repository active setting could not be read : \n set to on");
+			seqRepActive = "on";
+		}
 		return Config.isBooleanTrue(seqRepActive);
 	}
 
 	public static Boolean getHideConfigDialog() {
 		Config.initialize();
 		String hideConfigDialog = properties.getProperty("hide_config_dialog");
+		if (hideConfigDialog == null) {
+			Popup.warning("The hide config dialog setting could not be read : \n set to on");
+			hideConfigDialog = "on";
+		}
 		return Config.isBooleanTrue(hideConfigDialog);
 	}
 
