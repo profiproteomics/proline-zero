@@ -2,7 +2,7 @@ package fr.proline.zero.modules;
 
 import fr.proline.zero.gui.SplashScreen;
 import fr.proline.zero.gui.ZeroTray;
-import fr.proline.zero.util.Config;
+import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.ProlineFiles;
 import fr.proline.zero.util.SystemUtils;
 import org.apache.commons.io.FileUtils;
@@ -55,7 +55,7 @@ public class ProlineStudio extends AbstractProcess {
         if (SystemUtils.isOSUnix()) {
             command.add("./bin/prolinestudio");
         } else {
-            command.add("ProlineStudio-" + Config.getStudioVersion() + "/bin/prolinestudio");
+            command.add("ProlineStudio-" + ConfigManager.getInstance().getStudioVersion() + "/bin/prolinestudio");
         }
         command.add("--userdir");
         command.add("../data" + studioUserDir);//"../data/.prolinestudio", relative directory

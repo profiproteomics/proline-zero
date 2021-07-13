@@ -1,11 +1,12 @@
 package fr.proline.zero.modules;
 
 import fr.proline.zero.util.ProlineFiles;
+import fr.proline.zero.util.SettingsConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.proline.zero.gui.SplashScreen;
-import fr.proline.zero.util.Config;
+import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.SystemUtils;
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,6 +31,7 @@ public class ExecutionSession {
     private static IZeroModule datastore;
     private static ProlineStudio studio;
 
+
     private static boolean isActive = false;
     private static boolean checkStudioActive = true;
     private static List<IZeroModule> activeModules = null;
@@ -41,9 +43,9 @@ public class ExecutionSession {
             activeModules.add(getJMSServer());
             activeModules.add(getProlineAdmin());
             activeModules.add(getCortex());
-            if(Config.isSeqRepoEnabled())
+            if(ConfigManager.getInstance().isSeqReppActive())
                 activeModules.add(getSeqRepo());
-            if(!Config.isServerMode())
+            if(ConfigManager.getInstance().isStudioActive())
                 activeModules.add(getStudio());
 
         }
@@ -66,16 +68,16 @@ public class ExecutionSession {
         logger.info("Working directory is " + ProlineFiles.WORKING_DIRECTORY.getAbsolutePath());
 
         // check that linux user is not root when running PostgreSQL
-        if (SystemUtils.isOSUnix() && !Config.getDatastoreType().equalsIgnoreCase("H2") && System.getProperty("user.name").equalsIgnoreCase("root")) {
+        if (SystemUtils.isOSUnix() && !ConfigManager.getInstance().getDatastoreType().equalsIgnoreCase("H2") && System.getProperty("user.name").equalsIgnoreCase("root")) {
             throw new RuntimeException("PostgreSQL cannot be used by user 'root'");
         }
 
-        if (Config.isDebugMode()) {
+        if (ConfigManager.getInstance().isDebugMode()) {
             logger.info("Debug mode is activated");
         }
 
         //Check Studio is Alive to keep Zero alive only if not in server mode
-        checkStudioActive = !Config.isServerMode();
+        checkStudioActive = ConfigManager.getInstance().isStudioActive();
 
         SplashScreen.initialize();
         isActive = true;
@@ -110,7 +112,7 @@ public class ExecutionSession {
 
     public static IZeroModule getDataStore() {
         if (datastore == null) {
-            String datastoreType = Config.getDatastoreType();
+            String datastoreType = ConfigManager.getInstance().getDatastoreType();
 
             if (datastoreType.equalsIgnoreCase("H2")) {
                 datastore = new H2();
@@ -139,7 +141,7 @@ public class ExecutionSession {
     }
 
     private static void updatePostgreSQLPortConfig() {
-        int port = Config.getDataStorePort();
+        int port = ConfigManager.getInstance().getAdvancedManager().getDataStorePort();
         //int defaultPort = getDataStore().getDatastoreName().equals(PostgreSQL.NAME) ? Config.DEFAULT_POSTGRESQL_PORT : Config.DEFAULT_H2_PORT;
         //force to change port even if port=defaultPort
         String newPort = "port=\"" + port + "\"";
@@ -153,10 +155,10 @@ public class ExecutionSession {
     }
 
     private static void updateJmsPortConfig() {
-        int port = Config.getJmsPort();
+        int port = ConfigManager.getInstance().getAdvancedManager().getJmsServerPort();
         //force to change port even if port=defaultPort
-        String newPort = Config.JMS_PORT + " = " + port;
-        String regex = Config.JMS_PORT + "\\s*=\\s*(\\d{4,5})"; //without "" arround number
+        String newPort = SettingsConstant.JMS_PORT + " = " + port;
+        String regex = SettingsConstant.JMS_PORT + "\\s*=\\s*(\\d{4,5})"; //without "" arround number
         File cortexConfigFile = ProlineFiles.CORTEX_JMS_CONFIG_FILE;
         updateProperty(cortexConfigFile, regex, newPort);
         File seqRepoConfigFile = ProlineFiles.SEQREPO_JMS_CONFIG_FILE;
@@ -167,14 +169,14 @@ public class ExecutionSession {
 
         File studioPrefereceFile = ProlineFiles.STUDIO_PREFERENCES_FILE;
         String regexStudio = "serverURL=localhost";
-        String value = (port != Config.DEFAULT_JMS_PORT) ? regexStudio + ":" + port : regexStudio;
+        String value = (port != SettingsConstant.DEFAULT_JMS_PORT) ? regexStudio + ":" + port : regexStudio;
         final String regexJmsUrl = regexStudio + "[:\\d]*";
         updateProperty(studioPrefereceFile, regexJmsUrl, value);
 
     }
 
     private static void updateJmsBatchPortConfig() {
-        int port = Config.getJmsBatchPort();
+        int port = ConfigManager.getInstance().getAdvancedManager().getJmsBatchServerPort();
         //if (port != Config.DEFAULT_JMS_BATCH_PORT) {
         File hornetqConfigFile = ProlineFiles.HORNETQ_CONFIG_FILE;
         final String regexXML = "hornetq.remoting.netty.batch.port\\s*:\\s*\\d{4,5}";
@@ -183,7 +185,7 @@ public class ExecutionSession {
     }
 
     private static void updateJnpRmiPortConfig() {
-        int port = Config.getJnpRmiPort();
+        int port = ConfigManager.getInstance().getAdvancedManager().getJnpRmiServerPort();
         //if (port != Config.DEFAULT_JMS_JNP_RMI_PORT) {
         File hornetqConfigFile = ProlineFiles.HORNETQ_RMI_CONFIG_FILE;
         final String regexXML = "jnp.rmiPort\\s*:\\s*\\d{4,5}";
@@ -192,7 +194,7 @@ public class ExecutionSession {
     }
 
     private static void updateJnpPortConfig() {
-        int port = Config.getJnpPort();
+        int port = ConfigManager.getInstance().getAdvancedManager().getJnpServerPort();
         //if (port != Config.DEFAULT_JMS_JNP_PORT) {
         File hornetqConfigFile = ProlineFiles.HORNETQ_RMI_CONFIG_FILE;
         final String regexXML = "jnp.port\\s*:\\s*\\d{4,5}";
@@ -201,7 +203,7 @@ public class ExecutionSession {
     }
 
     public synchronized static void updateCortexNbParallelizableServiceRunners() {
-        String nbThread = ProlineFiles.CORTEX_JMS_NODE_NB_RUNSERVICE + " = " + Config.getCortexNbParallelizableServiceRunners();
+        String nbThread = ProlineFiles.CORTEX_JMS_NODE_NB_RUNSERVICE + " = " + ConfigManager.getInstance().getAdvancedManager().getCortexNbParallelizableServiceRunners();
         File configFile = ProlineFiles.CORTEX_JMS_CONFIG_FILE;
         String regex = ProlineFiles.CORTEX_JMS_NODE_NB_RUNSERVICE + "\\s*=\\s*([\\d-]+)";//possible -1
         updateProperty(configFile, regex, nbThread);
@@ -218,7 +220,7 @@ public class ExecutionSession {
     }
 
     public static void end() throws Exception {
-        for(IZeroModule m: activeModules){
+        for(IZeroModule m: getActiveModules()){
             if(m.isProcessAlive())
                 m.stop();
         }

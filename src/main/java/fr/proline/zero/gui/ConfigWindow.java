@@ -119,7 +119,7 @@ public class ConfigWindow extends JDialog {
 		tabbedPane.add(folderPanel, "Folders");
 		tabbedPane.add(serverPanel, "Server");
 		tabbedPane.add(parsePanel, "Parsing rules");
-		if (!configManager.getSeqRepActive()) {
+		if (!configManager.isSeqReppActive()) {
 			tabbedPane.setEnabledAt(3, false);
 		}
 		tabbedPane.addChangeListener(resizeDynamique());
@@ -142,7 +142,7 @@ public class ConfigWindow extends JDialog {
 		serverModuleBox.setEnabled(false);
 
 		seqRepModuleBox = new JCheckBox("Start Sequence Repository");
-		seqRepModuleBox.setSelected(configManager.getSeqRepActive());
+		seqRepModuleBox.setSelected(configManager.isSeqReppActive());
 		ItemListener checkSeqRep = new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				MemoryUtils memoryManager = ConfigManager.getInstance().getMemoryManager();
@@ -165,7 +165,7 @@ public class ConfigWindow extends JDialog {
 		seqRepModuleBox.addItemListener(checkSeqRep);
 
 		studioModuleBox = new JCheckBox("Start Proline Studio");
-		studioModuleBox.setSelected(configManager.getStudioActive());
+		studioModuleBox.setSelected(configManager.isStudioActive());
 		ItemListener checkStudio = new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 
@@ -319,8 +319,8 @@ public class ConfigWindow extends JDialog {
 
 	private void updateValues() {
 		doNotShowAgainBox.setSelected(configManager.getHideConfigDialog());
-		studioModuleBox.setSelected(configManager.getStudioActive());
-		seqRepModuleBox.setSelected(configManager.getSeqRepActive());
+		studioModuleBox.setSelected(configManager.isStudioActive());
+		seqRepModuleBox.setSelected(configManager.isSeqReppActive());
 	}
 
 }

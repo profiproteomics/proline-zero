@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import fr.proline.zero.gui.ZeroTray;
-import fr.proline.zero.util.Config;
+import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.ProlineFiles;
 import fr.proline.zero.util.SystemUtils;
 import org.slf4j.Logger;
@@ -39,15 +39,15 @@ public class PostgreSQL implements IZeroModule {
 
     //VDS TODO : To move to 'Main' : Java requested for all Module
     private String getJavaPath() throws Exception {
-        File path = Config.getJavaHome();
-        if (!path.exists()) {
+        File jvmPathFile =  new File(ConfigManager.getInstance().getAdvancedManager().getJvmPath());
+        if (!jvmPathFile.exists()) {
             logger.warn("Java home is not configured, PostgreSQL may crash due to missing MSVC dll files.");
         }
-        return path.getAbsolutePath() + "/bin";
+        return jvmPathFile.getAbsolutePath() + "/bin";
     }
 
     public void init() throws Exception {
-        int datastorePort = Config.getDataStorePort();
+        int datastorePort = ConfigManager.getInstance().getAdvancedManager().getDataStorePort();
         if (SystemUtils.isPortAvailable(datastorePort)) {
             logger.info("Initializing PostgreSQL datastore");
             // create the temporary password file (delete it if it already exists)
@@ -75,7 +75,7 @@ public class PostgreSQL implements IZeroModule {
                     .redirectOutput(new LogOutputStream() {
                         @Override
                         protected void processLine(String line) {
-                            if (Config.isDebugMode()) {
+                            if (ConfigManager.getInstance().isDebugMode()) {
                                 logger.debug(line);
                             }
                         }
@@ -136,8 +136,8 @@ public class PostgreSQL implements IZeroModule {
 
         verifyVersion();
 
-        int dataStorePort = Config.getDataStorePort();
-        int JmsServerPort = Config.getJmsPort();
+        int dataStorePort = ConfigManager.getInstance().getAdvancedManager().getDataStorePort();
+        int JmsServerPort = ConfigManager.getInstance().getAdvancedManager().getJmsServerPort();
         if (SystemUtils.isPortAvailable(dataStorePort) && SystemUtils.isPortAvailable(JmsServerPort)) {
             //
             // Warning : pg_ctl start got a strange behavior :

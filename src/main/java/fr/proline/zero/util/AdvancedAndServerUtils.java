@@ -1,5 +1,7 @@
 package fr.proline.zero.util;
 
+import java.io.File;
+
 public class AdvancedAndServerUtils {
 	private int dataStorePort;
 	private int jmsServerPort;
@@ -20,8 +22,8 @@ public class AdvancedAndServerUtils {
 		setJnpServerPort(Config.getJnpPort());
 		setJnpRmiServerPort(Config.getJnpRmiPort());
 		setServerDefaultTimeout(Config.getDefaultTimeoutSeconds());
-		setServerThreadPoolSize(Config.getCortexNbParallelizableServiceRunners());
-		setJvmPath(Config.getJavaExePath());
+		setCortexNbParallelizableServiceRunners(Config.getCortexNbParallelizableServiceRunners());
+		setJvmPath(Config.getJavaHome());
 		setForceDataStoreUpdate(Config.getForceUpdate());
 	}
 
@@ -73,17 +75,22 @@ public class AdvancedAndServerUtils {
 		this.serverDefaultTimeout = serverDefaultTimeout;
 	}
 
-	public int getServerThreadPoolSize() {
+	public int getCortexNbParallelizableServiceRunners() {
 		return serverThreadPoolSize;
 	}
 
-	public void setServerThreadPoolSize(int serverThreadPoolSize) {
+	public void setCortexNbParallelizableServiceRunners(int serverThreadPoolSize) {
 		this.serverThreadPoolSize = serverThreadPoolSize;
 	}
 
 	public String getJvmPath() {
 		return jvmPath;
 	}
+
+	public  String getJvmExePath() {
+		return new File(getJvmPath() + "/bin/java").getAbsolutePath();
+	}
+
 
 	public void setJvmPath(String jvmPath) {
 		this.jvmPath = jvmPath;
@@ -120,7 +127,18 @@ public class AdvancedAndServerUtils {
 		setJnpServerPort(Config.getJnpPort());
 		setJnpRmiServerPort(Config.getJnpRmiPort());
 		setServerDefaultTimeout(Config.getDefaultTimeout());
-		setServerThreadPoolSize(Config.getCortexNbParallelizableServiceRunners());
+		setCortexNbParallelizableServiceRunners(Config.getCortexNbParallelizableServiceRunners());
+		setJvmPath(Config.getJavaExePath());
+		setForceDataStoreUpdate(Config.getForceUpdate());
+	}
+
+	public void restoreAdvancedValues() {
+		setJmsServerPort(Config.getJmsPort());
+		setJmsBatchServerPort(Config.getJmsBatchPort());
+		setJnpServerPort(Config.getJnpPort());
+		setJnpRmiServerPort(Config.getJnpRmiPort());
+		setServerDefaultTimeout(Config.getDefaultTimeout());
+		setCortexNbParallelizableServiceRunners(Config.getCortexNbParallelizableServiceRunners());
 		setJvmPath(Config.getJavaExePath());
 		setForceDataStoreUpdate(Config.getForceUpdate());
 	}
