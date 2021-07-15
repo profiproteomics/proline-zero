@@ -32,8 +32,7 @@ public class MemoryUtils {
 
 	private boolean seqRepActive;
 
-	private static final OperatingSystemMXBean os = (OperatingSystemMXBean) ManagementFactory
-			.getOperatingSystemMXBean();
+	private static final OperatingSystemMXBean os = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 	private static final long totalMemorySize = os.getTotalPhysicalMemorySize() / (1024 * 1024);
 
 	public enum AttributionMode {
@@ -61,41 +60,13 @@ public class MemoryUtils {
 	private boolean errorFatal;
 
 	public MemoryUtils() {
-
-		studioActive = Config.getStudioActive();
-		seqRepActive = Config.getSeqRepActive();
-
-		switch (Config.getAllocationMode()) {
-		case "auto":
-			attributionMode = AttributionMode.AUTO;
-			totalMemory = parseMemoryValue("Total memory value ", Config.getTotalMemory());
-			update();
-			break;
-		case "semi":
-			attributionMode = AttributionMode.SEMIAUTO;
-			studioMemory = parseMemoryValue("Studio memory value ", Config.getStudioMemory());
-			setServerTotalMemory(parseMemoryValue("Total server memory value ", Config.getServerTotalMemory()));
-			update();
-			break;
-		case "manual":
-			attributionMode = AttributionMode.MANUAL;
-			studioMemory = parseMemoryValue("Studio memory value ", Config.getStudioMemory());
-			seqrepMemory = parseMemoryValue("SeqRep memory value ", Config.getSeqRepMemory());
-			datastoreMemory = parseMemoryValue("PG memory value ", Config.getDatastoreMemory());
-			prolineServerMemory = parseMemoryValue("Cortex memory value ", Config.getCortexMemory());
-			jmsMemory = parseMemoryValue("JMS memory value ", Config.getJMSMemory());
-			update();
-			break;
-		}
-		hasBeenChanged = false;
-		isStudioBeingChanged = false;
-		errorFatal = false;
+		initializeValues();
 	}
 
 	// - method called for an update of all the memory values when one of the values
 	// is changed
 	// - depends on the mode of allocation
-	public Boolean update() {
+	public void update() {
 		if (attributionMode.equals(AttributionMode.AUTO)) {
 			// attribution mode = auto
 			for (MemoryAllocationRule rule : MemoryAllocationRule.values()) {
@@ -159,7 +130,7 @@ public class MemoryUtils {
 					+ this.seqrepMemory;
 			this.totalMemory = this.studioMemory + this.serverTotalMemory;
 		}
-		return true;
+
 	}
 
 	// reads the memory values in the "String" (eg : 5.5G or 700M) format and
@@ -192,9 +163,9 @@ public class MemoryUtils {
 
 	// does the opposite of the previous method; takes the memory value from long
 	// (Mo) format and returns them in String format (eg : 5.5G or 700M)
-	// VDS: peut etre plus un nom comme toPrintableString toHumanReadable ... parce
-	// que la au final pas de config file
-	private static String toConfigFile(long value) {
+	// does the opposite of the previous method; takes the memory value from long
+	// (Mo) format and returns them in String format (eg : 5.5G or 700M)
+	protected static String formatMemoryAsString(long value) {
 		if (value == 0) {
 			return "0";
 		}
@@ -280,34 +251,6 @@ public class MemoryUtils {
 		this.isStudioBeingChanged = isStudioBeingChanged;
 	}
 
-	// methods to get memory values in config file format (eg : 5.5G or 500M)
-	public String getTotalMemoryString() {
-		return toConfigFile(totalMemory);
-	}
-
-	public String getStudioMemoryString() {
-		return toConfigFile(studioMemory);
-	}
-
-	public String getServerTotalMemoryString() {
-		return toConfigFile(serverTotalMemory);
-	}
-
-	public String getSeqrepMemoryString() {
-		return toConfigFile(seqrepMemory);
-	}
-
-	public String getDatastoreMemoryString() {
-		return toConfigFile(datastoreMemory);
-	}
-
-	public String getProlineServerMemoryString() {
-		return toConfigFile(prolineServerMemory);
-	}
-
-	public String getJmsMemoryString() {
-		return toConfigFile(jmsMemory);
-	}
 
 	public String getErrorMessage() {
 		return errorMessage;
@@ -360,6 +303,14 @@ public class MemoryUtils {
 
 	// reset the values to those in the config file
 	public void restoreValues() {
+		initializeValues();
+	}
+
+	private void initializeValues() {
+
+		studioActive = Config.getStudioActive();
+		seqRepActive = Config.getSeqRepActive();
+
 		switch (Config.getAllocationMode()) {
 		case "auto":
 			attributionMode = AttributionMode.AUTO;
@@ -384,9 +335,12 @@ public class MemoryUtils {
 		}
 		hasBeenChanged = false;
 		isStudioBeingChanged = false;
+		errorFatal = false;
 	}
 
 	public boolean verif() {
+		errorMessage = null;
+		errorFatal = false;
 		StringBuilder message = new StringBuilder();
 		if (totalMemory > totalMemorySize) {
 			message.append(
@@ -401,9 +355,9 @@ public class MemoryUtils {
 			message.append(
 					"- The specified total memory value is below 4Go : \n The Sequence Repository Module cannot be active\n ");
 			setSeqRepoActive(false);
-		} else if (totalMemory < SettingsConstant.MINIMUM_ZERO_MEMORY) {
+		} else if (totalMemory < MemoryAllocationRule.MIN.getRange().getMinimumInteger()) {
 			message.append("The specified total memory value is below minimum required ("
-					+ SettingsConstant.MINIMUM_ZERO_MEMORY + ")");
+					+ MemoryAllocationRule.MIN.getRange().getMinimumInteger() + ")");
 			errorFatal = true;
 		}
 		if (message.length() > 0) {
@@ -417,8 +371,5 @@ public class MemoryUtils {
 		return errorFatal;
 	}
 
-	public void resetVerif() {
-		errorMessage = null;
-		errorFatal = false;
-	}
+
 }

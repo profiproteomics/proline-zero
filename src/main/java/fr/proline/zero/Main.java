@@ -3,6 +3,7 @@ package fr.proline.zero;
 import java.io.File;
 import java.io.IOException;
 
+import fr.proline.zero.gui.ZeroTray;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,23 +35,13 @@ public class Main {
 		logger.info("Starting Proline Zero");
 		try {
 
-			// VDS TODO Add load config and first verif here !!
-
-			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists(); // first
-																													// launch
+			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists(); // first launch
 			ConfigManager.getInstance().initialize();
 			ConfigManager.getInstance().verif();
-			ConfigManager.getInstance().resetVerif();
-			// VDS TODO : A mettre dans l'init
-			// VDS Moved from bellow ==> Nathan c'est fait dans les Utils !.?
-//			logger.info("First launch, update port");
-//			ExecutionSession.updateConfigPort();// can be change only 1 time at the first time
-//			logger.info("launch, update thread number");
-//			ExecutionSession.updateCortexNbParallelizableServiceRunners();
-//			ExecutionSession.updateCortexNbParallelizableServiceRunners();// each time, we can change
 
 			// if specified in config load IHM
-			if (!ConfigManager.getInstance().getHideConfigDialog()) {
+			//VDS TODO : and if Fatal error ?!
+			if (ConfigManager.getInstance().showConfigDialog()) {
 				ConfigWindow paramWindow = new ConfigWindow();
 				paramWindow.setVisible(true);
 				if (paramWindow.getButtonClicked() == ConfigWindow.BUTTON_CANCEL) {
@@ -65,18 +56,19 @@ public class Main {
 				}
 			}
 
-			// Popup.info("Config Done");
-
 			// VDS TODO: test and save new config here !!?? Or in Util . IHM
-			// ExecutionSession.updateConfigPort();
+
+			logger.info("First launch, update port");
+			ExecutionSession.updateConfigPort();// can be change only 1 time at the first time
+			logger.info("launch, update thread number");
+			ExecutionSession.updateCortexNbParallelizableServiceRunners();
 
 			// Load modules
-			manageFolder(); // create missing folders inside Proline Zero (don't create folder elsewhere on
-							// disk...)
+			manageFolder(); // create missing folders inside Proline Zero (don't create folder elsewhere on disk...)
 
 			// Init
 			ExecutionSession.initialize();
-//				ZeroTray.initialize(); //VDS TO TEST
+			ZeroTray.initialize();
 
 			// add a shutdown hook that will be executed when the program ends or if the
 			// user ends it with Ctrl+C
@@ -86,25 +78,25 @@ public class Main {
 			SplashScreen.setProgressMax(nbrStep); // init, pgsql, admin, hornetq, cortex, seqrepo, studio
 			IZeroModule nextModule = null;
 			try {
-				for (int i = 0; i < ExecutionSession.getModuleCount(); i++) {
-					nextModule = ExecutionSession.getModuleAt(i);
-					if (nextModule != null) {
-						if (initBeforeStart) {
-							SplashScreen.setProgress("Initializing " + nextModule.getModuleName());
-							logger.info("Initializing module " + nextModule.getModuleName());
-//									nextModule.init();
-							Thread.sleep(2000);
+					for (int i = 0; i < ExecutionSession.getModuleCount(); i++) {
+						nextModule = ExecutionSession.getModuleAt(i);
+						if(nextModule!= null) {
+							if (initBeforeStart) {
+								SplashScreen.setProgress("Initializing " + nextModule.getModuleName());
+								logger.info("Initializing module "+ nextModule.getModuleName());
+								nextModule.init();
+								Thread.sleep(2000);
 
+							}
+							SplashScreen.setProgress("Starting " + nextModule.getModuleName());
+							logger.info("Starting module "+ nextModule.getModuleName());
+							nextModule.start();
+							Thread.sleep(2000);
+							logger.info("Module +", nextModule.getModuleName() + " started");
+						} else {
+							Popup.error(" A Module is null, at index "+ i );
 						}
-						SplashScreen.setProgress("Starting " + nextModule.getModuleName());
-						logger.info("Starting module " + nextModule.getModuleName());
-						// nextModule.start();
-						Thread.sleep(2000);
-						logger.info("Module +", nextModule.getModuleName() + " started");
-					} else {
-						Popup.error(" A Module is null, at index " + i);
 					}
-				}
 
 			} catch (Exception e) {
 				logger.error("Error during  initialization or starting module ", e);
@@ -145,35 +137,19 @@ public class Main {
 			b = fastaFile.mkdir();
 			logger.info("create folder {} successful ={}", fastaFile.getName(), b);
 		}
-		// VDS TO TEST
-//		String dataMzdbPath = ExecutionSession.getMzdbFolder().replace("..", ".");// relative under working directory,
-//																					// not relative to cortex directory
-//		File mzdbFile = new File(dataMzdbPath);
-//		if (!mzdbFile.isDirectory()) {
-//			boolean b;
-//			b = mzdbFile.mkdir();
-//			logger.info("create folder {} successful={}", mzdbFile.getName(), b);
-//			mzdbFile.mkdir();
-//		}
+
+		String dataMzdbPath = ExecutionSession.getMzdbFolder().replace("..", ".");// relative under working directory,
+																					// not relative to cortex directory
+		File mzdbFile = new File(dataMzdbPath);
+		if (!mzdbFile.isDirectory()) {
+			boolean b;
+			b = mzdbFile.mkdir();
+			logger.info("create folder {} successful={}", mzdbFile.getName(), b);
+			mzdbFile.mkdir();
+		}
 		cleanTmpFolder(tmpFile);
 	}
 
-//	private static void startDataStore(DataStore dataStore) throws Exception {
-//		SplashScreen.setProgress("Starting Datastore");
-//		if (dataStore.getDatastoreName().equals(PostgreSQL.NAME)) {
-//			((PostgreSQL) dataStore).verifyVersion();
-//		}
-//		if (Config.isAdjustMemory()) {// VDS: POurquoi adjust memory ici.... en amont ?
-//			Memory.adjustMemory(Config.getTotalMemory());
-//		} else {
-//			if (dataStore.getDatastoreName().equals(PostgreSQL.NAME)) {
-//				Memory.restorePostgreSQLDefaultConfig();
-//			}
-//		}
-//		// start datastore
-//		ExecutionSession.getDataStore().start();
-//
-//	}
 
 	private static synchronized void cleanTmpFolder(File tmpFile) {
 		long folderSize = tmpFile.length();

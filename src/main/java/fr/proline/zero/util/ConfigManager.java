@@ -71,49 +71,12 @@ public final class ConfigManager {
 		return this.seqRepBeingActive;
 	}
 
-	public void setHideConfigDialog(Boolean b) {
-		hideConfigDialog = b;
+	public void setShowConfigDialog(Boolean b) {
+		hideConfigDialog = !b;
 	}
 
-	public boolean getHideConfigDialog() {
-		return this.hideConfigDialog;
-	}
-
-	// updates config files
-	public void updateFileZero() {
-		try {
-			if (memoryManager.hasBeenChanged()) {
-				updateFileMemory();
-			}
-			// TODO faire la verif des param generaux
-			if (true) {
-				updateFileGeneral();
-			}
-			if (advancedManager.hasBeenChanged()) {
-				updateFileAdvanced();
-			}
-		} catch (ConfigurationException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void updateFileMemory() throws ConfigurationException {
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(
-				PropertiesConfiguration.class).configure(params.properties().setFileName("proline_launcher.config"));
-		Configuration config = builder.getConfiguration();
-
-		config.setProperty("allocation_mode", memoryManager.getAttributionMode().toString());
-		config.setProperty("total_max_memory", memoryManager.getServerTotalMemoryString());
-		config.setProperty("studio_memory", memoryManager.getStudioMemoryString());
-		config.setProperty("server_total_memory", memoryManager.getServerTotalMemoryString());
-		config.setProperty("seqrep_memory", memoryManager.getSeqrepMemoryString());
-		config.setProperty("datastore_memory", memoryManager.getDatastoreMemoryString());
-		config.setProperty("proline_cortex_memory", memoryManager.getProlineServerMemoryString());
-		config.setProperty("JMS_memory", memoryManager.getJmsMemoryString());
-
-		// writes in the file
-		builder.save();
+	public boolean showConfigDialog() {
+		return !this.hideConfigDialog;
 	}
 
 	// Access to Config values
@@ -145,17 +108,54 @@ public final class ConfigManager {
 		return Config.getMaxTmpFolderSize();
 	}
 
-	public void updateFileAdvanced() throws ConfigurationException {
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(
-				PropertiesConfiguration.class).configure(params.properties().setFileName("proline_launcher.config"));
+	// updates config files
+	public void updateConfigFileZero() {
+		try {
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(
+					PropertiesConfiguration.class).configure(params.properties().setFileName("proline_launcher.config"));
+
+			if (memoryManager.hasBeenChanged()) {
+				updateFileMemory(builder);
+			}
+			// TODO faire la verif des param generaux
+			if (true) {
+				updateFileGeneral(builder);
+			}
+			if (advancedManager.hasBeenChanged()) {
+				updateFileAdvanced(builder);
+			}
+		} catch (ConfigurationException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	private void updateFileMemory(FileBasedConfigurationBuilder<FileBasedConfiguration> builder) throws ConfigurationException {
+
+		Configuration config =  builder.getConfiguration();
+
+		config.setProperty("allocation_mode", memoryManager.getAttributionMode().toString());
+		config.setProperty("total_max_memory", memoryManager.formatMemoryAsString(memoryManager.getServerTotalMemory()));
+		config.setProperty("studio_memory", memoryManager.formatMemoryAsString(memoryManager.getStudioMemory()));
+		config.setProperty("server_total_memory", memoryManager.formatMemoryAsString(memoryManager.getServerTotalMemory()));
+		config.setProperty("seqrep_memory",memoryManager.formatMemoryAsString( memoryManager.getSeqrepMemory()));
+		config.setProperty("datastore_memory", memoryManager.formatMemoryAsString(memoryManager.getDatastoreMemory()));
+		config.setProperty("proline_cortex_memory", memoryManager.formatMemoryAsString(memoryManager.getProlineServerMemory()));
+		config.setProperty("JMS_memory", memoryManager.formatMemoryAsString(memoryManager.getJmsMemory()));
+
+		// writes in the file
+		builder.save();
+	}
+
+	private void updateFileAdvanced(FileBasedConfigurationBuilder<FileBasedConfiguration> builder) throws ConfigurationException {
 		Configuration config = builder.getConfiguration();
 
 		config.setProperty("server_default_timeout", String.valueOf(advancedManager.getServerDefaultTimeout() / 1000));
 		config.setProperty("service_thread_pool_size",
 				String.valueOf(advancedManager.getCortexNbParallelizableServiceRunners()));
 		config.setProperty("java_home", advancedManager.getJvmPath());
-		config.setProperty("force_datastore_update", booleanToString(advancedManager.getForceDataStoreUpdate()));
+		config.setProperty("force_datastore_update", SettingsConstant.booleanToString(advancedManager.getForceDataStoreUpdate()));
 		config.setProperty("datastore_port", String.valueOf(advancedManager.getDataStorePort()));
 		config.setProperty("jms_server_port", String.valueOf(advancedManager.getJmsServerPort()));
 		config.setProperty("jms_server_batch_port", String.valueOf(advancedManager.getJmsBatchServerPort()));
@@ -167,15 +167,12 @@ public final class ConfigManager {
 	}
 
 	// TODO verifier à partir d'autre chose que le memoryManager
-	private void updateFileGeneral() throws ConfigurationException {
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(
-				PropertiesConfiguration.class).configure(params.properties().setFileName("proline_launcher.config"));
+	private void updateFileGeneral(FileBasedConfigurationBuilder<FileBasedConfiguration> builder) throws ConfigurationException {
 		Configuration config = builder.getConfiguration();
-		config.setProperty("sequence_repository_active", booleanToString(memoryManager.isStudioActive()));
-		config.setProperty("proline_studio_active", booleanToString(memoryManager.isSeqRepoActive()));
-		config.setProperty("log_debug", booleanToString(isDebugMode()));
-		config.setProperty("hide_config_dialog", booleanToString(getHideConfigDialog()));
+		config.setProperty("sequence_repository_active", SettingsConstant.booleanToString(memoryManager.isStudioActive()));
+		config.setProperty("proline_studio_active", SettingsConstant.booleanToString(memoryManager.isSeqRepoActive()));
+		config.setProperty("log_debug", SettingsConstant.booleanToString(isDebugMode()));
+		config.setProperty("hide_config_dialog", SettingsConstant.booleanToString(!showConfigDialog()));
 
 		// writes in the file
 		builder.save();
@@ -184,7 +181,7 @@ public final class ConfigManager {
 	public void restoreValues() {
 		setStudioActive(Config.getStudioActive());
 		setSeqRepActive(Config.getSeqRepActive());
-		setHideConfigDialog(Config.getHideConfigDialog());
+		setShowConfigDialog(Config.showConfigDialog());
 		memoryManager.restoreValues();
 		advancedManager.restoreValues();
 		// TODO other utils restore to their originals
@@ -192,45 +189,31 @@ public final class ConfigManager {
 
 	public boolean verif() {
 
-		memoryManager.verif();
+		boolean success = memoryManager.verif();
+		success = success && advancedManager.verif();
 
-		advancedManager.verif();
+		if(!success) {
+			StringBuilder errorMessage = new StringBuilder();
 
-		StringBuilder errorMessage = new StringBuilder();
+			if (Objects.nonNull(memoryManager.getErrorMessage())) {
+				errorMessage.append(memoryManager.getErrorMessage());
+				errorMessage.append("\n");
+			}
+			if (Objects.nonNull(advancedManager.getErrorMessage())) {
+				errorMessage.append(advancedManager.getErrorMessage());
+				errorMessage.append("\n");
+			}
 
-		if (Objects.nonNull(memoryManager.getErrorMessage())) {
-			errorMessage.append(memoryManager.getErrorMessage());
-			errorMessage.append("\n");
+			if (errorMessage.length() > 0) {
+				Popup.warning(errorMessage.toString());
+			}
 		}
-		if (Objects.nonNull(advancedManager.getErrorMessage())) {
-			errorMessage.append(advancedManager.getErrorMessage());
-			errorMessage.append("\n");
-		}
-
-		if (errorMessage.length() > 0) {
-			Popup.warning(errorMessage.toString());
-			return false;
-		}
-		return true;
+		return success;
 	}
 
 	public boolean isErrorFatal() {
-		if (memoryManager.isErrorFatal() || advancedManager.isErrorFatal()) {
-			return true;
-		}
-		return false;
+		return memoryManager.isErrorFatal() || advancedManager.isErrorFatal();
 	}
 
-	public void resetVerif() {
-		memoryManager.resetVerif();
-		advancedManager.resetVerif();
-	}
-
-	private static String booleanToString(boolean b) {
-		if (b) {
-			return "on";
-		}
-		return "off";
-	}
 
 }

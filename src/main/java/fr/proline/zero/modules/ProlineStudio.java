@@ -72,6 +72,8 @@ public class ProlineStudio extends AbstractProcess {
         m_isProcessAlive = true;
         logger.info("Process {} successfully started (name = {}, pid = {}, alive = {})", getModuleName(), process.getProcess(), getProcessPidSafely(process), m_isProcessAlive);
         ZeroTray.update();
+
+        //VDS : NO MORE NEEDED. To be removed once tests will be done. ExecutionSession manage stop
         // check every 2.5 seconds that Studio is still alive
         // the ending of Proline Zero is invisible to the user, so it does not matter if it happens directly when Studio is stopped
 //        while (process.getProcess().isAlive()) {

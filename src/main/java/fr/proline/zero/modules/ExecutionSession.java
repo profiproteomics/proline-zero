@@ -224,22 +224,7 @@ public class ExecutionSession {
             if(m.isProcessAlive())
                 m.stop();
         }
-////        ProlineAdmin.stop();
-//        if (studio != null && studio.isProcessAlive()) {//when config server mode,  studio is null
-//            studio.stop();
-//        }
-//        if (seqRepo != null && seqRepo.isProcessAlive()) {//when config disable, seqRepo is null
-//            seqRepo.stop();
-//        }
-//        if (cortex != null && cortex.isProcessAlive()) {
-//            cortex.stop();
-//        }
-//        if (jmsServer != null && jmsServer.isProcessAlive()) {
-//            jmsServer.stop();
-//        }
-//        if (datastore != null && datastore.isProcessAlive()) {
-//            datastore.stop();
-//        }
+
         isActive = false;
     }
 
@@ -253,12 +238,6 @@ public class ExecutionSession {
         return isActive;
     }
 
-//    private static int getJMSServerPort() {
-//        String regex_port = ProlineFiles.CORTEX_JMS_NODE_PORT + "\\s*=\\s*([\\d]+)";
-//        File configFile = ProlineFiles.CORTEX_JMS_CONFIG_FILE;
-//        String value = getProperty(configFile, regex_port);
-//        return Integer.parseInt(value);
-//    }
 
     public static String getMzdbFolder() {
         File configFile = ProlineFiles.CORTEX_CONFIG_FILE;

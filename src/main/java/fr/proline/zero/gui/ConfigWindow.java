@@ -86,15 +86,11 @@ public class ConfigWindow extends JDialog {
 		c.fill = GridBagConstraints.BOTH;
 
 		doNotShowAgainBox = new JCheckBox("Do not show again");
-		doNotShowAgainBox.setSelected(configManager.getHideConfigDialog());
+		doNotShowAgainBox.setSelected(!configManager.showConfigDialog());
 		ItemListener checkHide = new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 
-				if (doNotShowAgainBox.isSelected()) {
-					configManager.setHideConfigDialog(true);
-				} else {
-					configManager.setHideConfigDialog(false);
-				}
+				configManager.setShowConfigDialog(!doNotShowAgainBox.isSelected());
 			}
 		};
 		doNotShowAgainBox.addItemListener(checkHide);
@@ -220,6 +216,7 @@ public class ConfigWindow extends JDialog {
 		c.insets = new Insets(5, 5, 5, 5);
 
 		// mise en place des widgets
+		//VDS: Avoir la meme structure de code pour les 3 boutons : Code integre dans actionListener ou dans une methode appele + posutionnement de m_buttonClicked
 		try {
 			Icon crossIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
 			Icon tickIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("tick.png")));
@@ -227,18 +224,21 @@ public class ConfigWindow extends JDialog {
 			continueButton = new JButton("Ok", tickIcon);
 			continueButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent event) {
+					//VDS TODO : faire une methode OkButtonPerformed comme pour cancel / restore ? Bof a voir
 					m_buttonClicked = BUTTON_OK;
-					ConfigManager.getInstance().verif();
-					if (!ConfigManager.getInstance().isErrorFatal()) {
-						ConfigManager.getInstance().updateFileZero();
+					boolean success = ConfigManager.getInstance().verif();
+					if (success) {
+						ConfigManager.getInstance().updateConfigFileZero();
 						setVisible(false);
-					} else {
-						boolean yesPressed = Popup.yesNo(
-								"Proline Zero can't start with current errors \nWould you like to exit Proline Zero ?");
-						if (yesPressed) {
-							System.exit(0);
+					} else { //At least one error fatal oor not !
+						if(!ConfigManager.getInstance().isErrorFatal()) {
+							boolean yesPressed = Popup.yesNo(
+									"Proline Zero can't start with current errors \nWould you like to exit Proline Zero ?");
+							if (yesPressed) {
+								System.exit(0);
+							}
 						} else {
-							ConfigManager.getInstance().resetVerif();
+							//VDS TODO none fatal error but warning for user:  Popup Message + confirmation to exit config ==> and start Zero
 						}
 					}
 				}
@@ -246,6 +246,7 @@ public class ConfigWindow extends JDialog {
 			cancelButton = new JButton("Cancel", crossIcon);
 			cancelButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent event) {
+					m_buttonClicked = BUTTON_CANCEL; //VDS TODO: info, j'ai deplacé ici pour avoir meme comportement ...
 					cancelButtonActionPerformed();
 				}
 			});
@@ -289,7 +290,9 @@ public class ConfigWindow extends JDialog {
 	}
 
 	private void cancelButtonActionPerformed() {
-		m_buttonClicked = BUTTON_CANCEL;
+		//VDS TODO: Restore & continue
+		//  ==> call restoreValues  + verify ?
+		// OR Exit ?
 		setVisible(false);
 	}
 
@@ -325,7 +328,7 @@ public class ConfigWindow extends JDialog {
 	}
 
 	private void updateValues() {
-		doNotShowAgainBox.setSelected(configManager.getHideConfigDialog());
+		doNotShowAgainBox.setSelected(!configManager.showConfigDialog());
 		studioModuleBox.setSelected(configManager.isStudioActive());
 		seqRepModuleBox.setSelected(configManager.isSeqReppActive());
 	}

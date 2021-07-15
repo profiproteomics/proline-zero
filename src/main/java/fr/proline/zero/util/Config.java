@@ -142,16 +142,6 @@ class Config {
 		return properties.getProperty("seqrepo_version");
 	}
 
-//	public static File getJavaHomeFile() {
-//		Config.initialize();
-//		// if null try to find studio's jre, if still null return current jre
-//		String javaPath = properties.getProperty("java_home");
-//		if (javaPath == null) {
-//			Popup.warning("The JRE path could not be read, trying to find studio's jre");
-//			javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jre";
-//		}
-//		return new File(javaPath);
-//	}
 
 	public static String getJavaHome() {
 		Config.initialize();
@@ -162,11 +152,6 @@ class Config {
 			javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jre";
 		}
 		return new File(javaPath).getAbsolutePath();
-	}
-
-	public static String getJavaExePath() {
-		Config.initialize();
-		return new File(Config.getJavaHome() + "/bin/java").getAbsolutePath();
 	}
 
 	public static String getAllocationMode() {
@@ -259,18 +244,11 @@ class Config {
 		return properties.getProperty("studio_version");
 	}
 
-	private static boolean isBooleanTrue(String booleanValue) {
-		if (booleanValue != null
-				&& (booleanValue.equals("on") || booleanValue.equals("true") || booleanValue.equals("yes"))) {
-			return true;
-		}
-		return false;
-	}
 
 	public static boolean isDebugMode() {
 		Config.initialize();
 		String debug = properties.getProperty("log_debug");
-		return Config.isBooleanTrue(debug);
+		return SettingsConstant.isBooleanTrue(debug);
 	}
 
 	public static boolean getForceUpdate() {
@@ -280,7 +258,7 @@ class Config {
 			Popup.warning("The Force update setting could not be read : \n set to on");
 			databaseUpdate = "on";
 		}
-		return Config.isBooleanTrue(databaseUpdate);
+		return SettingsConstant.isBooleanTrue(databaseUpdate);
 	}
 
 	public static Boolean getStudioActive() {
@@ -290,7 +268,7 @@ class Config {
 			Popup.warning("The Studio active setting could not be read : \n set to on");
 			StudioActive = "on";
 		}
-		return Config.isBooleanTrue(StudioActive);
+		return SettingsConstant.isBooleanTrue(StudioActive);
 	}
 
 	public static Boolean getSeqRepActive() {
@@ -300,17 +278,17 @@ class Config {
 			Popup.warning("The sequence repository active setting could not be read : \n set to on");
 			seqRepActive = "on";
 		}
-		return Config.isBooleanTrue(seqRepActive);
+		return SettingsConstant.isBooleanTrue(seqRepActive);
 	}
 
-	public static Boolean getHideConfigDialog() {
+	public static Boolean showConfigDialog() {
 		Config.initialize();
-		String hideConfigDialog = properties.getProperty("hide_config_dialog");
-		if (hideConfigDialog == null) {
-			Popup.warning("The hide config dialog setting could not be read : \n set to on");
-			hideConfigDialog = "on";
+		String showConfigDialog = properties.getProperty("show_config_dialog");
+		if (showConfigDialog == null) {
+			Popup.warning("Show config dialog setting could not be read : \n set to on");
+			showConfigDialog = "on";
 		}
-		return Config.isBooleanTrue(hideConfigDialog);
+		return SettingsConstant.isBooleanTrue(showConfigDialog);
 	}
 
 }

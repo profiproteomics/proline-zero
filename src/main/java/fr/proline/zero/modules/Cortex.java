@@ -24,7 +24,7 @@ public class Cortex extends AbstractProcess {
         String classpath = new StringBuilder().append(SystemUtils.toSystemClassPath("config;")).append(ProlineFiles.CORTEX_JAR_FILE.getName()).append(SystemUtils.toSystemClassPath(";lib/*")).toString();
         logger.info("starting Cortex server from path " + cortexHome.getAbsolutePath());
         List<String> command = new ArrayList<>();
-        command.add(ConfigManager.getInstance().getAdvancedManager().getJvmPath());
+        command.add(ConfigManager.getInstance().getAdvancedManager().getJvmExePath());
         command.add("-Xmx"+ConfigManager.getInstance().getMemoryManager().getProlineServerMemory()+"M");
         command.add("-XX:+UseG1GC");
         command.add("-XX:+UseStringDeduplication");

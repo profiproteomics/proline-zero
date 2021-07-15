@@ -19,10 +19,9 @@ public class JMSServer extends AbstractProcess {
     public JMSServer() {
         moduleName  = "JMS server";
         jmsHome = ProlineFiles.HORNETQ_DIRECTORY;
-        //VDS FOR TEST
-//        if (!jmsHome.exists() || !jmsHome.isDirectory()) {
-//            throw new IllegalArgumentException("JMS server Home directory not found");
-//        }
+        if (!jmsHome.exists() || !jmsHome.isDirectory()) {
+            throw new IllegalArgumentException("JMS server Home directory not found");
+        }
     }
 
     public void start() throws Exception {
@@ -39,7 +38,7 @@ public class JMSServer extends AbstractProcess {
             String classpath = SystemUtils.toSystemClassPath("config/stand-alone/non-clustered/;schema/*;lib/*");
             logger.info("starting JMS server from path " + jmsHome.getAbsolutePath());
             List<String> command = new ArrayList<>();
-            command.add(ConfigManager.getInstance().getAdvancedManager().getJvmPath());
+            command.add(ConfigManager.getInstance().getAdvancedManager().getJvmExePath());
             command.add("-Dhornetq.remoting.netty.host=0.0.0.0");
             command.add("-Dhornetq.remoting.netty.port=" + jmsPort);
             command.add("-XX:+UseParallelGC");

@@ -142,6 +142,8 @@ public class AdvancedAndServerUtils {
 	}
 
 	public boolean verif() {
+		errorMessage = null;
+		errorFatal = false;
 		StringBuilder message = new StringBuilder();
 		try {
 			message.append(isJavaOk());
@@ -178,11 +180,6 @@ public class AdvancedAndServerUtils {
 
 	public boolean isErrorFatal() {
 		return errorFatal;
-	}
-
-	public void resetVerif() {
-		errorMessage = null;
-		errorFatal = false;
 	}
 
 	private String isJavaOk() throws Exception {

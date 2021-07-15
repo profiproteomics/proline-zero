@@ -37,14 +37,14 @@ public class PostgreSQL implements IZeroModule {
         return isProcessAlive;
     }
 
-    //VDS TODO : To move to 'Main' : Java requested for all Module
-    private String getJavaPath() throws Exception {
-        File jvmPathFile =  new File(ConfigManager.getInstance().getAdvancedManager().getJvmPath());
-        if (!jvmPathFile.exists()) {
-            logger.warn("Java home is not configured, PostgreSQL may crash due to missing MSVC dll files.");
-        }
-        return jvmPathFile.getAbsolutePath() + "/bin";
-    }
+//    //VDS TODO : To move to 'Main' : Java requested for all Module
+//    private String getJavaPath() throws Exception {
+//        File jvmPathFile =  new File(ConfigManager.getInstance().getAdvancedManager().getJvmPath());
+//        if (!jvmPathFile.exists()) {
+//            logger.warn("Java home is not configured, PostgreSQL may crash due to missing MSVC dll files.");
+//        }
+//        return jvmPathFile.getAbsolutePath() + "/bin";
+//    }
 
     public void init() throws Exception {
         int datastorePort = ConfigManager.getInstance().getAdvancedManager().getDataStorePort();
@@ -71,7 +71,7 @@ public class PostgreSQL implements IZeroModule {
                     .command("./pgsql/bin/initdb", "-Uproline", "-Apassword", "-Eutf8", "--pwfile=postgres.passwd", "-D" + PG_DATA)
                     .redirectOutput(Slf4jStream.ofCaller().asInfo())
                     .redirectError(Slf4jStream.ofCaller().asError())
-                    .environment("PATH", SystemUtils.getPathEnvironmentVariable(getJavaPath()))
+                    .environment("PATH", SystemUtils.getPathEnvironmentVariable(ConfigManager.getInstance().getAdvancedManager().getJvmPath()+"/bin"))
                     .redirectOutput(new LogOutputStream() {
                         @Override
                         protected void processLine(String line) {
@@ -102,7 +102,7 @@ public class PostgreSQL implements IZeroModule {
     public void verifyVersion() throws Exception {
         ProcessResult pgVersion = new ProcessExecutor()
                 .command("./pgsql/bin/pg_ctl", "--version")
-                .environment("PATH", SystemUtils.getPathEnvironmentVariable(getJavaPath()))
+                .environment("PATH", SystemUtils.getPathEnvironmentVariable(ConfigManager.getInstance().getAdvancedManager().getJvmPath()+"/bin"))
                 .redirectOutput(new LogOutputStream() {
                     @Override
                     protected void processLine(String line) {
@@ -148,7 +148,7 @@ public class PostgreSQL implements IZeroModule {
             StartedProcess pg = new ProcessExecutor()
                     .command("./pgsql/bin/pg_ctl", "-w", "-D" + PG_DATA, "-l" + ProlineFiles.PG_LOG_FILENAME, "-o \"-p" + dataStorePort + "\"", "start")
                     .redirectOutput(Slf4jStream.ofCaller().asInfo())
-                    .environment("PATH", SystemUtils.getPathEnvironmentVariable(getJavaPath()))
+                    .environment("PATH", SystemUtils.getPathEnvironmentVariable(ConfigManager.getInstance().getAdvancedManager().getJvmPath()+"/bin"))
                     .start();
 
             while (pg.getProcess().isAlive()) {
