@@ -18,11 +18,11 @@ class Config {
 	private static Logger logger = LoggerFactory.getLogger(Config.class);
 	private static Properties properties;
 
-
 	private static void initialize() {
 		if (properties == null) {
 			try {
 				properties = new Properties();
+				// TODO changer le path du fichier
 				File configFile = new File("proline_launcher.config");
 				properties.load(new FileInputStream(configFile));
 			} catch (Throwable t) {
@@ -56,7 +56,6 @@ class Config {
 		// multiply timeout by 1000 to have it in milliseconds
 		return timeout * 1000;
 	}
-
 
 	public static long getMaxTmpFolderSize() {
 		Config.initialize();
@@ -267,7 +266,6 @@ class Config {
 		}
 		return false;
 	}
-
 
 	public static boolean isDebugMode() {
 		Config.initialize();

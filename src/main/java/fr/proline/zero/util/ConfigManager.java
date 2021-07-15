@@ -1,11 +1,15 @@
 package fr.proline.zero.util;
 
+import java.util.Objects;
+
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+
+import fr.proline.zero.gui.Popup;
 
 public final class ConfigManager {
 
@@ -26,9 +30,12 @@ public final class ConfigManager {
 
 	public void initialize() {
 		memoryManager = new MemoryUtils();
+
 		advancedManager = new AdvancedAndServerUtils();
-		setStudioActive(Config.getStudioActive());
-		setSeqRepActive(Config.getSeqRepActive());
+
+		studioBeingActive = Config.getStudioActive();
+		seqRepBeingActive = Config.getSeqRepActive();
+		hideConfigDialog = Config.getHideConfigDialog();
 	}
 
 	public static ConfigManager getInstance() {
@@ -113,22 +120,28 @@ public final class ConfigManager {
 	public static boolean isDebugMode() {
 		return Config.isDebugMode();
 	}
+
 	public static String getDatastoreType() {
 		return Config.getDatastoreType();
 	}
+
 	public static String getStudioVersion() {
 		return Config.getStudioVersion();
 	}
+
 	public static String getHornetQVersion() {
 		return Config.getHornetQVersion();
 	}
+
 	public static String getCortexVersion() {
 		return Config.getCortexVersion();
 	}
+
 	public static String getSeqRepoVersion() {
 		return Config.getSeqRepoVersion();
 	}
-	public static long getMaxTmpFolderSize(){
+
+	public static long getMaxTmpFolderSize() {
 		return Config.getMaxTmpFolderSize();
 	}
 
@@ -138,10 +151,11 @@ public final class ConfigManager {
 				PropertiesConfiguration.class).configure(params.properties().setFileName("proline_launcher.config"));
 		Configuration config = builder.getConfiguration();
 
-		config.setProperty("server_default_timeout", String.valueOf(advancedManager.getServerDefaultTimeout()/1000));
-		config.setProperty("service_thread_pool_size", String.valueOf(advancedManager.getCortexNbParallelizableServiceRunners()));
+		config.setProperty("server_default_timeout", String.valueOf(advancedManager.getServerDefaultTimeout() / 1000));
+		config.setProperty("service_thread_pool_size",
+				String.valueOf(advancedManager.getCortexNbParallelizableServiceRunners()));
 		config.setProperty("java_home", advancedManager.getJvmPath());
-		config.setProperty("force_datastore_update", advancedManager.getForceDataStoreUpdateString());
+		config.setProperty("force_datastore_update", booleanToString(advancedManager.getForceDataStoreUpdate()));
 		config.setProperty("datastore_port", String.valueOf(advancedManager.getDataStorePort()));
 		config.setProperty("jms_server_port", String.valueOf(advancedManager.getJmsServerPort()));
 		config.setProperty("jms_server_batch_port", String.valueOf(advancedManager.getJmsBatchServerPort()));
@@ -158,21 +172,10 @@ public final class ConfigManager {
 		FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(
 				PropertiesConfiguration.class).configure(params.properties().setFileName("proline_launcher.config"));
 		Configuration config = builder.getConfiguration();
-		if (memoryManager.isStudioActive()) {
-			config.setProperty("sequence_repository_active", "on");
-		} else {
-			config.setProperty("sequence_repository_active", "off");
-		}
-		if (memoryManager.isSeqRepoActive()) {
-			config.setProperty("proline_studio_active", "on");
-		} else {
-			config.setProperty("proline_studio_active", "off");
-		}
-		if(isDebugMode()) {
-			config.setProperty("log_debug","on");
-		}else{
-			config.setProperty("log_debug","off");
-		}
+		config.setProperty("sequence_repository_active", booleanToString(memoryManager.isStudioActive()));
+		config.setProperty("proline_studio_active", booleanToString(memoryManager.isSeqRepoActive()));
+		config.setProperty("log_debug", booleanToString(isDebugMode()));
+		config.setProperty("hide_config_dialog", booleanToString(getHideConfigDialog()));
 
 		// writes in the file
 		builder.save();
@@ -186,4 +189,48 @@ public final class ConfigManager {
 		advancedManager.restoreValues();
 		// TODO other utils restore to their originals
 	}
+
+	public boolean verif() {
+
+		memoryManager.verif();
+
+		advancedManager.verif();
+
+		StringBuilder errorMessage = new StringBuilder();
+
+		if (Objects.nonNull(memoryManager.getErrorMessage())) {
+			errorMessage.append(memoryManager.getErrorMessage());
+			errorMessage.append("\n");
+		}
+		if (Objects.nonNull(advancedManager.getErrorMessage())) {
+			errorMessage.append(advancedManager.getErrorMessage());
+			errorMessage.append("\n");
+		}
+
+		if (errorMessage.length() > 0) {
+			Popup.warning(errorMessage.toString());
+			return false;
+		}
+		return true;
+	}
+
+	public boolean isErrorFatal() {
+		if (memoryManager.isErrorFatal() || advancedManager.isErrorFatal()) {
+			return true;
+		}
+		return false;
+	}
+
+	public void resetVerif() {
+		memoryManager.resetVerif();
+		advancedManager.resetVerif();
+	}
+
+	private static String booleanToString(boolean b) {
+		if (b) {
+			return "on";
+		}
+		return "off";
+	}
+
 }

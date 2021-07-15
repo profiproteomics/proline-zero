@@ -4,7 +4,6 @@ import java.awt.Dialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -86,6 +85,20 @@ public class ConfigWindow extends JDialog {
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 
+		doNotShowAgainBox = new JCheckBox("Do not show again");
+		doNotShowAgainBox.setSelected(configManager.getHideConfigDialog());
+		ItemListener checkHide = new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+
+				if (doNotShowAgainBox.isSelected()) {
+					configManager.setHideConfigDialog(true);
+				} else {
+					configManager.setHideConfigDialog(false);
+				}
+			}
+		};
+		doNotShowAgainBox.addItemListener(checkHide);
+
 		// ajout des differents panels
 		c.gridwidth = 3;
 		c.gridx = 0;
@@ -100,8 +113,6 @@ public class ConfigWindow extends JDialog {
 		c.gridwidth = 3;
 		c.gridy++;
 		c.weighty = 0;
-		doNotShowAgainBox = new JCheckBox("Do not show again");
-		doNotShowAgainBox.setSelected(configManager.getHideConfigDialog());
 		add(doNotShowAgainBox, c);
 
 		c.gridy++;
@@ -217,9 +228,19 @@ public class ConfigWindow extends JDialog {
 			continueButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent event) {
 					m_buttonClicked = BUTTON_OK;
-					configContinue();
-					ConfigManager.getInstance().updateFileZero();
-					setVisible(false);
+					ConfigManager.getInstance().verif();
+					if (!ConfigManager.getInstance().isErrorFatal()) {
+						ConfigManager.getInstance().updateFileZero();
+						setVisible(false);
+					} else {
+						boolean yesPressed = Popup.yesNo(
+								"Proline Zero can't start with current errors \nWould you like to exit Proline Zero ?");
+						if (yesPressed) {
+							System.exit(0);
+						} else {
+							ConfigManager.getInstance().resetVerif();
+						}
+					}
 				}
 			});
 			cancelButton = new JButton("Cancel", crossIcon);
@@ -270,20 +291,6 @@ public class ConfigWindow extends JDialog {
 	private void cancelButtonActionPerformed() {
 		m_buttonClicked = BUTTON_CANCEL;
 		setVisible(false);
-	}
-
-	// tests pour l'instant, ecriture dans le fichier plus tard et lancement de la
-	// suite de proline
-	private void configContinue() {
-		Rectangle r = getBounds();
-		int h = r.height;
-		int w = r.width;
-		System.out.println("h : " + h + " et r : " + w);
-		if (doNotShowAgainBox.isSelected()) {
-			System.out.println("checked");
-		} else {
-			System.out.println("unchecked");
-		}
 	}
 
 	private ChangeListener resizeDynamique() {

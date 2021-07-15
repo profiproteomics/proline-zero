@@ -39,6 +39,8 @@ public class Main {
 			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists(); // first
 																													// launch
 			ConfigManager.getInstance().initialize();
+			ConfigManager.getInstance().verif();
+			ConfigManager.getInstance().resetVerif();
 			// VDS TODO : A mettre dans l'init
 			// VDS Moved from bellow ==> Nathan c'est fait dans les Utils !.?
 //			logger.info("First launch, update port");
@@ -48,21 +50,25 @@ public class Main {
 //			ExecutionSession.updateCortexNbParallelizableServiceRunners();// each time, we can change
 
 			// if specified in config load IHM
-			ConfigWindow test = new ConfigWindow();
-			test.setVisible(true);
-			if (test.getButtonClicked() == ConfigWindow.BUTTON_CANCEL) {
-				boolean yesPressed = Popup.yesNo("Continue with previous configuration (No = exit) ?");
-				if (yesPressed) {
-					// VDS TODO Restore & continue ??!!
+			if (!ConfigManager.getInstance().getHideConfigDialog()) {
+				ConfigWindow paramWindow = new ConfigWindow();
+				paramWindow.setVisible(true);
+				if (paramWindow.getButtonClicked() == ConfigWindow.BUTTON_CANCEL) {
+					boolean yesPressed = Popup.yesNo("Continue with previous configuration (No = exit) ?");
+					if (yesPressed) {
+						// VDS TODO Restore & continue ??!!
+						ConfigManager.getInstance().restoreValues();
 
-				} else {
-					System.exit(0);
+					} else {
+						System.exit(0);
+					}
 				}
 			}
 
 			// Popup.info("Config Done");
 
 			// VDS TODO: test and save new config here !!?? Or in Util . IHM
+			// ExecutionSession.updateConfigPort();
 
 			// Load modules
 			manageFolder(); // create missing folders inside Proline Zero (don't create folder elsewhere on
@@ -80,25 +86,25 @@ public class Main {
 			SplashScreen.setProgressMax(nbrStep); // init, pgsql, admin, hornetq, cortex, seqrepo, studio
 			IZeroModule nextModule = null;
 			try {
-					for (int i = 0; i < ExecutionSession.getModuleCount(); i++) {
-						nextModule = ExecutionSession.getModuleAt(i);
-						if(nextModule!= null) {
-							if (initBeforeStart) {
-								SplashScreen.setProgress("Initializing " + nextModule.getModuleName());
-								logger.info("Initializing module "+ nextModule.getModuleName());
+				for (int i = 0; i < ExecutionSession.getModuleCount(); i++) {
+					nextModule = ExecutionSession.getModuleAt(i);
+					if (nextModule != null) {
+						if (initBeforeStart) {
+							SplashScreen.setProgress("Initializing " + nextModule.getModuleName());
+							logger.info("Initializing module " + nextModule.getModuleName());
 //									nextModule.init();
-								Thread.sleep(2000);
-
-							}
-							SplashScreen.setProgress("Starting " + nextModule.getModuleName());
-							logger.info("Starting module "+ nextModule.getModuleName());
-							//	nextModule.start();
 							Thread.sleep(2000);
-							logger.info("Module +", nextModule.getModuleName() + " started");
-						} else {
-							Popup.error(" A Module is null, at index "+i );
+
 						}
+						SplashScreen.setProgress("Starting " + nextModule.getModuleName());
+						logger.info("Starting module " + nextModule.getModuleName());
+						// nextModule.start();
+						Thread.sleep(2000);
+						logger.info("Module +", nextModule.getModuleName() + " started");
+					} else {
+						Popup.error(" A Module is null, at index " + i);
 					}
+				}
 
 			} catch (Exception e) {
 				logger.error("Error during  initialization or starting module ", e);

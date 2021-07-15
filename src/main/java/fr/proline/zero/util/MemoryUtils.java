@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.management.OperatingSystemMXBean;
 
-import fr.proline.zero.gui.Popup;
-
 public class MemoryUtils {
 
 	private static Logger logger = LoggerFactory.getLogger(MemoryUtils.class);
@@ -59,32 +57,39 @@ public class MemoryUtils {
 
 	private AttributionMode attributionMode;
 
+	private String errorMessage;
+	private boolean errorFatal;
+
 	public MemoryUtils() {
+
+		studioActive = Config.getStudioActive();
+		seqRepActive = Config.getSeqRepActive();
+
 		switch (Config.getAllocationMode()) {
 		case "auto":
-			setAttributionMode(AttributionMode.AUTO);
-			setTotalMemory(parseMemoryValue("Total memory value ", Config.getTotalMemory()));
+			attributionMode = AttributionMode.AUTO;
+			totalMemory = parseMemoryValue("Total memory value ", Config.getTotalMemory());
 			update();
 			break;
 		case "semi":
-			setAttributionMode(AttributionMode.SEMIAUTO);
-			setStudioMemory(parseMemoryValue("Studio memory value ", Config.getStudioMemory()));
+			attributionMode = AttributionMode.SEMIAUTO;
+			studioMemory = parseMemoryValue("Studio memory value ", Config.getStudioMemory());
 			setServerTotalMemory(parseMemoryValue("Total server memory value ", Config.getServerTotalMemory()));
 			update();
 			break;
 		case "manual":
-			setAttributionMode(AttributionMode.MANUAL);
-			setStudioMemory(parseMemoryValue("Studio memory value ", Config.getStudioMemory()));
-			setSeqrepMemory(parseMemoryValue("SeqRep memory value ", Config.getSeqRepMemory()));
-			setDatastoreMemory(parseMemoryValue("PG memory value ", Config.getDatastoreMemory()));
-			setProlineServerMemory(parseMemoryValue("Cortex memory value ", Config.getCortexMemory()));
-			setJmsMemory(parseMemoryValue("JMS memory value ", Config.getJMSMemory()));
+			attributionMode = AttributionMode.MANUAL;
+			studioMemory = parseMemoryValue("Studio memory value ", Config.getStudioMemory());
+			seqrepMemory = parseMemoryValue("SeqRep memory value ", Config.getSeqRepMemory());
+			datastoreMemory = parseMemoryValue("PG memory value ", Config.getDatastoreMemory());
+			prolineServerMemory = parseMemoryValue("Cortex memory value ", Config.getCortexMemory());
+			jmsMemory = parseMemoryValue("JMS memory value ", Config.getJMSMemory());
 			update();
 			break;
 		}
-
-		this.hasBeenChanged = false;
-		this.isStudioBeingChanged = false;
+		hasBeenChanged = false;
+		isStudioBeingChanged = false;
+		errorFatal = false;
 	}
 
 	// - method called for an update of all the memory values when one of the values
@@ -154,7 +159,6 @@ public class MemoryUtils {
 					+ this.seqrepMemory;
 			this.totalMemory = this.studioMemory + this.serverTotalMemory;
 		}
-		verif();
 		return true;
 	}
 
@@ -305,6 +309,10 @@ public class MemoryUtils {
 		return toConfigFile(jmsMemory);
 	}
 
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
 	public void setHasBeenChanged(boolean bool) {
 		this.hasBeenChanged = bool;
 	}
@@ -354,49 +362,63 @@ public class MemoryUtils {
 	public void restoreValues() {
 		switch (Config.getAllocationMode()) {
 		case "auto":
-			setAttributionMode(AttributionMode.AUTO);
-			setTotalMemory(parseMemoryValue("Total memory value ", Config.getTotalMemory()));
+			attributionMode = AttributionMode.AUTO;
+			totalMemory = parseMemoryValue("Total memory value ", Config.getTotalMemory());
 			update();
 			break;
 		case "semi":
-			setAttributionMode(AttributionMode.SEMIAUTO);
-			setStudioMemory(parseMemoryValue("Studio memory value ", Config.getStudioMemory()));
+			attributionMode = AttributionMode.SEMIAUTO;
+			studioMemory = parseMemoryValue("Studio memory value ", Config.getStudioMemory());
 			setServerTotalMemory(parseMemoryValue("Total server memory value ", Config.getServerTotalMemory()));
 			update();
 			break;
 		case "manual":
-			setAttributionMode(AttributionMode.MANUAL);
-			setStudioMemory(parseMemoryValue("Studio memory value ", Config.getStudioMemory()));
-			setSeqrepMemory(parseMemoryValue("SeqRep memory value ", Config.getSeqRepMemory()));
-			setDatastoreMemory(parseMemoryValue("PG memory value ", Config.getDatastoreMemory()));
-			setProlineServerMemory(parseMemoryValue("Cortex memory value ", Config.getCortexMemory()));
-			setJmsMemory(parseMemoryValue("JMS memory value ", Config.getJMSMemory()));
+			attributionMode = AttributionMode.MANUAL;
+			studioMemory = parseMemoryValue("Studio memory value ", Config.getStudioMemory());
+			seqrepMemory = parseMemoryValue("SeqRep memory value ", Config.getSeqRepMemory());
+			datastoreMemory = parseMemoryValue("PG memory value ", Config.getDatastoreMemory());
+			prolineServerMemory = parseMemoryValue("Cortex memory value ", Config.getCortexMemory());
+			jmsMemory = parseMemoryValue("JMS memory value ", Config.getJMSMemory());
 			update();
 			break;
 		}
-		;
-		this.hasBeenChanged = false;
-		this.isStudioBeingChanged = false;
+		hasBeenChanged = false;
+		isStudioBeingChanged = false;
 	}
 
-	private void verif() {
+	public boolean verif() {
+		StringBuilder message = new StringBuilder();
 		if (totalMemory > totalMemorySize) {
-			Popup.warning("The specified total memory value is greater than what is available : \n"
-					+ "80% of the available memory will be allocated to Proline Zero");
-			setTotalMemory((long) Math.round(totalMemorySize * 0.8));
-			update();
+			message.append(
+					"- The specified total memory value is greater than available Memory : \n Proline Zero won't be able to start\n");
+			errorFatal = true;
 		}
-		if ((totalMemory < 4 * G) && seqRepActive && ((getAttributionMode() == AttributionMode.AUTO)
-				|| (getAttributionMode() == AttributionMode.SEMIAUTO))) {
-			Popup.warning("The specified total memory value is below 4Go : \n"
-					+ "The Sequence Repository Module cannot be active ");
+		if ((totalMemory < MemoryAllocationRule.MIN.getRange().getMaximumInteger()) && seqRepActive
+				&& ((getAttributionMode() == AttributionMode.AUTO)
+						|| (getAttributionMode() == AttributionMode.SEMIAUTO))) {
+			if (message.length() > 0)
+				message.append("\n");
+			message.append(
+					"- The specified total memory value is below 4Go : \n The Sequence Repository Module cannot be active\n ");
 			setSeqRepoActive(false);
+		} else if (totalMemory < SettingsConstant.MINIMUM_ZERO_MEMORY) {
+			message.append("The specified total memory value is below minimum required ("
+					+ SettingsConstant.MINIMUM_ZERO_MEMORY + ")");
+			errorFatal = true;
 		}
-		if (totalMemory < 3 * G) {
-			Popup.warning("The specified total memory value is below what is necessary : \n"
-					+ "That value cannot go below 3Go");
-			setTotalMemory(3 * G);
-			update();
+		if (message.length() > 0) {
+			errorMessage = message.toString();
+			return false;
 		}
+		return true;
+	}
+
+	public boolean isErrorFatal() {
+		return errorFatal;
+	}
+
+	public void resetVerif() {
+		errorMessage = null;
+		errorFatal = false;
 	}
 }

@@ -101,7 +101,6 @@ public class MemoryPanel extends JPanel {
 			allocModeBox.setSelectedIndex(2);
 		}
 		updateValues();
-		memoryManager.setHasBeenChanged(false);
 	}
 
 	private JPanel createAllocationTypePanel() {

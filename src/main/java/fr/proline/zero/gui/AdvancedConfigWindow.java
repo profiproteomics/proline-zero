@@ -30,7 +30,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileSystemView;
 import javax.swing.text.MaskFormatter;
 
 import fr.proline.zero.util.AdvancedAndServerUtils;
@@ -75,7 +74,7 @@ public class AdvancedConfigWindow extends JDialog {
 		serverDefaultTimeoutField = new JTextField();
 		serverDefaultTimeoutField.setPreferredSize(new Dimension(60, 20));
 		serverDefaultTimeoutField.setHorizontalAlignment(SwingConstants.RIGHT);
-		serverDefaultTimeoutField.setText((String.valueOf(advancedManager.getServerDefaultTimeout()/1000)));
+		serverDefaultTimeoutField.setText((String.valueOf(advancedManager.getServerDefaultTimeout() / 1000)));
 		serverDefaultTimeoutField.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
@@ -87,7 +86,7 @@ public class AdvancedConfigWindow extends JDialog {
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				int timeout = Integer.parseInt(serverDefaultTimeoutField.getText());
-				advancedManager.setServerDefaultTimeout(timeout*1000); // in ms
+				advancedManager.setServerDefaultTimeout(timeout * 1000); // in ms
 				advancedManager.setHasBeenChanged(true);
 			}
 
@@ -432,7 +431,7 @@ public class AdvancedConfigWindow extends JDialog {
 		ActionListener openFolderView = new ActionListener() {
 
 			public void actionPerformed(ActionEvent event) {
-				JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+				JFileChooser jfc = new JFileChooser(new File(advancedManager.getJvmPath()));
 				jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				int returnValue = jfc.showOpenDialog(null);
 
@@ -447,7 +446,7 @@ public class AdvancedConfigWindow extends JDialog {
 	}
 
 	public void updateValues() {
-		serverDefaultTimeoutField.setText((String.valueOf(advancedManager.getServerDefaultTimeout()/1000)));
+		serverDefaultTimeoutField.setText((String.valueOf(advancedManager.getServerDefaultTimeout() / 1000)));
 		threadPoolSizeField.setText((String.valueOf(advancedManager.getCortexNbParallelizableServiceRunners())));
 		jvmPathField.setText(advancedManager.getJvmPath());
 		jmsPortField.setValue(String.valueOf(advancedManager.getJmsServerPort()));
