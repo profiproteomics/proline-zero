@@ -17,7 +17,7 @@ public final class ConfigManager {
 
 	boolean seqRepBeingActive;
 
-	boolean hideConfigDialog;
+	boolean showConfigDialog;
 
 	private static ConfigManager instance;
 
@@ -35,7 +35,7 @@ public final class ConfigManager {
 
 		studioBeingActive = Config.getStudioActive();
 		seqRepBeingActive = Config.getSeqRepActive();
-		hideConfigDialog = Config.getHideConfigDialog();
+		showConfigDialog = Config.showConfigDialog();
 	}
 
 	public static ConfigManager getInstance() {
@@ -72,11 +72,11 @@ public final class ConfigManager {
 	}
 
 	public void setShowConfigDialog(Boolean b) {
-		hideConfigDialog = !b;
+		showConfigDialog = b;
 	}
 
 	public boolean showConfigDialog() {
-		return !this.hideConfigDialog;
+		return this.showConfigDialog;
 	}
 
 	// Access to Config values
@@ -172,7 +172,7 @@ public final class ConfigManager {
 		config.setProperty("sequence_repository_active", SettingsConstant.booleanToString(memoryManager.isStudioActive()));
 		config.setProperty("proline_studio_active", SettingsConstant.booleanToString(memoryManager.isSeqRepoActive()));
 		config.setProperty("log_debug", SettingsConstant.booleanToString(isDebugMode()));
-		config.setProperty("hide_config_dialog", SettingsConstant.booleanToString(!showConfigDialog()));
+		config.setProperty("show_config_dialog", SettingsConstant.booleanToString(showConfigDialog()));
 
 		// writes in the file
 		builder.save();
