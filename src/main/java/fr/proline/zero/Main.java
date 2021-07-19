@@ -46,6 +46,8 @@ public class Main {
 				ConfigWindow paramWindow = ConfigWindow.getInstance();
 				paramWindow.setVisible(true);
 				// WAITING HERE FOR CONFIG WINDOW TO CLOSE
+			} else {
+				ConfigManager.getInstance().updateConfigFileZero();
 			}
 
 			// TODO write in the file (done in the window but not if the window is not
