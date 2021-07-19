@@ -34,7 +34,7 @@ public class MemoryPanel extends JPanel {
 
 	// jlabels attributes to disable it when seqrep is disabled
 	private JLabel seqrepLabel;
-	private MemorySpinner seqrepMemorySpinner;
+	public MemorySpinner seqrepMemorySpinner;
 
 	private MemorySpinner dataStoreMemorySpinner;
 

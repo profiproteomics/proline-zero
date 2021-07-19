@@ -55,7 +55,7 @@ public final class ConfigManager {
 
 	public void setStudioActive(boolean b) {
 		studioBeingActive = b;
-		memoryManager.setStudioActive(b);
+		memoryManager.update();
 	}
 
 	public boolean isStudioActive() {
@@ -64,7 +64,6 @@ public final class ConfigManager {
 
 	public void setSeqRepActive(boolean b) {
 		seqRepBeingActive = b;
-		memoryManager.setSeqRepoActive(b);
 	}
 
 	public boolean isSeqReppActive() {
@@ -113,7 +112,8 @@ public final class ConfigManager {
 		try {
 			Parameters params = new Parameters();
 			FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(
-					PropertiesConfiguration.class).configure(params.properties().setFileName("proline_launcher.config"));
+					PropertiesConfiguration.class)
+							.configure(params.properties().setFileName("proline_launcher.config"));
 
 			if (memoryManager.hasBeenChanged()) {
 				updateFileMemory(builder);
@@ -130,32 +130,36 @@ public final class ConfigManager {
 		}
 	}
 
+	private void updateFileMemory(FileBasedConfigurationBuilder<FileBasedConfiguration> builder)
+			throws ConfigurationException {
 
-	private void updateFileMemory(FileBasedConfigurationBuilder<FileBasedConfiguration> builder) throws ConfigurationException {
-
-		Configuration config =  builder.getConfiguration();
+		Configuration config = builder.getConfiguration();
 
 		config.setProperty("allocation_mode", memoryManager.getAttributionMode().toString());
-		config.setProperty("total_max_memory", memoryManager.formatMemoryAsString(memoryManager.getServerTotalMemory()));
-		config.setProperty("studio_memory", memoryManager.formatMemoryAsString(memoryManager.getStudioMemory()));
-		config.setProperty("server_total_memory", memoryManager.formatMemoryAsString(memoryManager.getServerTotalMemory()));
-		config.setProperty("seqrep_memory",memoryManager.formatMemoryAsString( memoryManager.getSeqrepMemory()));
-		config.setProperty("datastore_memory", memoryManager.formatMemoryAsString(memoryManager.getDatastoreMemory()));
-		config.setProperty("proline_cortex_memory", memoryManager.formatMemoryAsString(memoryManager.getProlineServerMemory()));
-		config.setProperty("JMS_memory", memoryManager.formatMemoryAsString(memoryManager.getJmsMemory()));
+		config.setProperty("total_max_memory", MemoryUtils.formatMemoryAsString(memoryManager.getServerTotalMemory()));
+		config.setProperty("studio_memory", MemoryUtils.formatMemoryAsString(memoryManager.getStudioMemory()));
+		config.setProperty("server_total_memory",
+				MemoryUtils.formatMemoryAsString(memoryManager.getServerTotalMemory()));
+		config.setProperty("seqrep_memory", MemoryUtils.formatMemoryAsString(memoryManager.getSeqrepMemory()));
+		config.setProperty("datastore_memory", MemoryUtils.formatMemoryAsString(memoryManager.getDatastoreMemory()));
+		config.setProperty("proline_cortex_memory",
+				MemoryUtils.formatMemoryAsString(memoryManager.getProlineServerMemory()));
+		config.setProperty("JMS_memory", MemoryUtils.formatMemoryAsString(memoryManager.getJmsMemory()));
 
 		// writes in the file
 		builder.save();
 	}
 
-	private void updateFileAdvanced(FileBasedConfigurationBuilder<FileBasedConfiguration> builder) throws ConfigurationException {
+	private void updateFileAdvanced(FileBasedConfigurationBuilder<FileBasedConfiguration> builder)
+			throws ConfigurationException {
 		Configuration config = builder.getConfiguration();
 
 		config.setProperty("server_default_timeout", String.valueOf(advancedManager.getServerDefaultTimeout() / 1000));
 		config.setProperty("service_thread_pool_size",
 				String.valueOf(advancedManager.getCortexNbParallelizableServiceRunners()));
 		config.setProperty("java_home", advancedManager.getJvmPath());
-		config.setProperty("force_datastore_update", SettingsConstant.booleanToString(advancedManager.getForceDataStoreUpdate()));
+		config.setProperty("force_datastore_update",
+				SettingsConstant.booleanToString(advancedManager.getForceDataStoreUpdate()));
 		config.setProperty("datastore_port", String.valueOf(advancedManager.getDataStorePort()));
 		config.setProperty("jms_server_port", String.valueOf(advancedManager.getJmsServerPort()));
 		config.setProperty("jms_server_batch_port", String.valueOf(advancedManager.getJmsBatchServerPort()));
@@ -167,9 +171,11 @@ public final class ConfigManager {
 	}
 
 	// TODO verifier à partir d'autre chose que le memoryManager
-	private void updateFileGeneral(FileBasedConfigurationBuilder<FileBasedConfiguration> builder) throws ConfigurationException {
+	private void updateFileGeneral(FileBasedConfigurationBuilder<FileBasedConfiguration> builder)
+			throws ConfigurationException {
 		Configuration config = builder.getConfiguration();
-		config.setProperty("sequence_repository_active", SettingsConstant.booleanToString(memoryManager.isStudioActive()));
+		config.setProperty("sequence_repository_active",
+				SettingsConstant.booleanToString(memoryManager.isStudioActive()));
 		config.setProperty("proline_studio_active", SettingsConstant.booleanToString(memoryManager.isSeqRepoActive()));
 		config.setProperty("log_debug", SettingsConstant.booleanToString(isDebugMode()));
 		config.setProperty("show_config_dialog", SettingsConstant.booleanToString(showConfigDialog()));
@@ -190,9 +196,9 @@ public final class ConfigManager {
 	public boolean verif() {
 
 		boolean success = memoryManager.verif();
-		success = success && advancedManager.verif();
+		success = advancedManager.verif() && success;
 
-		if(!success) {
+		if (!success) {
 			StringBuilder errorMessage = new StringBuilder();
 
 			if (Objects.nonNull(memoryManager.getErrorMessage())) {
@@ -205,7 +211,11 @@ public final class ConfigManager {
 			}
 
 			if (errorMessage.length() > 0) {
-				Popup.warning(errorMessage.toString());
+				if (isErrorFatal()) {
+					Popup.error(errorMessage.toString());
+				} else {
+					Popup.warning(errorMessage.toString());
+				}
 			}
 		}
 		return success;
@@ -214,6 +224,5 @@ public final class ConfigManager {
 	public boolean isErrorFatal() {
 		return memoryManager.isErrorFatal() || advancedManager.isErrorFatal();
 	}
-
 
 }

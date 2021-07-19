@@ -20,6 +20,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
@@ -31,9 +32,9 @@ import fr.proline.zero.util.MemoryUtils;
 
 public class ConfigWindow extends JDialog {
 
-	public static final int BUTTON_OK = 0;
-	public static final int BUTTON_CANCEL = 1;
-	public static final int BUTTON_RESTORE = 2;
+	private static final long G = 1024;
+
+	static ConfigWindow instance;
 
 	private JTabbedPane tabbedPane;
 	private MemoryPanel memoryPanel;
@@ -43,15 +44,15 @@ public class ConfigWindow extends JDialog {
 	private JCheckBox doNotShowAgainBox;
 	private JCheckBox serverModuleBox;
 	private JCheckBox studioModuleBox;
+	private JLabel seqRepModuleLabel;
 	private JCheckBox seqRepModuleBox;
 	private JButton continueButton;
 	private JButton cancelButton;
 	private JButton restoreButton;
-	protected int m_buttonClicked = BUTTON_CANCEL;
 
 	private ConfigManager configManager;
 
-	public ConfigWindow() {
+	private ConfigWindow() {
 		super(null, Dialog.ModalityType.APPLICATION_MODAL);
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -59,6 +60,20 @@ public class ConfigWindow extends JDialog {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	// singleton to be able to deactivate its elements (modules checkboxes) from any
+	// other class
+	public static ConfigWindow getInstance() {
+		if (instance == null) {
+			instance = new ConfigWindow();
+
+			// we check here if we need to check or not the seqrep checkbox because
+			// otherwise the ConfigWindow is not yet fully instanciated and the method won't
+			// do its job (check how the method works)
+			setSeqRep(ConfigManager.getInstance().getMemoryManager().getTotalMemory() >= 4 * G);
+		}
+		return instance;
 	}
 
 	/**
@@ -116,12 +131,15 @@ public class ConfigWindow extends JDialog {
 		add(createBottomButtonsPanel(), c);
 	}
 
+	// create the tabs for the many options
 	private JTabbedPane createTabPanel() {
+
 		tabbedPane = new JTabbedPane();
 		memoryPanel = new MemoryPanel();
 		folderPanel = new FolderPanel();
 		serverPanel = new ServerPanel();
 		parsePanel = new ParsingRulesPanel();
+
 		tabbedPane.add(memoryPanel, "Memory");
 		tabbedPane.add(folderPanel, "Folders");
 		tabbedPane.add(serverPanel, "Server");
@@ -150,43 +168,68 @@ public class ConfigWindow extends JDialog {
 
 		seqRepModuleBox = new JCheckBox("Start Sequence Repository");
 		seqRepModuleBox.setSelected(configManager.isSeqReppActive());
-		ItemListener checkSeqRep = new ItemListener() {
+		seqRepModuleBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				MemoryUtils memoryManager = ConfigManager.getInstance().getMemoryManager();
 
+				// If we activate SeqRep :
 				if (seqRepModuleBox.isSelected()) {
+					// enable the tab
 					tabbedPane.setEnabledAt(3, true);
-					memoryManager.setSeqRepoActive(true);
 					memoryPanel.seqRepBeingActive(true);
+
+					// enable it in the util to recalculate the memory values
+					memoryManager.setSeqRepoActive(true);
+
+					// then we verify that there is enough memory to activate it
+					if (!ConfigManager.getInstance().getMemoryManager().verif()) {
+
+						// else we basically do the same as if we deactivate it
+						Popup.warning("there is not enough memory to use sequence repository");
+						seqRepModuleBox.setSelected(false);
+						if (tabbedPane.getSelectedIndex() == 3) {
+							tabbedPane.setSelectedIndex(0);
+						}
+						tabbedPane.setEnabledAt(3, false);
+						memoryManager.setSeqRepoActive(false);
+						memoryPanel.seqRepBeingActive(false);
+					}
 				} else {
+					// If we deactivate SeqRep :
+					// disable it graphically
 					if (tabbedPane.getSelectedIndex() == 3) {
 						tabbedPane.setSelectedIndex(0);
 					}
 					tabbedPane.setEnabledAt(3, false);
-					memoryManager.setSeqRepoActive(false);
 					memoryPanel.seqRepBeingActive(false);
+
+					// and deactivate it in the utils to recalculate the memory
+					memoryManager.setSeqRepoActive(false);
 				}
+
+				// then we update graphically the values from the util
 				memoryPanel.updateValues();
 			}
-		};
-		seqRepModuleBox.addItemListener(checkSeqRep);
+		});
 
+		// same for the studio module except we don't need to disable a tab
 		studioModuleBox = new JCheckBox("Start Proline Studio");
 		studioModuleBox.setSelected(configManager.isStudioActive());
-		ItemListener checkStudio = new ItemListener() {
+		studioModuleBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 
 				if (studioModuleBox.isSelected()) {
 					configManager.setStudioActive(true);
+					ConfigManager.getInstance().getMemoryManager().setStudioActive(true);
 					memoryPanel.studioBeingActive(true);
 				} else {
 					configManager.setStudioActive(false);
+					ConfigManager.getInstance().getMemoryManager().setStudioActive(false);
 					memoryPanel.studioBeingActive(false);
 				}
 				memoryPanel.updateValues();
 			}
-		};
-		studioModuleBox.addItemListener(checkStudio);
+		});
 
 		// ajout des widgets
 		c.gridy = 0;
@@ -215,8 +258,6 @@ public class ConfigWindow extends JDialog {
 		GridBagConstraints c = new GridBagConstraints();
 		c.insets = new Insets(5, 5, 5, 5);
 
-		// mise en place des widgets
-		//VDS: Avoir la meme structure de code pour les 3 boutons : Code integre dans actionListener ou dans une methode appele + posutionnement de m_buttonClicked
 		try {
 			Icon crossIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
 			Icon tickIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("tick.png")));
@@ -224,21 +265,26 @@ public class ConfigWindow extends JDialog {
 			continueButton = new JButton("Ok", tickIcon);
 			continueButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent event) {
-					//VDS TODO : faire une methode OkButtonPerformed comme pour cancel / restore ? Bof a voir
-					m_buttonClicked = BUTTON_OK;
 					boolean success = ConfigManager.getInstance().verif();
 					if (success) {
+						// no errors after verification : we launch proline with the current
+						// configuration
 						ConfigManager.getInstance().updateConfigFileZero();
 						setVisible(false);
-					} else { //At least one error fatal oor not !
-						if(!ConfigManager.getInstance().isErrorFatal()) {
-							boolean yesPressed = Popup.yesNo(
-									"Proline Zero can't start with current errors \nWould you like to exit Proline Zero ?");
-							if (yesPressed) {
-								System.exit(0);
-							}
+					} else {
+						// At least one error fatal or not !
+						if (ConfigManager.getInstance().isErrorFatal()) {
+							// fatal error, can't launch proline Zero
+							Popup.error("Proline Zero can't start with current errors \nExiting...");
+							System.exit(0);
 						} else {
-							//VDS TODO none fatal error but warning for user:  Popup Message + confirmation to exit config ==> and start Zero
+							// Minor errors
+							boolean yesPressed = Popup.yesNo(
+									"Proline Zero will start with errors \nWould you still like to launch Proline Zero ?");
+							if (yesPressed) {
+								ConfigManager.getInstance().updateConfigFileZero();
+								setVisible(false);
+							}
 						}
 					}
 				}
@@ -246,15 +292,18 @@ public class ConfigWindow extends JDialog {
 			cancelButton = new JButton("Cancel", crossIcon);
 			cancelButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent event) {
-					m_buttonClicked = BUTTON_CANCEL; //VDS TODO: info, j'ai deplacé ici pour avoir meme comportement ...
 					cancelButtonActionPerformed();
 				}
 			});
 			restoreButton = new JButton("Restore Settings", restoreIcon);
 			restoreButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent event) {
-					m_buttonClicked = BUTTON_RESTORE;
-					restoreValues();
+					configManager.restoreValues();
+					updateValues();
+					memoryPanel.updateValues();
+					folderPanel.updateValues();
+					serverPanel.updateValues();
+					parsePanel.updateValues();
 				}
 			});
 		} catch (IOException e) {
@@ -285,15 +334,34 @@ public class ConfigWindow extends JDialog {
 		return buttonPanel;
 	}
 
-	public int getButtonClicked() {
-		return m_buttonClicked;
-	}
-
+	// when the cross or the cancel button is pressed
 	private void cancelButtonActionPerformed() {
-		//VDS TODO: Restore & continue
-		//  ==> call restoreValues  + verify ?
-		// OR Exit ?
-		setVisible(false);
+		boolean yesPressed = Popup.yesNo("Continue with previous configuration (No = exit) ?");
+		if (yesPressed) {
+			ConfigManager.getInstance().restoreValues();
+
+			boolean success = ConfigManager.getInstance().verif();
+			if (success) {
+				ConfigManager.getInstance().updateConfigFileZero();
+				setVisible(false);
+			} else { // At least one error fatal or not !
+				if (ConfigManager.getInstance().isErrorFatal()) {
+					Popup.error(
+							"Proline Zero can't start with current configuration\nChange configuration in the proline_launcher.config file");
+					System.exit(0);
+				} else {
+					boolean yesPressed2 = Popup.yesNo(
+							"Proline Zero will start with errors \nWould you still like to launch Proline Zero ?");
+					if (!yesPressed2) {
+						System.exit(0);
+					}
+				}
+			}
+			ConfigManager.getInstance().updateConfigFileZero();
+			setVisible(false);
+		} else {
+			System.exit(0);
+		}
 	}
 
 	private ChangeListener resizeDynamique() {
@@ -318,15 +386,23 @@ public class ConfigWindow extends JDialog {
 		return resize;
 	}
 
-	private void restoreValues() {
-		configManager.restoreValues();
-		updateValues();
-		memoryPanel.updateValues();
-		folderPanel.updateValues();
-		serverPanel.updateValues();
-		parsePanel.updateValues();
+	// static method to deactivate seqrep from the MemoryUtil when the total memory
+	// is too low
+	public static void setSeqRep(boolean b) {
+		if (instance != null) {
+			if (b == false) {
+				if (instance.seqRepModuleBox.isSelected()) {
+					Popup.warning("there is not enough allocated Memory to activate SeqRepo");
+				}
+				instance.seqRepModuleBox.setSelected(b);
+				instance.seqRepModuleBox.setEnabled(b);
+			} else {
+				instance.seqRepModuleBox.setEnabled(b);
+			}
+		}
 	}
 
+	// repaint the window with new values
 	private void updateValues() {
 		doNotShowAgainBox.setSelected(!configManager.showConfigDialog());
 		studioModuleBox.setSelected(configManager.isStudioActive());

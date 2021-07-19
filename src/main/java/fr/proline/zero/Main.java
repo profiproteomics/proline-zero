@@ -3,7 +3,6 @@ package fr.proline.zero;
 import java.io.File;
 import java.io.IOException;
 
-import fr.proline.zero.gui.ZeroTray;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import fr.proline.zero.gui.ConfigWindow;
 import fr.proline.zero.gui.Popup;
 import fr.proline.zero.gui.SplashScreen;
+import fr.proline.zero.gui.ZeroTray;
 import fr.proline.zero.modules.ExecutionSession;
 import fr.proline.zero.modules.IZeroModule;
 import fr.proline.zero.util.ConfigManager;
@@ -35,28 +35,21 @@ public class Main {
 		logger.info("Starting Proline Zero");
 		try {
 
-			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists(); // first launch
+			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists(); // first
+																													// launch
 			ConfigManager.getInstance().initialize();
 			ConfigManager.getInstance().verif();
 
-			// if specified in config load IHM
-			//VDS TODO : and if Fatal error ?!
-			if (ConfigManager.getInstance().showConfigDialog()) {
-				ConfigWindow paramWindow = new ConfigWindow();
+			// launch, if needed, the config window (fatal error or show config_dialog = on)
+			if (ConfigManager.getInstance().showConfigDialog() || ConfigManager.getInstance().isErrorFatal()) {
+				// building the window and all its components here
+				ConfigWindow paramWindow = ConfigWindow.getInstance();
 				paramWindow.setVisible(true);
-				if (paramWindow.getButtonClicked() == ConfigWindow.BUTTON_CANCEL) {
-					boolean yesPressed = Popup.yesNo("Continue with previous configuration (No = exit) ?");
-					if (yesPressed) {
-						// VDS TODO Restore & continue ??!!
-						ConfigManager.getInstance().restoreValues();
-
-					} else {
-						System.exit(0);
-					}
-				}
+				// WAITING HERE FOR CONFIG WINDOW TO CLOSE
 			}
 
-			// VDS TODO: test and save new config here !!?? Or in Util . IHM
+			// TODO write in the file (done in the window but not if the window is not
+			// opened)
 
 			logger.info("First launch, update port");
 			ExecutionSession.updateConfigPort();// can be change only 1 time at the first time
@@ -64,7 +57,8 @@ public class Main {
 			ExecutionSession.updateCortexNbParallelizableServiceRunners();
 
 			// Load modules
-			manageFolder(); // create missing folders inside Proline Zero (don't create folder elsewhere on disk...)
+			manageFolder(); // create missing folders inside Proline Zero (don't create folder elsewhere on
+							// disk...)
 
 			// Init
 			ExecutionSession.initialize();
@@ -78,25 +72,25 @@ public class Main {
 			SplashScreen.setProgressMax(nbrStep); // init, pgsql, admin, hornetq, cortex, seqrepo, studio
 			IZeroModule nextModule = null;
 			try {
-					for (int i = 0; i < ExecutionSession.getModuleCount(); i++) {
-						nextModule = ExecutionSession.getModuleAt(i);
-						if(nextModule!= null) {
-							if (initBeforeStart) {
-								SplashScreen.setProgress("Initializing " + nextModule.getModuleName());
-								logger.info("Initializing module "+ nextModule.getModuleName());
-								nextModule.init();
-								Thread.sleep(2000);
-
-							}
-							SplashScreen.setProgress("Starting " + nextModule.getModuleName());
-							logger.info("Starting module "+ nextModule.getModuleName());
-							nextModule.start();
+				for (int i = 0; i < ExecutionSession.getModuleCount(); i++) {
+					nextModule = ExecutionSession.getModuleAt(i);
+					if (nextModule != null) {
+						if (initBeforeStart) {
+							SplashScreen.setProgress("Initializing " + nextModule.getModuleName());
+							logger.info("Initializing module " + nextModule.getModuleName());
+							nextModule.init();
 							Thread.sleep(2000);
-							logger.info("Module +", nextModule.getModuleName() + " started");
-						} else {
-							Popup.error(" A Module is null, at index "+ i );
+
 						}
+						SplashScreen.setProgress("Starting " + nextModule.getModuleName());
+						logger.info("Starting module " + nextModule.getModuleName());
+						nextModule.start();
+						Thread.sleep(2000);
+						logger.info("Module +", nextModule.getModuleName() + " started");
+					} else {
+						Popup.error(" A Module is null, at index " + i);
 					}
+				}
 
 			} catch (Exception e) {
 				logger.error("Error during  initialization or starting module ", e);
@@ -149,7 +143,6 @@ public class Main {
 		}
 		cleanTmpFolder(tmpFile);
 	}
-
 
 	private static synchronized void cleanTmpFolder(File tmpFile) {
 		long folderSize = tmpFile.length();

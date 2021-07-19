@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ class Config {
 
 	private static Logger logger = LoggerFactory.getLogger(Config.class);
 	private static Properties properties;
+	private static Pattern memoryPattern = Pattern.compile("[0-9]+((\\.[0-9]+)?)[GM]");
 
 	private static void initialize() {
 		if (properties == null) {
@@ -142,7 +145,6 @@ class Config {
 		return properties.getProperty("seqrepo_version");
 	}
 
-
 	public static String getJavaHome() {
 		Config.initialize();
 		// if null try to find studio's jre, if still null return current jre
@@ -167,9 +169,11 @@ class Config {
 	public static String getTotalMemory() {
 		Config.initialize();
 		String totalMemory = properties.getProperty("total_max_memory");
-		if (totalMemory == null) {
-			Popup.warning("The total memory value could not be read : \n set to 6Go");
-			totalMemory = "6G";
+		Matcher m = memoryPattern.matcher(totalMemory);
+		if (totalMemory == null || (!totalMemory.equals("0") && !m.matches())) {
+			Popup.warning("The total memory value could not be read : \n set to default value : "
+					+ SettingsConstant.DEFAULT_TOTAL_MEMORY);
+			totalMemory = SettingsConstant.DEFAULT_TOTAL_MEMORY;
 		}
 		return totalMemory;
 	}
@@ -177,9 +181,11 @@ class Config {
 	public static String getStudioMemory() {
 		Config.initialize();
 		String studioMemory = properties.getProperty("studio_memory");
-		if (studioMemory == null) {
-			Popup.warning("The studio memory value could not be read : \n set to 1Go");
-			studioMemory = "1G";
+		Matcher m = memoryPattern.matcher(studioMemory);
+		if (studioMemory == null || (!studioMemory.equals("0") && !m.matches())) {
+			Popup.warning("The studio memory value could not be read : \n set to default value : "
+					+ SettingsConstant.DEFAULT_STUDIO_MEMORY);
+			studioMemory = SettingsConstant.DEFAULT_STUDIO_MEMORY;
 		}
 		return studioMemory;
 	}
@@ -187,9 +193,11 @@ class Config {
 	public static String getServerTotalMemory() {
 		Config.initialize();
 		String serverTotalMemory = properties.getProperty("server_total_memory");
-		if (serverTotalMemory == null) {
-			Popup.warning("The total server memory value could not be read : \n set to 2Go");
-			serverTotalMemory = "5G";
+		Matcher m = memoryPattern.matcher(serverTotalMemory);
+		if (serverTotalMemory == null || (!serverTotalMemory.equals("0") && !m.matches())) {
+			Popup.warning("The total server memory value could not be read : \n set to default value : "
+					+ SettingsConstant.DEFAULT_SERVER_TOTAL_MEMORY);
+			serverTotalMemory = SettingsConstant.DEFAULT_SERVER_TOTAL_MEMORY;
 		}
 		return serverTotalMemory;
 	}
@@ -197,9 +205,11 @@ class Config {
 	public static String getSeqRepMemory() {
 		Config.initialize();
 		String SeqRepMemory = properties.getProperty("seqrep_memory");
-		if (SeqRepMemory == null) {
-			Popup.warning("The sequence repository memory value could not be read : \n set to 1Go");
-			SeqRepMemory = "1G";
+		Matcher m = memoryPattern.matcher(SeqRepMemory);
+		if (SeqRepMemory == null || (!SeqRepMemory.equals("0") && !m.matches())) {
+			Popup.warning("The sequence repository memory value could not be read \n set to default value : "
+					+ SettingsConstant.DEFAULT_SEQREP_MEMORY);
+			SeqRepMemory = SettingsConstant.DEFAULT_SEQREP_MEMORY;
 		}
 		return SeqRepMemory;
 	}
@@ -207,9 +217,11 @@ class Config {
 	public static String getDatastoreMemory() {
 		Config.initialize();
 		String DatastoreMemory = properties.getProperty("datastore_memory");
-		if (DatastoreMemory == null) {
-			Popup.warning("The datastore memory value could not be read : \n set to 1Go");
-			DatastoreMemory = "1G";
+		Matcher m = memoryPattern.matcher(DatastoreMemory);
+		if (DatastoreMemory == null || (!DatastoreMemory.equals("0") && !m.matches())) {
+			Popup.warning("The datastore memory value could not be read : \n set to default value : "
+					+ SettingsConstant.DEFAULT_DATASTORE_MEMORY);
+			DatastoreMemory = SettingsConstant.DEFAULT_DATASTORE_MEMORY;
 		}
 		return DatastoreMemory;
 	}
@@ -217,9 +229,11 @@ class Config {
 	public static String getCortexMemory() {
 		Config.initialize();
 		String CortexMemory = properties.getProperty("proline_cortex_memory");
-		if (CortexMemory == null) {
-			Popup.warning("The server (cortex) memory value could not be read : \n set to 2Go");
-			CortexMemory = "2G";
+		Matcher m = memoryPattern.matcher(CortexMemory);
+		if (CortexMemory == null || (!CortexMemory.equals("0") && !m.matches())) {
+			Popup.warning("The server (cortex) memory value could not be read : \n set to default value : "
+					+ SettingsConstant.DEFAULT_CORTEX_MEMORY);
+			CortexMemory = SettingsConstant.DEFAULT_CORTEX_MEMORY;
 		}
 		return CortexMemory;
 	}
@@ -227,9 +241,11 @@ class Config {
 	public static String getJMSMemory() {
 		Config.initialize();
 		String JMSMemory = properties.getProperty("JMS_memory");
-		if (JMSMemory == null) {
-			Popup.warning("The JMS server memory value could not be read : \n set to 1Go");
-			JMSMemory = "1G";
+		Matcher m = memoryPattern.matcher(JMSMemory);
+		if (JMSMemory == null || (!JMSMemory.equals("0") && !m.matches())) {
+			Popup.warning("The JMS server memory value could not be read : \n set to default value : "
+					+ SettingsConstant.DEFAULT_JMS_MEMORY);
+			JMSMemory = SettingsConstant.DEFAULT_JMS_MEMORY;
 		}
 		return JMSMemory;
 	}
@@ -243,7 +259,6 @@ class Config {
 		Config.initialize();
 		return properties.getProperty("studio_version");
 	}
-
 
 	public static boolean isDebugMode() {
 		Config.initialize();

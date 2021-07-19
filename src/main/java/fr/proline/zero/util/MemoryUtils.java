@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.management.OperatingSystemMXBean;
 
+import fr.proline.zero.gui.ConfigWindow;
+
 public class MemoryUtils {
 
 	private static Logger logger = LoggerFactory.getLogger(MemoryUtils.class);
@@ -19,7 +21,7 @@ public class MemoryUtils {
 	private long totalMemory;
 	private long studioMemory;
 	private long serverTotalMemory;
-	private long seqrepMemory;
+	public long seqrepMemory;
 	private long datastoreMemory;
 	private long prolineServerMemory;
 	private long jmsMemory;
@@ -32,8 +34,9 @@ public class MemoryUtils {
 
 	private boolean seqRepActive;
 
-	private static final OperatingSystemMXBean os = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-	private static final long totalMemorySize = os.getTotalPhysicalMemorySize() / (1024 * 1024);
+	private static final OperatingSystemMXBean os = (OperatingSystemMXBean) ManagementFactory
+			.getOperatingSystemMXBean();
+	private static final long totalMemorySize = os.getTotalPhysicalMemorySize() / (G * G);
 
 	public enum AttributionMode {
 		AUTO {
@@ -69,8 +72,13 @@ public class MemoryUtils {
 	public void update() {
 		if (attributionMode.equals(AttributionMode.AUTO)) {
 			// attribution mode = auto
+			long memoryToCheck = this.totalMemory;
+
+			if (!studioActive) {
+				memoryToCheck = memoryToCheck + (1 * G);
+			}
 			for (MemoryAllocationRule rule : MemoryAllocationRule.values()) {
-				if (rule.containsAuto(this.totalMemory)) {
+				if (rule.containsAuto(memoryToCheck)) {
 					MemoryAllocationRule calcul = rule;
 					if (studioActive) {
 						this.studioMemory = calcul.getStudioMemory();
@@ -82,6 +90,7 @@ public class MemoryUtils {
 					} else {
 						this.seqrepMemory = 0;
 					}
+
 					this.jmsMemory = calcul.getJmsMemory();
 					long resteMemory = this.totalMemory - this.studioMemory - this.seqrepMemory - this.jmsMemory;
 
@@ -94,6 +103,8 @@ public class MemoryUtils {
 
 					this.serverTotalMemory = this.datastoreMemory + this.jmsMemory + this.prolineServerMemory
 							+ this.seqrepMemory;
+
+					ConfigWindow.setSeqRep(this.serverTotalMemory >= 3 * G);
 					break;
 				}
 			}
@@ -109,6 +120,7 @@ public class MemoryUtils {
 						} else {
 							this.seqrepMemory = 0;
 						}
+
 						this.jmsMemory = calcul.getJmsMemory();
 
 						long resteMemory = this.serverTotalMemory - this.jmsMemory - this.seqrepMemory;
@@ -119,6 +131,7 @@ public class MemoryUtils {
 						}
 						resteMemory = resteMemory - this.datastoreMemory;
 						this.prolineServerMemory = resteMemory;
+						ConfigWindow.setSeqRep(this.serverTotalMemory >= 3 * G);
 						break;
 					}
 				}
@@ -251,7 +264,6 @@ public class MemoryUtils {
 		this.isStudioBeingChanged = isStudioBeingChanged;
 	}
 
-
 	public String getErrorMessage() {
 		return errorMessage;
 	}
@@ -347,18 +359,20 @@ public class MemoryUtils {
 					"- The specified total memory value is greater than available Memory : \n Proline Zero won't be able to start\n");
 			errorFatal = true;
 		}
-		if ((totalMemory < MemoryAllocationRule.MIN.getRange().getMaximumInteger()) && seqRepActive
-				&& ((getAttributionMode() == AttributionMode.AUTO)
-						|| (getAttributionMode() == AttributionMode.SEMIAUTO))) {
-			if (message.length() > 0)
-				message.append("\n");
-			message.append(
-					"- The specified total memory value is below 4Go : \n The Sequence Repository Module cannot be active\n ");
-			setSeqRepoActive(false);
-		} else if (totalMemory < MemoryAllocationRule.MIN.getRange().getMinimumInteger()) {
+		if (totalMemory < MemoryAllocationRule.MIN.getRange().getMinimumInteger()) {
 			message.append("The specified total memory value is below minimum required ("
 					+ MemoryAllocationRule.MIN.getRange().getMinimumInteger() + ")");
 			errorFatal = true;
+			this.seqRepActive = !(this.seqrepMemory == 0);
+			ConfigManager.getInstance().setSeqRepActive(!(this.seqrepMemory == 0));
+		} else if ((serverTotalMemory <= 3 * G) && seqRepActive && ((getAttributionMode() == AttributionMode.AUTO)
+				|| (getAttributionMode() == AttributionMode.SEMIAUTO))) {
+			if (message.length() > 0)
+				message.append("\n");
+			message.append(
+					"- The specified memory values are below what is needed to \n start the Sequence Repository Module \n ");
+			this.seqRepActive = !(this.seqrepMemory == 0);
+			ConfigManager.getInstance().setSeqRepActive(!(this.seqrepMemory == 0));
 		}
 		if (message.length() > 0) {
 			errorMessage = message.toString();
@@ -370,6 +384,5 @@ public class MemoryUtils {
 	public boolean isErrorFatal() {
 		return errorFatal;
 	}
-
 
 }
