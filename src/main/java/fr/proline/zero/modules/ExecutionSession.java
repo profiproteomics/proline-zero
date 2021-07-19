@@ -43,7 +43,7 @@ public class ExecutionSession {
             activeModules.add(getJMSServer());
             activeModules.add(getProlineAdmin());
             activeModules.add(getCortex());
-            if(ConfigManager.getInstance().isSeqReppActive())
+            if(ConfigManager.getInstance().isSeqRepActive())
                 activeModules.add(getSeqRepo());
             if(ConfigManager.getInstance().isStudioActive())
                 activeModules.add(getStudio());

@@ -20,7 +20,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
@@ -44,7 +43,6 @@ public class ConfigWindow extends JDialog {
 	private JCheckBox doNotShowAgainBox;
 	private JCheckBox serverModuleBox;
 	private JCheckBox studioModuleBox;
-	private JLabel seqRepModuleLabel;
 	private JCheckBox seqRepModuleBox;
 	private JButton continueButton;
 	private JButton cancelButton;
@@ -68,10 +66,6 @@ public class ConfigWindow extends JDialog {
 		if (instance == null) {
 			instance = new ConfigWindow();
 
-			// we check here if we need to check or not the seqrep checkbox because
-			// otherwise the ConfigWindow is not yet fully instanciated and the method won't
-			// do its job (check how the method works)
-			setSeqRep(ConfigManager.getInstance().getMemoryManager().getTotalMemory() >= 4 * G);
 		}
 		return instance;
 	}
@@ -144,7 +138,7 @@ public class ConfigWindow extends JDialog {
 		tabbedPane.add(folderPanel, "Folders");
 		tabbedPane.add(serverPanel, "Server");
 		tabbedPane.add(parsePanel, "Parsing rules");
-		if (!configManager.isSeqReppActive()) {
+		if (!configManager.isSeqRepActive()) {
 			tabbedPane.setEnabledAt(3, false);
 		}
 		tabbedPane.addChangeListener(resizeDynamique());
@@ -167,7 +161,7 @@ public class ConfigWindow extends JDialog {
 		serverModuleBox.setEnabled(false);
 
 		seqRepModuleBox = new JCheckBox("Start Sequence Repository");
-		seqRepModuleBox.setSelected(configManager.isSeqReppActive());
+		seqRepModuleBox.setSelected(configManager.isSeqRepActive());
 		seqRepModuleBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				MemoryUtils memoryManager = ConfigManager.getInstance().getMemoryManager();
@@ -179,7 +173,7 @@ public class ConfigWindow extends JDialog {
 					memoryPanel.seqRepBeingActive(true);
 
 					// enable it in the util to recalculate the memory values
-					memoryManager.setSeqRepoActive(true);
+					configManager.setSeqRepActive(true);
 
 					// then we verify that there is enough memory to activate it
 					if (!ConfigManager.getInstance().getMemoryManager().verif()) {
@@ -191,7 +185,7 @@ public class ConfigWindow extends JDialog {
 							tabbedPane.setSelectedIndex(0);
 						}
 						tabbedPane.setEnabledAt(3, false);
-						memoryManager.setSeqRepoActive(false);
+						configManager.setSeqRepActive(false);
 						memoryPanel.seqRepBeingActive(false);
 					}
 				} else {
@@ -204,7 +198,7 @@ public class ConfigWindow extends JDialog {
 					memoryPanel.seqRepBeingActive(false);
 
 					// and deactivate it in the utils to recalculate the memory
-					memoryManager.setSeqRepoActive(false);
+					configManager.setSeqRepActive(false);
 				}
 
 				// then we update graphically the values from the util
@@ -220,11 +214,9 @@ public class ConfigWindow extends JDialog {
 
 				if (studioModuleBox.isSelected()) {
 					configManager.setStudioActive(true);
-					ConfigManager.getInstance().getMemoryManager().setStudioActive(true);
 					memoryPanel.studioBeingActive(true);
 				} else {
 					configManager.setStudioActive(false);
-					ConfigManager.getInstance().getMemoryManager().setStudioActive(false);
 					memoryPanel.studioBeingActive(false);
 				}
 				memoryPanel.updateValues();
@@ -406,7 +398,7 @@ public class ConfigWindow extends JDialog {
 	private void updateValues() {
 		doNotShowAgainBox.setSelected(!configManager.showConfigDialog());
 		studioModuleBox.setSelected(configManager.isStudioActive());
-		seqRepModuleBox.setSelected(configManager.isSeqReppActive());
+		seqRepModuleBox.setSelected(configManager.isSeqRepActive());
 	}
 
 }

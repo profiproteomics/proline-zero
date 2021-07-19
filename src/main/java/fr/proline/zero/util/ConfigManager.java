@@ -13,9 +13,9 @@ import fr.proline.zero.gui.Popup;
 
 public final class ConfigManager {
 
-	boolean studioBeingActive;
+	boolean studioActive;
 
-	boolean seqRepBeingActive;
+	boolean seqRepActive;
 
 	boolean showConfigDialog;
 
@@ -29,12 +29,12 @@ public final class ConfigManager {
 	}
 
 	public void initialize() {
+		studioActive = Config.getStudioActive();
+		seqRepActive = Config.getSeqRepActive();
 		memoryManager = new MemoryUtils();
 
 		advancedManager = new AdvancedAndServerUtils();
 
-		studioBeingActive = Config.getStudioActive();
-		seqRepBeingActive = Config.getSeqRepActive();
 		showConfigDialog = Config.showConfigDialog();
 	}
 
@@ -54,20 +54,27 @@ public final class ConfigManager {
 	}
 
 	public void setStudioActive(boolean b) {
-		studioBeingActive = b;
+		studioActive = b;
+		if (!b) {
+			memoryManager.setStudioMemory(0);
+		}
 		memoryManager.update();
 	}
 
 	public boolean isStudioActive() {
-		return this.studioBeingActive;
+		return this.studioActive;
 	}
 
 	public void setSeqRepActive(boolean b) {
-		seqRepBeingActive = b;
+		seqRepActive = b;
+		if (!b) {
+			memoryManager.setSeqrepMemory(0);
+		}
+		memoryManager.update();
 	}
 
-	public boolean isSeqReppActive() {
-		return this.seqRepBeingActive;
+	public boolean isSeqRepActive() {
+		return this.seqRepActive;
 	}
 
 	public void setShowConfigDialog(Boolean b) {
@@ -174,9 +181,8 @@ public final class ConfigManager {
 	private void updateFileGeneral(FileBasedConfigurationBuilder<FileBasedConfiguration> builder)
 			throws ConfigurationException {
 		Configuration config = builder.getConfiguration();
-		config.setProperty("sequence_repository_active",
-				SettingsConstant.booleanToString(memoryManager.isStudioActive()));
-		config.setProperty("proline_studio_active", SettingsConstant.booleanToString(memoryManager.isSeqRepoActive()));
+		config.setProperty("sequence_repository_active", SettingsConstant.booleanToString(isStudioActive()));
+		config.setProperty("proline_studio_active", SettingsConstant.booleanToString(isSeqRepActive()));
 		config.setProperty("log_debug", SettingsConstant.booleanToString(isDebugMode()));
 		config.setProperty("show_config_dialog", SettingsConstant.booleanToString(showConfigDialog()));
 

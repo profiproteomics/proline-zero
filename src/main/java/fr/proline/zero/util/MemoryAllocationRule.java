@@ -36,7 +36,7 @@ public enum MemoryAllocationRule {
 		return jmsMemory;
 	}
 
-	public long getSeqRepoMemory() {
+	public long getSeqRepMemory() {
 		return seqRepoMemory;
 	}
 
