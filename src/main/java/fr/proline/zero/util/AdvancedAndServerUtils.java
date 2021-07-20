@@ -187,7 +187,7 @@ public class AdvancedAndServerUtils {
 		File jvmPathFile = new File(getJvmPath());
 		if (!jvmPathFile.exists()) {
 			message.append(
-					"Java home is not configured, PostgreSQL may crash due to missing MSVC dll files.\n Trying to replace it with studio's java instead");
+					"Java home is not well configured\n Trying to replace it with embedded JRE instead (Proline Studio's jre)");
 			String javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jre";
 			jvmPath = new File(javaPath).getAbsolutePath();
 		}

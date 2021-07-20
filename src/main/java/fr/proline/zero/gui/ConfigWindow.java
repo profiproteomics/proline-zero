@@ -133,7 +133,12 @@ public class ConfigWindow extends JDialog {
 		folderPanel = new FolderPanel();
 		serverPanel = new ServerPanel();
 		parsePanel = new ParsingRulesPanel();
-
+		memoryPanel.addPropertyChangeListener(MemoryPanel.SEQ_REPO_PROPERTY, evt -> {
+			seqRepModuleBox.setSelected((Long)evt.getNewValue()!=null && (Long)evt.getNewValue()>0l);
+		});
+		memoryPanel.addPropertyChangeListener(MemoryPanel.STUDIO_PROPERTY, evt -> {
+				//studioModuleBox.setSelected((Long)evt.getNewValue()!=null && (Long)evt.getNewValue()>0l);
+		});
 		tabbedPane.add(memoryPanel, "Memory");
 		tabbedPane.add(folderPanel, "Folders");
 		tabbedPane.add(serverPanel, "Server");
@@ -164,29 +169,24 @@ public class ConfigWindow extends JDialog {
 		seqRepModuleBox.setSelected(configManager.isSeqRepActive());
 		seqRepModuleBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
-				MemoryUtils memoryManager = ConfigManager.getInstance().getMemoryManager();
-
 				// If we activate SeqRep :
 				if (seqRepModuleBox.isSelected()) {
-					// enable the tab
-					tabbedPane.setEnabledAt(3, true);
-					memoryPanel.seqRepBeingActive(true);
+					//Test if it is possible regarding memory
+				boolean canEnable = configManager.getMemoryManager().canEnableSeqRepo();
 
-					// enable it in the util to recalculate the memory values
-					configManager.setSeqRepActive(true);
+				if(canEnable) {
+						// enable the tab
+						tabbedPane.setEnabledAt(3, true);
+						memoryPanel.seqRepBeingActive(true);
 
-					// then we verify that there is enough memory to activate it
-					if (!ConfigManager.getInstance().getMemoryManager().verif()) {
+						// enable it in the util to recalculate the memory values
+						configManager.setSeqRepActive(true);
 
-						// else we basically do the same as if we deactivate it
+				} else {
+//
+//						// else we basically do the same as if we deactivate it
 						Popup.warning("there is not enough memory to use sequence repository");
 						seqRepModuleBox.setSelected(false);
-						if (tabbedPane.getSelectedIndex() == 3) {
-							tabbedPane.setSelectedIndex(0);
-						}
-						tabbedPane.setEnabledAt(3, false);
-						configManager.setSeqRepActive(false);
-						memoryPanel.seqRepBeingActive(false);
 					}
 				} else {
 					// If we deactivate SeqRep :
@@ -257,36 +257,17 @@ public class ConfigWindow extends JDialog {
 			continueButton = new JButton("Ok", tickIcon);
 			continueButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent event) {
-					boolean success = ConfigManager.getInstance().verif();
-					if (success) {
-						// no errors after verification : we launch proline with the current
-						// configuration
-						ConfigManager.getInstance().updateConfigFileZero();
-						setVisible(false);
-					} else {
-						// At least one error fatal or not !
-						if (ConfigManager.getInstance().isErrorFatal()) {
-							// fatal error, can't launch proline Zero
-							Popup.error("Proline Zero can't start with current errors \nExiting...");
-							System.exit(0);
-						} else {
-							// Minor errors
-							boolean yesPressed = Popup.yesNo(
-									"Proline Zero will start with errors \nWould you still like to launch Proline Zero ?");
-							if (yesPressed) {
-								ConfigManager.getInstance().updateConfigFileZero();
-								setVisible(false);
-							}
-						}
-					}
+					checkErrorAndExecute();
 				}
 			});
+
 			cancelButton = new JButton("Cancel", crossIcon);
 			cancelButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent event) {
 					cancelButtonActionPerformed();
 				}
 			});
+
 			restoreButton = new JButton("Restore Settings", restoreIcon);
 			restoreButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent event) {
@@ -326,31 +307,49 @@ public class ConfigWindow extends JDialog {
 		return buttonPanel;
 	}
 
-	// when the cross or the cancel button is pressed
-	private void cancelButtonActionPerformed() {
-		boolean yesPressed = Popup.yesNo("Continue with previous configuration (No = exit) ?");
-		if (yesPressed) {
-			ConfigManager.getInstance().restoreValues();
+	private void checkErrorAndExecute(){
+		boolean success = ConfigManager.getInstance().verif();
+		if (success) {
+			// no errors after verification : we launch proline with the current configuration
+//			if(ConfigManager.getInstance().configChanged()) //VDS TODO
+			ConfigManager.getInstance().updateConfigFileZero(); //Inutile si on vient de faire un restore ?!
+			setVisible(false);
 
-			boolean success = ConfigManager.getInstance().verif();
-			if (success) {
-				ConfigManager.getInstance().updateConfigFileZero();
-				setVisible(false);
-			} else { // At least one error fatal or not !
-				if (ConfigManager.getInstance().isErrorFatal()) {
-					Popup.error(
-							"Proline Zero can't start with current configuration\nChange configuration in the proline_launcher.config file");
+		} else {
+			// At least one error (fatal or not !)
+			if (ConfigManager.getInstance().isErrorFatal()) {
+				// fatal error, can't launch proline Zero
+				StringBuilder msgToDisplay = new StringBuilder("Proline Zero can't start with current errors :\n");
+				msgToDisplay.append(ConfigManager.getInstance().getLastErrorMessage());
+				msgToDisplay.append("\nWould you like to exit Proline Zero ?");
+				msgToDisplay.append("\nAn example proline_launcher.config file is provided in proline_launcher.config.origin file");
+//				Popup.error(msgToDisplay.toString());
+//				System.exit(0);
+				boolean yesPressed = Popup.yesNo(msgToDisplay.toString());
+				if (yesPressed) {
 					System.exit(0);
-				} else {
-					boolean yesPressed2 = Popup.yesNo(
-							"Proline Zero will start with errors \nWould you still like to launch Proline Zero ?");
-					if (!yesPressed2) {
-						System.exit(0);
-					}
+				}
+
+			} else {
+				StringBuilder msgToDisplay = new StringBuilder("There are still some minors errors in configuration :\n");
+				msgToDisplay.append(ConfigManager.getInstance().getLastErrorMessage());
+				msgToDisplay.append("\nContinue and launch Proline Zero ?");
+				boolean yesPressed = Popup.yesNo(msgToDisplay.toString());
+				if (yesPressed) {
+//					if(ConfigManager.getInstance().configChanged()) // VDS TODO
+					ConfigManager.getInstance().updateConfigFileZero();
+					setVisible(false);
 				}
 			}
-			ConfigManager.getInstance().updateConfigFileZero();
-			setVisible(false);
+		}
+	}
+
+	// when the cross or the cancel button is pressed
+	private void cancelButtonActionPerformed() {
+		boolean yesPressed = Popup.yesNo("Continue with previous configuration (No = exit Proline Zero) ?");
+		if (yesPressed) {
+			ConfigManager.getInstance().restoreValues();
+			checkErrorAndExecute();
 		} else {
 			System.exit(0);
 		}
@@ -376,22 +375,6 @@ public class ConfigWindow extends JDialog {
 			}
 		};
 		return resize;
-	}
-
-	// static method to deactivate seqrep from the MemoryUtil when the total memory
-	// is too low
-	public static void setSeqRep(boolean b) {
-		if (instance != null) {
-			if (b == false) {
-				if (instance.seqRepModuleBox.isSelected()) {
-					Popup.warning("there is not enough allocated Memory to activate SeqRepo");
-				}
-				instance.seqRepModuleBox.setSelected(b);
-				instance.seqRepModuleBox.setEnabled(b);
-			} else {
-				instance.seqRepModuleBox.setEnabled(b);
-			}
-		}
 	}
 
 	// repaint the window with new values

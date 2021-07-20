@@ -38,7 +38,14 @@ public class Main {
 			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists(); // first
 																													// launch
 			ConfigManager.getInstance().initialize();
-			ConfigManager.getInstance().verif();
+			boolean isOK = ConfigManager.getInstance().verif();
+			if(!isOK){
+				if (ConfigManager.getInstance().isErrorFatal()) {
+					Popup.error(ConfigManager.getInstance().getLastErrorMessage());
+				} else {
+					Popup.warning(ConfigManager.getInstance().getLastErrorMessage());
+				}
+			}
 
 			// launch, if needed, the config window (fatal error or show config_dialog = on)
 			if (ConfigManager.getInstance().showConfigDialog() || ConfigManager.getInstance().isErrorFatal()) {

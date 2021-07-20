@@ -46,6 +46,12 @@ public class MemoryPanel extends JPanel {
 
 	private JTextArea aide;
 
+	/**
+	 * Memory Properties to propagate change for
+	 */
+	public static String SEQ_REPO_PROPERTY = "SeqRepoMemoryProperty";
+	public static String STUDIO_PROPERTY = "StudioMemoryProperty";
+
 	// boolean to prevent the values of changing in an infinite loop
 	protected boolean firstClick;
 
@@ -434,11 +440,6 @@ public class MemoryPanel extends JPanel {
 				if (allocModeBox.getSelectedItem().equals("Automatic")) {
 					memoryManager.setAttributionMode(AttributionMode.AUTO);
 
-					firstClick = false;
-					memoryManager.update();
-					updateValues();
-					firstClick = true;
-
 					totalMemorySpinner.setEnabled(true);
 					studioMemorySpinner.setEnabled(false);
 					totalServerMemorySpinner.setEnabled(false);
@@ -476,6 +477,11 @@ public class MemoryPanel extends JPanel {
 					jmsMemorySpinner.setEnabled(true);
 
 				}
+				firstClick = false;
+				memoryManager.update();
+				updateValues();
+				firstClick = true;
+
 			}
 		};
 		return allocationModeAction;
@@ -492,13 +498,17 @@ public class MemoryPanel extends JPanel {
 		} else {
 			allocModeBox.setSelectedIndex(2);
 		}
+		long studioMemory = memoryManager.getStudioMemory();
+		long seqRepoMemory = memoryManager.getSeqrepMemory();
 		totalMemorySpinner.setValue(memoryManager.getTotalMemory());
-		studioMemorySpinner.setValue(memoryManager.getStudioMemory());
+		studioMemorySpinner.setValue(studioMemory);
 		totalServerMemorySpinner.setValue(memoryManager.getServerTotalMemory());
-		seqrepMemorySpinner.setValue(memoryManager.getSeqrepMemory());
+		seqrepMemorySpinner.setValue(seqRepoMemory);
 		dataStoreMemorySpinner.setValue(memoryManager.getDatastoreMemory());
 		cortexMemorySpinner.setValue(memoryManager.getProlineServerMemory());
 		jmsMemorySpinner.setValue(memoryManager.getJmsMemory());
+		firePropertyChange(STUDIO_PROPERTY,null,studioMemory);
+		firePropertyChange(SEQ_REPO_PROPERTY,null,seqRepoMemory);
 	}
 
 	public void studioBeingActive(boolean b) {

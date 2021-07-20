@@ -9,8 +9,6 @@ import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
-import fr.proline.zero.gui.Popup;
-
 public final class ConfigManager {
 
 	boolean studioActive;
@@ -22,8 +20,8 @@ public final class ConfigManager {
 	private static ConfigManager instance;
 
 	private MemoryUtils memoryManager;
-
 	private AdvancedAndServerUtils advancedManager;
+	private String lastErrorMessage;
 
 	private ConfigManager() {
 	}
@@ -36,6 +34,7 @@ public final class ConfigManager {
 		advancedManager = new AdvancedAndServerUtils();
 
 		showConfigDialog = Config.showConfigDialog();
+		lastErrorMessage = "";
 	}
 
 	public static ConfigManager getInstance() {
@@ -199,8 +198,12 @@ public final class ConfigManager {
 		// TODO other utils restore to their originals
 	}
 
+	public String getLastErrorMessage(){
+		return lastErrorMessage;
+	}
 	public boolean verif() {
 
+		lastErrorMessage = "";
 		boolean success = memoryManager.verif();
 		success = advancedManager.verif() && success;
 
@@ -215,14 +218,14 @@ public final class ConfigManager {
 				errorMessage.append(advancedManager.getErrorMessage());
 				errorMessage.append("\n");
 			}
-
-			if (errorMessage.length() > 0) {
-				if (isErrorFatal()) {
-					Popup.error(errorMessage.toString());
-				} else {
-					Popup.warning(errorMessage.toString());
-				}
-			}
+			lastErrorMessage = errorMessage.toString();
+//			if (errorMessage.length() > 0) {
+//				if (isErrorFatal()) {
+//					Popup.error(errorMessage.toString());
+//				} else {
+//					Popup.warning(errorMessage.toString());
+//				}
+//			}
 		}
 		return success;
 	}
