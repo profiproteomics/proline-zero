@@ -27,7 +27,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import fr.proline.zero.util.ConfigManager;
-import fr.proline.zero.util.MemoryUtils;
+import fr.proline.zero.util.MemoryUtils.AttributionMode;
 
 public class ConfigWindow extends JDialog {
 
@@ -49,6 +49,8 @@ public class ConfigWindow extends JDialog {
 	private JButton restoreButton;
 
 	private ConfigManager configManager;
+
+	private boolean firstClick = false;
 
 	private ConfigWindow() {
 		super(null, Dialog.ModalityType.APPLICATION_MODAL);
@@ -88,7 +90,7 @@ public class ConfigWindow extends JDialog {
 		// TODO gerer le resizing
 		setTitle("Proline zero config window");
 		setBounds(100, 100, 400, 750);
-		setResizable(false);
+		// setResizable(false);
 		setLayout(new GridBagLayout());
 
 		GridBagConstraints c = new GridBagConstraints();
@@ -134,10 +136,10 @@ public class ConfigWindow extends JDialog {
 		serverPanel = new ServerPanel();
 		parsePanel = new ParsingRulesPanel();
 		memoryPanel.addPropertyChangeListener(MemoryPanel.SEQ_REPO_PROPERTY, evt -> {
-			seqRepModuleBox.setSelected((Long)evt.getNewValue()!=null && (Long)evt.getNewValue()>0l);
+			seqRepModuleBox.setSelected((boolean) evt.getNewValue());
 		});
 		memoryPanel.addPropertyChangeListener(MemoryPanel.STUDIO_PROPERTY, evt -> {
-				//studioModuleBox.setSelected((Long)evt.getNewValue()!=null && (Long)evt.getNewValue()>0l);
+			studioModuleBox.setSelected((boolean) evt.getNewValue());
 		});
 		tabbedPane.add(memoryPanel, "Memory");
 		tabbedPane.add(folderPanel, "Folders");
@@ -146,7 +148,7 @@ public class ConfigWindow extends JDialog {
 		if (!configManager.isSeqRepActive()) {
 			tabbedPane.setEnabledAt(3, false);
 		}
-		tabbedPane.addChangeListener(resizeDynamique());
+		// tabbedPane.addChangeListener(resizeDynamique());
 
 		return tabbedPane;
 	}
@@ -171,10 +173,10 @@ public class ConfigWindow extends JDialog {
 			public void itemStateChanged(ItemEvent e) {
 				// If we activate SeqRep :
 				if (seqRepModuleBox.isSelected()) {
-					//Test if it is possible regarding memory
-				boolean canEnable = configManager.getMemoryManager().canEnableSeqRepo();
+					// Test if it is possible regarding memory
+					boolean canEnable = configManager.getMemoryManager().canEnableSeqRepo();
 
-				if(canEnable) {
+					if (canEnable) {
 						// enable the tab
 						tabbedPane.setEnabledAt(3, true);
 						memoryPanel.seqRepBeingActive(true);
@@ -182,7 +184,11 @@ public class ConfigWindow extends JDialog {
 						// enable it in the util to recalculate the memory values
 						configManager.setSeqRepActive(true);
 
-				} else {
+						// then we update graphically the values from the util
+						if (!configManager.getMemoryManager().getAttributionMode().equals(AttributionMode.MANUAL))
+							memoryPanel.updateMemoryValues();
+
+					} else {
 //
 //						// else we basically do the same as if we deactivate it
 						Popup.warning("there is not enough memory to use sequence repository");
@@ -199,10 +205,10 @@ public class ConfigWindow extends JDialog {
 
 					// and deactivate it in the utils to recalculate the memory
 					configManager.setSeqRepActive(false);
+					// then we update graphically the values from the util
+					memoryPanel.updateMemoryValues();
 				}
 
-				// then we update graphically the values from the util
-				memoryPanel.updateValues();
 			}
 		});
 
@@ -219,7 +225,7 @@ public class ConfigWindow extends JDialog {
 					configManager.setStudioActive(false);
 					memoryPanel.studioBeingActive(false);
 				}
-				memoryPanel.updateValues();
+				memoryPanel.updateMemoryValues();
 			}
 		});
 
@@ -307,12 +313,13 @@ public class ConfigWindow extends JDialog {
 		return buttonPanel;
 	}
 
-	private void checkErrorAndExecute(){
+	private void checkErrorAndExecute() {
 		boolean success = ConfigManager.getInstance().verif();
 		if (success) {
-			// no errors after verification : we launch proline with the current configuration
+			// no errors after verification : we launch proline with the current
+			// configuration
 //			if(ConfigManager.getInstance().configChanged()) //VDS TODO
-			ConfigManager.getInstance().updateConfigFileZero(); //Inutile si on vient de faire un restore ?!
+			ConfigManager.getInstance().updateConfigFileZero(); // Inutile si on vient de faire un restore ?!
 			setVisible(false);
 
 		} else {
@@ -322,7 +329,8 @@ public class ConfigWindow extends JDialog {
 				StringBuilder msgToDisplay = new StringBuilder("Proline Zero can't start with current errors :\n");
 				msgToDisplay.append(ConfigManager.getInstance().getLastErrorMessage());
 				msgToDisplay.append("\nWould you like to exit Proline Zero ?");
-				msgToDisplay.append("\nAn example proline_launcher.config file is provided in proline_launcher.config.origin file");
+				msgToDisplay.append(
+						"\nAn example proline_launcher.config file is provided in proline_launcher.config.origin file");
 //				Popup.error(msgToDisplay.toString());
 //				System.exit(0);
 				boolean yesPressed = Popup.yesNo(msgToDisplay.toString());
@@ -331,7 +339,8 @@ public class ConfigWindow extends JDialog {
 				}
 
 			} else {
-				StringBuilder msgToDisplay = new StringBuilder("There are still some minors errors in configuration :\n");
+				StringBuilder msgToDisplay = new StringBuilder(
+						"There are still some minors errors in configuration :\n");
 				msgToDisplay.append(ConfigManager.getInstance().getLastErrorMessage());
 				msgToDisplay.append("\nContinue and launch Proline Zero ?");
 				boolean yesPressed = Popup.yesNo(msgToDisplay.toString());
@@ -360,16 +369,16 @@ public class ConfigWindow extends JDialog {
 			public void stateChanged(ChangeEvent e) {
 				switch (tabbedPane.getSelectedIndex()) {
 				case 0:
-					setBounds(100, 100, 400, 750);
+					setSize(400, 750);
 					break;
 				case 1:
-					setBounds(100, 100, 400, 660);
+					setSize(400, 660);
 					break;
 				case 2:
-					setBounds(100, 100, 400, 430);
+					setSize(400, 430);
 					break;
 				case 3:
-					setBounds(100, 100, 400, 530);
+					setSize(400, 530);
 					break;
 				}
 			}

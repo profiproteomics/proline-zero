@@ -99,6 +99,7 @@ public class MemoryPanel extends JPanel {
 		memoryManager = configManager.getMemoryManager();
 
 		AttributionMode mode = memoryManager.getAttributionMode();
+		firstClick = false;
 		if (mode.equals(AttributionMode.AUTO)) {
 			allocModeBox.setSelectedIndex(0);
 		} else if (mode.equals(AttributionMode.SEMIAUTO)) {
@@ -106,7 +107,8 @@ public class MemoryPanel extends JPanel {
 		} else {
 			allocModeBox.setSelectedIndex(2);
 		}
-		updateValues();
+		updateMemoryValues();
+		firstClick = true;
 	}
 
 	private JPanel createAllocationTypePanel() {
@@ -183,7 +185,7 @@ public class MemoryPanel extends JPanel {
 					firstClick = false;
 					memoryManager.setTotalMemory(totalMemorySpinner.getMoLongValue());
 					memoryManager.update();
-					updateValues();
+					updateMemoryValues();
 					firstClick = true;
 				}
 			}
@@ -229,7 +231,7 @@ public class MemoryPanel extends JPanel {
 					memoryManager.setStudioBeingChanged(true);
 					memoryManager.update();
 					memoryManager.setStudioBeingChanged(false);
-					updateValues();
+					updateMemoryValues();
 					firstClick = true;
 				}
 			}
@@ -274,7 +276,7 @@ public class MemoryPanel extends JPanel {
 					firstClick = false;
 					memoryManager.setServerTotalMemory(totalServerMemorySpinner.getMoLongValue());
 					memoryManager.update();
-					updateValues();
+					updateMemoryValues();
 					firstClick = true;
 				}
 			}
@@ -316,7 +318,8 @@ public class MemoryPanel extends JPanel {
 		JPanel serverAllocation = new JPanel(new GridBagLayout());
 		serverAllocation.setBorder(BorderFactory.createTitledBorder(""));
 		GridBagConstraints serverConstraint = new GridBagConstraints();
-		serverConstraint.fill = GridBagConstraints.HORIZONTAL;
+		serverConstraint.fill = GridBagConstraints.NONE;
+		serverConstraint.anchor = GridBagConstraints.WEST;
 		serverConstraint.weighty = 1;
 		serverConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
 
@@ -331,7 +334,7 @@ public class MemoryPanel extends JPanel {
 					firstClick = false;
 					memoryManager.setSeqrepMemory(seqrepMemorySpinner.getMoLongValue());
 					memoryManager.update();
-					updateValues();
+					updateMemoryValues();
 					firstClick = true;
 				}
 			}
@@ -348,7 +351,7 @@ public class MemoryPanel extends JPanel {
 					firstClick = false;
 					memoryManager.setDatastoreMemory(dataStoreMemorySpinner.getMoLongValue());
 					memoryManager.update();
-					updateValues();
+					updateMemoryValues();
 					firstClick = true;
 				}
 			}
@@ -364,7 +367,7 @@ public class MemoryPanel extends JPanel {
 					firstClick = false;
 					memoryManager.setProlineServerMemory(cortexMemorySpinner.getMoLongValue());
 					memoryManager.update();
-					updateValues();
+					updateMemoryValues();
 					firstClick = true;
 				}
 			}
@@ -381,7 +384,7 @@ public class MemoryPanel extends JPanel {
 					firstClick = false;
 					memoryManager.setJmsMemory(jmsMemorySpinner.getMoLongValue());
 					memoryManager.update();
-					updateValues();
+					updateMemoryValues();
 					firstClick = true;
 				}
 			}
@@ -436,7 +439,8 @@ public class MemoryPanel extends JPanel {
 	// method called when the value of the allocation mode is changed
 	private ActionListener allocationModeAction() {
 		ActionListener allocationModeAction = new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				if (allocModeBox.getSelectedItem().equals("Automatic")) {
 					memoryManager.setAttributionMode(AttributionMode.AUTO);
 
@@ -477,11 +481,14 @@ public class MemoryPanel extends JPanel {
 					jmsMemorySpinner.setEnabled(true);
 
 				}
-				firstClick = false;
-				memoryManager.update();
-				updateValues();
-				firstClick = true;
-
+				if (!firstClick) {
+					return;
+				} else {
+					firstClick = false;
+					memoryManager.update();
+					updateMemoryValues();
+					firstClick = true;
+				}
 			}
 		};
 		return allocationModeAction;
@@ -489,6 +496,7 @@ public class MemoryPanel extends JPanel {
 	}
 
 	// displays all the new values taken from the memorymanager
+
 	public void updateValues() {
 		AttributionMode mode = memoryManager.getAttributionMode();
 		if (mode.equals(AttributionMode.AUTO)) {
@@ -498,17 +506,19 @@ public class MemoryPanel extends JPanel {
 		} else {
 			allocModeBox.setSelectedIndex(2);
 		}
-		long studioMemory = memoryManager.getStudioMemory();
-		long seqRepoMemory = memoryManager.getSeqrepMemory();
+		updateMemoryValues();
+	}
+
+	public void updateMemoryValues() {
 		totalMemorySpinner.setValue(memoryManager.getTotalMemory());
-		studioMemorySpinner.setValue(studioMemory);
+		studioMemorySpinner.setValue(memoryManager.getStudioMemory());
 		totalServerMemorySpinner.setValue(memoryManager.getServerTotalMemory());
-		seqrepMemorySpinner.setValue(seqRepoMemory);
+		seqrepMemorySpinner.setValue(memoryManager.getSeqrepMemory());
 		dataStoreMemorySpinner.setValue(memoryManager.getDatastoreMemory());
 		cortexMemorySpinner.setValue(memoryManager.getProlineServerMemory());
 		jmsMemorySpinner.setValue(memoryManager.getJmsMemory());
-		firePropertyChange(STUDIO_PROPERTY,null,studioMemory);
-		firePropertyChange(SEQ_REPO_PROPERTY,null,seqRepoMemory);
+		firePropertyChange(STUDIO_PROPERTY, null, ConfigManager.getInstance().isStudioActive());
+		firePropertyChange(SEQ_REPO_PROPERTY, null, memoryManager.getSeqrepMemory() > 0);
 	}
 
 	public void studioBeingActive(boolean b) {

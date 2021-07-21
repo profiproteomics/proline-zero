@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.management.OperatingSystemMXBean;
 
-import fr.proline.zero.gui.ConfigWindow;
-
 public class MemoryUtils {
 
 	private static Logger logger = LoggerFactory.getLogger(MemoryUtils.class);
@@ -101,8 +99,6 @@ public class MemoryUtils {
 
 					this.serverTotalMemory = this.datastoreMemory + this.jmsMemory + this.prolineServerMemory
 							+ this.seqrepMemory;
-
-//					ConfigWindow.setSeqRep(canEnableSeqRepo());
 					break;
 				}
 			}
@@ -129,7 +125,6 @@ public class MemoryUtils {
 						}
 						resteMemory = resteMemory - this.datastoreMemory;
 						this.prolineServerMemory = resteMemory;
-//						ConfigWindow.setSeqRep(canEnableSeqRepo());
 						break;
 					}
 				}
@@ -137,7 +132,6 @@ public class MemoryUtils {
 			this.totalMemory = this.studioMemory + this.serverTotalMemory;
 			break;
 		case MANUAL:
-			// attribution mode = manual
 			m_currentMemRule = null;
 			this.serverTotalMemory = this.datastoreMemory + this.jmsMemory + this.prolineServerMemory
 					+ this.seqrepMemory;
@@ -412,16 +406,17 @@ public class MemoryUtils {
 					+ MemoryAllocationRule.MIN.getRange().getMinimumInteger() + ")");
 			errorFatal = true;
 //			ConfigManager.getInstance().setSeqRepActive(!(this.seqrepMemory == 0));
-		} else if ( (serverTotalMemory < MemoryAllocationRule.MIN.getRange().getMaximumInteger() ) && ConfigManager.getInstance().isSeqRepActive()
-				&& !(getAttributionMode().equals(AttributionMode.MANUAL)) ) {
+		} else if (((serverTotalMemory + (1 * G)) < MemoryAllocationRule.MIN.getRange().getMaximumInteger())
+				&& ConfigManager.getInstance().isSeqRepActive()
+				&& !(getAttributionMode().equals(AttributionMode.MANUAL))) {
 			if (message.length() > 0)
 				message.append("\n");
 			message.append(
 					"- The specified memory values are below what is needed to \n start the Sequence Repository Module \n ");
 			ConfigManager.getInstance().setSeqRepActive(false);
 		}
-		//VDS TO TEST .. SHould not occur
-		if( ConfigManager.getInstance().isSeqRepActive() && this.seqrepMemory == 0){
+		// VDS TO TEST .. SHould not occur
+		if (ConfigManager.getInstance().isSeqRepActive() && this.seqrepMemory == 0) {
 			logger.error(" ***************** SEQ REPO ACTIVE && seqrepMemory == 0 !!!!! ");
 		}
 
@@ -433,8 +428,8 @@ public class MemoryUtils {
 	}
 
 	public boolean canEnableSeqRepo() {
-		if(m_currentMemRule == null )//We are in Manual Mode
-			return  true;
+		if (m_currentMemRule == null)// We are in Manual Mode
+			return true;
 
 		long seqRepoMem = m_currentMemRule.getSeqRepMemory();
 		return (seqRepoMem > 0);
