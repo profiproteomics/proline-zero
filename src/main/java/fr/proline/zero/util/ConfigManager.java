@@ -17,6 +17,8 @@ public final class ConfigManager {
 
 	boolean showConfigDialog;
 
+	boolean hasBeenChanged = false;
+
 	private static ConfigManager instance;
 
 	private MemoryUtils memoryManager;
@@ -24,19 +26,27 @@ public final class ConfigManager {
 	private String lastErrorMessage;
 
 	private ConfigManager() {
+		// call for initialize after the constructor for a better code readability
 	}
 
 	public void initialize() {
+		// the three global properties (modules activated and hide the config dialog)
 		studioActive = Config.getStudioActive();
 		seqRepActive = Config.getSeqRepActive();
+		showConfigDialog = Config.showConfigDialog();
+
+		// The util that manages all the memory values and calculate them according
+		// to the allocation mode
 		memoryManager = new MemoryUtils();
 
+		// The util that manages port numbers and advanced parameters such as the server
+		// default Timeout and the number of parallel threads executing
 		advancedManager = new AdvancedAndServerUtils();
 
-		showConfigDialog = Config.showConfigDialog();
 		lastErrorMessage = "";
 	}
 
+	// Singleton class
 	public static ConfigManager getInstance() {
 		if (instance == null) {
 			instance = new ConfigManager();
@@ -58,6 +68,7 @@ public final class ConfigManager {
 			memoryManager.setStudioMemory(0);
 		}
 		memoryManager.update();
+		hasBeenChanged = true;
 	}
 
 	public boolean isStudioActive() {
@@ -70,6 +81,7 @@ public final class ConfigManager {
 			memoryManager.setSeqrepMemory(0);
 		}
 		memoryManager.update();
+		hasBeenChanged = true;
 	}
 
 	public boolean isSeqRepActive() {
@@ -78,6 +90,7 @@ public final class ConfigManager {
 
 	public void setShowConfigDialog(Boolean b) {
 		showConfigDialog = b;
+		hasBeenChanged = true;
 	}
 
 	public boolean showConfigDialog() {
@@ -121,16 +134,18 @@ public final class ConfigManager {
 					PropertiesConfiguration.class)
 							.configure(params.properties().setFileName("proline_launcher.config"));
 
+			if (hasBeenChanged) {
+				updateFileGeneral(builder);
+			}
+
 			if (memoryManager.hasBeenChanged()) {
 				updateFileMemory(builder);
 			}
-			// TODO faire la verif des param generaux
-			if (true) {
-				updateFileGeneral(builder);
-			}
+
 			if (advancedManager.hasBeenChanged()) {
 				updateFileAdvanced(builder);
 			}
+
 		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		}
@@ -176,7 +191,6 @@ public final class ConfigManager {
 		builder.save();
 	}
 
-	// TODO verifier à partir d'autre chose que le memoryManager
 	private void updateFileGeneral(FileBasedConfigurationBuilder<FileBasedConfiguration> builder)
 			throws ConfigurationException {
 		Configuration config = builder.getConfiguration();
@@ -189,6 +203,7 @@ public final class ConfigManager {
 		builder.save();
 	}
 
+	// restores the values from the config file
 	public void restoreValues() {
 		setStudioActive(Config.getStudioActive());
 		setSeqRepActive(Config.getSeqRepActive());
@@ -198,9 +213,12 @@ public final class ConfigManager {
 		// TODO other utils restore to their originals
 	}
 
-	public String getLastErrorMessage(){
+	public String getLastErrorMessage() {
 		return lastErrorMessage;
 	}
+
+	// calls for verif of the Utils, pastes the error message (if there is any !)
+	// into errorMessageField
 	public boolean verif() {
 
 		lastErrorMessage = "";
@@ -219,17 +237,12 @@ public final class ConfigManager {
 				errorMessage.append("\n");
 			}
 			lastErrorMessage = errorMessage.toString();
-//			if (errorMessage.length() > 0) {
-//				if (isErrorFatal()) {
-//					Popup.error(errorMessage.toString());
-//				} else {
-//					Popup.warning(errorMessage.toString());
-//				}
-//			}
 		}
 		return success;
 	}
 
+	// checks if Proline Zero can be launched or if there is a fatal error in one of
+	// the utils
 	public boolean isErrorFatal() {
 		return memoryManager.isErrorFatal() || advancedManager.isErrorFatal();
 	}

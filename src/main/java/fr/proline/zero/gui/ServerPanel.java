@@ -104,12 +104,15 @@ public class ServerPanel extends JPanel {
 
 	public void updateValues() {
 		dataStorePortField.setText(String.valueOf(advancedManager.getDataStorePort()));
+		paramAvancesWindow.setrestoreValues(true);
 		paramAvancesWindow.updateValues();
+		paramAvancesWindow.setrestoreValues(false);
 	}
 
 	public class DatastorePortListener implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent e) {
 			advancedManager.setDataStorePort(Integer.parseInt((String) dataStorePortField.getValue()));
+			advancedManager.setHasBeenChanged(true);
 		}
 	}
 }

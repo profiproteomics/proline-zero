@@ -128,17 +128,9 @@ public class AdvancedAndServerUtils {
 		setCortexNbParallelizableServiceRunners(Config.getCortexNbParallelizableServiceRunners());
 		setJvmPath(Config.getJavaHome());
 		setForceDataStoreUpdate(Config.getForceUpdate());
-	}
-
-	public void restoreAdvancedValues() {
-		setJmsServerPort(Config.getJmsPort());
-		setJmsBatchServerPort(Config.getJmsBatchPort());
-		setJnpServerPort(Config.getJnpPort());
-		setJnpRmiServerPort(Config.getJnpRmiPort());
-		setServerDefaultTimeout(Config.getDefaultTimeout());
-		setCortexNbParallelizableServiceRunners(Config.getCortexNbParallelizableServiceRunners());
-		setJvmPath(Config.getJavaHome());
-		setForceDataStoreUpdate(Config.getForceUpdate());
+		setHasBeenChanged(false);
+		errorFatal = false;
+		errorMessage = null;
 	}
 
 	public boolean verif() {

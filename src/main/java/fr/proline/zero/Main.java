@@ -34,15 +34,22 @@ public class Main {
 
 		logger.info("Starting Proline Zero");
 		try {
+			// first launch
+			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists();
 
-			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists(); // first
-																													// launch
+			// initialization of the singleton that will manage all of our properties
 			ConfigManager.getInstance().initialize();
+
+			// we check that all of our properties are correct and will not give errors
 			boolean isOK = ConfigManager.getInstance().verif();
-			if(!isOK){
+
+			// else we displayed the error messages
+			if (!isOK) {
 				if (ConfigManager.getInstance().isErrorFatal()) {
+					// fatal errors
 					Popup.error(ConfigManager.getInstance().getLastErrorMessage());
 				} else {
+					// minor errors
 					Popup.warning(ConfigManager.getInstance().getLastErrorMessage());
 				}
 			}
@@ -54,14 +61,15 @@ public class Main {
 				paramWindow.setVisible(true);
 				// WAITING HERE FOR CONFIG WINDOW TO CLOSE
 			} else {
+				// The config window will save the properties in the file, if it's not displayed
+				// we still need to save the properties because we may have changed them with
+				// the verif() method
 				ConfigManager.getInstance().updateConfigFileZero();
 			}
 
-			// TODO write in the file (done in the window but not if the window is not
-			// opened)
-
 			logger.info("First launch, update port");
-			ExecutionSession.updateConfigPort();// can be change only 1 time at the first time
+			ExecutionSession.updateConfigPort();
+
 			logger.info("launch, update thread number");
 			ExecutionSession.updateCortexNbParallelizableServiceRunners();
 

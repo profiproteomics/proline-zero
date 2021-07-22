@@ -27,7 +27,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import fr.proline.zero.util.ConfigManager;
-import fr.proline.zero.util.MemoryUtils.AttributionMode;
 
 public class ConfigWindow extends JDialog {
 
@@ -44,6 +43,9 @@ public class ConfigWindow extends JDialog {
 	private JCheckBox serverModuleBox;
 	private JCheckBox studioModuleBox;
 	private JCheckBox seqRepModuleBox;
+
+	private boolean seqRepBoxChanging = false;
+
 	private JButton continueButton;
 	private JButton cancelButton;
 	private JButton restoreButton;
@@ -62,8 +64,6 @@ public class ConfigWindow extends JDialog {
 		}
 	}
 
-	// singleton to be able to deactivate its elements (modules checkboxes) from any
-	// other class
 	public static ConfigWindow getInstance() {
 		if (instance == null) {
 			instance = new ConfigWindow();
@@ -87,7 +87,6 @@ public class ConfigWindow extends JDialog {
 			}
 		});
 
-		// TODO gerer le resizing
 		setTitle("Proline zero config window");
 		setBounds(100, 100, 400, 750);
 		// setResizable(false);
@@ -136,7 +135,8 @@ public class ConfigWindow extends JDialog {
 		serverPanel = new ServerPanel();
 		parsePanel = new ParsingRulesPanel();
 		memoryPanel.addPropertyChangeListener(MemoryPanel.SEQ_REPO_PROPERTY, evt -> {
-			seqRepModuleBox.setSelected((boolean) evt.getNewValue());
+			if (!seqRepBoxChanging)
+				seqRepModuleBox.setSelected((boolean) evt.getNewValue());
 		});
 		memoryPanel.addPropertyChangeListener(MemoryPanel.STUDIO_PROPERTY, evt -> {
 			studioModuleBox.setSelected((boolean) evt.getNewValue());
@@ -148,7 +148,7 @@ public class ConfigWindow extends JDialog {
 		if (!configManager.isSeqRepActive()) {
 			tabbedPane.setEnabledAt(3, false);
 		}
-		// tabbedPane.addChangeListener(resizeDynamique());
+		tabbedPane.addChangeListener(resizeDynamique());
 
 		return tabbedPane;
 	}
@@ -169,8 +169,13 @@ public class ConfigWindow extends JDialog {
 
 		seqRepModuleBox = new JCheckBox("Start Sequence Repository");
 		seqRepModuleBox.setSelected(configManager.isSeqRepActive());
+		// Action listener for the sequence repository checkBox
 		seqRepModuleBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
+				// changing the boolean to true so we don't loop when we update the values of
+				// the GUI
+				seqRepBoxChanging = true;
+
 				// If we activate SeqRep :
 				if (seqRepModuleBox.isSelected()) {
 					// Test if it is possible regarding memory
@@ -185,8 +190,7 @@ public class ConfigWindow extends JDialog {
 						configManager.setSeqRepActive(true);
 
 						// then we update graphically the values from the util
-						if (!configManager.getMemoryManager().getAttributionMode().equals(AttributionMode.MANUAL))
-							memoryPanel.updateMemoryValues();
+						memoryPanel.updateMemoryValues();
 
 					} else {
 //
@@ -205,10 +209,13 @@ public class ConfigWindow extends JDialog {
 
 					// and deactivate it in the utils to recalculate the memory
 					configManager.setSeqRepActive(false);
+
 					// then we update graphically the values from the util
+					// if seqRepBoxChanging is not set to true, it will loop because of the property
+					// listener on the memory values
 					memoryPanel.updateMemoryValues();
 				}
-
+				seqRepBoxChanging = false;
 			}
 		});
 
@@ -277,12 +284,16 @@ public class ConfigWindow extends JDialog {
 			restoreButton = new JButton("Restore Settings", restoreIcon);
 			restoreButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent event) {
-					configManager.restoreValues();
-					updateValues();
-					memoryPanel.updateValues();
-					folderPanel.updateValues();
-					serverPanel.updateValues();
-					parsePanel.updateValues();
+					boolean yesPressed = Popup.yesNo(
+							"Are you sure you want to reset the properties values to those from the config file ?\n(those values may not be valid)");
+					if (yesPressed) {
+						configManager.restoreValues();
+						updateValues();
+						memoryPanel.updateValues();
+						folderPanel.updateValues();
+						serverPanel.updateValues();
+						parsePanel.updateValues();
+					}
 				}
 			});
 		} catch (IOException e) {
@@ -313,13 +324,13 @@ public class ConfigWindow extends JDialog {
 		return buttonPanel;
 	}
 
+	// launching of proline zero
 	private void checkErrorAndExecute() {
 		boolean success = ConfigManager.getInstance().verif();
 		if (success) {
 			// no errors after verification : we launch proline with the current
 			// configuration
-//			if(ConfigManager.getInstance().configChanged()) //VDS TODO
-			ConfigManager.getInstance().updateConfigFileZero(); // Inutile si on vient de faire un restore ?!
+			ConfigManager.getInstance().updateConfigFileZero();
 			setVisible(false);
 
 		} else {
@@ -331,8 +342,7 @@ public class ConfigWindow extends JDialog {
 				msgToDisplay.append("\nWould you like to exit Proline Zero ?");
 				msgToDisplay.append(
 						"\nAn example proline_launcher.config file is provided in proline_launcher.config.origin file");
-//				Popup.error(msgToDisplay.toString());
-//				System.exit(0);
+
 				boolean yesPressed = Popup.yesNo(msgToDisplay.toString());
 				if (yesPressed) {
 					System.exit(0);
@@ -345,7 +355,6 @@ public class ConfigWindow extends JDialog {
 				msgToDisplay.append("\nContinue and launch Proline Zero ?");
 				boolean yesPressed = Popup.yesNo(msgToDisplay.toString());
 				if (yesPressed) {
-//					if(ConfigManager.getInstance().configChanged()) // VDS TODO
 					ConfigManager.getInstance().updateConfigFileZero();
 					setVisible(false);
 				}
@@ -364,6 +373,7 @@ public class ConfigWindow extends JDialog {
 		}
 	}
 
+	// TODO rework to dinamically size when you add elements
 	private ChangeListener resizeDynamique() {
 		ChangeListener resize = new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {

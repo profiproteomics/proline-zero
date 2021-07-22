@@ -64,7 +64,9 @@ public class MemoryUtils {
 
 	// - method called for an update of all the memory values when one of the values
 	// is changed
-	// - depends on the mode of allocation
+	// - depends on the allocation mode
+	// for Auto and semi Auto mode, it uses the MemoryAllcoationRule enum to
+	// calculate all the values
 	public void update() {
 		AttributionMode currentAttMode = attributionMode;
 		if (attributionMode.equals(AttributionMode.AUTO) && !ConfigManager.getInstance().isStudioActive()) {
@@ -80,8 +82,6 @@ public class MemoryUtils {
 					this.studioMemory = m_currentMemRule.getStudioMemory();
 					if (ConfigManager.getInstance().seqRepActive) {
 						this.seqrepMemory = m_currentMemRule.getSeqRepMemory();
-//						if (seqrepMemory == 0) {
-//							ConfigManager.getInstance().setSeqRepActive(false);
 //						}
 					} else {
 						this.seqrepMemory = 0;
@@ -138,80 +138,6 @@ public class MemoryUtils {
 			this.totalMemory = this.studioMemory + this.serverTotalMemory;
 			break;
 		}
-
-//	this.totalMemory = this.studioMemory + this.serverTotalMemory;
-//		if (attributionMode.equals(AttributionMode.AUTO)) {
-//			// attribution mode = auto
-//			long memoryToCheck = this.totalMemory;
-//
-//			if (!studioActive) {
-//				memoryToCheck = memoryToCheck + (1 * G);
-//			}
-//			for (MemoryAllocationRule rule : MemoryAllocationRule.values()) {
-//				if (rule.containsAuto(memoryToCheck)) {
-//					MemoryAllocationRule calcul = rule;
-//					if (studioActive) {
-//						this.studioMemory = calcul.getStudioMemory();
-//					} else {
-//						this.studioMemory = 0;
-//					}
-//					if (seqRepActive) {
-//						this.seqrepMemory = calcul.getSeqRepoMemory();
-//					} else {
-//						this.seqrepMemory = 0;
-//					}
-//
-//					this.jmsMemory = calcul.getJmsMemory();
-//					long resteMemory = this.totalMemory - this.studioMemory - this.seqrepMemory - this.jmsMemory;
-//
-//					this.datastoreMemory = Math.round(resteMemory * 0.35);
-//					if (this.datastoreMemory > calcul.getMaxPGMemory()) {
-//						this.datastoreMemory = (long) calcul.getMaxPGMemory();
-//					}
-//					resteMemory = resteMemory - this.datastoreMemory;
-//					this.prolineServerMemory = resteMemory;
-//
-//					this.serverTotalMemory = this.datastoreMemory + this.jmsMemory + this.prolineServerMemory
-//							+ this.seqrepMemory;
-//
-//					ConfigWindow.setSeqRep(this.serverTotalMemory >= 3 * G);
-//					break;
-//				}
-//			}
-//		} else if (attributionMode.equals(AttributionMode.SEMIAUTO)) {
-//			// attribution mode = semi-auto
-//			if (!isStudioBeingChanged) {
-//				for (MemoryAllocationRule rule : MemoryAllocationRule.values()) {
-//					if (rule.containsSemiAuto(this.serverTotalMemory)) {
-//						MemoryAllocationRule calcul = rule;
-//
-//						if (seqRepActive) {
-//							this.seqrepMemory = calcul.getSeqRepoMemory();
-//						} else {
-//							this.seqrepMemory = 0;
-//						}
-//
-//						this.jmsMemory = calcul.getJmsMemory();
-//
-//						long resteMemory = this.serverTotalMemory - this.jmsMemory - this.seqrepMemory;
-//
-//						this.datastoreMemory = Math.round(resteMemory * 0.35);
-//						if (this.datastoreMemory > calcul.getMaxPGMemory()) {
-//							this.datastoreMemory = (long) calcul.getMaxPGMemory();
-//						}
-//						resteMemory = resteMemory - this.datastoreMemory;
-//						this.prolineServerMemory = resteMemory;
-//						ConfigWindow.setSeqRep(this.serverTotalMemory >= 3 * G);
-//						break;
-//					}
-//				}
-//			}
-//			this.totalMemory = this.studioMemory + this.serverTotalMemory;
-//		} else {
-//			// attribution mode = manual
-//			this.serverTotalMemory = this.datastoreMemory + this.jmsMemory + this.prolineServerMemory
-//					+ this.seqrepMemory;
-//			this.totalMemory = this.studioMemory + this.serverTotalMemory;
 	}
 
 	// reads the memory values in the "String" (eg : 5.5G or 700M) format and

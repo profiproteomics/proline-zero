@@ -48,6 +48,9 @@ public class AdvancedConfigWindow extends JDialog {
 	private JButton continueButton;
 	private JButton cancelButton;
 
+	private boolean restoreValues = false;
+	private final String portChangingSTring = "Warning ! changing the ports after the first execution of Proline Zero may lead to dysfunctionnements in the programm.";
+
 	AdvancedAndServerUtils advancedManager;
 
 	public AdvancedConfigWindow() {
@@ -178,16 +181,13 @@ public class AdvancedConfigWindow extends JDialog {
 		c.gridwidth = 1;
 		c.gridy++;
 		c.anchor = GridBagConstraints.EAST;
-		add(new JLabel("Server default timeout : ", SwingConstants.RIGHT), c);
+		add(new JLabel("Server default timeout (s) : ", SwingConstants.RIGHT), c);
 
 		c.gridx++;
 		c.anchor = GridBagConstraints.NORTHWEST;
 		add(serverDefaultTimeoutField, c);
 
-		c.gridx++;
 		c.weightx = 0;
-		add(new JLabel("s"), c);
-
 		c.gridx = 0;
 		c.gridy++;
 		c.anchor = GridBagConstraints.EAST;
@@ -392,9 +392,11 @@ public class AdvancedConfigWindow extends JDialog {
 
 		ActionListener actionCancel = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				advancedManager.setHasBeenChanged(true);
+				restoreValues = true;
+				advancedManager.setHasBeenChanged(false);
 				updateValues();
 				dispose();
+				restoreValues = false;
 			}
 		};
 		cancelButton.addActionListener(actionCancel);
@@ -457,25 +459,49 @@ public class AdvancedConfigWindow extends JDialog {
 
 	public class JMSPortListener implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent e) {
-			advancedManager.setHasBeenChanged(true);
+			if (!restoreValues) {
+				Popup.warning(portChangingSTring);
+				advancedManager.setHasBeenChanged(true);
+			} else {
+				advancedManager.setHasBeenChanged(false);
+			}
 		}
 	}
 
 	public class JmsBatchPortListener implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent e) {
-			advancedManager.setHasBeenChanged(true);
+			if (!restoreValues) {
+				Popup.warning(portChangingSTring);
+				advancedManager.setHasBeenChanged(true);
+			} else {
+				advancedManager.setHasBeenChanged(false);
+			}
 		}
 	}
 
 	public class JNPPortListener implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent e) {
-			advancedManager.setHasBeenChanged(true);
+			if (!restoreValues) {
+				Popup.warning(portChangingSTring);
+				advancedManager.setHasBeenChanged(true);
+			} else {
+				advancedManager.setHasBeenChanged(false);
+			}
 		}
 	}
 
 	public class JnpRmiPortListener implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent e) {
-			advancedManager.setHasBeenChanged(true);
+			if (!restoreValues) {
+				Popup.warning(portChangingSTring);
+				advancedManager.setHasBeenChanged(true);
+			} else {
+				advancedManager.setHasBeenChanged(false);
+			}
 		}
+	}
+
+	public void setrestoreValues(Boolean b) {
+		this.restoreValues = b;
 	}
 }
