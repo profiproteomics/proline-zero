@@ -14,8 +14,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
+import fr.proline.zero.util.SettingsConstant;
 
 public class ParsingRulesPanel extends JPanel {
 	private JTextField labelField;
@@ -23,7 +24,6 @@ public class ParsingRulesPanel extends JPanel {
 	private JTextField fastaPatternField;
 	private JTextField fastaVersionField;
 	private Component filler;
-	private JTextArea aide;
 	private JPanel addParsingRules;
 	private GridBagConstraints c;
 
@@ -40,17 +40,11 @@ public class ParsingRulesPanel extends JPanel {
 		c.weightx = 1;
 
 		// creation des widgets
-		// TODO : texte à changer et centrer avec une icone
-		aide = new JTextArea();
-		aide.setMinimumSize(new Dimension(300, 75));
-		aide.setPreferredSize(new Dimension(300, 75));
-		aide.setText("ici est l'aide concernant l'onglet \nparsing rules");
-		aide.setEditable(false);
 
 		// ajout des widgets au layout
 		c.gridx = 0;
 		c.gridy = 0;
-		add(aide, c);
+		add(HelpPannel.createPanel(SettingsConstant.PARSING_RULES_HELP_PANE), c);
 
 		c.insets = new java.awt.Insets(20, 15, 0, 15);
 		c.gridy++;

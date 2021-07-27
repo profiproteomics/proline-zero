@@ -157,7 +157,7 @@ public final class ConfigManager {
 		Configuration config = builder.getConfiguration();
 
 		config.setProperty("allocation_mode", memoryManager.getAttributionMode().toString());
-		config.setProperty("total_max_memory", MemoryUtils.formatMemoryAsString(memoryManager.getServerTotalMemory()));
+		config.setProperty("total_max_memory", MemoryUtils.formatMemoryAsString(memoryManager.getTotalMemory()));
 		config.setProperty("studio_memory", MemoryUtils.formatMemoryAsString(memoryManager.getStudioMemory()));
 		config.setProperty("server_total_memory",
 				MemoryUtils.formatMemoryAsString(memoryManager.getServerTotalMemory()));
@@ -194,8 +194,8 @@ public final class ConfigManager {
 	private void updateFileGeneral(FileBasedConfigurationBuilder<FileBasedConfiguration> builder)
 			throws ConfigurationException {
 		Configuration config = builder.getConfiguration();
-		config.setProperty("sequence_repository_active", SettingsConstant.booleanToString(isStudioActive()));
-		config.setProperty("proline_studio_active", SettingsConstant.booleanToString(isSeqRepActive()));
+		config.setProperty("sequence_repository_active", SettingsConstant.booleanToString(isSeqRepActive()));
+		config.setProperty("proline_studio_active", SettingsConstant.booleanToString(isStudioActive()));
 		config.setProperty("log_debug", SettingsConstant.booleanToString(isDebugMode()));
 		config.setProperty("show_config_dialog", SettingsConstant.booleanToString(showConfigDialog()));
 

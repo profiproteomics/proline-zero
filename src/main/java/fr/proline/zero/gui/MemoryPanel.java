@@ -12,7 +12,7 @@ import javax.swing.Box;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -20,6 +20,7 @@ import javax.swing.event.ChangeListener;
 import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.MemoryUtils;
 import fr.proline.zero.util.MemoryUtils.AttributionMode;
+import fr.proline.zero.util.SettingsConstant;
 
 public class MemoryPanel extends JPanel {
 	private JComboBox<String> allocModeBox;
@@ -44,7 +45,7 @@ public class MemoryPanel extends JPanel {
 
 	private MemoryUtils memoryManager;
 
-	private JTextArea aide;
+	private JTextPane aide;
 
 	/**
 	 * Memory Properties to propagate change for
@@ -59,6 +60,7 @@ public class MemoryPanel extends JPanel {
 		super();
 		firstClick = true;
 		initialize();
+		memoryManager.setHasBeenChanged(false);
 	}
 
 	private void initialize() {
@@ -72,15 +74,8 @@ public class MemoryPanel extends JPanel {
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.NORTHWEST;
 
-		// creation des widgets
-		aide = new JTextArea();
-		aide.setPreferredSize(new Dimension(300, 75));
-		aide.setMinimumSize(new Dimension(300, 75));
-		aide.setText("ici est l'aide concernant l'onglet \nallocation de la memoire");
-		aide.setEditable(false);
-
 		// ajout des widgets au layout
-		add(aide, c);
+		add(HelpPannel.createPanel(SettingsConstant.MEMORY_HELP_PANE), c);
 
 		c.insets = new java.awt.Insets(20, 15, 0, 15);
 		c.gridy++;
@@ -307,7 +302,6 @@ public class MemoryPanel extends JPanel {
 
 		c.gridx++;
 		c.gridwidth = 3;
-		c.weightx = 1;
 		c.insets = new java.awt.Insets(5, 5, 5, 0);
 		serverTotal.add(createServerDetailPanel(), c);
 		return serverTotal;
@@ -517,7 +511,7 @@ public class MemoryPanel extends JPanel {
 		dataStoreMemorySpinner.setValue(memoryManager.getDatastoreMemory());
 		cortexMemorySpinner.setValue(memoryManager.getProlineServerMemory());
 		jmsMemorySpinner.setValue(memoryManager.getJmsMemory());
-		firePropertyChange(STUDIO_PROPERTY, null, ConfigManager.getInstance().isStudioActive());
+		firePropertyChange(STUDIO_PROPERTY, null, memoryManager.getStudioMemory() > 0);
 		firePropertyChange(SEQ_REPO_PROPERTY, null, memoryManager.getSeqrepMemory() > 0);
 	}
 

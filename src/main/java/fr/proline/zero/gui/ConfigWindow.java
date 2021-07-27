@@ -1,6 +1,7 @@
 package fr.proline.zero.gui;
 
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -27,6 +28,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import fr.proline.zero.util.ConfigManager;
+import fr.proline.zero.util.SettingsConstant;
 
 public class ConfigWindow extends JDialog {
 
@@ -44,7 +46,7 @@ public class ConfigWindow extends JDialog {
 	private JCheckBox studioModuleBox;
 	private JCheckBox seqRepModuleBox;
 
-	private boolean seqRepBoxChanging = false;
+	private boolean moduleBoxesChanging = false;
 
 	private JButton continueButton;
 	private JButton cancelButton;
@@ -88,8 +90,14 @@ public class ConfigWindow extends JDialog {
 		});
 
 		setTitle("Proline zero config window");
-		setBounds(100, 100, 400, 750);
-		// setResizable(false);
+		try {
+			setIconImage(ImageIO.read(ClassLoader.getSystemResource("logo32x32.png")));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		setMinimumSize(new Dimension(380, 790));
+		setSize(450, 790);
 		setLayout(new GridBagLayout());
 
 		GridBagConstraints c = new GridBagConstraints();
@@ -103,6 +111,7 @@ public class ConfigWindow extends JDialog {
 				configManager.setShowConfigDialog(!doNotShowAgainBox.isSelected());
 			}
 		};
+		doNotShowAgainBox.setToolTipText(SettingsConstant.HIDEDIALOG_TOOLTIP);
 		doNotShowAgainBox.addItemListener(checkHide);
 
 		// ajout des differents panels
@@ -135,11 +144,12 @@ public class ConfigWindow extends JDialog {
 		serverPanel = new ServerPanel();
 		parsePanel = new ParsingRulesPanel();
 		memoryPanel.addPropertyChangeListener(MemoryPanel.SEQ_REPO_PROPERTY, evt -> {
-			if (!seqRepBoxChanging)
+			if (!moduleBoxesChanging)
 				seqRepModuleBox.setSelected((boolean) evt.getNewValue());
 		});
 		memoryPanel.addPropertyChangeListener(MemoryPanel.STUDIO_PROPERTY, evt -> {
-			studioModuleBox.setSelected((boolean) evt.getNewValue());
+			if (!moduleBoxesChanging)
+				studioModuleBox.setSelected((boolean) evt.getNewValue());
 		});
 		tabbedPane.add(memoryPanel, "Memory");
 		tabbedPane.add(folderPanel, "Folders");
@@ -174,7 +184,7 @@ public class ConfigWindow extends JDialog {
 			public void itemStateChanged(ItemEvent e) {
 				// changing the boolean to true so we don't loop when we update the values of
 				// the GUI
-				seqRepBoxChanging = true;
+				moduleBoxesChanging = true;
 
 				// If we activate SeqRep :
 				if (seqRepModuleBox.isSelected()) {
@@ -193,8 +203,8 @@ public class ConfigWindow extends JDialog {
 						memoryPanel.updateMemoryValues();
 
 					} else {
-//
-//						// else we basically do the same as if we deactivate it
+
+						// else we basically do the same as if we deactivate it
 						Popup.warning("there is not enough memory to use sequence repository");
 						seqRepModuleBox.setSelected(false);
 					}
@@ -215,15 +225,17 @@ public class ConfigWindow extends JDialog {
 					// listener on the memory values
 					memoryPanel.updateMemoryValues();
 				}
-				seqRepBoxChanging = false;
+				moduleBoxesChanging = false;
 			}
 		});
+		seqRepModuleBox.setToolTipText(SettingsConstant.SEQREP_MODULES_TOOLTIP);
 
 		// same for the studio module except we don't need to disable a tab
 		studioModuleBox = new JCheckBox("Start Proline Studio");
 		studioModuleBox.setSelected(configManager.isStudioActive());
 		studioModuleBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
+				moduleBoxesChanging = true;
 
 				if (studioModuleBox.isSelected()) {
 					configManager.setStudioActive(true);
@@ -233,8 +245,10 @@ public class ConfigWindow extends JDialog {
 					memoryPanel.studioBeingActive(false);
 				}
 				memoryPanel.updateMemoryValues();
+				moduleBoxesChanging = false;
 			}
 		});
+		studioModuleBox.setToolTipText(SettingsConstant.STUDIO_MODULES_TOOLTIP);
 
 		// ajout des widgets
 		c.gridy = 0;
@@ -379,16 +393,20 @@ public class ConfigWindow extends JDialog {
 			public void stateChanged(ChangeEvent e) {
 				switch (tabbedPane.getSelectedIndex()) {
 				case 0:
-					setSize(400, 750);
+					setMinimumSize(new Dimension(380, 790));
+					setSize(450, 790);
 					break;
 				case 1:
+					setMinimumSize(new Dimension(330, 640));
 					setSize(400, 660);
 					break;
 				case 2:
-					setSize(400, 430);
+					setMinimumSize(new Dimension(320, 430));
+					setSize(380, 430);
 					break;
 				case 3:
-					setSize(400, 530);
+					setMinimumSize(new Dimension(380, 570));
+					setSize(430, 570);
 					break;
 				}
 			}

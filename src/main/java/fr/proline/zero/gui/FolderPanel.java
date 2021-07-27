@@ -20,12 +20,12 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileSystemView;
 
 import fr.proline.zero.util.ConfigManager;
+import fr.proline.zero.util.SettingsConstant;
 
 public class FolderPanel extends JPanel {
 	private JTextField maximumTmpFolderSizeField;
@@ -38,7 +38,6 @@ public class FolderPanel extends JPanel {
 	private GridBagConstraints mzdbListPanelConstraints;
 	private JPanel fastaListPanel;
 	private GridBagConstraints fastaListPanelConstraints;
-	private JTextArea aide;
 
 	public FolderPanel() {
 		super();
@@ -54,17 +53,11 @@ public class FolderPanel extends JPanel {
 		folderPanelConstraints.weightx = 1;
 
 		// creation des widgets
-		// TODO : texte à changer et centrer avec une icone
-		aide = new JTextArea();
-		aide.setPreferredSize(new Dimension(300, 75));
-		aide.setMinimumSize(new Dimension(300, 75));
-		aide.setText("ici est l'aide concernant l'onglet \nfolder");
-		aide.setEditable(false);
 
 		// ajout des widgets au layout
 		folderPanelConstraints.gridx = 0;
 		folderPanelConstraints.gridy = 0;
-		add(aide, folderPanelConstraints);
+		add(HelpPannel.createPanel(SettingsConstant.FOLDERS_HELP_PANE), folderPanelConstraints);
 
 		folderPanelConstraints.insets = new java.awt.Insets(20, 15, 0, 15);
 		folderPanelConstraints.gridy++;
@@ -86,15 +79,18 @@ public class FolderPanel extends JPanel {
 	private JPanel createTmpFolderPanel() {
 		// creation du panel et du layout
 		JPanel tmpFolderPanel = new JPanel(new GridBagLayout());
+		tmpFolderPanel.setToolTipText(SettingsConstant.FOLDER_MAX_SIZE_TOOLTIP);
 		GridBagConstraints tmpFolderConstraint = new GridBagConstraints();
 		tmpFolderConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
 		tmpFolderConstraint.anchor = GridBagConstraints.NORTHWEST;
 
 		// creation des widgets
+
 		maximumTmpFolderSizeField = new JTextField();
 		maximumTmpFolderSizeField.setPreferredSize(new Dimension(50, 20));
 		maximumTmpFolderSizeField.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 		maximumTmpFolderSizeField.setText(String.valueOf(ConfigManager.getInstance().getMaxTmpFolderSize()));
+		maximumTmpFolderSizeField.setToolTipText(SettingsConstant.FOLDER_MAX_SIZE_TOOLTIP);
 
 		// ajout des widgets au layout
 		tmpFolderConstraint.gridx = 0;

@@ -143,6 +143,10 @@ public class AdvancedAndServerUtils {
 			e.printStackTrace();
 		}
 		message.append(samePorts());
+		if (!SystemUtils.isPortAvailable(getDataStorePort())) {
+			message.append("\n The specified data store port is already in use");
+			errorFatal = true;
+		}
 		if (!SystemUtils.isPortAvailable(getJmsServerPort())) {
 			message.append("\n The specified JMS port is already in use");
 			errorFatal = true;
@@ -200,6 +204,10 @@ public class AdvancedAndServerUtils {
 			message.append("\nThe JMS port and the JNP RMI port are the same");
 			errorFatal = true;
 		}
+		if (getJmsServerPort() == getDataStorePort()) {
+			message.append("\nThe JMS port and the Data Store port are the same");
+			errorFatal = true;
+		}
 		if (getJmsBatchServerPort() == getJnpServerPort()) {
 			message.append("\nThe JMS Batch port and the JNP port are the same");
 			errorFatal = true;
@@ -208,8 +216,20 @@ public class AdvancedAndServerUtils {
 			message.append("\nThe JMS Batch port and the JNP RMI port are the same");
 			errorFatal = true;
 		}
+		if (getJmsBatchServerPort() == getDataStorePort()) {
+			message.append("\nThe JMS Batch port and the Data Store port are the same");
+			errorFatal = true;
+		}
 		if (getJnpServerPort() == getJnpRmiServerPort()) {
 			message.append("\nThe JNP port and the JNP RMI port are the same");
+			errorFatal = true;
+		}
+		if (getJnpServerPort() == getDataStorePort()) {
+			message.append("\nThe JNP port and the Data Store port are the same");
+			errorFatal = true;
+		}
+		if (getJnpRmiServerPort() == getDataStorePort()) {
+			message.append("\nThe JNP RMI port and the Data Store port are the same");
 			errorFatal = true;
 		}
 		return message.toString();
