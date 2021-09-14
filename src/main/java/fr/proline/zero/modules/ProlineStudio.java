@@ -91,7 +91,7 @@ public class ProlineStudio extends AbstractProcess {
         stop();
     }
 
-    public void startOld() throws Exception {
+    public void startNetbeans() throws Exception {
         cleanCache();
         List<String> command = new ArrayList<>();
 //		command.add(Config.getJavaExePath());
