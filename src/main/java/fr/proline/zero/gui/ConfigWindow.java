@@ -1,34 +1,14 @@
 package fr.proline.zero.gui;
 
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.UIManager;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.SettingsConstant;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.IOException;
 
 public class ConfigWindow extends JDialog {
 
@@ -69,10 +49,10 @@ public class ConfigWindow extends JDialog {
 	public static ConfigWindow getInstance() {
 		if (instance == null) {
 			instance = new ConfigWindow();
-
 		}
 		return instance;
 	}
+
 
 	/**
 	 * Initialize the contents of the frame.
@@ -97,7 +77,7 @@ public class ConfigWindow extends JDialog {
 			e1.printStackTrace();
 		}
 		setMinimumSize(new Dimension(380, 790));
-		setSize(450, 790);
+		setSize(600, 790);
 		setLayout(new GridBagLayout());
 
 		GridBagConstraints c = new GridBagConstraints();
@@ -133,6 +113,8 @@ public class ConfigWindow extends JDialog {
 		c.gridy++;
 		c.weightx = 5;
 		add(createBottomButtonsPanel(), c);
+
+		this.setLocationRelativeTo(null);
 	}
 
 	// create the tabs for the many options
@@ -158,7 +140,9 @@ public class ConfigWindow extends JDialog {
 		if (!configManager.isSeqRepActive()) {
 			tabbedPane.setEnabledAt(3, false);
 		}
-		tabbedPane.addChangeListener(resizeDynamique());
+//		tabbedPane.addChangeListener(resizeDynamique());
+		//VDS TODO : implement to allow !
+		tabbedPane.setEnabledAt(3, false);
 
 		return tabbedPane;
 	}
@@ -167,7 +151,7 @@ public class ConfigWindow extends JDialog {
 
 		// mise en place du panel et layout
 		JPanel modulePane = new JPanel(new GridBagLayout());
-
+		modulePane.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
@@ -193,7 +177,7 @@ public class ConfigWindow extends JDialog {
 
 					if (canEnable) {
 						// enable the tab
-						tabbedPane.setEnabledAt(3, true);
+						//VDS NYI tabbedPane.setEnabledAt(3, true);
 						memoryPanel.seqRepBeingActive(true);
 
 						// enable it in the util to recalculate the memory values
@@ -274,6 +258,7 @@ public class ConfigWindow extends JDialog {
 	private JPanel createBottomButtonsPanel() {
 		// mise en place du panel et du layout
 		JPanel buttonPanel = new JPanel(new GridBagLayout());
+		buttonPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		GridBagConstraints c = new GridBagConstraints();
 		c.insets = new Insets(5, 5, 5, 5);
 
@@ -388,31 +373,31 @@ public class ConfigWindow extends JDialog {
 	}
 
 	// TODO rework to dinamically size when you add elements
-	private ChangeListener resizeDynamique() {
-		ChangeListener resize = new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				switch (tabbedPane.getSelectedIndex()) {
-				case 0:
-					setMinimumSize(new Dimension(380, 790));
-					setSize(450, 790);
-					break;
-				case 1:
-					setMinimumSize(new Dimension(330, 640));
-					setSize(400, 660);
-					break;
-				case 2:
-					setMinimumSize(new Dimension(320, 430));
-					setSize(380, 430);
-					break;
-				case 3:
-					setMinimumSize(new Dimension(380, 570));
-					setSize(430, 570);
-					break;
-				}
-			}
-		};
-		return resize;
-	}
+//	private ChangeListener resizeDynamique() {
+//		ChangeListener resize = new ChangeListener() {
+//			public void stateChanged(ChangeEvent e) {
+//				switch (tabbedPane.getSelectedIndex()) {
+//				case 0:
+//					setMinimumSize(new Dimension(380, 790));
+//					setSize(450, 790);
+//					break;
+//				case 1:
+//					setMinimumSize(new Dimension(330, 640));
+//					setSize(400, 660);
+//					break;
+//				case 2:
+//					setMinimumSize(new Dimension(320, 430));
+//					setSize(380, 430);
+//					break;
+//				case 3:
+//					setMinimumSize(new Dimension(380, 570));
+//					setSize(430, 570);
+//					break;
+//				}
+//			}
+//		};
+//		return resize;
+//	}
 
 	// repaint the window with new values
 	private void updateValues() {

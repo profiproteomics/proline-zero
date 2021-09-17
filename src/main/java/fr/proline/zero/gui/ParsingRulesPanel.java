@@ -7,14 +7,7 @@ import java.awt.GridBagLayout;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import fr.proline.zero.util.SettingsConstant;
 
@@ -41,10 +34,16 @@ public class ParsingRulesPanel extends JPanel {
 
 		// creation des widgets
 
+		JTextArea help = new JTextArea();
+		help.setMinimumSize(new Dimension(300, 75));
+		help.setPreferredSize(new Dimension(300, 75));
+		help.setText(SettingsConstant.PARSING_RULES_HELP_PANE);
+		help.setEditable(false);
+
 		// ajout des widgets au layout
 		c.gridx = 0;
 		c.gridy = 0;
-		add(HelpPannel.createPanel(SettingsConstant.PARSING_RULES_HELP_PANE), c);
+		add(help, c);
 
 		c.insets = new java.awt.Insets(20, 15, 0, 15);
 		c.gridy++;

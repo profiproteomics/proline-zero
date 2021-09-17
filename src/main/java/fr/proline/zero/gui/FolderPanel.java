@@ -11,17 +11,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 
 import fr.proline.zero.util.ConfigManager;
@@ -50,18 +40,18 @@ public class FolderPanel extends JPanel {
 		GridBagConstraints folderPanelConstraints = new GridBagConstraints();
 		folderPanelConstraints.fill = GridBagConstraints.BOTH;
 		folderPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-		folderPanelConstraints.weightx = 1;
 
-		// creation des widgets
-
-		// ajout des widgets au layout
 		folderPanelConstraints.gridx = 0;
 		folderPanelConstraints.gridy = 0;
-		add(HelpPannel.createPanel(SettingsConstant.FOLDERS_HELP_PANE), folderPanelConstraints);
+		folderPanelConstraints.weightx = 1;
+		folderPanelConstraints.weighty = 0.5;
+		HelpHeaderPanel help = new HelpHeaderPanel("Folder" , SettingsConstant.FOLDERS_HELP_PANE);
+		add(help, folderPanelConstraints);
 
 		folderPanelConstraints.insets = new java.awt.Insets(20, 15, 0, 15);
 		folderPanelConstraints.gridy++;
 		folderPanelConstraints.weightx = 0;
+		folderPanelConstraints.weighty = 0;
 		add(createTmpFolderPanel(), folderPanelConstraints);
 
 		folderPanelConstraints.gridy++;
@@ -95,20 +85,17 @@ public class FolderPanel extends JPanel {
 		// ajout des widgets au layout
 		tmpFolderConstraint.gridx = 0;
 		tmpFolderConstraint.gridy = 0;
+		tmpFolderConstraint.fill = GridBagConstraints.HORIZONTAL;
 		tmpFolderPanel.add(new JLabel("Maximum size for temp folder : ", SwingConstants.RIGHT), tmpFolderConstraint);
 
 		tmpFolderConstraint.gridx++;
-		tmpFolderConstraint.weightx = 0.15;
-		tmpFolderConstraint.fill = GridBagConstraints.HORIZONTAL;
+		tmpFolderConstraint.weightx = 0.5;
+		tmpFolderConstraint.fill = GridBagConstraints.BOTH;
 		tmpFolderPanel.add(maximumTmpFolderSizeField, tmpFolderConstraint);
 
 		tmpFolderConstraint.gridx++;
 		tmpFolderConstraint.weightx = 0;
 		tmpFolderPanel.add(new JLabel("Mo"), tmpFolderConstraint);
-
-		tmpFolderConstraint.gridx++;
-		tmpFolderConstraint.weightx = 1;
-		tmpFolderPanel.add(Box.createHorizontalGlue(), tmpFolderConstraint);
 
 		return tmpFolderPanel;
 	}
@@ -164,7 +151,10 @@ public class FolderPanel extends JPanel {
 		// ajout des widgets au layout
 		addFolderConstraint.gridx = 0;
 		addFolderConstraint.gridy = 0;
-		addFolderPanel.add(new JLabel("Data type : ", SwingConstants.RIGHT), addFolderConstraint);
+		JLabel l = new JLabel("Data type : ", SwingConstants.RIGHT);
+		l.setEnabled(false);
+		dataTypeBox.setEnabled(false);
+		addFolderPanel.add(l, addFolderConstraint);
 		addFolderConstraint.gridx++;
 		addFolderConstraint.anchor = GridBagConstraints.WEST;
 		addFolderPanel.add(dataTypeBox, addFolderConstraint);
@@ -172,7 +162,10 @@ public class FolderPanel extends JPanel {
 		addFolderConstraint.gridx = 0;
 		addFolderConstraint.gridy++;
 		addFolderConstraint.anchor = GridBagConstraints.EAST;
-		addFolderPanel.add(new JLabel("Label : ", SwingConstants.RIGHT), addFolderConstraint);
+		l = new JLabel("Label : ", SwingConstants.RIGHT);
+		l.setEnabled(false);
+		folderLabelField.setEnabled(false);
+		addFolderPanel.add(l, addFolderConstraint);
 		addFolderConstraint.gridx++;
 		addFolderConstraint.anchor = GridBagConstraints.WEST;
 		addFolderConstraint.weightx = 0.3;
@@ -182,7 +175,11 @@ public class FolderPanel extends JPanel {
 		addFolderConstraint.gridx = 0;
 		addFolderConstraint.gridy++;
 		addFolderConstraint.anchor = GridBagConstraints.EAST;
-		addFolderPanel.add(new JLabel("Path : ", SwingConstants.RIGHT), addFolderConstraint);
+		l = new JLabel("Path : ", SwingConstants.RIGHT);
+		l.setEnabled(false);
+		folderPathField.setEnabled(false);
+		browseButton.setEnabled(false);
+		addFolderPanel.add(l, addFolderConstraint);
 		addFolderConstraint.gridx++;
 		addFolderConstraint.anchor = GridBagConstraints.WEST;
 		addFolderConstraint.weightx = 1;
@@ -195,10 +192,12 @@ public class FolderPanel extends JPanel {
 		addFolderConstraint.anchor = GridBagConstraints.EAST;
 		addFolderConstraint.gridy++;
 		addFolderConstraint.gridx = 1;
+		clearButton.setEnabled(false);
 		addFolderPanel.add(clearButton, addFolderConstraint);
 
 		addFolderConstraint.anchor = GridBagConstraints.CENTER;
 		addFolderConstraint.gridx++;
+		addButton.setEnabled(false);
 		addFolderPanel.add(addButton, addFolderConstraint);
 
 		return addFolderPanel;
@@ -271,6 +270,7 @@ public class FolderPanel extends JPanel {
 	}
 
 	private ActionListener addFolderAction() {
+		//VDS TODO : Enable save info in corresponding config files
 		ActionListener addFolder = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				if ((!folderPathField.getText().isEmpty() && !folderLabelField.getText().isEmpty())
@@ -278,15 +278,16 @@ public class FolderPanel extends JPanel {
 								&& dataTypeBox.getSelectedItem().equals("Fasta folder"))) {
 					JLabel label = new JLabel(folderLabelField.getText());
 					JLabel path = new JLabel(folderPathField.getText());
-					JButton delete = new JButton("x");
-					try {
-						Icon crossIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
-						delete.setText("");
-						delete.setIcon(crossIcon);
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+
+//					JButton delete = new JButton("x");
+//					try {
+//						Icon crossIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
+//						delete.setText("");
+//						delete.setIcon(crossIcon);
+//					} catch (IOException e1) {
+//						// TODO Auto-generated catch block
+//						e1.printStackTrace();
+//					}
 
 					switch ((String) dataTypeBox.getSelectedItem()) {
 					case "Result folder":
@@ -296,20 +297,20 @@ public class FolderPanel extends JPanel {
 						resultListPanel.add(path, resultListPanelConstraints);
 						resultListPanelConstraints.gridx++;
 						resultListPanelConstraints.weightx = 0;
-						resultListPanel.add(delete, resultListPanelConstraints);
+//						resultListPanel.add(delete, resultListPanelConstraints);
 						resultListPanelConstraints.gridx = 0;
 						resultListPanelConstraints.gridy++;
 
-						ActionListener delFolderRes = new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-								resultListPanel.remove(label);
-								resultListPanel.remove(path);
-								resultListPanel.remove(delete);
-								revalidate();
-								repaint();
-							}
-						};
-						delete.addActionListener(delFolderRes);
+//						ActionListener delFolderRes = new ActionListener() {
+//							public void actionPerformed(ActionEvent e) {
+//								resultListPanel.remove(label);
+//								resultListPanel.remove(path);
+//								resultListPanel.remove(delete);
+//								revalidate();
+//								repaint();
+//							}
+//						};
+//						delete.addActionListener(delFolderRes);
 
 						break;
 					case "Mzdb folder":
@@ -319,20 +320,20 @@ public class FolderPanel extends JPanel {
 						mzdbListPanel.add(path, mzdbListPanelConstraints);
 						mzdbListPanelConstraints.gridx++;
 						mzdbListPanelConstraints.weightx = 0;
-						mzdbListPanel.add(delete, mzdbListPanelConstraints);
+//						mzdbListPanel.add(delete, mzdbListPanelConstraints);
 						mzdbListPanelConstraints.gridx = 0;
 						mzdbListPanelConstraints.gridy++;
 
-						ActionListener delFolderMZ = new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-								mzdbListPanel.remove(label);
-								mzdbListPanel.remove(path);
-								mzdbListPanel.remove(delete);
-								revalidate();
-								repaint();
-							}
-						};
-						delete.addActionListener(delFolderMZ);
+//						ActionListener delFolderMZ = new ActionListener() {
+//							public void actionPerformed(ActionEvent e) {
+//								mzdbListPanel.remove(label);
+//								mzdbListPanel.remove(path);
+//								mzdbListPanel.remove(delete);
+//								revalidate();
+//								repaint();
+//							}
+//						};
+//						delete.addActionListener(delFolderMZ);
 
 						break;
 					case "Fasta folder":
@@ -340,20 +341,20 @@ public class FolderPanel extends JPanel {
 						fastaListPanel.add(path, fastaListPanelConstraints);
 						fastaListPanelConstraints.gridx++;
 						fastaListPanelConstraints.weightx = 0;
-						fastaListPanel.add(delete, fastaListPanelConstraints);
+//						fastaListPanel.add(delete, fastaListPanelConstraints);
 						fastaListPanelConstraints.gridx = 0;
 						fastaListPanelConstraints.gridy++;
 
-						ActionListener delFolderFasta = new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-								fastaListPanel.remove(label);
-								fastaListPanel.remove(path);
-								fastaListPanel.remove(delete);
-								revalidate();
-								repaint();
-							}
-						};
-						delete.addActionListener(delFolderFasta);
+//						ActionListener delFolderFasta = new ActionListener() {
+//							public void actionPerformed(ActionEvent e) {
+//								fastaListPanel.remove(label);
+//								fastaListPanel.remove(path);
+//								fastaListPanel.remove(delete);
+//								revalidate();
+//								repaint();
+//							}
+//						};
+//						delete.addActionListener(delFolderFasta);
 
 						break;
 

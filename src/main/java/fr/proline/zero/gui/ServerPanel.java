@@ -1,33 +1,21 @@
 package fr.proline.zero.gui;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.IOException;
-import java.text.ParseException;
-
-import javax.imageio.ImageIO;
-import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.text.MaskFormatter;
-
 import fr.proline.zero.util.AdvancedAndServerUtils;
 import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.SettingsConstant;
 import fr.proline.zero.util.SystemUtils;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.text.MaskFormatter;
+import java.awt.*;
+import java.io.IOException;
+import java.text.ParseException;
+
 public class ServerPanel extends JPanel {
 	private JFormattedTextField dataStorePortField;
 	private JButton advancedSettingsButton;
-	private AdvancedConfigWindow paramAvancesWindow;
+	private AdvancedConfigWindow advancedParamDialog;
 	private JLabel dataStoreLabel;
 
 	AdvancedAndServerUtils advancedManager;
@@ -50,20 +38,22 @@ public class ServerPanel extends JPanel {
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.NORTHWEST;
-		c.weightx = 1;
 
 		// creation des widgets
-		paramAvancesWindow = new AdvancedConfigWindow();
+		advancedParamDialog = new AdvancedConfigWindow();
 
 		this.advancedSettingsButton = new JButton("Advanced settings...");
-		advancedSettingsButton.addActionListener(openAdvancedConfig());
+		advancedSettingsButton.addActionListener(e -> {
+			advancedParamDialog.setVisible(true);
+		});
 
-		// ajout des widgets au layout
-
+		HelpHeaderPanel help = new HelpHeaderPanel("Folder" , SettingsConstant.SERVER_HELP_PANE);
+		c.weightx = 1;
+		c.weighty = 0;
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = 2;
-		add(HelpPannel.createPanel(SettingsConstant.SERVER_HELP_PANE), c);
+		add(help, c);
 
 		c.fill = GridBagConstraints.NONE;
 		c.gridwidth = 1;
@@ -95,6 +85,7 @@ public class ServerPanel extends JPanel {
 
 		JPanel dataStorePortPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
+		c.insets = new java.awt.Insets(5, 5, 5, 5);
 		try {
 			MaskFormatter portMask = new MaskFormatter("####");
 			portMask.setPlaceholderCharacter('_');
@@ -103,15 +94,25 @@ public class ServerPanel extends JPanel {
 			dataStorePortField.setPreferredSize(new Dimension(40, 20));
 			dataStorePortField.setMinimumSize(new Dimension(40, 20));
 
-			dataStoreLabel = new JLabel("");
-			setImgTestDataStore();
+			JButton testPortStatus = new JButton("Test available");
+			testPortStatus.addActionListener(e -> {
+				updateDatastorePortStatus();
+			});
 
-			dataStorePortField.addPropertyChangeListener("value", new DatastorePortListener());
+			dataStoreLabel = new JLabel("");
+			updateDatastorePortStatus();
+
+			dataStorePortField.addPropertyChangeListener("value", evt -> {
+				advancedManager.setDataStorePort(Integer.parseInt((String) dataStorePortField.getValue()));
+				advancedManager.setHasBeenChanged(true);
+			});
 			c.weightx = 1;
 			c.gridx = 0;
 			dataStorePortPanel.add(new JLabel("DataStore port : "), c);
 			c.gridx++;
 			dataStorePortPanel.add(dataStorePortField, c);
+			c.gridx++;
+			dataStorePortPanel.add(testPortStatus, c);
 			c.gridx++;
 			dataStorePortPanel.add(dataStoreLabel, c);
 
@@ -122,32 +123,29 @@ public class ServerPanel extends JPanel {
 		return dataStorePortPanel;
 	}
 
-	private ActionListener openAdvancedConfig() {
-		ActionListener openAdvancedConfig = new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				paramAvancesWindow.setVisible(true);
-			}
-		};
-		return openAdvancedConfig;
-	}
 
 	public void updateValues() {
 		dataStorePortField.setText(String.valueOf(advancedManager.getDataStorePort()));
-		paramAvancesWindow.setrestoreValues(true);
-		paramAvancesWindow.updateValues();
-		paramAvancesWindow.setrestoreValues(false);
+		advancedParamDialog.setRestoreValues(true);
+		advancedParamDialog.updateValues();
+		advancedParamDialog.setRestoreValues(false);
 	}
 
-	public class DatastorePortListener implements PropertyChangeListener {
-		public void propertyChange(PropertyChangeEvent e) {
-			advancedManager.setDataStorePort(Integer.parseInt((String) dataStorePortField.getValue()));
-			advancedManager.setHasBeenChanged(true);
-			setImgTestDataStore();
-		}
-	}
+//	public class DatastorePortListener implements PropertyChangeListener {
+//		public void propertyChange(PropertyChangeEvent e) {
+//			advancedManager.setDataStorePort(Integer.parseInt((String) dataStorePortField.getValue()));
+//			advancedManager.setHasBeenChanged(true);
+//			updateDatastorePortStatus();
+//		}
+//	}
 
-	public void setImgTestDataStore() {
+
+	private void updateDatastorePortStatus() {
 		try {
+			if(dataStorePortField.getValue() == null || dataStorePortField.getValue().toString().isEmpty()){
+				ImageIcon iconToTest = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("question.png")));
+				dataStoreLabel.setIcon(iconToTest);
+			}
 			if (SystemUtils.isPortAvailable(Integer.parseInt((String) dataStorePortField.getValue()))) {
 				ImageIcon iconToTest = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("tick.png")));
 				dataStoreLabel.setIcon(iconToTest);
@@ -156,6 +154,13 @@ public class ServerPanel extends JPanel {
 				dataStoreLabel.setIcon(iconToTest);
 			}
 		} catch (IOException e) {
+			ImageIcon iconToTest = null;
+			try {
+				iconToTest = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("question.png")));
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+			dataStoreLabel.setIcon(iconToTest);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

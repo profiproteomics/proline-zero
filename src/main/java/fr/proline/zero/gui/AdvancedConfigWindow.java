@@ -15,19 +15,7 @@ import java.io.IOException;
 import java.text.ParseException;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.MaskFormatter;
@@ -39,17 +27,18 @@ import fr.proline.zero.util.SystemUtils;
 
 public class AdvancedConfigWindow extends JDialog {
 	private JFormattedTextField jmsPortField;
-	private JLabel testJmsIcon;
+	private JLabel statusJmsPortIcon;
 	private JFormattedTextField jmsBatchPortField;
-	private JLabel testJmsBatchIcon;
+	private JLabel statusJmsBatchPortIcon;
 	private JFormattedTextField jnpPortField;
-	private JLabel testJnpIcon;
+	private JLabel statusJnpPortIcon;
 	private JFormattedTextField jnpRmiPortField;
-	private JLabel testJnpRmiIcon;
+	private JLabel statusJnpRmiPortIcon;
 	private JTextField serverDefaultTimeoutField;
 	private JTextField threadPoolSizeField;
 	private JTextField jvmPathField;
 	private JCheckBox forceDatastoreUpdate;
+
 	private JButton continueButton;
 	private JButton cancelButton;
 
@@ -73,7 +62,7 @@ public class AdvancedConfigWindow extends JDialog {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		setSize(430, 575);
+		setSize(500, 600);
 		setMinimumSize(new Dimension(380, 575));
 
 		// Action when the user press on the dialog cross
@@ -93,7 +82,7 @@ public class AdvancedConfigWindow extends JDialog {
 		setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.NORTHWEST;
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = GridBagConstraints.BOTH;
 
 		// creation des widgets
 		JLabel serverDefaultTimeoutLabel = new JLabel("Server default timeout (s) : ", SwingConstants.RIGHT);
@@ -178,7 +167,9 @@ public class AdvancedConfigWindow extends JDialog {
 			}
 		});
 
-		JButton foldersButton = new JButton("dossier");
+		HelpHeaderPanel help = new HelpHeaderPanel("Folder" , SettingsConstant.ADVANCED_HELP_PANE);
+
+		JButton foldersButton = new JButton("folders");
 		try {
 			Icon folderIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("folder-open.png")));
 			foldersButton.setText("");
@@ -187,17 +178,29 @@ public class AdvancedConfigWindow extends JDialog {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		foldersButton.addActionListener(openFolderView());
+		foldersButton.addActionListener(e -> {
+				JFileChooser jfc = new JFileChooser(new File(advancedManager.getJvmPath()));
+				jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int returnValue = jfc.showOpenDialog(null);
+
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					File selectedFile = jfc.getSelectedFile();
+					jvmPathField.setToolTipText(selectedFile.getAbsolutePath());
+					jvmPathField.setText(selectedFile.getAbsolutePath());
+				}
+			});
 
 		// ajout des elements au layout
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = 4;
 		c.weightx = 1;
-		add(HelpPannel.createPanel(SettingsConstant.ADVANCED_HELP_PANE), c);
+		c.weighty = 1;
+		add(help, c);
 
 		c.insets = new java.awt.Insets(20, 15, 0, 15);
 		c.gridy++;
+		c.weighty = 0;
 		add(createPortChoicePanel(), c);
 
 		c.fill = GridBagConstraints.NONE;
@@ -277,41 +280,75 @@ public class AdvancedConfigWindow extends JDialog {
 			portMask = new MaskFormatter("####");
 			portMask.setPlaceholderCharacter('_');
 
+			//--- JMS Port
 			jmsPortField = new JFormattedTextField(portMask);
 			jmsPortField.setValue(String.valueOf(advancedManager.getJmsServerPort()));
 			jmsPortField.setHorizontalAlignment(SwingConstants.RIGHT);
 			jmsPortField.setPreferredSize(new Dimension(50, 20));
-			jmsPortField.addPropertyChangeListener("value", new JmsPortListener());
+			jmsPortField.addPropertyChangeListener("value", evt -> {
+				portPropertyChanged();
+				advancedManager.setJmsServerPort(Integer.parseInt((String) jmsPortField.getValue()));
+			});
 
-			testJmsIcon = new JLabel();
-			setImgTestJms();
+			JButton testJmsPortStatusBtn = new JButton("Test available");
+			testJmsPortStatusBtn.addActionListener(e -> {
+				updatePortStatus(statusJmsPortIcon, jmsPortField.getValue());
+			});
 
+			statusJmsPortIcon = new JLabel();
+			updatePortStatus(statusJmsPortIcon, jmsPortField.getValue());
+
+			//--- JMS Port
 			jmsBatchPortField = new JFormattedTextField(portMask);
 			jmsBatchPortField.setValue(String.valueOf(advancedManager.getJmsBatchServerPort()));
 			jmsBatchPortField.setHorizontalAlignment(SwingConstants.RIGHT);
 			jmsBatchPortField.setPreferredSize(new Dimension(50, 20));
-			jmsBatchPortField.addPropertyChangeListener("value", new JmsBatchPortListener());
+			jmsBatchPortField.addPropertyChangeListener("value", evt -> {
+				portPropertyChanged();
+				advancedManager.setJmsBatchServerPort(Integer.parseInt((String) jmsBatchPortField.getValue()));
+			});
 
-			testJmsBatchIcon = new JLabel();
-			setImgTestJmsBatch();
+			JButton testJmsBatchPortStatusBtn = new JButton("Test available");
+			testJmsBatchPortStatusBtn.addActionListener(e -> {
+				updatePortStatus(statusJmsBatchPortIcon, jmsBatchPortField.getValue());
+			});
 
+			statusJmsBatchPortIcon = new JLabel();
+			updatePortStatus(statusJmsBatchPortIcon, jmsBatchPortField.getValue());
+
+			// --- JNP Port
 			jnpPortField = new JFormattedTextField(portMask);
 			jnpPortField.setValue(String.valueOf(advancedManager.getJnpServerPort()));
 			jnpPortField.setHorizontalAlignment(SwingConstants.RIGHT);
 			jnpPortField.setPreferredSize(new Dimension(50, 20));
-			jnpPortField.addPropertyChangeListener("value", new JnpPortListener());
+			jnpPortField.addPropertyChangeListener("value", evt -> {
+				portPropertyChanged();
+				advancedManager.setJnpServerPort(Integer.parseInt((String) jnpPortField.getValue()));
+			});
+			JButton testJnpPortStatusBtn = new JButton("Test available");
+			testJnpPortStatusBtn.addActionListener(e -> {
+				updatePortStatus(statusJnpPortIcon, jnpPortField.getValue());
+			});
 
-			testJnpIcon = new JLabel();
-			setImgTestJnp();
+			statusJnpPortIcon = new JLabel();
+			updatePortStatus(statusJnpPortIcon, jnpPortField.getValue());
 
+			// --- JNP RMI Port
 			jnpRmiPortField = new JFormattedTextField(portMask);
 			jnpRmiPortField.setValue(String.valueOf(advancedManager.getJnpRmiServerPort()));
 			jnpRmiPortField.setHorizontalAlignment(SwingConstants.RIGHT);
 			jnpRmiPortField.setPreferredSize(new Dimension(50, 20));
-			jnpRmiPortField.addPropertyChangeListener("value", new JnpRmiBatchPortListener());
+			jnpRmiPortField.addPropertyChangeListener("value", evt -> {
+				portPropertyChanged();
+				advancedManager.setJnpRmiServerPort(Integer.parseInt((String) jnpRmiPortField.getValue()));
+			});
+			JButton testJnpRmiPortStatusBtn = new JButton("Test available");
+			testJnpRmiPortStatusBtn.addActionListener(e -> {
+				updatePortStatus(statusJnpRmiPortIcon, jnpRmiPortField.getValue());
+			});
 
-			testJnpRmiIcon = new JLabel();
-			setImgTestJnpRmi();
+			statusJnpRmiPortIcon = new JLabel();
+			updatePortStatus(statusJnpRmiPortIcon, jnpRmiPortField.getValue());
 
 			// ajout des widgets au layout
 			c.gridx = 0;
@@ -322,7 +359,10 @@ public class AdvancedConfigWindow extends JDialog {
 			portChoice.add(jmsPortField, c);
 
 			c.gridx++;
-			portChoice.add(testJmsIcon, c);
+			portChoice.add(testJmsPortStatusBtn, c);
+
+			c.gridx++;
+			portChoice.add(statusJmsPortIcon, c);
 
 			c.gridx = 0;
 			c.gridy++;
@@ -332,7 +372,10 @@ public class AdvancedConfigWindow extends JDialog {
 			portChoice.add(jmsBatchPortField, c);
 
 			c.gridx++;
-			portChoice.add(testJmsBatchIcon, c);
+			portChoice.add(testJmsBatchPortStatusBtn, c);
+
+			c.gridx++;
+			portChoice.add(statusJmsBatchPortIcon, c);
 
 			c.gridx = 0;
 			c.gridy++;
@@ -342,7 +385,10 @@ public class AdvancedConfigWindow extends JDialog {
 			portChoice.add(jnpPortField, c);
 
 			c.gridx++;
-			portChoice.add(testJnpIcon, c);
+			portChoice.add(testJnpPortStatusBtn, c);
+
+			c.gridx++;
+			portChoice.add(statusJnpPortIcon, c);
 
 			c.gridx = 0;
 			c.gridy++;
@@ -352,7 +398,10 @@ public class AdvancedConfigWindow extends JDialog {
 			portChoice.add(jnpRmiPortField, c);
 
 			c.gridx++;
-			portChoice.add(testJnpRmiIcon, c);
+			portChoice.add(testJnpRmiPortStatusBtn, c);
+
+			c.gridx++;
+			portChoice.add(statusJnpRmiPortIcon, c);
 
 		} catch (ParseException e1) {
 			// TODO Auto-generated catch block
@@ -450,23 +499,23 @@ public class AdvancedConfigWindow extends JDialog {
 		return buttonPanel;
 	}
 
-	private ActionListener openFolderView() {
-		ActionListener openFolderView = new ActionListener() {
-
-			public void actionPerformed(ActionEvent event) {
-				JFileChooser jfc = new JFileChooser(new File(advancedManager.getJvmPath()));
-				jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				int returnValue = jfc.showOpenDialog(null);
-
-				if (returnValue == JFileChooser.APPROVE_OPTION) {
-					File selectedFile = jfc.getSelectedFile();
-					jvmPathField.setToolTipText(selectedFile.getAbsolutePath());
-					jvmPathField.setText(selectedFile.getAbsolutePath());
-				}
-			}
-		};
-		return openFolderView;
-	}
+//	private ActionListener openFolderView() {
+//		ActionListener openFolderView = new ActionListener() {
+//
+//			public void actionPerformed(ActionEvent event) {
+//				JFileChooser jfc = new JFileChooser(new File(advancedManager.getJvmPath()));
+//				jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+//				int returnValue = jfc.showOpenDialog(null);
+//
+//				if (returnValue == JFileChooser.APPROVE_OPTION) {
+//					File selectedFile = jfc.getSelectedFile();
+//					jvmPathField.setToolTipText(selectedFile.getAbsolutePath());
+//					jvmPathField.setText(selectedFile.getAbsolutePath());
+//				}
+//			}
+//		};
+//		return openFolderView;
+//	}
 
 	public void updateValues() {
 		serverDefaultTimeoutField.setText((String.valueOf(advancedManager.getServerDefaultTimeout() / 1000)));
@@ -478,136 +527,49 @@ public class AdvancedConfigWindow extends JDialog {
 		jnpRmiPortField.setValue(String.valueOf(advancedManager.getJnpRmiServerPort()));
 	}
 
-	public class JmsPortListener implements PropertyChangeListener {
-		public void propertyChange(PropertyChangeEvent e) {
-			if (!restoreValues) {
-				if (!deuxiemeAvertissement) {
-					Popup.warning(portChangingSTring);
-					deuxiemeAvertissement = true;
-				}
-				setImgTestJms();
-				advancedManager.setHasBeenChanged(true);
-			} else {
-				setImgTestJms();
-				advancedManager.setHasBeenChanged(false);
+	private void portPropertyChanged(){
+		if (!restoreValues) {
+			if (!deuxiemeAvertissement) {
+				Popup.warning(portChangingSTring);
+				deuxiemeAvertissement = true;
 			}
+			advancedManager.setHasBeenChanged(true);
+		} else {
+			advancedManager.setHasBeenChanged(false);
 		}
 	}
 
-	public class JmsBatchPortListener implements PropertyChangeListener {
-		public void propertyChange(PropertyChangeEvent e) {
-			if (!restoreValues) {
-				if (!deuxiemeAvertissement) {
-					Popup.warning(portChangingSTring);
-					deuxiemeAvertissement = true;
-				}
-				setImgTestJmsBatch();
-				advancedManager.setHasBeenChanged(true);
-			} else {
-				setImgTestJmsBatch();
-				advancedManager.setHasBeenChanged(false);
-			}
-		}
-	}
 
-	public class JnpPortListener implements PropertyChangeListener {
-		public void propertyChange(PropertyChangeEvent e) {
-			if (!restoreValues) {
-				if (!deuxiemeAvertissement) {
-					Popup.warning(portChangingSTring);
-					deuxiemeAvertissement = true;
-				}
-				setImgTestJnp();
-				advancedManager.setHasBeenChanged(true);
-			} else {
-				setImgTestJnp();
-				advancedManager.setHasBeenChanged(false);
-			}
-		}
-	}
-
-	public class JnpRmiBatchPortListener implements PropertyChangeListener {
-		public void propertyChange(PropertyChangeEvent e) {
-			if (!restoreValues) {
-				if (!deuxiemeAvertissement) {
-					Popup.warning(portChangingSTring);
-					deuxiemeAvertissement = true;
-				}
-				setImgTestJnpRmi();
-				advancedManager.setHasBeenChanged(true);
-			} else {
-				setImgTestJnpRmi();
-				advancedManager.setHasBeenChanged(false);
-			}
-		}
-	}
-
-	public void setrestoreValues(Boolean b) {
+	public void setRestoreValues(Boolean b) {
 		this.restoreValues = b;
 	}
 
-	public void setImgTestJms() {
+	private void updatePortStatus(JLabel statusLabel, Object portValue) {
 		try {
-			if (SystemUtils.isPortAvailable(Integer.parseInt((String) jmsPortField.getValue()))) {
+			if(portValue == null || portValue.toString().isEmpty()){
+				ImageIcon iconToTest = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("question.png")));
+				statusLabel.setIcon(iconToTest);
+			}
+			if (SystemUtils.isPortAvailable(Integer.parseInt(portValue.toString()))) {
 				ImageIcon iconToTest = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("tick.png")));
-				testJmsIcon.setIcon(iconToTest);
+				statusLabel.setIcon(iconToTest);
 			} else {
 				ImageIcon iconToTest = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
-				testJmsIcon.setIcon(iconToTest);
+				statusLabel.setIcon(iconToTest);
 			}
-			repaint();
 		} catch (IOException e) {
+			ImageIcon iconToTest = null;
+			try {
+				iconToTest = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("question.png")));
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+			statusLabel.setIcon(iconToTest);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	public void setImgTestJmsBatch() {
-		try {
-			if (SystemUtils.isPortAvailable(Integer.parseInt((String) jmsBatchPortField.getValue()))) {
-				ImageIcon iconToTest = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("tick.png")));
-				testJmsBatchIcon.setIcon(iconToTest);
-			} else {
-				ImageIcon iconToTest = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
-				testJmsBatchIcon.setIcon(iconToTest);
-			}
-			repaint();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	public void setImgTestJnp() {
-		try {
-			if (SystemUtils.isPortAvailable(Integer.parseInt((String) jnpPortField.getValue()))) {
-				ImageIcon iconToTest = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("tick.png")));
-				testJnpIcon.setIcon(iconToTest);
-			} else {
-				ImageIcon iconToTest = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
-				testJnpIcon.setIcon(iconToTest);
-			}
-			repaint();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	public void setImgTestJnpRmi() {
-		try {
-			if (SystemUtils.isPortAvailable(Integer.parseInt((String) jnpRmiPortField.getValue()))) {
-				ImageIcon iconToTest = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("tick.png")));
-				testJnpRmiIcon.setIcon(iconToTest);
-			} else {
-				ImageIcon iconToTest = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
-				testJnpRmiIcon.setIcon(iconToTest);
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 
 	private void cancelButtonActionPerformed() {
 		boolean yesPressed = Popup
