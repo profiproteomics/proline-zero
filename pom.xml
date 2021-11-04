@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cortex.version>2.2.0-SNAPSHOT</cortex.version>
-        <studio.version>2.1.2</studio.version>
+        <studio.version>2.2.0-SNAPSHOT</studio.version>
         <hornetq.version>2.4.0.Final</hornetq.version>
         <admin.version>2.2.0-SNAPSHOT</admin.version>
         <seqrepo.version>2.2.0-SNAPSHOT</seqrepo.version>
