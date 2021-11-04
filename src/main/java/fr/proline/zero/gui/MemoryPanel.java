@@ -83,10 +83,6 @@ public class MemoryPanel extends JPanel {
 		c.weighty =1;
 		add(createAllocationPanel(), c);
 
-//		c.gridy++;
-//		c.weighty = 1;
-//		add(Box.createHorizontalGlue(), c);
-
 		ConfigManager configManager = ConfigManager.getInstance();
 		memoryManager = configManager.getMemoryManager();
 
@@ -117,7 +113,6 @@ public class MemoryPanel extends JPanel {
 		allocTypePanel.add(new JLabel("Allocation mode :", SwingConstants.RIGHT), c);
 
 		this.allocModeBox = new JComboBox<String>();
-//		allocModeBox.setPreferredSize(new Dimension(100, 20));
 		allocModeBox.addItem("Automatic");
 		allocModeBox.addItem("Semi-automatic");
 		allocModeBox.addItem("Manual");
@@ -153,7 +148,6 @@ public class MemoryPanel extends JPanel {
 		c.gridy++;
 		c.weighty = 1;
 		allocationPanel.add(createServerTotalMemoryPanel(), c);
-		createServerDetailPanel();
 
 		return allocationPanel;
 	}
@@ -196,11 +190,6 @@ public class MemoryPanel extends JPanel {
 		c.gridx++;
 		c.weighty = 0;
 		totalPanel.add(totalMemorySpinner.unit, c);
-
-//		c.gridx++;
-//		c.weightx = 1;
-//		c.weighty = 1;
-//		totalPanel.add(Box.createHorizontalGlue(), c);
 
 		return totalPanel;
 	}
@@ -248,10 +237,6 @@ public class MemoryPanel extends JPanel {
 		c.weighty = 0;
 		studioPanel.add(studioMemorySpinner.unit, c);
 
-//		c.gridx++;
-//		c.weightx = 1;
-//		studioPanel.add(Box.createHorizontalGlue(), c);
-
 		return studioPanel;
 	}
 
@@ -287,24 +272,12 @@ public class MemoryPanel extends JPanel {
 		serverTotal.add(new JLabel("Server memory :", SwingConstants.RIGHT), c);
 
 		c.gridx++;
-//		c.gridx++;
-//		c.gridwidth = 1;
 		c.weightx = 1;
 		c.insets = new java.awt.Insets(5, 5, 5, 5);
 		serverTotal.add(totalServerMemorySpinner, c);
 
 		c.gridx++;
-//		c.weightx = 0;
 		serverTotal.add(totalServerMemorySpinner.unit, c);
-
-//		c.gridx++;
-//		c.weightx = 1;
-//		serverTotal.add(Box.createHorizontalGlue(), c);
-
-//		c.gridx = 0;
-//		c.gridy++;
-//		c.weightx = 0;
-//		serverTotal.add(Box.createHorizontalStrut(20), c);
 
 		c.gridx=0;
 		c.gridy++;
@@ -312,7 +285,6 @@ public class MemoryPanel extends JPanel {
 		c.gridwidth = 3;
 		c.insets = new java.awt.Insets(5, 70, 5, 0);
 		serverTotal.add(createServerDetailPanel(), c);
-//		createServerDetailPanel();
 		return serverTotal;
 	}
 
@@ -324,7 +296,6 @@ public class MemoryPanel extends JPanel {
 		GridBagConstraints serverConstraint = new GridBagConstraints();
 		serverConstraint.fill = GridBagConstraints.HORIZONTAL;
 		serverConstraint.anchor = GridBagConstraints.NORTHWEST;
-//		serverConstraint.weighty = 1;
 		serverConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
 
 		// creation des widgets

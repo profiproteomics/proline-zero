@@ -48,7 +48,7 @@ public class FolderPanel extends JPanel {
 		HelpHeaderPanel help = new HelpHeaderPanel("Folder" , SettingsConstant.FOLDERS_HELP_PANE);
 		add(help, folderPanelConstraints);
 
-		folderPanelConstraints.insets = new java.awt.Insets(20, 15, 0, 15);
+		folderPanelConstraints.insets = new java.awt.Insets(20, 15, 5, 15);
 		folderPanelConstraints.gridy++;
 		folderPanelConstraints.weightx = 0;
 		folderPanelConstraints.weighty = 0;
@@ -77,8 +77,6 @@ public class FolderPanel extends JPanel {
 		// creation des widgets
 
 		maximumTmpFolderSizeField = new JTextField();
-		maximumTmpFolderSizeField.setPreferredSize(new Dimension(50, 20));
-		maximumTmpFolderSizeField.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 		maximumTmpFolderSizeField.setText(String.valueOf(ConfigManager.getInstance().getMaxTmpFolderSize()));
 		maximumTmpFolderSizeField.setToolTipText(SettingsConstant.FOLDER_MAX_SIZE_TOOLTIP);
 
