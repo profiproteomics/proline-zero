@@ -29,12 +29,15 @@ class Config {
 				properties.load(new FileInputStream(configFile));
 			} catch (Throwable t) {
 				logger.error("Error while reading configuration file, using default configuration instead", t);
-				InputStream is = Main.class.getClassLoader()
-						.getResourceAsStream("fr/proline/zero/proline_launcher.config");
+				InputStream is = Main.class.getClassLoader().getResourceAsStream("fr/proline/zero/proline_launcher.config");
+				if(is==null)
+					throw new RuntimeException("Error while reading configuration file. No default file found");
+
 				try {
 					properties.load(is);
-				} catch (IOException ioe) {
+				} catch (Exception ioe) {
 					logger.error("Error reading default configuration file", ioe);
+					throw new RuntimeException(ioe);
 				}
 			}
 		}

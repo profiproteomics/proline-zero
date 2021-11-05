@@ -34,11 +34,12 @@ public class Main {
 
 		logger.info("Starting Proline Zero");
 		try {
+			// initialization of the singleton that will manage all of our properties
+			ConfigManager.getInstance().initialize();
+
 			// first launch
 			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists();
 
-			// initialization of the singleton that will manage all of our properties
-			ConfigManager.getInstance().initialize();
 
 			// we check that all of our properties are correct and will not give errors
 			boolean isOK = ConfigManager.getInstance().verif();
