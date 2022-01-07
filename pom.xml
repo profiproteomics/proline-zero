@@ -23,7 +23,7 @@
         <!--<pg.win.version>9.4.11-2</pg.win.version>-->
         <pg.win.version>9.6.11-1</pg.win.version>
         <pg.linux.version>10.11-3</pg.linux.version>
-        <h2.version>1.4.196</h2.version>
+        <h2.version>2.0.206</h2.version>
         <raw2mzdb.version>0.9.10</raw2mzdb.version>
     </properties>
     
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.196</version>
+            <version>2.0.206</version>
            
         </dependency>
         <dependency>
