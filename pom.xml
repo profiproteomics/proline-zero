@@ -28,6 +28,16 @@
     </properties>
     
     <dependencies>
+    	<dependency>
+    		<groupId>commons-beanutils</groupId>
+    		<artifactId>commons-beanutils</artifactId>
+    		<version>1.9.4</version>
+		</dependency>
+    	<dependency>
+    		<groupId>org.apache.commons</groupId>
+    		<artifactId>commons-configuration2</artifactId>
+   			<version>2.7</version>
+		</dependency>
         <dependency>
             <groupId>org.zeroturnaround</groupId>
             <artifactId>zt-exec</artifactId>
@@ -66,12 +76,6 @@
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <version>4.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-db</artifactId>
-            <version>RELEASE801</version>
-            <type>jar</type>
         </dependency>
     </dependencies>
 
