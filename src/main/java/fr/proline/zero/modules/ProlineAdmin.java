@@ -99,42 +99,48 @@ public class ProlineAdmin  implements  IZeroModule {
 
     /**
      *
-     * @param need , true = must upgrade all database
+     * @param migrationNeeded , true = must upgrade all database
      */
-    public static void doMigration(boolean need) {
-        boolean yes = false;
-        if (need == NEED_UPDATE) {
+    public static void doMigration(boolean migrationNeeded) {
+        boolean updateConfirmed = false;
+
+        //--- Verify if migration should be done
+        if (migrationNeeded == NEED_UPDATE) {
             String[] options = {"Do upgrade", "No"};
-            yes = Popup.optionYesNO("\"Update Databse Necessary\" detected", options);
+            updateConfirmed = Popup.optionYesNO("A database schema update is necessary (new version detected)", options);
         } else {
             boolean isForeceUpdate = ConfigManager.getInstance().getAdvancedManager().getForceDataStoreUpdate();
             logger.debug("isForeceUpdate={}", isForeceUpdate);
             if (isForeceUpdate) {
-                String[] options = {"Force an upgrade", "No"};
-                yes = Popup.optionYesNO("\"Need Update Databse\" no detected, do you force an upgrade? "
-                        + "\n If you don't need, you can disable the force_datastore_update option in proline_launcher.config to avoid this prompt at each launche", options);
+                String[] options = {"Do update", "No"};
+                updateConfirmed = Popup.optionYesNO(" No database schema update has been detected but the force update option is set.\nA upgrade may be necessary for data update. Do you want to run update ? "
+                        , options);
             }
         }
-        if (yes) {
+
+        //--- Run migration
+        if (updateConfirmed) {
             try {
-                logger.info("Update databse");
-                Popup.info("This will take several minutes, please don't kill/stop this process");
+                logger.info("Update database");
+                Popup.info("This may take several minutes, please don't kill/stop this process");
                 SplashScreen.setMessage("Initializing Proline databases...upgrading...");
                 runCommand(new String[]{"upgrade_dbs"}, null);
             } catch (Exception ex) {
-                logger.info("Update databse Exception :" + ex.getCause() + " " + ex.getMessage() + " " + ex.getLocalizedMessage());
+                logger.info("Update database Exception :" + ex.getCause() + " " + ex.getMessage() + " " + ex.getLocalizedMessage());
             }
-        } else {
-            if (need == NO_NEED_UPDATE) {
-                //if (need == NEED_UPDATE) {// only for test
-                return;   // continue to launch proline Zero
-            } else {
-                logger.info("Exit without database update.");
-                Popup.info("Without database update, Proline Zero will be stopped...");
-                SystemUtils.end();
-                System.exit(0);
-            }
+        } else if (migrationNeeded == NEED_UPDATE) {
+            // Not run but necessary. exit Proline
+            logger.info("Exit without database update.");
+            Popup.info("Proline Zero can't be launch Without a database update. Will exit...");
+//            try {
+//                Thread.sleep(3000); // to see message
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+            SystemUtils.end();
+            System.exit(0);
         }
+
     }
 
     public void start() throws Exception {

@@ -41,6 +41,7 @@ public class ConfigWindow extends JDialog {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			initialize();
+			setResizable(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -76,9 +77,10 @@ public class ConfigWindow extends JDialog {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		setMinimumSize(new Dimension(380, 790));
-		setSize(600, 790);
-		setLayout(new GridBagLayout());
+		setLayout(new BorderLayout());
+
+		JPanel internalPanel  = new JPanel();
+		internalPanel.setLayout(new GridBagLayout());
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
@@ -98,22 +100,26 @@ public class ConfigWindow extends JDialog {
 		c.gridwidth = 3;
 		c.gridx = 0;
 		c.gridy = 0;
-		add(createModulesPanel(), c);
+		internalPanel.add(createModulesPanel(), c);
 
 		c.weightx = 1;
 		c.weighty = 1;
 		c.gridy++;
-		add(createTabPanel(), c);
+		internalPanel.add(createTabPanel(), c);
 
 		c.gridwidth = 3;
 		c.gridy++;
 		c.weighty = 0;
-		add(doNotShowAgainBox, c);
+		internalPanel.add(doNotShowAgainBox, c);
 
 		c.gridy++;
 		c.weightx = 5;
-		add(createBottomButtonsPanel(), c);
+		internalPanel.add(createBottomButtonsPanel(), c);
 
+		JScrollPane sPane = new JScrollPane();
+		sPane.setViewportView(internalPanel);
+		add(sPane,BorderLayout.CENTER);
+		pack();
 		this.setLocationRelativeTo(null);
 	}
 

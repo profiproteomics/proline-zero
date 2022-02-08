@@ -21,14 +21,14 @@ public class SettingsConstant {
 	public final static String HIDEDIALOG_TOOLTIP = "Do not show again : If checked, this windows will not be displayed at next start. See config file, to view it again";
 	public final static String MEMORY_HELP_PANE = "<br>"
 			+ "Specify the desired memory allocation mode and the amount of memory. <br>"
-			+ "In Automatic mode, only the Total memory should be specified. The system will define memory for each component.<br>"
-			+ "In Semi-automatic mode, memory amount for Proline Studio can be specified as well as Server memory to dispatch between other components.<br>"
-			+ "Finally, in manual mode, the amount of memory for each component should be specified.";
+			+ "- In Automatic mode, only the Total memory should be specified.<br>&nbsp;&nbsp;&nbsp;&nbsp;The system will define memory for each component.<br>"
+			+ "- In Semi-automatic mode, memory amount for Proline Studio can be specified as well as Server memory<br>&nbsp;&nbsp;&nbsp;&nbsp;to dispatch between other components.<br>"
+			+ "- Finally, in manual mode, the amount of memory for each component should be specified.";
 	public final static String FOLDERS_HELP_PANE = "\n"
 			+ "Specify folders, identified by a label, containing : <br>" +
 			" - identification result files (for mascot, omassa...), <br>" +
 			" - quantitation files (in mzdb format) <br>" +
-			" -fasta files (used by sequence repository) <br>" +
+			" - fasta files (used by sequence repository) <br>" +
 			"<br> You can also specify a maximum size for temp folder, in order to be asked to clear it if it's size is above specified one.";
 	public final static String FOLDER_MAX_SIZE_TOOLTIP = "Maximum size for temp folder :  If temporary folder size exceed specified one, you will be asked to empty this folder";
 	public final static String SERVER_HELP_PANE = "\n" + "Specify datastore (Postgresql or H2) port to be used.<br>"
