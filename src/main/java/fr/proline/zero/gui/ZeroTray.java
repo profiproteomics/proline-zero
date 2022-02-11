@@ -5,8 +5,7 @@ import dorkbox.systemTray.MenuItem;
 import dorkbox.systemTray.SystemTray;
 import dorkbox.util.SwingUtil;
 import fr.proline.zero.modules.ExecutionSession;
-import fr.proline.zero.util.Config;
-import fr.proline.zero.util.Memory;
+import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.ProlineFiles;
 import fr.proline.zero.util.SystemUtils;
 import org.slf4j.Logger;
@@ -17,7 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-public class ZeroTray {
+public class ZeroTray  {
 
     private static Logger logger = LoggerFactory.getLogger(ZeroTray.class);
 
@@ -102,7 +101,7 @@ public class ZeroTray {
                     Popup.error(t);
                 }
             }));
-            if (Config.isServerMode()) {
+            if (!ConfigManager.getInstance().isStudioActive()) {
                 // exit button
                 mainMenu.add(new MenuItem("Exit", ProlineFiles.QUIT_ICON, e -> {
                     // FIXME this command Kills Studio and Proline Zero, but not the Studio child process that provides the GUI (so user don't feel like it's close)
@@ -177,23 +176,24 @@ public class ZeroTray {
 
     private static Menu _pgsqlMenu() {
         if (menuDatastore == null) {
-            menuDatastore = new Menu(ExecutionSession.getDataStore().getDatastoreName(), ProlineFiles.PROGRESS_ICON);
+            menuDatastore = new Menu(ExecutionSession.getDataStore().getModuleName(), ProlineFiles.PROGRESS_ICON);
 
             menuDatastore.add(new MenuItem("Edit configuration", ProlineFiles.EDIT_ICON, e -> ZeroTray.editFile(ProlineFiles.PG_CONFIG_FILE)), 0);
-            menuDatastore.add(new MenuItem("Restore default configuration", ProlineFiles.DEFAULT_ICON, e -> {
-                // ask if user is certain
-                if (Popup.okCancel("Restore file '" + ProlineFiles.PG_DEFAULT_CONFIG_FILE.getName() + "' ?")) {
-                    Memory.restorePostgreSQLDefaultConfig();
-                }
-            }), 1);
-            menuDatastore.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openPostgreSqlLog()), 2);
+            //VDS: Y a t il toujours un default PG ??
+//            menuDatastore.add(new MenuItem("Restore default configuration", ProlineFiles.DEFAULT_ICON, e -> {
+//                // ask if user is certain
+//                if (Popup.okCancel("Restore file '" + ProlineFiles.PG_DEFAULT_CONFIG_FILE.getName() + "' ?")) {
+//                    Memory.restorePostgreSQLDefaultConfig();
+//                }
+//            }), 1);
+            menuDatastore.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openPostgreSqlLog()), 1);
         }
         return menuDatastore;
     }
 
     private static Menu _hornetqMenu() {
         if (menuHornetQ == null) {
-            menuHornetQ = new Menu(ExecutionSession.getJMSServer().getProcessName() + " " + Config.getHornetQVersion(), ProlineFiles.PROGRESS_ICON);
+            menuHornetQ = new Menu(ExecutionSession.getJMSServer().getModuleName() + " " + ConfigManager.getInstance().getHornetQVersion(), ProlineFiles.PROGRESS_ICON);
             menuHornetQ.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openHornetQLog()));
         }
         return menuHornetQ;
@@ -201,7 +201,7 @@ public class ZeroTray {
 
     private static Menu _cortexMenu() {
         if (menuCortex == null) {
-            menuCortex = new Menu(ExecutionSession.getCortex().getProcessName() + " " + Config.getCortexVersion(), ProlineFiles.PROGRESS_ICON);
+            menuCortex = new Menu(ExecutionSession.getCortex().getModuleName() + " " + ConfigManager.getInstance().getCortexVersion(), ProlineFiles.PROGRESS_ICON);
 //            menuCortex.add(new MenuItem("Edit configuration", ProlineFiles.EDIT_ICON, e -> ZeroTray.editFile(ProlineFiles.CORTEX_CONFIG_FILE)));
             menuCortex.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openCortexLog()));
             menuCortex.add(new MenuItem("mzDB log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openCortexMzdbLog()));
@@ -211,7 +211,7 @@ public class ZeroTray {
 
     private static Menu _seqRepoMenu() {
         if (menuSeqRepo == null) {
-            menuSeqRepo = new Menu(ExecutionSession.getSeqRepo().getProcessName() + " " + Config.getSeqRepoVersion(), ProlineFiles.PROGRESS_ICON);
+            menuSeqRepo = new Menu(ExecutionSession.getSeqRepo().getModuleName() + " " + ConfigManager.getInstance().getSeqRepoVersion(), ProlineFiles.PROGRESS_ICON);
             menuSeqRepo.add(new MenuItem("Edit parse rules", ProlineFiles.EDIT_ICON, e -> ZeroTray.editFile(ProlineFiles.SEQREPO_PARSE_RULES_CONFIG_FILE)));
             menuSeqRepo.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openSeqRepoLog()));
         }
@@ -220,7 +220,7 @@ public class ZeroTray {
 
     private static Menu getStudioMenu() {
         if (menuStudio == null) {
-            menuStudio = new Menu(ExecutionSession.getStudio().getProcessName() + " " + Config.getStudioVersion(), ProlineFiles.PROGRESS_ICON);
+            menuStudio = new Menu(ExecutionSession.getStudio().getModuleName() + " " + ConfigManager.getInstance().getStudioVersion(), ProlineFiles.PROGRESS_ICON);
 //            menuStudio.add(new MenuItem("Edit configuration", ProlineFiles.EDIT_ICON, e -> ZeroTray.editFile(ProlineFiles.STUDIO_CONFIG_FILE)));
             menuStudio.add(new MenuItem("Log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openStudioLog()));
             menuStudio.add(new MenuItem("Error log file", ProlineFiles.DOCUMENT_ICON, e -> LogFileViewer.openStudioErrorLog()));

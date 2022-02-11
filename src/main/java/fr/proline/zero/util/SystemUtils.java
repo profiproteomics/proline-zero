@@ -23,12 +23,16 @@ public class SystemUtils {
         // this piece of code was originally in the ExecutionSession class but we put it here because we also need to close the splash screen and the system tray
         logger.info("Trying to close Proline Stack");
         try {
+            logger.info("ExecutionSession.end");
             ExecutionSession.end();
+            logger.info("LogFileViewer.closeAllLogFiles();");
             LogFileViewer.closeAllLogFiles();
         } catch (Exception e) {
             logger.error("Proline stack cannot be stopped due to the following error: ", e);
         } finally {
+            logger.info("SplashScreen.stop();");
             SplashScreen.stop();
+            logger.info("ZeroTray.stop(.stop();");
             ZeroTray.stop();
         }
     }

@@ -95,6 +95,9 @@ public class ProlineFiles {
      * Proline Studio files
      */
     public final static File STUDIO_DIRECTORY = new File(WORKING_DIRECTORY + "/ProlineStudio-" + Config.getStudioVersion());
+    public final static File STUDIO_JAR_FILE = new File(STUDIO_DIRECTORY + "/prolinestudio-resultexplorer-" + Config.getStudioVersion() + ".jar");
+
+
     public final static File STUDIO_CONFIG_FILE = new File(STUDIO_DIRECTORY + "/etc/prolinestudio.conf");
     public final static File STUDIO_LOG_FILE = new File(STUDIO_DIRECTORY + "/Proline_Studio-" + System.getProperty("user.name") + ".log");
     public final static File STUDIO_ERROR_LOG_FILE = new File(STUDIO_DIRECTORY + "/Proline_Studio-Error-" + System.getProperty("user.name") + ".log");
