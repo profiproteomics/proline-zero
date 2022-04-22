@@ -101,7 +101,7 @@ public class ProlineFiles {
     public final static File STUDIO_CONFIG_FILE = new File(STUDIO_DIRECTORY + "/etc/prolinestudio.conf");
     public final static File STUDIO_LOG_FILE = new File(STUDIO_DIRECTORY + "/Proline_Studio-" + System.getProperty("user.name") + ".log");
     public final static File STUDIO_ERROR_LOG_FILE = new File(STUDIO_DIRECTORY + "/Proline_Studio-Error-" + System.getProperty("user.name") + ".log");
-    public final static File STUDIO_PREFERENCES_FILE = new File(WORKING_DATA_DIRECTORY + "/.prolinestudio/config/Preferences.properties");
+    public final static File STUDIO_PREFERENCES_FILE = new File(WORKING_DATA_DIRECTORY + "/.prolinestudio/Preferences.properties");
     /*
      * PostgreSQL files
      */
