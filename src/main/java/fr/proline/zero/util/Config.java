@@ -149,11 +149,11 @@ class Config {
 
 	public static String getJavaHome() {
 		Config.initialize();
-		// if null try to find studio's jre, if still null return current jre
+		// if null try to find studio's jdk, if still null return current jdk
 		String javaPath = properties.getProperty("java_home").trim();
 		if (javaPath == null) {
-			Popup.warning("The JRE path could not be read, trying to find studio's jre");
-			javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jre";
+			Popup.warning("The JDK path could not be read, trying to find studio's jdk");
+			javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jdk";
 		}
 		return new File(javaPath).getAbsolutePath();
 	}
@@ -162,7 +162,7 @@ class Config {
 		Config.initialize();
 		String allocationMode = properties.getProperty("allocation_mode").trim();
 		if (allocationMode == null) {
-			Popup.warning("The JRE path could not be read, trying to find studio's jre");
+			Popup.warning("The JDK path could not be read, trying to find studio's jdk");
 			allocationMode = "auto";
 		}
 		return allocationMode;

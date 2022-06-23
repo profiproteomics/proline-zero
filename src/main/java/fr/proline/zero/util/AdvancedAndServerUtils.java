@@ -183,8 +183,8 @@ public class AdvancedAndServerUtils {
 		File jvmPathFile = new File(getJvmPath());
 		if (!jvmPathFile.exists()) {
 			message.append(
-					"Java home is not well configured\n Trying to replace it with embedded JRE instead (Proline Studio's jre)");
-			String javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jre";
+					"Java home is not well configured\n Trying to replace it with embedded JDK instead (Proline Studio's jdk)");
+			String javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jdk";
 			jvmPath = new File(javaPath).getAbsolutePath();
 		}
 		return message.toString();
