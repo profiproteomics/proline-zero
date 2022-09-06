@@ -51,7 +51,7 @@ The configuration file contains settings for the launcher. These settings should
 * debug_mode: the debug mode provides more information and disables the memory check.
 * disable_sequence_repository: if you are a bit low on memory and if you do not need protein sequences, you may want to disable it to gain some memory.
 * postgresql_port: the port used by PostgreSQL. Warning: you should not change it if the datastore have already been initialized (at first launch).
-* java_home: you can define your own JRE, but by default we use the one package with Proline Studio. Proline has been tested with Java8.
+* java_home: you can define your own JDK/JRE, but by default we use the one package with Proline Studio. Proline has been tested with Java8.
 * cortex_version: the version number of Proline Cortex
 * hornetq_version: the version number of HornetQ
 * seqrepo_version: the version number of the Sequence Repository module
