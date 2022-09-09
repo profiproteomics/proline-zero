@@ -94,4 +94,20 @@ public class JMSServer extends AbstractProcess {
         ZeroTray.update();
     }
 
+    public void stop() throws Exception {
+
+        if(SystemUtils.isOSWindows()) {
+            File stopFile = new File(ProlineFiles.HORNETQ_CONFIG_DIRECTORY, "STOP_ME");
+            logger.debug("Process {} stopping with file creation :  {}", getModuleName(), stopFile.getAbsolutePath());
+            if(stopFile.exists())
+                stopFile.delete();
+            stopFile.deleteOnExit();
+            logger.info("Process " + getModuleName() + " has been stopped");
+            boolean result = stopFile.createNewFile();
+            logger.debug("Stop Process {} result : {}", getModuleName(), result);
+
+        } else {
+            super.stop();
+        }
+    }
 }

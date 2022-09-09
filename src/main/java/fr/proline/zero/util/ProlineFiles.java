@@ -74,8 +74,9 @@ public class ProlineFiles {
      * JMS/HornetQ files
      */
     public final static File HORNETQ_DIRECTORY = new File(WORKING_DIRECTORY + "/Proline-Cortex-" + Config.getCortexVersion() + "/hornetq_light-" + Config.getHornetQVersion());
-    public final static File HORNETQ_CONFIG_FILE = new File(HORNETQ_DIRECTORY + "/config/stand-alone/non-clustered/hornetq-configuration.xml");
-    public final static File HORNETQ_RMI_CONFIG_FILE = new File(HORNETQ_DIRECTORY + "/config/stand-alone/non-clustered/hornetq-beans.xml");
+    public final static File HORNETQ_CONFIG_DIRECTORY = new File(HORNETQ_DIRECTORY + "/config/stand-alone/non-clustered");
+    public final static File HORNETQ_CONFIG_FILE = new File(HORNETQ_CONFIG_DIRECTORY + "/hornetq-configuration.xml");
+    public final static File HORNETQ_RMI_CONFIG_FILE = new File(HORNETQ_CONFIG_DIRECTORY + "/hornetq-beans.xml");
     public final static File HORNETQ_LOG_FILE = new File(HORNETQ_DIRECTORY + "/logs/hornetq.log");
 
     /*
