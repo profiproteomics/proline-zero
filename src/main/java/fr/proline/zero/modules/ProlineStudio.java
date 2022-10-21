@@ -1,41 +1,34 @@
 package fr.proline.zero.modules;
 
-import fr.proline.zero.gui.ZeroTray;
-import fr.proline.zero.util.ProlineFiles;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.zeroturnaround.exec.ProcessExecutor;
-import org.zeroturnaround.exec.StartedProcess;
-
 import fr.proline.zero.gui.SplashScreen;
-import fr.proline.zero.util.Config;
+import fr.proline.zero.gui.ZeroTray;
+import fr.proline.zero.util.ConfigManager;
+import fr.proline.zero.util.ProlineFiles;
 import fr.proline.zero.util.SystemUtils;
+import org.apache.commons.io.FileUtils;
+import org.zeroturnaround.exec.ProcessExecutor;
+
 import java.io.File;
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
 
 public class ProlineStudio extends AbstractProcess {
 
-    private static Logger logger = LoggerFactory.getLogger(ProlineStudio.class);
-    private StartedProcess process;
     private static String studioUserDir = "/.prolinestudio";
 
-    @Override
-    public String getProcessName() {
-        return "Proline Studio";
+    public ProlineStudio() {
+        moduleName = "Proline Studio";
     }
 
     /**
      * in order to delete the file
      * "../data/.prolinestudio/var/cache/all-installer.dat
      */
-    public void cleanCache() {
+    private void cleanCache() {
         String cacheFolder = ProlineFiles.WORKING_DATA_DIRECTORY + studioUserDir + "/var/cache";
         File cacheFolderFile = new File(cacheFolder);
-        if (cacheFolderFile.isDirectory()) {
+        if (cacheFolderFile.isDirectory() && cacheFolderFile.exists()) {
             try {
                 logger.info("clean folder: " + cacheFolderFile.getAbsolutePath());
                 FileUtils.cleanDirectory(cacheFolderFile);
@@ -46,8 +39,51 @@ public class ProlineStudio extends AbstractProcess {
     }
 
     @Override
-
     public void start() throws Exception {
+        String classpath = new StringBuilder().append(ProlineFiles.STUDIO_JAR_FILE.getName()).append(SystemUtils.toSystemClassPath(";lib/*")).toString();
+        logger.info("starting Studio  from path " + ProlineFiles.STUDIO_DIRECTORY.getAbsolutePath());
+
+        List<String> command = new ArrayList<>();
+        command.add(ConfigManager.getInstance().getAdvancedManager().getJvmExePath());
+        command.add("-Xmx"+ConfigManager.getInstance().getMemoryManager().getStudioMemory()+"M");
+
+//        command.add("-XX:+UseG1GC");
+//        command.add("-XX:+UseStringDeduplication");
+//        command.add("-XX:MinHeapFreeRatio=10");
+//        command.add("-XX:MaxHeapFreeRatio=30");
+//        command.add("-Duser.language=en");
+//        command.add("-Duser.country=US");
+      //  command.add("-Dlogback.configurationFile=config/logback.xml");
+        command.add("-classpath");
+        command.add(classpath);
+        command.add("fr.proline.studio.main.Main");
+        command.add("--userdir");
+        command.add("../data" + studioUserDir);
+
+        logger.info("starting Studio using " +command.toString());
+        process = new ProcessExecutor()
+                .command(command)
+                .directory(ProlineFiles.STUDIO_DIRECTORY)
+                .destroyOnExit()
+                .start();
+
+        // wait a moment before closing the splash screen, because Studio  is only displayed a moment after the process is started
+        SplashScreen.stop(2000);
+//		logger.info("Proline Studio is running...");
+        this.m_isProcessAlive = true;
+        logger.info("Process {} successfully started (name = {}, pid = {}, alive = {})", getModuleName(), process.getProcess(), getProcessPidSafely(process), m_isProcessAlive);
+        ZeroTray.update();
+        // check every 2.5 seconds that Studio is still alive
+        // the ending of Proline Zero is invisible to the user, so it does not matter if it happens directly when Studio is stopped
+        while (process.getProcess().isAlive()) {
+            // update system tray
+            ZeroTray.update();
+            Thread.sleep(25000);
+        }
+        stop();
+    }
+
+    public void startNetbeans() throws Exception {
         cleanCache();
         List<String> command = new ArrayList<>();
 //		command.add(Config.getJavaExePath());
@@ -62,7 +98,7 @@ public class ProlineStudio extends AbstractProcess {
         if (SystemUtils.isOSUnix()) {
             command.add("./bin/prolinestudio");
         } else {
-            command.add("ProlineStudio-" + Config.getStudioVersion() + "/bin/prolinestudio");
+            command.add("ProlineStudio-" + ConfigManager.getInstance().getStudioVersion() + "/bin/prolinestudio");
         }
         command.add("--userdir");
         command.add("../data" + studioUserDir);//"../data/.prolinestudio", relative directory
@@ -76,27 +112,36 @@ public class ProlineStudio extends AbstractProcess {
         // wait a moment before closing the splash screen, because Studio  is only displayed a moment after the process is started
         SplashScreen.stop(2000);
 //		logger.info("Proline Studio is running...");
-        isProcessAlive = true;
-        logger.info("Process {} successfully started (name = {}, pid = {}, alive = {})", getProcessName(), process.getProcess(), getProcessPidSafely(process), isProcessAlive);
+        m_isProcessAlive = true;
+        logger.info("Process {} successfully started (name = {}, pid = {}, alive = {})", getModuleName(), process.getProcess(), getProcessPidSafely(process), m_isProcessAlive);
         ZeroTray.update();
+
+        //VDS : NO MORE NEEDED. To be removed once tests will be done. ExecutionSession manage stop
         // check every 2.5 seconds that Studio is still alive
         // the ending of Proline Zero is invisible to the user, so it does not matter if it happens directly when Studio is stopped
-        while (process.getProcess().isAlive()) {
-            // update system tray
-            ZeroTray.update();
-            Thread.sleep(2500);
-        }
-        stop();
+//        while (process.getProcess().isAlive()) {
+//            // update system tray
+//            ZeroTray.update();
+//            Thread.sleep(2500);
+//        }
+//        stop();
     }
 
-    @Override
-    public void stop() throws Exception {
-        // FIXME when called from system tray, it only closes the ProlineStudio.exe process but not the java process (which is the real process)
-        // Proline Studio should stop by itself when user closes Studio
-        // This method will be called if the user uses the the system tray to close Studio (or if a Proline Zero method one day wants to end Studio)
-        if (isProcessAlive) {
-            kill(process);
-        }
+    public boolean isProcessAlive() {
+        m_isProcessAlive = (process!=null && process.getProcess().isAlive());
+        return m_isProcessAlive;
     }
+
+
+
+//    @Override
+//    public void stop() throws Exception {
+//        // FIXME when called from system tray, it only closes the ProlineStudio.exe process but not the java process (which is the real process)
+//        // Proline Studio should stop by itself when user closes Studio
+//        // This method will be called if the user uses the the system tray to close Studio (or if a Proline Zero method one day wants to end Studio)
+//        if (isProcessAlive) {
+//            kill(process);
+//        }
+//    }
 
 }
