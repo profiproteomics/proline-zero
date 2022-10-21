@@ -43,14 +43,14 @@ The default behavior of Proline is to load data from predefined directories. The
 
 ### Configuration
 
-The configuration file contains settings for the launcher. These settings should not be changed unless you are an advanced user.
+A configuration dialog is displayed at start up. It allow user to modify main settings. The associated configuration file contains all settings for the launcher. These settings should not be changed unless you are an advanced user.
 
 * datastore: the type of database you want to use. Only PostgreSQL is available at the moment.
-* server_max_memory: the amount of memory you want to allow to the whole Proline process (default is 4GB).
+* memory settings, including allocation mode (automatic, semi Automatic, manual) and amount of memory allocated to each module.
 * server_default_timeout: the time in second you give for each sub-process to start. If the process does not start after this number of seconds, the launcher will quit in error.
-* debug_mode: the debug mode provides more information and disables the memory check.
-* disable_sequence_repository: if you are a bit low on memory and if you do not need protein sequences, you may want to disable it to gain some memory.
-* postgresql_port: the port used by PostgreSQL. Warning: you should not change it if the datastore have already been initialized (at first launch).
+* log_debug: the debug mode provides more information and disables the memory check.
+* sequence_repository_active: if you are a bit low on memory and if you do not need protein sequences, you may want to disable it to gain some memory.
+* datastore_port: the port used by PostgreSQL. Warning: you should not change it if the datastore have already been initialized (at first launch).
 * java_home: you can define your own JRE, but by default we use the one package with Proline Studio. Proline has been tested with Java8.
 * cortex_version: the version number of Proline Cortex
 * hornetq_version: the version number of HornetQ
