@@ -244,6 +244,13 @@ public class ExecutionSession {
         final String regex = ProlineFiles.CORTEX_MZDB_MOUNT_POINT + "\\s*=\\s*\"([\\w.\\/]+)\"";
         return getProperty(configFile, regex);
     }
+    // clone of getMzdbFolder for Mascot, gets only one key-value
+    public static String getResultFolder() {
+        File configFile = ProlineFiles.CORTEX_CONFIG_FILE;
+        final String regex = ProlineFiles.CORTEX_MASCOT_MOUNT_POINT + "\\s*=\\s*\"([\\w.\\/]+)\"";
+        return getProperty(configFile, regex);
+    }
+
 
     private static String getProperty(File file, String regex) {
         try {

@@ -23,6 +23,9 @@ public final class ConfigManager {
 
 	private MemoryUtils memoryManager;
 	private AdvancedAndServerUtils advancedManager;
+
+	private MountPointUtils mountPointsManager;
+
 	private String lastErrorMessage;
 
 	private ConfigManager() {
@@ -43,6 +46,8 @@ public final class ConfigManager {
 		// default Timeout and the number of parallel threads executing
 		advancedManager = new AdvancedAndServerUtils();
 
+		mountPointsManager = new MountPointUtils();
+
 		lastErrorMessage = "";
 	}
 
@@ -60,6 +65,10 @@ public final class ConfigManager {
 
 	public AdvancedAndServerUtils getAdvancedManager() {
 		return advancedManager;
+	}
+
+	public MountPointUtils getMountPointUtils() {
+		return mountPointsManager;
 	}
 
 	public void setStudioActive(boolean b) {

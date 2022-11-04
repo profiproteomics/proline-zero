@@ -2,7 +2,10 @@ package fr.proline.zero;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
+import fr.proline.zero.util.*;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +16,6 @@ import fr.proline.zero.gui.SplashScreen;
 import fr.proline.zero.gui.ZeroTray;
 import fr.proline.zero.modules.ExecutionSession;
 import fr.proline.zero.modules.IZeroModule;
-import fr.proline.zero.util.ConfigManager;
-import fr.proline.zero.util.ProlineFiles;
-import fr.proline.zero.util.ShutdownHook;
-import fr.proline.zero.util.SystemUtils;
 
 public class Main {
 
@@ -36,6 +35,27 @@ public class Main {
 		try {
 			// initialization of the singleton that will manage all of our properties
 			ConfigManager.getInstance().initialize();
+			System.out.println("---------------------------");
+
+			//JsonConfigManager.getInstance().readCortex();
+
+			// Tests of several methods
+			HashMap<MountPointUtils.MountPointType, Map<String,String>> MountPointMap = new HashMap<>();
+			HashMap<String,String> temp =new HashMap<>();
+
+
+			System.out.println("------------JsonMountPointReader---------------");
+			MountPointMap=JsonMountPointReader.getInstance().getMountPointsByFile(ProlineFiles.CORTEX_CONFIG_FILE);
+
+			System.out.println("-------------getAllMountPoints");
+			MountPointMap = MountPointUtils.getInstance().getAllMountPoints();
+			System.out.println("------------addMountPointEntry-------------");
+			MountPointUtils.getInstance().addMountPointEntry(MountPointUtils.MountPointType.MZDB,"new label mzdb","Path of new label");
+			System.out.println("------------GetSpecMountPoint---------------");
+			temp=MountPointUtils.getInstance().getSpecMountPoints(MountPointUtils.MountPointType.RESULT);
+			System.out.println("------------GUI----------");
+
+
 
 			// first launch
 			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists();

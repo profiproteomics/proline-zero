@@ -1,6 +1,5 @@
 package fr.proline.zero.gui;
 
-import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -9,12 +8,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 
 import fr.proline.zero.util.ConfigManager;
+import fr.proline.zero.util.MountPointUtils;
 import fr.proline.zero.util.SettingsConstant;
 
 public class FolderPanel extends JPanel {
@@ -122,7 +123,7 @@ public class FolderPanel extends JPanel {
 
 		folderPathField = new JTextField();
 		folderPathField.setPreferredSize(new Dimension(160, 20));
-		folderPathField.setEditable(false);
+		folderPathField.setEditable(true);
 
 		JButton addButton = new JButton("add");
 		JButton clearButton = new JButton("clear");
@@ -150,8 +151,8 @@ public class FolderPanel extends JPanel {
 		addFolderConstraint.gridx = 0;
 		addFolderConstraint.gridy = 0;
 		JLabel l = new JLabel("Data type : ", SwingConstants.RIGHT);
-		l.setEnabled(false);
-		dataTypeBox.setEnabled(false);
+		l.setEnabled(true);
+		dataTypeBox.setEnabled(true);
 		addFolderPanel.add(l, addFolderConstraint);
 		addFolderConstraint.gridx++;
 		addFolderConstraint.anchor = GridBagConstraints.WEST;
@@ -161,8 +162,8 @@ public class FolderPanel extends JPanel {
 		addFolderConstraint.gridy++;
 		addFolderConstraint.anchor = GridBagConstraints.EAST;
 		l = new JLabel("Label : ", SwingConstants.RIGHT);
-		l.setEnabled(false);
-		folderLabelField.setEnabled(false);
+		l.setEnabled(true);
+		folderLabelField.setEnabled(true);
 		addFolderPanel.add(l, addFolderConstraint);
 		addFolderConstraint.gridx++;
 		addFolderConstraint.anchor = GridBagConstraints.WEST;
@@ -174,9 +175,9 @@ public class FolderPanel extends JPanel {
 		addFolderConstraint.gridy++;
 		addFolderConstraint.anchor = GridBagConstraints.EAST;
 		l = new JLabel("Path : ", SwingConstants.RIGHT);
-		l.setEnabled(false);
-		folderPathField.setEnabled(false);
-		browseButton.setEnabled(false);
+		l.setEnabled(true);
+		folderPathField.setEnabled(true);
+		browseButton.setEnabled(true);
 		addFolderPanel.add(l, addFolderConstraint);
 		addFolderConstraint.gridx++;
 		addFolderConstraint.anchor = GridBagConstraints.WEST;
@@ -190,12 +191,12 @@ public class FolderPanel extends JPanel {
 		addFolderConstraint.anchor = GridBagConstraints.EAST;
 		addFolderConstraint.gridy++;
 		addFolderConstraint.gridx = 1;
-		clearButton.setEnabled(false);
+		clearButton.setEnabled(true);
 		addFolderPanel.add(clearButton, addFolderConstraint);
 
 		addFolderConstraint.anchor = GridBagConstraints.CENTER;
 		addFolderConstraint.gridx++;
-		addButton.setEnabled(false);
+		addButton.setEnabled(true);
 		addFolderPanel.add(addButton, addFolderConstraint);
 
 		return addFolderPanel;
@@ -242,8 +243,27 @@ public class FolderPanel extends JPanel {
 		resultListPanelConstraints.gridy = 0;
 		resultListPanelConstraints.weightx = 1;
 		resultListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+		// display only one key value from the application.conf
+		//String dataResultPath = ExecutionSession.getResultFolder().replace("..", ".");
+		//dataResultPath="repertoire actuel dans fichier de config de Cortex:   "+dataResultPath;
+		//JLabel resultfoldmascot = new JLabel(dataResultPath,
+		//		new ImageIcon("tick.png"),
+		//		SwingConstants.LEFT);
+		//resultListPanel.add(resultfoldmascot,resultListPanelConstraints);
+		HashMap<String, String> temp = MountPointUtils.getInstance().getSpecMountPoints(MountPointUtils.MountPointType.RESULT);
+		//iterator on the map temp to display all key-values
+		for (String key : temp.keySet()) {
 
+			String Label = key;
+			String dataMzdbPath = temp.get(key);
+			JLabel resultfoldmascot = new JLabel(Label + "    " + dataMzdbPath, SwingConstants.LEFT);
+			resultListPanelConstraints.gridy++;
+			resultListPanel.add(resultfoldmascot, resultListPanelConstraints);
+
+
+		}
 	}
+
 
 	private void initMzdbFolderPanel() {
 		mzdbListPanel = new JPanel(new GridBagLayout());
@@ -254,6 +274,30 @@ public class FolderPanel extends JPanel {
 		mzdbListPanelConstraints.gridy = 0;
 		mzdbListPanelConstraints.weightx = 1;
 		mzdbListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+		// Modification 25/10/2022 Display only one key-value
+		//String dataMzdbPath = ExecutionSession.getMzdbFolder().replace("..", ".");
+		//dataMzdbPath="repertoire actuel dans fichier de config de Cortex:   "+dataMzdbPath;
+		//JLabel resultfoldmzdb = new JLabel(dataMzdbPath,
+				//new ImageIcon("tick.png"),
+				//SwingConstants.LEFT);
+		//mzdbListPanelConstraints.gridy = 1;
+		//mzdbListPanel.add(resultfoldmzdb,mzdbListPanelConstraints);
+		// End Modification
+		//02 November  all the key-values are displayed
+		HashMap<String,String> temp = MountPointUtils.getInstance().getSpecMountPoints(MountPointUtils.MountPointType.MZDB);
+		//iterator on the map temp to display all values
+		for (String key : temp.keySet()) {
+
+			String Label = key;
+			String dataMzdbPath = temp.get(key);
+			JLabel resultfoldmzdb= new JLabel(Label+"    "+dataMzdbPath,SwingConstants.LEFT);
+			mzdbListPanelConstraints.gridy++;
+			mzdbListPanel.add(resultfoldmzdb,mzdbListPanelConstraints);
+		}
+
+
+
+
 	}
 
 	private void initFastaFolderPanel() {
@@ -290,6 +334,7 @@ public class FolderPanel extends JPanel {
 					switch ((String) dataTypeBox.getSelectedItem()) {
 					case "Result folder":
 						resultListPanelConstraints.weightx = 1;
+						resultListPanelConstraints.gridy++;
 						resultListPanel.add(label, resultListPanelConstraints);
 						resultListPanelConstraints.gridx++;
 						resultListPanel.add(path, resultListPanelConstraints);
@@ -313,6 +358,7 @@ public class FolderPanel extends JPanel {
 						break;
 					case "Mzdb folder":
 						mzdbListPanelConstraints.weightx = 1;
+						mzdbListPanelConstraints.gridy++;
 						mzdbListPanel.add(label, mzdbListPanelConstraints);
 						mzdbListPanelConstraints.gridx++;
 						mzdbListPanel.add(path, mzdbListPanelConstraints);

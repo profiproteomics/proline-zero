@@ -60,6 +60,11 @@ public class ProlineFiles {
 
     public static String CORTEX_JMS_NODE_PORT = "jms_server_port";
     public static String CORTEX_MZDB_MOUNT_POINT = "mzdb_files";
+    public static String CORTEX_MOUNT_POINTS_KEY ="mount_points";
+    public static String CORTEX_RESULT_FILES_MOUNT_POINT="result_files";
+    public static String CORTEX_MASCOT_MOUNT_POINT ="mascot_data";
+
+    public static String CORTEX_RAW_FILES_MOUNT_POINT="raw_files";
 
     public static File getCortexCurrentDebugLogFile() {
         return new File(CORTEX_DIRECTORY + "/logs/proline_cortex_log." + getFormattedDate() + ".txt");
