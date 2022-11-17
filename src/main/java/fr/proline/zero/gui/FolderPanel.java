@@ -9,12 +9,14 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 
 import fr.proline.zero.util.ConfigManager;
+import fr.proline.zero.util.JsonReader;
 import fr.proline.zero.util.MountPointUtils;
 import fr.proline.zero.util.SettingsConstant;
 
@@ -33,6 +35,8 @@ public class FolderPanel extends JPanel {
 	public FolderPanel() {
 		super();
 		initialize();
+
+
 	}
 
 	private void initialize() {
@@ -214,6 +218,7 @@ public class FolderPanel extends JPanel {
 
 		// creation des panels en attribut de classe pour pouvoir ajouter dynamiquement
 		// des elements
+
 		this.initResultFolderPanel();
 		this.initMzdbFolderPanel();
 		this.initFastaFolderPanel();
@@ -243,14 +248,9 @@ public class FolderPanel extends JPanel {
 		resultListPanelConstraints.gridy = 0;
 		resultListPanelConstraints.weightx = 1;
 		resultListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-		// display only one key value from the application.conf
-		//String dataResultPath = ExecutionSession.getResultFolder().replace("..", ".");
-		//dataResultPath="repertoire actuel dans fichier de config de Cortex:   "+dataResultPath;
-		//JLabel resultfoldmascot = new JLabel(dataResultPath,
-		//		new ImageIcon("tick.png"),
-		//		SwingConstants.LEFT);
-		//resultListPanel.add(resultfoldmascot,resultListPanelConstraints);
-		HashMap<String, String> temp = MountPointUtils.getInstance().getSpecMountPoints(MountPointUtils.MountPointType.RESULT);
+		// 15 nov modification
+		HashMap<MountPointUtils.MountPointType, Map<String,String>> mMap= ConfigManager.getInstance().getMountPointManager().getMountPointMap();
+		Map<String, String> temp = mMap.get(MountPointUtils.MountPointType.RESULT);
 		//iterator on the map temp to display all key-values
 		for (String key : temp.keySet()) {
 
@@ -274,17 +274,11 @@ public class FolderPanel extends JPanel {
 		mzdbListPanelConstraints.gridy = 0;
 		mzdbListPanelConstraints.weightx = 1;
 		mzdbListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-		// Modification 25/10/2022 Display only one key-value
-		//String dataMzdbPath = ExecutionSession.getMzdbFolder().replace("..", ".");
-		//dataMzdbPath="repertoire actuel dans fichier de config de Cortex:   "+dataMzdbPath;
-		//JLabel resultfoldmzdb = new JLabel(dataMzdbPath,
-				//new ImageIcon("tick.png"),
-				//SwingConstants.LEFT);
-		//mzdbListPanelConstraints.gridy = 1;
-		//mzdbListPanel.add(resultfoldmzdb,mzdbListPanelConstraints);
-		// End Modification
-		//02 November  all the key-values are displayed
-		HashMap<String,String> temp = MountPointUtils.getInstance().getSpecMountPoints(MountPointUtils.MountPointType.MZDB);
+		//HashMap<MountPointUtils.MountPointType, Map<String,String>> mMap= MountPointUtils.getMountPointMap();
+		HashMap<MountPointUtils.MountPointType, Map<String,String>> mMap= ConfigManager.getInstance().getMountPointManager().getMountPointMap();
+		Map<String, String> temp = mMap.get(MountPointUtils.MountPointType.MZDB);
+
+
 		//iterator on the map temp to display all values
 		for (String key : temp.keySet()) {
 

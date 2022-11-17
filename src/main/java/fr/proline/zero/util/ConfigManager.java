@@ -67,7 +67,7 @@ public final class ConfigManager {
 		return advancedManager;
 	}
 
-	public MountPointUtils getMountPointUtils() {
+	public MountPointUtils getMountPointManager() {
 		return mountPointsManager;
 	}
 
