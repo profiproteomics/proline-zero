@@ -17,13 +17,11 @@ public class JsonReader {
     private  static JsonReader instance;
     private Config m_cortexProlineConfig = null;
 
-    public HashMap<MountPointUtils.MountPointType, Map<String,String>> mountPointMapJson;
+    private HashMap<MountPointUtils.MountPointType, Map<String,String>> mountPointMapJson;
 
 
     private JsonReader() {
         m_cortexProlineConfig = ConfigFactory.parseFile(ProlineFiles.CORTEX_CONFIG_FILE);
-        
-
     }
     // singleton class ?
     public static JsonReader getInstance() {

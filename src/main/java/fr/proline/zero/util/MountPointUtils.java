@@ -13,11 +13,11 @@ public class MountPointUtils {
     public static boolean mountHasBeenChanged = false;
 
 
-    private Config m_cortexProlineConfig = null;
+
 
     private static Logger logger = LoggerFactory.getLogger(MountPointUtils.class);
 
-    public static HashMap<MountPointUtils.MountPointType, Map<String, String>> mountPointMap = new HashMap<>();
+    private static HashMap<MountPointUtils.MountPointType, Map<String, String>> mountPointMap = new HashMap<>();
 
 
     public static HashMap<MountPointType, Map<String, String>> getMountPointMap() {
@@ -29,13 +29,12 @@ public class MountPointUtils {
     }
 
     public MountPointUtils() {
-        m_cortexProlineConfig = ConfigFactory.parseFile(ProlineFiles.CORTEX_CONFIG_FILE);
+
         mountPointMap = JsonReader.getInstance().getMountPointMapJson();
 
     }
 
     public enum MountPointType {
-
 
         RAW {
             public String toString() {
@@ -53,7 +52,6 @@ public class MountPointUtils {
             }
         }
 
-
     }
 
 
@@ -61,16 +59,11 @@ public class MountPointUtils {
         // test if mountpoint already exists
         if (!mountPointMap.get(mountPointType).containsKey(value) && !mountPointMap.get(mountPointType).containsValue(path)) {
             Map<String, String> CurrentKValue = mountPointMap.get(mountPointType);
-            logger.info("initial values:   " + mountPointMap);
-
             CurrentKValue.put(value, path);
             mountPointMap.put(mountPointType, CurrentKValue);
-            logger.info("New mount points after modification:   " + mountPointMap);
-
-
             mountHasBeenChanged = true;
         } else {
-            logger.info("The Mount point could not be added because a similar key or value or both already exist");
+            logger.info("The Mount point could not be added because a similar key or value or even both already exist");
 
         }
     }
@@ -80,20 +73,15 @@ public class MountPointUtils {
 
         if (!mountPointMap.get(mpt).containsKey(value) && !mountPointMap.get(mpt).containsValue(path)) {
             Map<String, String> currentKValue = mountPointMap.get(mpt);
-            logger.info(" Initial values:   " + mountPointMap);
-
             currentKValue.put(value, path);
             mountPointMap.put(mpt, currentKValue);
-            logger.info("After modification:   " + mountPointMap);
-
-
             mountHasBeenChanged = true;
 
             return mountPointMap;
 
-
         } else {
-            logger.info("The Mount point could not be added because a similar key or value or both already exist");
+            logger.info("The Mount point can not be added because a similar key or value or both already exist");
+            //TODO Warning Map is not null!!!
             return null;
         }
     }
@@ -103,16 +91,13 @@ public class MountPointUtils {
     // TODO method to delete a mount point, check if entry exists and if the mountPoint can be deleted before deletion
 
     public static void delMountPointEntry(MountPointType mountPointType, String key) {
-
         Map<String, String> currentKValue = mountPointMap.get(mountPointType);
-        boolean canBeDeleted = (!key.equals("mzdb_files")) && (!key.equals("mascot_data")) && (!key.equals("raw_files"));
+        boolean canBeDeleted = (!key.equals("mzdb_files")) && (!key.equals("mascot_data"));
         boolean mPointExists = currentKValue.containsKey(key);
         if (canBeDeleted && mPointExists) {
             currentKValue.remove(key);
             mountPointMap.put(mountPointType, currentKValue);
             mountHasBeenChanged=true;
-
-            logger.info("map after deletion:   " + mountPointMap);
 
         } else {
             if (!mPointExists) {
