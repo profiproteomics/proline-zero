@@ -1,7 +1,6 @@
 package fr.proline.zero.util;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,13 +64,14 @@ public class MountPointUtils {
 
         }
         else {
+            // a warning message will be displayed
              addSucces=false;
         }
 
     }
 
     // method similar to addMountPointEntry to add a mount point (value-path) and return the new set of mount points
-    // can be deleted not used
+    // can be deleted, not used
     public static HashMap<MountPointUtils.MountPointType, Map<String, String>> addAndGetMountPointEntry(MountPointUtils.MountPointType mpt, String value, String path) {
 
         if (!mountPointMap.get(mpt).containsKey(value) && !mountPointMap.get(mpt).containsValue(path)) {
@@ -84,9 +84,9 @@ public class MountPointUtils {
             return mountPointMap;
 
         } else {
-            logger.info("The Mount point can not be added because a similar key or value or both already exist");
+            //logger.info("The Mount point can not be added because a similar key or value or both already exist");
             addSucces=true;
-            //TODO Warning Map is not null!!!
+            //TODO Warning Map is not null but returns null!!!
             return null;
         }
     }

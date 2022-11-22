@@ -35,25 +35,6 @@ public class Main {
 		try {
 			// initialization of the singleton that will manage all of our properties
 			ConfigManager.getInstance().initialize();
-			System.out.println("---------------------------");
-
-			//JsonConfigManager.getInstance().readCortex();
-
-			// Tests of several methods
-			HashMap<MountPointUtils.MountPointType, Map<String,String>> MountPointMap = new HashMap<>();
-			HashMap<String,String> temp =new HashMap<>();
-
-
-			System.out.println("------------JsonMountPointReader---------------");
-			MountPointMap=JsonMountPointReader.getInstance().getMountPointsByFile(ProlineFiles.CORTEX_CONFIG_FILE);
-
-			System.out.println("-------------getAllMountPoints");
-			MountPointMap = MountPointUtils.getInstance().getAllMountPoints();
-			System.out.println("------------addMountPointEntry-------------");
-			MountPointUtils.getInstance().addMountPointEntry(MountPointUtils.MountPointType.MZDB,"new label mzdb","Path of new label");
-			System.out.println("------------GetSpecMountPoint---------------");
-			temp=MountPointUtils.getInstance().getSpecMountPoints(MountPointUtils.MountPointType.RESULT);
-			System.out.println("------------GUI----------");
 
 
 

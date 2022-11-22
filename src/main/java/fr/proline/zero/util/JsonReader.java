@@ -30,7 +30,8 @@ public class JsonReader {
         }
         return instance;
     }
-    // returns a map with all mount points  inside cortex application.conf
+
+    // returns a hashmap with all mount points  inside cortex application.conf
     public HashMap<MountPointUtils.MountPointType, Map<String,String>> getMountPoints() {
         try {
                 HashMap<MountPointUtils.MountPointType, Map<String, String>> mountpointmap = new HashMap<>();
@@ -81,8 +82,6 @@ public class JsonReader {
                     }
                 }
 
-
-
             return mountpointmap;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -99,6 +98,9 @@ public class JsonReader {
         return mountPointMapJson;
 
     }
+
+
+
 
 
 
