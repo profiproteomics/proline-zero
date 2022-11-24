@@ -29,7 +29,6 @@ public class MountPointUtils {
     public MountPointUtils() {
 
         mountPointMap = JsonReader.getInstance().getMountPointMapJson();
-
     }
 
     public enum MountPointType {
@@ -52,22 +51,32 @@ public class MountPointUtils {
 
     }
 
-
     public static void addMountPointEntry(MountPointUtils.MountPointType mountPointType, String value, String path) {
-
-        if (!mountPointMap.get(mountPointType).containsKey(value) && !mountPointMap.get(mountPointType).containsValue(path)) {
-
-            Map<String, String> CurrentKValue = mountPointMap.get(mountPointType);
-            CurrentKValue.put(value, path);
-            mountPointMap.put(mountPointType, CurrentKValue);
+        
+        if (!labelExists(value)&&!pathExists(path)) {
+            Map<String, String> currentKValue = mountPointMap.get(mountPointType);
+            currentKValue.put(value, path);
+            mountPointMap.put(mountPointType, currentKValue);
             addSucces=true;
-
         }
         else {
             // a warning message will be displayed
              addSucces=false;
         }
-
+    }
+    public static boolean pathExists(String path){
+        boolean pathExists=false;
+        if (mountPointMap.get(MountPointType.RESULT).containsValue(path)){pathExists=true;}
+        if (mountPointMap.get(MountPointType.MZDB).containsValue(path)){pathExists=true;}
+        if (mountPointMap.get(MountPointType.RAW).containsValue(path)){pathExists=true;}
+        return pathExists;
+    }
+    public static boolean labelExists(String value){
+        boolean labelExists=false;
+        if (mountPointMap.get(MountPointType.RESULT).containsKey(value)){labelExists=true;}
+        if (mountPointMap.get(MountPointType.MZDB).containsKey(value)){labelExists=true;}
+        if (mountPointMap.get(MountPointType.RAW).containsKey(value)){labelExists=true;}
+        return labelExists;
     }
 
     // method similar to addMountPointEntry to add a mount point (value-path) and return the new set of mount points
@@ -84,15 +93,12 @@ public class MountPointUtils {
             return mountPointMap;
 
         } else {
-            //logger.info("The Mount point can not be added because a similar key or value or both already exist");
-            addSucces=true;
+
+            addSucces=false;
             //TODO Warning Map is not null but returns null!!!
             return null;
         }
     }
-
-
-
     // TODO method to delete a mount point, check if entry exists and if the mountPoint can be deleted before deletion
 
     public static void delMountPointEntry(MountPointType mountPointType, String key) {
@@ -114,4 +120,6 @@ public class MountPointUtils {
             }
         }
     }
+
+
 }
