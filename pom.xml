@@ -24,7 +24,7 @@
         <pg.win.version>13.7-1</pg.win.version>
         <pg.linux.version>10.11-3</pg.linux.version>
         <h2.version>1.4.196</h2.version>
-
+        <raw2mzdb.version>0.9.10</raw2mzdb.version>
     </properties>
     
     <dependencies>
@@ -363,6 +363,13 @@
                 <proline.launcher.executable.commandline></proline.launcher.executable.commandline>
             </properties>
             <dependencies>
+                <dependency>
+                    <groupId>fr.profi</groupId>
+                    <artifactId>raw2mzdb</artifactId>
+                    <version>1.1.0</version>
+                    <classifier>windows-x64</classifier>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
