@@ -14,11 +14,7 @@ import javax.swing.*;
 
 import javax.swing.filechooser.FileSystemView;
 
-
-import fr.proline.zero.util.ConfigManager;
-
-import fr.proline.zero.util.MountPointUtils;
-import fr.proline.zero.util.SettingsConstant;
+import fr.proline.zero.util.*;
 
 public class FolderPanel extends JPanel {
 	private JTextField maximumTmpFolderSizeField;
@@ -108,21 +104,6 @@ public class FolderPanel extends JPanel {
 		repaint();
 	}
 
-	private void createWarning() {
-		JFrame jFrame = new JFrame();
-		JOptionPane.showMessageDialog(jFrame, "The label or the path already exist please choose different values", "Mount points", JOptionPane.WARNING_MESSAGE);
-	}
-
-	//Never accessed
-	private void delWarning() {
-		JFrame jframe = new JFrame();
-		JOptionPane.showMessageDialog(jframe, "This Mount point cannot be deleted", "Mount points", JOptionPane.WARNING_MESSAGE);
-	}
-	private void emptyFieldWarning(){
-		JFrame jframe =new JFrame();
-		JOptionPane.showMessageDialog(jframe,"Please fill path and label","Mount points",JOptionPane.WARNING_MESSAGE);
-
-	}
 
 	private JPanel createTmpFolderPanel() {
 		// creation du panel et du layout
@@ -167,8 +148,8 @@ public class FolderPanel extends JPanel {
 
 		// creation des widgets
 		dataTypeBox = new JComboBox<String>();
-		dataTypeBox.addItem("Result folder");
-		dataTypeBox.addItem("Mzdb folder");
+		dataTypeBox.addItem(MountPointUtils.MountPointType.RESULT.getDisplayString());
+		dataTypeBox.addItem(MountPointUtils.MountPointType.MZDB.getDisplayString());
 		dataTypeBox.addItem("Fasta folder");
 		dataTypeBox.setPreferredSize(new Dimension(100, 20));
 		dataTypeBox.setMinimumSize(new Dimension(100, 20));
@@ -259,6 +240,7 @@ public class FolderPanel extends JPanel {
 		return addFolderPanel;
 	}
 
+
 	private JPanel createFolderListPanel() {
 		// creation du panel et layout
 		JPanel folderListPanel = new JPanel(new GridBagLayout());
@@ -292,7 +274,7 @@ public class FolderPanel extends JPanel {
 
 	private void initResultFolderPanel() {
 		resultListPanel = new JPanel(new GridBagLayout());
-		resultListPanel.setBorder(BorderFactory.createTitledBorder("Results folders"));
+		resultListPanel.setBorder(BorderFactory.createTitledBorder(MountPointUtils.MountPointType.RESULT.getDisplayString()));
 		resultListPanelConstraints = new GridBagConstraints();
 		resultListPanelConstraints.insets = new Insets(5, 5, 5, 5);
 		resultListPanelConstraints.gridx = 0;
@@ -311,13 +293,13 @@ public class FolderPanel extends JPanel {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		// get mount points
+		// get mounting points
 		Map<String, String> temp = ConfigManager.getInstance().getMountPointManager().getMountPointMap().get(MountPointUtils.MountPointType.RESULT);
 		//places mascot_data first
 		resultListPanelConstraints.gridx = 0;
-		JLabel fieldMascot = new JLabel("mascot_data: ");
+		JLabel fieldMascot = new JLabel(ProlineFiles.USER_CORTEX_RESULT_FILES_Point);
 		fieldMascot.setPreferredSize(new Dimension(30, 20));
-		JTextField resultPathMascot = new JTextField( "../data/mascot");
+		JTextField resultPathMascot = new JTextField(temp.get(ProlineFiles.USER_CORTEX_RESULT_FILES_Point));
 		resultPathMascot.setPreferredSize(new Dimension(250, 20));
 		resultPathMascot.setEnabled(false);
 		resultListPanelConstraints.gridx++;
@@ -329,10 +311,12 @@ public class FolderPanel extends JPanel {
 		resultLabel.setToolTipText("This mount point cannot be deleted");
 		resultListPanel.add(resultLabel);
 		resultListPanelConstraints.gridy++;
-		temp.remove("mascot_data");
+
 
 		//iterator on the map temp to display all remaining key-values
 		for (String key : temp.keySet()) {
+			if (key.equals(ProlineFiles.USER_CORTEX_RESULT_FILES_Point))
+				continue;
 			resultListPanelConstraints.gridx = 0;
 			JLabel field = new JLabel(key + " :");
 			field.setPreferredSize(new Dimension(30, 20));
@@ -355,13 +339,12 @@ public class FolderPanel extends JPanel {
 
 		}
 
-		temp.put("mascot_data","../data/mascot");
 	}
 
 
 	private void initMzdbFolderPanel() {
 		mzdbListPanel = new JPanel(new GridBagLayout());
-		mzdbListPanel.setBorder(BorderFactory.createTitledBorder("Mzdb files folders"));
+		mzdbListPanel.setBorder(BorderFactory.createTitledBorder(MountPointUtils.MountPointType.MZDB.getDisplayString()));
 		mzdbListPanelConstraints = new GridBagConstraints();
 		mzdbListPanelConstraints.insets = new Insets(5, 5, 5, 5);
 		mzdbListPanelConstraints.gridx = 0;
@@ -380,14 +363,13 @@ public class FolderPanel extends JPanel {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-
 		HashMap<MountPointUtils.MountPointType, Map<String, String>> mMap = ConfigManager.getInstance().getMountPointManager().getMountPointMap();
 		Map<String, String> temp = mMap.get(MountPointUtils.MountPointType.MZDB);
-		// place first the mountpoint that cannot be deleted then removes it
+		// place first the mountpoint that cannot be deleted
 		mzdbListPanelConstraints.gridx = 0;
-		JLabel fieldmzdb = new JLabel("mzdb_files: ");
+		JLabel fieldmzdb = new JLabel(ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT);
 		fieldmzdb.setPreferredSize(new Dimension(30, 20));
-		JTextField mzdbPathFirst = new JTextField("../data/mzdb");
+		JTextField mzdbPathFirst = new JTextField(temp.get(ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT));
 		mzdbPathFirst.setPreferredSize(new Dimension(250, 20));
 		mzdbPathFirst.setEnabled(false);
 		mzdbListPanelConstraints.gridx++;
@@ -403,8 +385,9 @@ public class FolderPanel extends JPanel {
 		mzdbListPanelConstraints.gridy++;
 
 		//iterator on the map temp to display all remaining key-value
-		temp.remove("mzdb_files");
 		for (String key : temp.keySet()) {
+			if (key.equals(ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT))
+				continue;
 			mzdbListPanelConstraints.gridx = 0;
 			JLabel field = new JLabel(key + " :");
 			field.setPreferredSize(new Dimension(30, 20));
@@ -426,7 +409,7 @@ public class FolderPanel extends JPanel {
 			mzdbListPanelConstraints.gridy++;
 
 		}
-		temp.put("mzdb_files","../data/mzdb");
+
 	}
 	private void initFastaFolderPanel() {
 		fastaListPanel = new JPanel(new GridBagLayout());
@@ -438,6 +421,7 @@ public class FolderPanel extends JPanel {
 		fastaListPanelConstraints.weightx = 1;
 		fastaListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
 	}
+
 
 	private ActionListener addFolderAction() {
 		//VDS TODO : Enable save info in corresponding config files
@@ -453,23 +437,27 @@ public class FolderPanel extends JPanel {
 					switch ((String) dataTypeBox.getSelectedItem()) {
 						case "Result folder":
 
-							ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.RESULT, folderField,folderPath);
-							if (MountPointUtils.addSucces) {
+							boolean addSuccesresult=ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.RESULT, folderField,folderPath);
+							if (addSuccesresult) {
+								folderPathField.setText("");
+								folderLabelField.setText("");
 								updateJpanel();
 							}
 							else {
-								createWarning();
+								Popup.createWarning();
+
 							}
 							break;
 
-
-						case "Mzdb folder":
-							ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.MZDB, folderField,folderPath);
-							if (MountPointUtils.addSucces) {
+							case "Mzdb folder":
+							boolean addSuccesmzdb=ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.MZDB, folderField,folderPath);
+							if (addSuccesmzdb) {
+								folderPathField.setText("");
+								folderLabelField.setText("");
 								updateJpanel();
 							}
 							else {
-								createWarning();
+								Popup.createWarning();
 							}
 							break;
 
@@ -485,13 +473,11 @@ public class FolderPanel extends JPanel {
 							break;
 
 					}
-					folderPathField.setText("");
-					folderLabelField.setText("");
 					revalidate();
 					repaint();
 				}
 				else {
-					emptyFieldWarning();
+					Popup.emptyFieldWarning();
 				}
 			}
 		};
@@ -544,12 +530,13 @@ public class FolderPanel extends JPanel {
 		ActionListener clearFields = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 
-				ConfigManager.getInstance().getMountPointManager().delMountPointEntry(mountPointType,key);
-				if (MountPointUtils.delSucces=true) {
+				boolean delSucces=ConfigManager.getInstance().getMountPointManager().delMountPointEntry(mountPointType,key);
+
+				if (delSucces) {
 					updateJpanel();
 				}
 				else {
-					delWarning();
+					Popup.delWarning();
 				}
 			}
 		};

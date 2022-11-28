@@ -3,8 +3,7 @@ package fr.proline.zero.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 
-import javax.swing.JOptionPane;
-import javax.swing.JTextPane;
+import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
@@ -28,6 +27,7 @@ public class Popup {
         JOptionPane.showMessageDialog(null, message, title, messageType);
         SplashScreen.setModal(true);
     }
+
 
     public static boolean okCancel(String message) {
         SplashScreen.setModal(false);
@@ -97,6 +97,22 @@ public class Popup {
 
     public static void info(String message) {
         Popup.show(message, DEFAULT_TITLE, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static void createWarning() {
+        JFrame jFrame = new JFrame();
+        //jFrame.setSize(500,150);
+        JOptionPane.showMessageDialog(jFrame, "The label or the path already exist please choose new values","Mounting points", JOptionPane.WARNING_MESSAGE);
+    }
+    // delwarning never executed in folderpanel
+    public static void delWarning() {
+        JFrame jframe = new JFrame();
+        JOptionPane.showMessageDialog(jframe, "This Mount point cannot be deleted", "Mounting points", JOptionPane.WARNING_MESSAGE);
+    }
+    public static void emptyFieldWarning(){
+        JFrame jframe =new JFrame();
+        JOptionPane.showMessageDialog(jframe,"Please fill path and label","Mounting points",JOptionPane.WARNING_MESSAGE);
+
     }
 
 }

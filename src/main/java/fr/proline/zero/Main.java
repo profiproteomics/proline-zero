@@ -2,8 +2,6 @@ package fr.proline.zero;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import fr.proline.zero.util.*;
 import org.apache.commons.io.FileUtils;
@@ -35,8 +33,6 @@ public class Main {
 		try {
 			// initialization of the singleton that will manage all of our properties
 			ConfigManager.getInstance().initialize();
-
-
 
 			// first launch
 			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists();

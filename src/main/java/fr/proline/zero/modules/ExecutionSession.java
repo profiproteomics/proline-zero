@@ -1,21 +1,17 @@
 package fr.proline.zero.modules;
 
-import fr.proline.zero.util.ProlineFiles;
-import fr.proline.zero.util.SettingsConstant;
+import fr.proline.zero.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.proline.zero.gui.SplashScreen;
-import fr.proline.zero.util.ConfigManager;
-import fr.proline.zero.util.SystemUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -154,6 +150,8 @@ public class ExecutionSession {
         updateProperty(seqRepoConfigFile, regex, newPort);
     }
 
+
+
     private static void updateJmsPortConfig() {
         int port = ConfigManager.getInstance().getAdvancedManager().getJmsServerPort();
         //force to change port even if port=defaultPort
@@ -242,12 +240,6 @@ public class ExecutionSession {
     public static String getMzdbFolder() {
         File configFile = ProlineFiles.CORTEX_CONFIG_FILE;
         final String regex = ProlineFiles.CORTEX_MZDB_MOUNT_POINT + "\\s*=\\s*\"([\\w.\\/]+)\"";
-        return getProperty(configFile, regex);
-    }
-    // clone of getMzdbFolder for Mascot, gets only one key-value
-    public static String getResultFolder() {
-        File configFile = ProlineFiles.CORTEX_CONFIG_FILE;
-        final String regex = ProlineFiles.CORTEX_MASCOT_MOUNT_POINT + "\\s*=\\s*\"([\\w.\\/]+)\"";
         return getProperty(configFile, regex);
     }
 
