@@ -1,38 +1,50 @@
 package fr.proline.zero.util;
 
+import com.typesafe.config.*;
+
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import java.util.*;
 
 
 public class JsonReader {
-    private static Logger logger = LoggerFactory.getLogger(JsonReader.class);
+    private Logger logger = LoggerFactory.getLogger(JsonReader.class);
 
-    private  static JsonReader instance;
+    private static JsonReader instance;
     private Config m_cortexProlineConfig = null;
 
     private HashMap<MountPointUtils.MountPointType, Map<String,String>> mountPointMapJson;
 
+    private boolean configHasBeenChanged=false;
+
+    public boolean isConfigHasBeenChanged() {
+        return configHasBeenChanged;
+    }
 
     private JsonReader() {
-        m_cortexProlineConfig = ConfigFactory.parseFile(ProlineFiles.CORTEX_CONFIG_FILE);
+        m_cortexProlineConfig =getCortexConfig();
     }
-    // singleton class ?
+
     public static JsonReader getInstance() {
         if (instance == null) {
             instance = new JsonReader();
         }
         return instance;
     }
+    public Config getCortexConfig(){
 
+        ConfigParseOptions options = ConfigParseOptions.defaults();
+        options.setSyntax(ConfigSyntax.CONF);
+
+        return ConfigFactory.parseFile(ProlineFiles.CORTEX_CONFIG_FILE,options);
+    }
     // returns a hashmap with all mount points  inside cortex application.conf
     private HashMap<MountPointUtils.MountPointType, Map<String,String>> getMountPointsJson() {
         try {
@@ -84,23 +96,51 @@ public class JsonReader {
             throw new RuntimeException(e);
         }
 
-
     }
 
 
     public HashMap<MountPointUtils.MountPointType, Map<String,String>> getMountPointMaps()
-    {if (mountPointMapJson ==null)
-        {
-          mountPointMapJson = getMountPointsJson();
-        }
-        return mountPointMapJson;
+    {
+        return getMountPointsJson();
     }
 
+    // To be called after user finished to modify mountpoints in folderpanel
+    // builds a config from mountpointmap and writes this config inside application.conf
+    // used in folderpanel at every change in mounting points as a test
 
+    public void finalWrite( HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt){
 
+        ConfigObject toBePreserved= JsonReader.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
+        int sizeOfMpts=MountPointUtils.MountPointType.values().length;
+        Config[] builtConfig =new Config[sizeOfMpts];
+        int cpt=0;
+        for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
+            Map<String, String> temp = mpt.get(mountPointType);
+            builtConfig[cpt]=ConfigValueFactory.fromMap(temp).atKey(mountPointType.getJsonKey());
+            cpt++;
+        }
+        // merge of the different configs created above
+        Config[] rebuiltConf=new Config[builtConfig.length];
+        rebuiltConf[0]=builtConfig[0];
+        for (int j=0;j< builtConfig.length-1;j++){
+            rebuiltConf[j+1]=rebuiltConf[j].withFallback(builtConfig[j+1]);
+        }
 
+        Config finalMpts=rebuiltConf[rebuiltConf.length-1].atKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
+        // final merge
+        Config finalConfig=finalMpts.withFallback(toBePreserved);
+        String finalWrite=finalConfig.root().render(ConfigRenderOptions.concise().setFormatted(true).setJson(true).setComments(true));
+        configHasBeenChanged=true;
 
+        try {
+            FileWriter writer  = new FileWriter(ProlineFiles.CORTEX_CONFIG_FILE);
 
+            writer.write(finalWrite);
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
 }

@@ -99,20 +99,5 @@ public class Popup {
         Popup.show(message, DEFAULT_TITLE, JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public static void createWarning() {
-        JFrame jFrame = new JFrame();
-        //jFrame.setSize(500,150);
-        JOptionPane.showMessageDialog(jFrame, "The label or the path already exist please choose new values","Mounting points", JOptionPane.WARNING_MESSAGE);
-    }
-    // delwarning never executed in folderpanel
-    public static void delWarning() {
-        JFrame jframe = new JFrame();
-        JOptionPane.showMessageDialog(jframe, "This Mount point cannot be deleted", "Mounting points", JOptionPane.WARNING_MESSAGE);
-    }
-    public static void emptyFieldWarning(){
-        JFrame jframe =new JFrame();
-        JOptionPane.showMessageDialog(jframe,"Please fill path and label","Mounting points",JOptionPane.WARNING_MESSAGE);
-
-    }
 
 }

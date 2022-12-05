@@ -9,23 +9,26 @@ import java.util.Map;
 
 
 public class MountPointUtils {
-    public static boolean mountHasBeenChanged = false;
+    private   boolean mountHasBeenChanged = false;
 
-    private static Logger logger = LoggerFactory.getLogger(MountPointUtils.class);
+    private  Logger logger = LoggerFactory.getLogger(MountPointUtils.class);
 
-    private static HashMap<MountPointUtils.MountPointType, Map<String, String>> mountPointMap = new HashMap<>();
+    private  HashMap<MountPointUtils.MountPointType, Map<String, String>> mountPointMap = new HashMap<>();
 
 
     public HashMap<MountPointType, Map<String, String>> getMountPointMap() {
         return mountPointMap;
     }
 
-    public Map<String, String> getSpecMountPointMap(MountPointType mountPointType) {
+    public  Map<String, String> getSpecMountPointMap(MountPointType mountPointType) {
         return mountPointMap.get(mountPointType);
     }
 
-    public MountPointUtils() {
+    public boolean isMountHasBeenChanged() {
+        return mountHasBeenChanged;
+    }
 
+    public MountPointUtils() {
         mountPointMap = JsonReader.getInstance().getMountPointMaps();
     }
 
@@ -50,7 +53,14 @@ public class MountPointUtils {
             return jsonKey;
         }
     }
+    public static String getSpecInfo(MountPointType mpt) {
+        if (mpt == MountPointType.RESULT) {
+            return ProlineFiles.USER_CORTEX_RESULT_FILES_Point;
+        } else {
+            return ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT;
+        }
 
+    }
 
         public boolean addMountPointEntry(MountPointType mountPointType, String value, String path) {
 
@@ -59,6 +69,7 @@ public class MountPointUtils {
                 Map<String, String> currentKValue = mountPointMap.get(mountPointType);
                 currentKValue.put(value, path);
                 mountPointMap.put(mountPointType, currentKValue);
+                mountHasBeenChanged=true;
                 return true;
             } else {
                 // a warning message will be displayed in IHM
@@ -98,7 +109,7 @@ public class MountPointUtils {
 
         public boolean delMountPointEntry(MountPointType mountPointType, String key) {
             Map<String, String> currentKValue = mountPointMap.get(mountPointType);
-            boolean canBeDeleted = (!key.equals("mzdb_files")) && (!key.equals("mascot_data"));
+            boolean canBeDeleted = (!key.equals(ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT)) && (!key.equals(ProlineFiles.USER_CORTEX_RESULT_FILES_Point));
             boolean mPointExists = currentKValue.containsKey(key);
             if (canBeDeleted && mPointExists) {
                 currentKValue.remove(key);
