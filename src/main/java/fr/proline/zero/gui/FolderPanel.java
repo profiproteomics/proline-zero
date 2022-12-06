@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -71,6 +70,7 @@ public class FolderPanel extends JPanel {
 
 	}
 
+	//VDS TODO: test lighter update method...
 	private void updateJpanel() {
 
 		removeAll();
@@ -254,6 +254,10 @@ public class FolderPanel extends JPanel {
 		c.fill = GridBagConstraints.BOTH;
 		// creation des panels en attribut de classe pour pouvoir ajouter dynamiquement
 		// des elements
+		resultListPanel = new JPanel(new GridBagLayout());
+		resultListPanelConstraints = new GridBagConstraints();
+		mzdbListPanel = new JPanel(new GridBagLayout());
+		mzdbListPanelConstraints = new GridBagConstraints();
 		this.initAnyFolderPanel(MountPointUtils.MountPointType.RESULT,resultListPanel,resultListPanelConstraints);
 		this.initAnyFolderPanel(MountPointUtils.MountPointType.MZDB,mzdbListPanel,mzdbListPanelConstraints);
 		this.initFastaFolderPanel();
@@ -274,14 +278,13 @@ public class FolderPanel extends JPanel {
 
 
 	private void initAnyFolderPanel(MountPointUtils.MountPointType mpt,JPanel anyPanel,GridBagConstraints anyPanelConstraints) {
-		anyPanel = new JPanel(new GridBagLayout());
 		anyPanel.setBorder(BorderFactory.createTitledBorder(mpt.getDisplayString()));
-		anyPanelConstraints = new GridBagConstraints();
 		anyPanelConstraints.insets = new Insets(5, 5, 5, 5);
 		anyPanelConstraints.gridx = 0;
 		anyPanelConstraints.gridy = 0;
 		anyPanelConstraints.weightx = 1;
 		anyPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+
 		Icon eraserIcon = null;
 		try {
 			eraserIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
@@ -295,12 +298,13 @@ public class FolderPanel extends JPanel {
 			throw new RuntimeException(e);
 		}
 		// get mounting points to be displayed
+
 		Map<String, String> temp = ConfigManager.getInstance().getMountPointManager().getMountPointMap().get(mpt);
-		//places non deletable mounting point at the top of the list
+		//places none deletable mounting point at the top of the list
 		anyPanelConstraints.gridx = 0;
-		JLabel fieldMascot = new JLabel(MountPointUtils.getSpecInfo(mpt));
+		JLabel fieldMascot = new JLabel(MountPointUtils.getMountPointDefaultPathLabel(mpt));
 		fieldMascot.setPreferredSize(new Dimension(30, 20));
-		JTextField resultPathMascot = new JTextField(temp.get(MountPointUtils.getSpecInfo(mpt)));
+		JTextField resultPathMascot = new JTextField(temp.get(MountPointUtils.getMountPointDefaultPathLabel(mpt)));
 		resultPathMascot.setPreferredSize(new Dimension(250, 20));
 		resultPathMascot.setEnabled(false);
 		anyPanelConstraints.gridx++;
@@ -315,7 +319,7 @@ public class FolderPanel extends JPanel {
 
 		//iterator on the map to display remaining key-values
 		for (String key : temp.keySet()) {
-			if (key.equals(MountPointUtils.getSpecInfo(mpt)))
+			if (key.equals(MountPointUtils.getMountPointDefaultPathLabel(mpt)))
 				continue;
 			anyPanelConstraints.gridx = 0;
 			JLabel field = new JLabel(key + " :");
@@ -337,9 +341,6 @@ public class FolderPanel extends JPanel {
 			anyPanelConstraints.gridy++;
 
 		}
-		// backup,will be used when placing Panel in the main folderListPanel
-		if (mpt==MountPointUtils.MountPointType.MZDB){mzdbListPanel=anyPanel;mzdbListPanelConstraints=anyPanelConstraints;}
-		if(mpt==MountPointUtils.MountPointType.RESULT){resultListPanel=anyPanel;resultListPanelConstraints=anyPanelConstraints;}
 	}
 
 

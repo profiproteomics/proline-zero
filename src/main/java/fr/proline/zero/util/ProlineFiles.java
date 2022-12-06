@@ -69,7 +69,7 @@ public class ProlineFiles {
 
     public static String USER_CORTEX_MZDB_MOUNT_POINT="mzdb_files";
 
-    public static String USER_CORTEX_RESULT_FILES_Point="mascot_data";
+    public static String USER_CORTEX_RESULT_FILES_POINT ="mascot_data";
 
     public static String USER_CORTEX_RAW_FILES_MOUNT_POINT="raw_files";
 

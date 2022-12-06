@@ -13,7 +13,7 @@ public class MountPointUtils {
 
     private  Logger logger = LoggerFactory.getLogger(MountPointUtils.class);
 
-    private  HashMap<MountPointUtils.MountPointType, Map<String, String>> mountPointMap = new HashMap<>();
+    private  HashMap<MountPointUtils.MountPointType, Map<String, String>> mountPointMap;
 
 
     public HashMap<MountPointType, Map<String, String>> getMountPointMap() {
@@ -53,9 +53,9 @@ public class MountPointUtils {
             return jsonKey;
         }
     }
-    public static String getSpecInfo(MountPointType mpt) {
+    public static String getMountPointDefaultPathLabel(MountPointType mpt) {
         if (mpt == MountPointType.RESULT) {
-            return ProlineFiles.USER_CORTEX_RESULT_FILES_Point;
+            return ProlineFiles.USER_CORTEX_RESULT_FILES_POINT;
         } else {
             return ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT;
         }
@@ -86,7 +86,7 @@ public class MountPointUtils {
             if (mountPointMap.get(MountPointType.MZDB).containsValue(path)) {
                 pathExists = true;
             }
-            if (mountPointMap.get(MountPointType.RAW).containsValue(path)) {
+            if (mountPointMap.containsKey(MountPointType.RAW) && mountPointMap.get(MountPointType.RAW).containsValue(path)) {
                 pathExists = true;
             }
             return pathExists;
@@ -100,7 +100,7 @@ public class MountPointUtils {
             if (mountPointMap.get(MountPointType.MZDB).containsKey(value)) {
                 labelExists = true;
             }
-            if (mountPointMap.get(MountPointType.RAW).containsKey(value)) {
+            if (mountPointMap.containsKey(MountPointType.RAW) && mountPointMap.get(MountPointType.RAW).containsKey(value)) {
                 labelExists = true;
             }
             return labelExists;
@@ -109,7 +109,7 @@ public class MountPointUtils {
 
         public boolean delMountPointEntry(MountPointType mountPointType, String key) {
             Map<String, String> currentKValue = mountPointMap.get(mountPointType);
-            boolean canBeDeleted = (!key.equals(ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT)) && (!key.equals(ProlineFiles.USER_CORTEX_RESULT_FILES_Point));
+            boolean canBeDeleted = (!key.equals(ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT)) && (!key.equals(ProlineFiles.USER_CORTEX_RESULT_FILES_POINT));
             boolean mPointExists = currentKValue.containsKey(key);
             if (canBeDeleted && mPointExists) {
                 currentKValue.remove(key);
