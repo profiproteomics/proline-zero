@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -246,11 +245,12 @@ public class FolderPanel extends JPanel {
 	private JPanel createFolderListPanel() {
 		// creation du panel et layout
 		JPanel folderListPanel = new JPanel(new GridBagLayout());
-		folderListPanel.setBorder(BorderFactory.createTitledBorder("Folder list"));
+		//folderListPanel.setBorder(BorderFactory.createTitledBorder("Folder list"));
 		GridBagConstraints c = new GridBagConstraints();
-		c.weightx = 1;
+		c.insets=new Insets(5,5,5,5);
+		//c.weightx = 1;
 		c.weighty = 1;
-		c.anchor = GridBagConstraints.NORTHWEST;
+		c.anchor = GridBagConstraints.EAST;
 		c.fill = GridBagConstraints.BOTH;
 		// creation des panels en attribut de classe pour pouvoir ajouter dynamiquement
 		// des elements
@@ -281,6 +281,7 @@ public class FolderPanel extends JPanel {
 		anyPanelConstraints.gridx = 0;
 		anyPanelConstraints.gridy = 0;
 		anyPanelConstraints.weightx = 1;
+		anyPanelConstraints.anchor=GridBagConstraints.EAST;
 		anyPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
 		Icon eraserIcon = null;
 		try {
@@ -299,11 +300,12 @@ public class FolderPanel extends JPanel {
 		//places non deletable mounting point at the top of the list
 		anyPanelConstraints.gridx = 0;
 		JLabel fieldMascot = new JLabel(MountPointUtils.getSpecInfo(mpt));
-		fieldMascot.setPreferredSize(new Dimension(30, 20));
+		fieldMascot.setPreferredSize(new Dimension(60, 20));
+		fieldMascot.setMinimumSize((new Dimension(60,20)));
 		JTextField resultPathMascot = new JTextField(temp.get(MountPointUtils.getSpecInfo(mpt)));
-		resultPathMascot.setPreferredSize(new Dimension(250, 20));
+		resultPathMascot.setPreferredSize(new Dimension(160, 20));
 		resultPathMascot.setEnabled(false);
-		anyPanelConstraints.gridx++;
+		//anyPanelConstraints.gridx++;
 		anyPanel.add(fieldMascot, anyPanelConstraints);
 		anyPanelConstraints.gridx++;
 		anyPanel.add(resultPathMascot, anyPanelConstraints);
@@ -323,7 +325,8 @@ public class FolderPanel extends JPanel {
 			JTextField resultPath = new JTextField(temp.get(key));
 			resultPath.setPreferredSize(new Dimension(250, 20));
 			resultPath.setEnabled(false);
-			anyPanelConstraints.gridx++;
+			anyPanelConstraints.anchor=GridBagConstraints.EAST;
+			//anyPanelConstraints.gridx++;
 			anyPanel.add(field, anyPanelConstraints);
 			anyPanelConstraints.gridx++;
 			anyPanel.add(resultPath, anyPanelConstraints);
@@ -377,7 +380,7 @@ public class FolderPanel extends JPanel {
 								folderPathField.setText("");
 								folderLabelField.setText("");
 								// to be removed, only for tests
-								JsonReader.getInstance().finalWrite(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
+								JsonAccess.getInstance().updateFileMountPointsV2(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
 								updateJpanel();
 							}
 							else {
@@ -392,7 +395,7 @@ public class FolderPanel extends JPanel {
 								folderPathField.setText("");
 								folderLabelField.setText("");
 								// to be removed, only for tests
-								JsonReader.getInstance().finalWrite(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
+								JsonAccess.getInstance().updateFileMountPointsV2(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
 								updateJpanel();
 							}
 							else {
@@ -477,7 +480,7 @@ public class FolderPanel extends JPanel {
 				if (delSucces) {
 					updateJpanel();
 					// To be removed, only for tests
-					JsonReader.getInstance().finalWrite(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
+					JsonAccess.getInstance().updateFileMountPointsV2(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
 				}
 				else {
 					Popup.warning("This Mount point cannot be deleted");

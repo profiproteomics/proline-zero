@@ -1,3 +1,4 @@
+
 package fr.proline.zero.util;
 
 
@@ -29,7 +30,7 @@ public class MountPointUtils {
     }
 
     public MountPointUtils() {
-        mountPointMap = JsonReader.getInstance().getMountPointMaps();
+        mountPointMap = JsonAccess.getInstance().getMountPointMaps();
     }
 
     public enum MountPointType {

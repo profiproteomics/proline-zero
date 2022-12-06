@@ -42,7 +42,6 @@ public class JsonReader {
 
         ConfigParseOptions options = ConfigParseOptions.defaults();
         options.setSyntax(ConfigSyntax.CONF);
-
         return ConfigFactory.parseFile(ProlineFiles.CORTEX_CONFIG_FILE,options);
     }
     // returns a hashmap with all mount points  inside cortex application.conf
@@ -108,7 +107,7 @@ public class JsonReader {
     // builds a config from mountpointmap and writes this config inside application.conf
     // used in folderpanel at every change in mounting points as a test
 
-    public void finalWrite( HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt){
+    public void updateFileMountPoints(HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt){
 
         ConfigObject toBePreserved= JsonReader.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
         int sizeOfMpts=MountPointUtils.MountPointType.values().length;
@@ -135,6 +134,36 @@ public class JsonReader {
         try {
             FileWriter writer  = new FileWriter(ProlineFiles.CORTEX_CONFIG_FILE);
 
+            writer.write(finalWrite);
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void updateFileMountPointsV2(HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt){
+
+        ConfigObject toBePreserved= JsonReader.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
+        int sizeOfMpts=MountPointUtils.MountPointType.values().length;
+        Config[] builtConfig =new Config[sizeOfMpts];
+        Config[] mergedConf=new Config[builtConfig.length];
+        int cpt=0;
+        for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
+            Map<String, String> temp = mpt.get(mountPointType);
+            builtConfig[cpt]=ConfigValueFactory.fromMap(temp).atKey(mountPointType.getJsonKey());
+            if (cpt==0){mergedConf[cpt]=builtConfig[cpt];}
+            else {
+                mergedConf[cpt]=mergedConf[cpt-1].withFallback(builtConfig[cpt]);
+            }
+            cpt++;
+        }
+        Config finalMpts=mergedConf[cpt-1].atKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
+        // final merge
+        Config finalConfig=finalMpts.withFallback(toBePreserved);
+        String finalWrite=finalConfig.root().render(ConfigRenderOptions.defaults().setFormatted(true).setJson(true).setComments(true));
+        configHasBeenChanged=true;
+
+        try {
+            FileWriter writer  = new FileWriter(ProlineFiles.CORTEX_CONFIG_FILE);
             writer.write(finalWrite);
             writer.close();
         } catch (IOException e) {
