@@ -326,7 +326,9 @@ public class FolderPanel extends JPanel {
 			field.setPreferredSize(new Dimension(30, 20));
 			JTextField resultPath = new JTextField(temp.get(key));
 			resultPath.setPreferredSize(new Dimension(250, 20));
-			resultPath.setEnabled(false);
+			if(temp.get(key).length()>50){ resultPath.setEnabled(true);}
+			else {
+			resultPath.setEnabled(false);}
 			anyPanelConstraints.gridx++;
 			anyPanel.add(field, anyPanelConstraints);
 			anyPanelConstraints.gridx++;
@@ -378,7 +380,7 @@ public class FolderPanel extends JPanel {
 								folderPathField.setText("");
 								folderLabelField.setText("");
 								// to be removed, only for tests
-								JsonReader.getInstance().finalWrite(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
+								JsonAccess.getInstance().updateFileMountPointsV2(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
 								updateJpanel();
 							}
 							else {
@@ -393,7 +395,7 @@ public class FolderPanel extends JPanel {
 								folderPathField.setText("");
 								folderLabelField.setText("");
 								// to be removed, only for tests
-								JsonReader.getInstance().finalWrite(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
+								JsonAccess.getInstance().updateFileMountPointsV2(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
 								updateJpanel();
 							}
 							else {
@@ -417,7 +419,7 @@ public class FolderPanel extends JPanel {
 				}
 				else {
 					if(!pathExists){
-						Popup.warning("the folder you specified doesn't exist");
+						Popup.warning("the path you specified doesn't exist");
 					}
 					if (pathExists){
 						Popup.warning("Please fill path and label");
@@ -478,7 +480,7 @@ public class FolderPanel extends JPanel {
 				if (delSucces) {
 					updateJpanel();
 					// To be removed, only for tests
-					JsonReader.getInstance().finalWrite(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
+					JsonAccess.getInstance().updateFileMountPointsV2(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
 				}
 				else {
 					Popup.warning("This Mount point cannot be deleted");

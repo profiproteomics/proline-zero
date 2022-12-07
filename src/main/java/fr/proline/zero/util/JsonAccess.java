@@ -14,10 +14,10 @@ import java.io.IOException;
 import java.util.*;
 
 
-public class JsonReader {
-    private Logger logger = LoggerFactory.getLogger(JsonReader.class);
+public class JsonAccess {
+    private Logger logger = LoggerFactory.getLogger(JsonAccess.class);
 
-    private static JsonReader instance;
+    private static JsonAccess instance;
     private Config m_cortexProlineConfig = null;
 
     private HashMap<MountPointUtils.MountPointType, Map<String,String>> mountPointMapJson;
@@ -28,13 +28,13 @@ public class JsonReader {
         return configHasBeenChanged;
     }
 
-    private JsonReader() {
+    private JsonAccess() {
         m_cortexProlineConfig =getCortexConfig();
     }
 
-    public static JsonReader getInstance() {
+    public static JsonAccess getInstance() {
         if (instance == null) {
-            instance = new JsonReader();
+            instance = new JsonAccess();
         }
         return instance;
     }
@@ -107,16 +107,18 @@ public class JsonReader {
     // builds a config from mountpointmap and writes this config inside application.conf
     // used in folderpanel at every change in mounting points as a test
 
-    public void updateFileMountPoints(HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt){
+   /* public void updateFileMountPoints(HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt){
 
-        ConfigObject toBePreserved= JsonReader.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
+        ConfigObject toBePreserved= JsonAccess.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
         int sizeOfMpts=MountPointUtils.MountPointType.values().length;
         Config[] builtConfig =new Config[sizeOfMpts];
         int cpt=0;
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             Map<String, String> temp = mpt.get(mountPointType);
+            if(temp==null){builtConfig[cpt]=ConfigFactory.empty().atKey(mountPointType.getJsonKey());}
+            else{
             builtConfig[cpt]=ConfigValueFactory.fromMap(temp).atKey(mountPointType.getJsonKey());
-            cpt++;
+            cpt++;}
         }
         // merge of the different configs created above
         Config[] rebuiltConf=new Config[builtConfig.length];
@@ -139,17 +141,19 @@ public class JsonReader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
+    }*/
     public void updateFileMountPointsV2(HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt){
 
-        ConfigObject toBePreserved= JsonReader.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
+        ConfigObject toBePreserved= JsonAccess.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
         int sizeOfMpts=MountPointUtils.MountPointType.values().length;
         Config[] builtConfig =new Config[sizeOfMpts];
         Config[] mergedConf=new Config[builtConfig.length];
         int cpt=0;
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             Map<String, String> temp = mpt.get(mountPointType);
-            builtConfig[cpt]=ConfigValueFactory.fromMap(temp).atKey(mountPointType.getJsonKey());
+            if (temp==null){builtConfig[cpt]=ConfigFactory.empty().atKey(mountPointType.getJsonKey());}
+            else {
+            builtConfig[cpt]=ConfigValueFactory.fromMap(temp).atKey(mountPointType.getJsonKey());}
             if (cpt==0){mergedConf[cpt]=builtConfig[cpt];}
             else {
                 mergedConf[cpt]=mergedConf[cpt-1].withFallback(builtConfig[cpt]);
@@ -159,7 +163,7 @@ public class JsonReader {
         Config finalMpts=mergedConf[cpt-1].atKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
         // final merge
         Config finalConfig=finalMpts.withFallback(toBePreserved);
-        String finalWrite=finalConfig.root().render(ConfigRenderOptions.defaults().setFormatted(true).setJson(true).setComments(true));
+        String finalWrite=finalConfig.root().render(ConfigRenderOptions.concise().setFormatted(true).setJson(false).setComments(true));
         configHasBeenChanged=true;
 
         try {
