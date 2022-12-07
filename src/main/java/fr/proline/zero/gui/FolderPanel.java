@@ -191,7 +191,7 @@ public class FolderPanel extends JPanel {
 		// ajout des widgets au layout
 		addFolderConstraint.gridx = 0;
 		addFolderConstraint.gridy = 0;
-		JLabel l = new JLabel("Data type : ", SwingConstants.RIGHT);
+		JLabel l = new JLabel("Data type :   ", SwingConstants.RIGHT);
 		l.setEnabled(true);
 		dataTypeBox.setEnabled(true);
 		addFolderPanel.add(l, addFolderConstraint);
@@ -202,7 +202,7 @@ public class FolderPanel extends JPanel {
 		addFolderConstraint.gridx = 0;
 		addFolderConstraint.gridy++;
 		addFolderConstraint.anchor = GridBagConstraints.EAST;
-		l = new JLabel("Label : ", SwingConstants.RIGHT);
+		l = new JLabel("Label :   ", SwingConstants.RIGHT);
 		l.setEnabled(true);
 		folderLabelField.setEnabled(true);
 		addFolderPanel.add(l, addFolderConstraint);
@@ -215,7 +215,7 @@ public class FolderPanel extends JPanel {
 		addFolderConstraint.gridx = 0;
 		addFolderConstraint.gridy++;
 		addFolderConstraint.anchor = GridBagConstraints.EAST;
-		l = new JLabel("Path : ", SwingConstants.RIGHT);
+		l = new JLabel("Path :   ", SwingConstants.RIGHT);
 		l.setEnabled(true);
 		folderPathField.setEnabled(true);
 		browseButton.setEnabled(true);
@@ -246,7 +246,7 @@ public class FolderPanel extends JPanel {
 	private JPanel createFolderListPanel() {
 		// creation du panel et layout
 		JPanel folderListPanel = new JPanel(new GridBagLayout());
-		folderListPanel.setBorder(BorderFactory.createTitledBorder("Folder list"));
+		//folderListPanel.setBorder(BorderFactory.createTitledBorder("Folder list"));
 		GridBagConstraints c = new GridBagConstraints();
 		c.weightx = 1;
 		c.weighty = 1;
@@ -302,12 +302,13 @@ public class FolderPanel extends JPanel {
 		Map<String, String> temp = ConfigManager.getInstance().getMountPointManager().getMountPointMap().get(mpt);
 		//places none deletable mounting point at the top of the list
 		anyPanelConstraints.gridx = 0;
-		JLabel fieldMascot = new JLabel(MountPointUtils.getMountPointDefaultPathLabel(mpt));
-		fieldMascot.setPreferredSize(new Dimension(30, 20));
+		JLabel fieldMascot = new JLabel(MountPointUtils.getMountPointDefaultPathLabel(mpt)+":");
+		fieldMascot.setPreferredSize(new Dimension(20, 20));
 		JTextField resultPathMascot = new JTextField(temp.get(MountPointUtils.getMountPointDefaultPathLabel(mpt)));
-		resultPathMascot.setPreferredSize(new Dimension(250, 20));
+		resultPathMascot.setPreferredSize(new Dimension(400, 20));
 		resultPathMascot.setEnabled(false);
 		anyPanelConstraints.gridx++;
+		anyPanelConstraints.anchor=GridBagConstraints.EAST;
 		anyPanel.add(fieldMascot, anyPanelConstraints);
 		anyPanelConstraints.gridx++;
 		anyPanel.add(resultPathMascot, anyPanelConstraints);
@@ -325,8 +326,9 @@ public class FolderPanel extends JPanel {
 			JLabel field = new JLabel(key + " :");
 			field.setPreferredSize(new Dimension(30, 20));
 			JTextField resultPath = new JTextField(temp.get(key));
-			resultPath.setPreferredSize(new Dimension(250, 20));
-			if(temp.get(key).length()>50){ resultPath.setEnabled(true);}
+			resultPath.setPreferredSize(new Dimension(400, 20));
+			//System.out.println("size of path:  "+temp.get(key).length());
+			if(temp.get(key).length()>87){ resultPath.setEnabled(true);}
 			else {
 			resultPath.setEnabled(false);}
 			anyPanelConstraints.gridx++;
@@ -379,13 +381,10 @@ public class FolderPanel extends JPanel {
 							if (addSuccesresult) {
 								folderPathField.setText("");
 								folderLabelField.setText("");
-								// to be removed, only for tests
-								JsonAccess.getInstance().updateFileMountPointsV2(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
 								updateJpanel();
 							}
 							else {
 								Popup.warning("The label or the path already exist please choose new values");
-
 							}
 							break;
 
@@ -394,8 +393,6 @@ public class FolderPanel extends JPanel {
 							if (addSuccesmzdb) {
 								folderPathField.setText("");
 								folderLabelField.setText("");
-								// to be removed, only for tests
-								JsonAccess.getInstance().updateFileMountPointsV2(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
 								updateJpanel();
 							}
 							else {
@@ -419,7 +416,7 @@ public class FolderPanel extends JPanel {
 				}
 				else {
 					if(!pathExists){
-						Popup.warning("the path you specified doesn't exist");
+						Popup.warning("The path you specified doesn't exist");
 					}
 					if (pathExists){
 						Popup.warning("Please fill path and label");
@@ -479,8 +476,6 @@ public class FolderPanel extends JPanel {
 
 				if (delSucces) {
 					updateJpanel();
-					// To be removed, only for tests
-					JsonAccess.getInstance().updateFileMountPointsV2(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
 				}
 				else {
 					Popup.warning("This Mount point cannot be deleted");
@@ -490,6 +485,8 @@ public class FolderPanel extends JPanel {
 		return clearFields;
 	}
 	public void updateValues() {
+
+		updateJpanel();
 		// TODO
 	}
 }

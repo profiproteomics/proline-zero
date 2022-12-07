@@ -30,6 +30,7 @@ public class JsonAccess {
 
     private JsonAccess() {
         m_cortexProlineConfig =getCortexConfig();
+
     }
 
     public static JsonAccess getInstance() {
@@ -103,45 +104,7 @@ public class JsonAccess {
         return getMountPointsJson();
     }
 
-    // To be called after user finished to modify mountpoints in folderpanel
-    // builds a config from mountpointmap and writes this config inside application.conf
-    // used in folderpanel at every change in mounting points as a test
 
-   /* public void updateFileMountPoints(HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt){
-
-        ConfigObject toBePreserved= JsonAccess.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
-        int sizeOfMpts=MountPointUtils.MountPointType.values().length;
-        Config[] builtConfig =new Config[sizeOfMpts];
-        int cpt=0;
-        for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
-            Map<String, String> temp = mpt.get(mountPointType);
-            if(temp==null){builtConfig[cpt]=ConfigFactory.empty().atKey(mountPointType.getJsonKey());}
-            else{
-            builtConfig[cpt]=ConfigValueFactory.fromMap(temp).atKey(mountPointType.getJsonKey());
-            cpt++;}
-        }
-        // merge of the different configs created above
-        Config[] rebuiltConf=new Config[builtConfig.length];
-        rebuiltConf[0]=builtConfig[0];
-        for (int j=0;j< builtConfig.length-1;j++){
-            rebuiltConf[j+1]=rebuiltConf[j].withFallback(builtConfig[j+1]);
-        }
-
-        Config finalMpts=rebuiltConf[rebuiltConf.length-1].atKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
-        // final merge
-        Config finalConfig=finalMpts.withFallback(toBePreserved);
-        String finalWrite=finalConfig.root().render(ConfigRenderOptions.concise().setFormatted(true).setJson(true).setComments(true));
-        configHasBeenChanged=true;
-
-        try {
-            FileWriter writer  = new FileWriter(ProlineFiles.CORTEX_CONFIG_FILE);
-
-            writer.write(finalWrite);
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }*/
     public void updateFileMountPointsV2(HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt){
 
         ConfigObject toBePreserved= JsonAccess.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
@@ -151,9 +114,10 @@ public class JsonAccess {
         int cpt=0;
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             Map<String, String> temp = mpt.get(mountPointType);
-            if (temp==null){builtConfig[cpt]=ConfigFactory.empty().atKey(mountPointType.getJsonKey());}
+            if (temp==null){
+                builtConfig[cpt]=ConfigFactory.empty().atKey(mountPointType.getJsonKey());}
             else {
-            builtConfig[cpt]=ConfigValueFactory.fromMap(temp).atKey(mountPointType.getJsonKey());}
+                builtConfig[cpt]=ConfigValueFactory.fromMap(temp).atKey(mountPointType.getJsonKey());}
             if (cpt==0){mergedConf[cpt]=builtConfig[cpt];}
             else {
                 mergedConf[cpt]=mergedConf[cpt-1].withFallback(builtConfig[cpt]);
@@ -173,6 +137,20 @@ public class JsonAccess {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void restoreValues(){
+        Config initialConfig=m_cortexProlineConfig;
+        String initialWrite=initialConfig.root().render(ConfigRenderOptions.concise().setFormatted(true).setJson(false).setComments(true));
+        try {
+            FileWriter writer  = new FileWriter(ProlineFiles.CORTEX_CONFIG_FILE);
+            writer.write(initialWrite);
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
 

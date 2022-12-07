@@ -63,6 +63,7 @@ public class Main {
 				// we still need to save the properties because we may have changed them with
 				// the verif() method
 				ConfigManager.getInstance().updateConfigFileZero();
+				ConfigManager.getInstance().updateCortexConfigFile();
 			}
 
 			logger.info("First launch, update port");

@@ -123,6 +123,11 @@ public class MountPointUtils {
             }
         }
 
+        public void restoreMountPoints(){
+            mountPointMap=JsonAccess.getInstance().getMountPointMaps();
+
+        }
+
 
 
 }

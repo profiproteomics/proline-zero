@@ -336,6 +336,7 @@ public class ConfigWindow extends JDialog {
 			// no errors after verification : we launch proline with the current
 			// configuration
 			ConfigManager.getInstance().updateConfigFileZero();
+			ConfigManager.getInstance().updateCortexConfigFile();
 			setVisible(false);
 
 		} else {
@@ -361,6 +362,7 @@ public class ConfigWindow extends JDialog {
 				boolean yesPressed = Popup.yesNo(msgToDisplay.toString());
 				if (yesPressed) {
 					ConfigManager.getInstance().updateConfigFileZero();
+					ConfigManager.getInstance().updateCortexConfigFile();
 					setVisible(false);
 				}
 			}

@@ -159,6 +159,11 @@ public final class ConfigManager {
 			e.printStackTrace();
 		}
 	}
+	public void updateCortexConfigFile(){
+		if(mountPointsManager.isMountHasBeenChanged()){
+			JsonAccess.getInstance().updateFileMountPointsV2(mountPointsManager.getMountPointMap());
+		}
+	}
 
 	private void updateFileMemory(FileBasedConfigurationBuilder<FileBasedConfiguration> builder)
 			throws ConfigurationException {
@@ -219,6 +224,10 @@ public final class ConfigManager {
 		setShowConfigDialog(Config.showConfigDialog());
 		memoryManager.restoreValues();
 		advancedManager.restoreValues();
+		// rewrites application.conf as it was at initialization
+		JsonAccess.getInstance().restoreValues();
+		// update mounting points from restored application.conf
+		mountPointsManager.restoreMountPoints();
 		// TODO other utils restore to their originals
 	}
 
