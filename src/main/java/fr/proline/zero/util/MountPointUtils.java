@@ -74,7 +74,7 @@ public class MountPointUtils {
                 return true;
             } else {
                 // a warning message will be displayed in IHM
-                logger.info(String.valueOf(mountPointMap));
+
                 return false;
             }
         }

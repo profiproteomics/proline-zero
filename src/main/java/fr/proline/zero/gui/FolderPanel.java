@@ -16,6 +16,7 @@ import javax.swing.*;
 
 import javax.swing.filechooser.FileSystemView;
 
+
 import fr.proline.zero.util.*;
 
 public class FolderPanel extends JPanel {
@@ -60,7 +61,9 @@ public class FolderPanel extends JPanel {
 
 		folderPanelConstraints.gridy++;
 		add(createAddFolderPanel(), folderPanelConstraints);
-
+		JSeparator s = new JSeparator();
+		folderPanelConstraints.gridy++;
+		add(s,folderPanelConstraints);
 		folderPanelConstraints.gridy++;
 		add(createFolderListPanel(), folderPanelConstraints);
 
@@ -95,7 +98,9 @@ public class FolderPanel extends JPanel {
 
 		folderPanelConstraints.gridy++;
 		add(createAddFolderPanel(), folderPanelConstraints);
-
+		JSeparator s = new JSeparator();
+		folderPanelConstraints.gridy++;
+		add(s,folderPanelConstraints);
 		folderPanelConstraints.gridy++;
 		add(createFolderListPanel(), folderPanelConstraints);
 
@@ -247,11 +252,13 @@ public class FolderPanel extends JPanel {
 		// creation du panel et layout
 		JPanel folderListPanel = new JPanel(new GridBagLayout());
 		//folderListPanel.setBorder(BorderFactory.createTitledBorder("Folder list"));
+
 		GridBagConstraints c = new GridBagConstraints();
 		c.weightx = 1;
 		c.weighty = 1;
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.fill = GridBagConstraints.BOTH;
+
 		// creation des panels en attribut de classe pour pouvoir ajouter dynamiquement
 		// des elements
 		resultListPanel = new JPanel(new GridBagLayout());
@@ -268,7 +275,6 @@ public class FolderPanel extends JPanel {
 		folderListPanel.add(resultListPanel, c);
 		c.gridy++;
 		folderListPanel.add(mzdbListPanel, c);
-
 		// TODO : desactiver si seqrep décoché;
 		c.gridy++;
 		folderListPanel.add(fastaListPanel, c);
@@ -303,12 +309,12 @@ public class FolderPanel extends JPanel {
 		//places none deletable mounting point at the top of the list
 		anyPanelConstraints.gridx = 0;
 		JLabel fieldMascot = new JLabel(MountPointUtils.getMountPointDefaultPathLabel(mpt)+":");
-		fieldMascot.setPreferredSize(new Dimension(20, 20));
+		fieldMascot.setPreferredSize(new Dimension(20, 23));
+
 		JTextField resultPathMascot = new JTextField(temp.get(MountPointUtils.getMountPointDefaultPathLabel(mpt)));
-		resultPathMascot.setPreferredSize(new Dimension(400, 20));
+		resultPathMascot.setPreferredSize(new Dimension(430, 23));
 		resultPathMascot.setEnabled(false);
 		anyPanelConstraints.gridx++;
-		anyPanelConstraints.anchor=GridBagConstraints.EAST;
 		anyPanel.add(fieldMascot, anyPanelConstraints);
 		anyPanelConstraints.gridx++;
 		anyPanel.add(resultPathMascot, anyPanelConstraints);
@@ -324,10 +330,9 @@ public class FolderPanel extends JPanel {
 				continue;
 			anyPanelConstraints.gridx = 0;
 			JLabel field = new JLabel(key + " :");
-			field.setPreferredSize(new Dimension(30, 20));
+			field.setPreferredSize(new Dimension(20, 23));
 			JTextField resultPath = new JTextField(temp.get(key));
-			resultPath.setPreferredSize(new Dimension(400, 20));
-			//System.out.println("size of path:  "+temp.get(key).length());
+			resultPath.setPreferredSize(new Dimension(430, 23));
 			if(temp.get(key).length()>87){ resultPath.setEnabled(true);}
 			else {
 			resultPath.setEnabled(false);}
@@ -337,7 +342,7 @@ public class FolderPanel extends JPanel {
 			anyPanel.add(resultPath, anyPanelConstraints);
 			anyPanelConstraints.gridx++;
 			JButton clearButton = new JButton(eraserIcon);
-			clearButton.setPreferredSize(new Dimension(10, 20));
+			clearButton.setPreferredSize(new Dimension(8, 23));
 			clearButton.setHorizontalAlignment(SwingConstants.CENTER);
 			clearButton.setToolTipText("Click to delete mount point");
 			clearButton.addActionListener(delFolderPath(mpt, key));
@@ -345,6 +350,7 @@ public class FolderPanel extends JPanel {
 			anyPanelConstraints.gridy++;
 
 		}
+
 	}
 
 

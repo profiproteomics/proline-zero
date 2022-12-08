@@ -42,6 +42,7 @@ public class ConfigWindow extends JDialog {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			initialize();
 			setResizable(true);
+			setSize(new Dimension(680,990));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
