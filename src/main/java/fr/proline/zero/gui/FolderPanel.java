@@ -3,6 +3,7 @@ package fr.proline.zero.gui;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -18,6 +19,7 @@ import javax.swing.filechooser.FileSystemView;
 
 
 import fr.proline.zero.util.*;
+
 
 public class FolderPanel extends JPanel {
 	private JTextField maximumTmpFolderSizeField;
@@ -61,9 +63,17 @@ public class FolderPanel extends JPanel {
 
 		folderPanelConstraints.gridy++;
 		add(createAddFolderPanel(), folderPanelConstraints);
-		JSeparator s = new JSeparator();
+		/*Icon permanentIcon = null;
+		try {
+			permanentIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("test3.png")));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		JLabel label=new JLabel(permanentIcon,SwingConstants.LEADING);
 		folderPanelConstraints.gridy++;
-		add(s,folderPanelConstraints);
+		//folderPanelConstraints.anchor=GridBagConstraints.LINE_START;
+		add(label,folderPanelConstraints);*/
+
 		folderPanelConstraints.gridy++;
 		add(createFolderListPanel(), folderPanelConstraints);
 
@@ -98,12 +108,18 @@ public class FolderPanel extends JPanel {
 
 		folderPanelConstraints.gridy++;
 		add(createAddFolderPanel(), folderPanelConstraints);
-		JSeparator s = new JSeparator();
+		/*Icon permanentIcon = null;
+		try {
+			permanentIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("test3.png")));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		JLabel label=new JLabel(permanentIcon,SwingConstants.LEADING);
 		folderPanelConstraints.gridy++;
-		add(s,folderPanelConstraints);
+		//folderPanelConstraints.anchor=GridBagConstraints.LINE_START;
+		add(label,folderPanelConstraints);*/
 		folderPanelConstraints.gridy++;
 		add(createFolderListPanel(), folderPanelConstraints);
-
 		folderPanelConstraints.gridy++;
 		folderPanelConstraints.weighty = 1;
 		add(Box.createHorizontalGlue(), folderPanelConstraints);
@@ -252,7 +268,6 @@ public class FolderPanel extends JPanel {
 		// creation du panel et layout
 		JPanel folderListPanel = new JPanel(new GridBagLayout());
 		//folderListPanel.setBorder(BorderFactory.createTitledBorder("Folder list"));
-
 		GridBagConstraints c = new GridBagConstraints();
 		c.weightx = 1;
 		c.weighty = 1;
@@ -315,12 +330,14 @@ public class FolderPanel extends JPanel {
 		resultPathMascot.setPreferredSize(new Dimension(430, 23));
 		resultPathMascot.setEnabled(false);
 		anyPanelConstraints.gridx++;
+
 		anyPanel.add(fieldMascot, anyPanelConstraints);
 		anyPanelConstraints.gridx++;
 		anyPanel.add(resultPathMascot, anyPanelConstraints);
 		anyPanelConstraints.gridx++;
 		JLabel resultLabel=new JLabel(permanentIcon);
 		resultLabel.setToolTipText("This mount point cannot be deleted");
+
 		anyPanel.add(resultLabel);
 		anyPanelConstraints.gridy++;
 
@@ -329,6 +346,7 @@ public class FolderPanel extends JPanel {
 			if (key.equals(MountPointUtils.getMountPointDefaultPathLabel(mpt)))
 				continue;
 			anyPanelConstraints.gridx = 0;
+
 			JLabel field = new JLabel(key + " :");
 			field.setPreferredSize(new Dimension(20, 23));
 			JTextField resultPath = new JTextField(temp.get(key));
@@ -339,6 +357,7 @@ public class FolderPanel extends JPanel {
 			anyPanelConstraints.gridx++;
 			anyPanel.add(field, anyPanelConstraints);
 			anyPanelConstraints.gridx++;
+
 			anyPanel.add(resultPath, anyPanelConstraints);
 			anyPanelConstraints.gridx++;
 			JButton clearButton = new JButton(eraserIcon);
@@ -390,7 +409,9 @@ public class FolderPanel extends JPanel {
 								updateJpanel();
 							}
 							else {
-								Popup.warning("The label or the path already exist please choose new values");
+								Popup.warning("The label and/or the path already exist please choose new values");
+								folderPathField.setText("");
+								folderLabelField.setText("");
 							}
 							break;
 
@@ -402,7 +423,9 @@ public class FolderPanel extends JPanel {
 								updateJpanel();
 							}
 							else {
-								Popup.warning("The label or the path already exist please choose new values");
+								Popup.warning("The label and/or the path already exist please choose new values");
+								folderPathField.setText("");
+								folderLabelField.setText("");
 							}
 							break;
 
