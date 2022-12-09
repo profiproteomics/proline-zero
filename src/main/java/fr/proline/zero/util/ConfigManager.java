@@ -161,7 +161,7 @@ public final class ConfigManager {
 	}
 	public void updateCortexConfigFile(){
 		if(mountPointsManager.isMountHasBeenChanged()){
-			JsonAccess.getInstance().updateFileMountPointsV2(mountPointsManager.getMountPointMap());
+			JsonAccess.getInstance().updateConfgFileMountPoints(mountPointsManager.getMountPointMap());
 		}
 	}
 

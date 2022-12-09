@@ -105,7 +105,7 @@ public class JsonAccess {
     }
 
 
-    public void updateFileMountPointsV2(HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt){
+    public void updateConfgFileMountPoints(HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt){
 
         ConfigObject toBePreserved= JsonAccess.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
         int sizeOfMpts=MountPointUtils.MountPointType.values().length;
@@ -141,10 +141,10 @@ public class JsonAccess {
 
     public void restoreValues(){
         Config initialConfig=m_cortexProlineConfig;
-        String initialWrite=initialConfig.root().render(ConfigRenderOptions.concise().setFormatted(true).setJson(false).setComments(true));
+        String initialConfigWrite=initialConfig.root().render(ConfigRenderOptions.concise().setFormatted(true).setJson(false).setComments(true));
         try {
             FileWriter writer  = new FileWriter(ProlineFiles.CORTEX_CONFIG_FILE);
-            writer.write(initialWrite);
+            writer.write(initialConfigWrite);
             writer.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
