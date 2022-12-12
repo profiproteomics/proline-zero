@@ -27,9 +27,9 @@ public class FolderPanel extends JPanel {
 	private JTextField folderLabelField;
 	private JTextField folderPathField;
 	private JPanel resultListPanel;
-	private GridBagConstraints resultListPanelConstraints;
+//	private GridBagConstraints resultListPanelConstraints;
 	private JPanel mzdbListPanel;
-	private GridBagConstraints mzdbListPanelConstraints;
+//	private GridBagConstraints mzdbListPanelConstraints;
 	private JPanel fastaListPanel;
 	private GridBagConstraints fastaListPanelConstraints;
 
@@ -175,18 +175,18 @@ public class FolderPanel extends JPanel {
 		dataTypeBox.addItem(MountPointUtils.MountPointType.RESULT.getDisplayString());
 		dataTypeBox.addItem(MountPointUtils.MountPointType.MZDB.getDisplayString());
 		dataTypeBox.addItem("Fasta folder");
-		dataTypeBox.setPreferredSize(new Dimension(100, 20));
-		dataTypeBox.setMinimumSize(new Dimension(100, 20));
+//		dataTypeBox.setPreferredSize(new Dimension(100, 20));
+//		dataTypeBox.setMinimumSize(new Dimension(100, 20));
 		dataTypeBox.addActionListener(greyLabelforFasta());
 		dataTypeBox.setEnabled(true);
 
 		folderLabelField = new JTextField();
-		folderLabelField.setPreferredSize(new Dimension(60, 20));
-		folderLabelField.setMinimumSize(new Dimension(60, 20));
+//		folderLabelField.setPreferredSize(new Dimension(60, 20));
+//		folderLabelField.setMinimumSize(new Dimension(60, 20));
 
 		folderPathField = new JTextField();
-		folderPathField.setPreferredSize(new Dimension(160, 20));
-		folderPathField.setEditable(true);
+//		folderPathField.setPreferredSize(new Dimension(160, 20));
+//		folderPathField.setEditable(true);
 
 		JButton addButton = new JButton("add");
 		JButton clearButton = new JButton("clear");
@@ -284,13 +284,13 @@ public class FolderPanel extends JPanel {
 		c.gridx = 0;
 		c.gridy = 0;
 		resultListPanel = new JPanel(new GridBagLayout());
-		resultListPanelConstraints = new GridBagConstraints();
-		this.initAnyFolderPanel(MountPointUtils.MountPointType.RESULT,resultListPanel,resultListPanelConstraints);
+//		resultListPanelConstraints = new GridBagConstraints();
+		this.initAnyFolderPanel(MountPointUtils.MountPointType.RESULT,resultListPanel);
 		folderListPanel.add(resultListPanel, c);
 
 		mzdbListPanel = new JPanel(new GridBagLayout());
-		mzdbListPanelConstraints = new GridBagConstraints();
-		this.initAnyFolderPanel(MountPointUtils.MountPointType.MZDB,mzdbListPanel,mzdbListPanelConstraints);
+//		mzdbListPanelConstraints = new GridBagConstraints();
+		this.initAnyFolderPanel(MountPointUtils.MountPointType.MZDB,mzdbListPanel);
 		c.gridy++;
 		folderListPanel.add(mzdbListPanel, c);
 		// TODO : desactiver si seqrep décoché;
@@ -302,8 +302,8 @@ public class FolderPanel extends JPanel {
 	}
 
 
-	private void initAnyFolderPanel(MountPointUtils.MountPointType mpt,JPanel anyPanel,GridBagConstraints anyPanelConstraints) {
-
+	private void initAnyFolderPanel(MountPointUtils.MountPointType mpt,JPanel anyPanel) {
+		GridBagConstraints anyPanelConstraints = new GridBagConstraints();
 		anyPanel.setBorder(BorderFactory.createTitledBorder(mpt.getDisplayString()));
 		anyPanelConstraints.insets = new Insets(5, 5, 5, 5);
 		//anyPanelConstraints.gridx = 0;
@@ -332,7 +332,7 @@ public class FolderPanel extends JPanel {
 
 		JLabel fieldInitial = new JLabel(MountPointUtils.getMountPointDefaultPathLabel(mpt)+": ",SwingConstants.RIGHT);
 		fieldInitial.setPreferredSize(new Dimension(60,20));
-		fieldInitial.setFont(new Font("DIALOG",Font.PLAIN,9));
+//		fieldInitial.setFont(new Font("DIALOG",Font.PLAIN,9));
 		Color stringColor=new Color(0,0,100);
 		fieldInitial.setForeground(stringColor);
 		anyPanel.add(fieldInitial, anyPanelConstraints);
@@ -356,7 +356,7 @@ public class FolderPanel extends JPanel {
 			if (key.equals(MountPointUtils.getMountPointDefaultPathLabel(mpt)))
 				continue;
 			anyPanelConstraints.gridx = 0;
-			anyPanelConstraints.weightx=0;
+			anyPanelConstraints.weightx=0.5;
 			anyPanelConstraints.anchor=GridBagConstraints.EAST;
 			anyPanelConstraints.fill=GridBagConstraints.HORIZONTAL;
 			JLabel field = new JLabel(key +" : ",SwingConstants.RIGHT);
@@ -364,9 +364,13 @@ public class FolderPanel extends JPanel {
 			anyPanel.add(field, anyPanelConstraints);
 			JTextField resultPath = new JTextField(temp.get(key));
 			resultPath.setPreferredSize(new Dimension(160, 20));
-			if(temp.get(key).length()>87){ resultPath.setEnabled(true);}
+			resultPath.setEditable(false);
+			resultPath.setEnabled(false);
+			if(temp.get(key).length()>87){
+				resultPath.setEnabled(true);}
 			else {
-			resultPath.setEnabled(false);}
+				resultPath.setEnabled(false);
+			}
 			anyPanelConstraints.gridx++;
 			anyPanelConstraints.anchor=GridBagConstraints.WEST;
 			anyPanelConstraints.weightx=1;
@@ -399,22 +403,21 @@ public class FolderPanel extends JPanel {
 
 
 	private ActionListener addFolderAction() {
-		//VDS TODO : Enable save info in corresponding config files
 		ActionListener addFolder = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 
-				Path pathToTest = Paths.get(folderPathField.getText());
+				String folderField=folderLabelField.getText();
+				String folderPath=folderPathField.getText();
+
+				Path pathToTest = Paths.get(folderPath);
 				Boolean pathExists=Files.exists(pathToTest);
-				Boolean verifUserEntry=(!folderPathField.getText().isEmpty() && !folderLabelField.getText().isEmpty())
-						|| (!folderPathField.getText().isEmpty()
-						&& dataTypeBox.getSelectedItem().equals("Fasta folder"));
-				if (pathExists&&verifUserEntry) {
+				Boolean verifUserEntry=(!folderPath.isEmpty() && !folderField.isEmpty())
+						|| (!folderPath.isEmpty() && dataTypeBox.getSelectedItem().equals("Fasta folder"));
 
-					String folderField=folderLabelField.getText();
-					String folderPath=folderPathField.getText();
-
-					switch ((String) dataTypeBox.getSelectedItem()) {
-						case "Result folder":
+				MountPointUtils.MountPointType type = MountPointUtils.MountPointType.getMPTypeForDisplayString((String) dataTypeBox.getSelectedItem());
+				if (pathExists &&verifUserEntry) {
+					switch (type) {
+						case RESULT:
 							boolean addSuccesresult=ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.RESULT, folderField,folderPath);
 							if (addSuccesresult) {
 								folderPathField.setText("");
@@ -428,7 +431,7 @@ public class FolderPanel extends JPanel {
 							}
 							break;
 
-							case "Mzdb folder":
+						case MZDB:
 							boolean addSuccesmzdb=ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.MZDB, folderField,folderPath);
 							if (addSuccesmzdb) {
 								folderPathField.setText("");
@@ -441,9 +444,22 @@ public class FolderPanel extends JPanel {
 								folderLabelField.setText("");
 							}
 							break;
+						case RAW:
+							boolean addSuccesraw=ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.RAW, folderField,folderPath);
+							if (addSuccesraw) {
+								folderPathField.setText("");
+								folderLabelField.setText("");
+								updateJpanel();
+							}
+							else {
+								Popup.warning("The label and/or the path already exist please choose new values");
+								folderPathField.setText("");
+								folderLabelField.setText("");
+							}
+							break;
 
 						// TODO not implemented
-						case "Fasta folder":
+						default: //(String) dataTypeBox.getSelectedItem() = FASTA File
 							fastaListPanelConstraints.weightx = 1;
 							//fastaListPanel.add(path, fastaListPanelConstraints);
 							fastaListPanelConstraints.gridx++;
@@ -528,7 +544,29 @@ public class FolderPanel extends JPanel {
 	}
 	public void updateValues() {
 		updateJpanel();
-		ConfigWindow.getInstance().setSize(700,990);
+//		ConfigWindow.getInstance().setSize(700,990);
 		// TODO
 	}
+
+	 public static void main(String[] args) {
+		 ConfigManager.getInstance().initialize();
+		 try {
+			 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			 JFrame f = new JFrame();
+			 f.add(new FolderPanel());
+			 f.pack();;
+			 f.setVisible(true);
+		 } catch (ClassNotFoundException e) {
+			 throw new RuntimeException(e);
+		 } catch (InstantiationException e) {
+			 throw new RuntimeException(e);
+		 } catch (IllegalAccessException e) {
+			 throw new RuntimeException(e);
+		 } catch (UnsupportedLookAndFeelException e) {
+			 throw new RuntimeException(e);
+		 }
+
+
+	}
+
 }

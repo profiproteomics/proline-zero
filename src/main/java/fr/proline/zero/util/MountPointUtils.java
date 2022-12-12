@@ -35,9 +35,9 @@ public class MountPointUtils {
 
     public enum MountPointType {
 
-        RAW("raw_files", "Raw folders"),
-        MZDB("mzdb_files", "Mzdb folder"),
-        RESULT("result_files", "Result folder");
+        RAW(ProlineFiles.CORTEX_RAW_FILES_MOUNT_POINT, "Raw folders"),
+        MZDB(ProlineFiles.CORTEX_MZDB_MOUNT_POINT, "Mzdb folder"),
+        RESULT(ProlineFiles.CORTEX_RESULT_FILES_MOUNT_POINT, "Result folder");
         private final String jsonKey;
         private final String displayStr;
 
@@ -53,14 +53,31 @@ public class MountPointUtils {
         public String getJsonKey() {
             return jsonKey;
         }
-    }
-    public static String getMountPointDefaultPathLabel(MountPointType mpt) {
-        if (mpt == MountPointType.RESULT) {
-            return ProlineFiles.USER_CORTEX_RESULT_FILES_POINT;
-        } else {
-            return ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT;
-        }
 
+        public static MountPointType getMPTypeForDisplayString(String display){
+            for(MountPointType type : MountPointType.values()){
+                if(type.getDisplayString().equals(display))
+                    return type;
+            }
+            return null;
+        }
+    }
+
+    public static String getMountPointDefaultPathLabel(MountPointType mpt) {
+        switch (mpt){
+            case RESULT ->  {
+                return ProlineFiles.USER_CORTEX_RESULT_FILES_POINT;
+            }
+            case MZDB -> {
+                return ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT;
+            }
+            case RAW -> {
+                return ProlineFiles.USER_CORTEX_RAW_FILES_MOUNT_POINT;
+            }
+            default -> {
+                return "";
+            }
+        }
     }
 
         public boolean addMountPointEntry(MountPointType mountPointType, String value, String path) {
@@ -125,7 +142,6 @@ public class MountPointUtils {
 
         public void restoreMountPoints(){
             mountPointMap=JsonAccess.getInstance().getMountPointMaps();
-
         }
 
 

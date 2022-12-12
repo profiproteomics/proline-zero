@@ -10,8 +10,10 @@ public enum MemoryAllocationRule {
 	// The three next are memory values and teh rest is calculated
 	// The last is the max memory value that the datastore can take
 
-	MIN(3072, 4097, 1024, 512, 0, 5120), RULETWO(4097, 5120, 1024, 512, 512, 5120),
-	RULETHREE(5121, 6000, 1024, 512, 1024, 5120), RULEFOUR(6001, 10240, 1024, 1024, 1024, 5120),
+	MIN(3072, 4097, 1024, 512, 0, 5120),
+	RULETWO(4097, 5120, 1024, 512, 512, 5120),
+	RULETHREE(5121, 6000, 1024, 512, 1024, 5120),
+	RULEFOUR(6001, 10240, 1024, 1024, 1024, 5120),
 	RULEMAX(10240, Long.MAX_VALUE, 2048, 1024, 1024, 5120);
 
 	private Range<Long> range;

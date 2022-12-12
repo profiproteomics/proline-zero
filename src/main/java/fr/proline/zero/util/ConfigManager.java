@@ -161,6 +161,8 @@ public final class ConfigManager {
 	}
 	public void updateCortexConfigFile(){
 		if(mountPointsManager.isMountHasBeenChanged()){
+			//VDS ==> passe par MountPointManager => mountPointsManager.updateConfig()
+			//Et pas connaissance de JsonAcces !
 			JsonAccess.getInstance().updateConfgFileMountPoints(mountPointsManager.getMountPointMap());
 		}
 	}
@@ -224,8 +226,6 @@ public final class ConfigManager {
 		setShowConfigDialog(Config.showConfigDialog());
 		memoryManager.restoreValues();
 		advancedManager.restoreValues();
-		// rewrites application.conf as it was at initialization
-		JsonAccess.getInstance().restoreValues();
 		// update mounting points from restored application.conf
 		mountPointsManager.restoreMountPoints();
 		// TODO other utils restore to their originals
@@ -237,6 +237,7 @@ public final class ConfigManager {
 
 	// calls for verif of the Utils, pastes the error message (if there is any !)
 	// into errorMessageField
+	//VDS ---> Pas MountPointUtil ? A ajouter
 	public boolean verif() {
 
 		lastErrorMessage = "";
