@@ -124,6 +124,7 @@ public class ConfigWindow extends JDialog {
 		this.setLocationRelativeTo(null);
 	}
 
+
 	// create the tabs for the many options
 	private JTabbedPane createTabPanel() {
 
@@ -149,7 +150,7 @@ public class ConfigWindow extends JDialog {
 		}
 //		tabbedPane.addChangeListener(resizeDynamique());
 		//VDS TODO : implement to allow !
-		tabbedPane.setEnabledAt(3, false);
+		tabbedPane.setEnabledAt(3, true);
 
 		return tabbedPane;
 	}

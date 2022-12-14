@@ -162,67 +162,67 @@ public class ParsingRulesPanel extends JPanel {
 	}
 
 	// TODO : à refaire avec un nouveau panel
-//	private ActionListener addParsingRule() {
-//		ActionListener addParseRule = new ActionListener() {
-//			public void actionPerformed(ActionEvent event) {
-//				if (!labelField.getText().isEmpty() && !accessionParseRuleField.getText().isEmpty()
-//						&& !fastaPatternField.getText().isEmpty()) {
-//
-//					JLabel addedLabel = new JLabel(labelField.getText());
-//					JLabel addedRegex = new JLabel(accessionParseRuleField.getText());
-//					JLabel addedFasta = new JLabel(fastaPatternField.getText());
-//
-//					addParsingRules.remove(filler);
-//					addParsingRulesConstraints.fill = GridBagConstraints.NONE;
-//					addParsingRulesConstraints.weighty = 0;
-//					addParsingRulesConstraints.gridx = 0;
-//
-//					addParsingRules.add(addedLabel, addParsingRulesConstraints);
-//					addParsingRulesConstraints.gridx++;
-//
-//					addParsingRules.add(addedRegex, addParsingRulesConstraints);
-//					addParsingRulesConstraints.gridx++;
-//
-//					addParsingRules.add(addedFasta, addParsingRulesConstraints);
-//					addParsingRulesConstraints.gridx++;
-//
-//					// remove button
-//					JButton delete = new JButton("x");
-//					try {
-//						Icon crossIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
-//						delete.setText("");
-//						delete.setIcon(crossIcon);
-//					} catch (IOException e1) {
-//						// TODO Auto-generated catch block
-//						e1.printStackTrace();
-//					}
-//					addParsingRules.add(delete, addParsingRulesConstraints);
-//
-//					ActionListener delParseRule = new ActionListener() {
-//						public void actionPerformed(ActionEvent e) {
-//							addParsingRules.remove(addedLabel);
-//							addParsingRules.remove(addedFasta);
-//							addParsingRules.remove(addedRegex);
-//							addParsingRules.remove(delete);
-//							revalidate();
-//							repaint();
-//						}
-//					};
-//					delete.addActionListener(delParseRule);
-//					addParsingRulesConstraints.gridy++;
-//
-//					labelField.setText("");
-//					accessionParseRuleField.setText("");
-//					fastaPatternField.setText("");
-//
-//					addParsingRulesConstraints.fill = GridBagConstraints.VERTICAL;
-//					addParsingRulesConstraints.weighty = 1;
-//					addParsingRules.add(filler, addParsingRulesConstraints);
-//					revalidate();
-//					repaint();
-//				}
-//			}
-//		};
-//		return addParseRule;
-//	}
+	/*private ActionListener addParsingRule() {
+		ActionListener addParseRule = new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				if (!labelField.getText().isEmpty() && !accessionParseRuleField.getText().isEmpty()
+						&& !fastaPatternField.getText().isEmpty()) {
+
+					JLabel addedLabel = new JLabel(labelField.getText());
+					JLabel addedRegex = new JLabel(accessionParseRuleField.getText());
+					JLabel addedFasta = new JLabel(fastaPatternField.getText());
+
+					addParsingRules.remove(filler);
+					addParsingRulesConstraints.fill = GridBagConstraints.NONE;
+					addParsingRulesConstraints.weighty = 0;
+					addParsingRulesConstraints.gridx = 0;
+
+					addParsingRules.add(addedLabel, addParsingRulesConstraints);
+					addParsingRulesConstraints.gridx++;
+
+					addParsingRules.add(addedRegex, addParsingRulesConstraints);
+					addParsingRulesConstraints.gridx++;
+
+					addParsingRules.add(addedFasta, addParsingRulesConstraints);
+					addParsingRulesConstraints.gridx++;
+
+					// remove button
+					JButton delete = new JButton("x");
+					try {
+						Icon crossIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
+						delete.setText("");
+						delete.setIcon(crossIcon);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					addParsingRules.add(delete, addParsingRulesConstraints);
+
+					ActionListener delParseRule = new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							addParsingRules.remove(addedLabel);
+							addParsingRules.remove(addedFasta);
+							addParsingRules.remove(addedRegex);
+							addParsingRules.remove(delete);
+							revalidate();
+							repaint();
+						}
+					};
+					delete.addActionListener(delParseRule);
+					addParsingRulesConstraints.gridy++;
+
+					labelField.setText("");
+					accessionParseRuleField.setText("");
+					fastaPatternField.setText("");
+
+					addParsingRulesConstraints.fill = GridBagConstraints.VERTICAL;
+					addParsingRulesConstraints.weighty = 1;
+					addParsingRules.add(filler, addParsingRulesConstraints);
+					revalidate();
+					repaint();
+				}
+			}
+		};
+		return addParseRule;
+	}*/
 }

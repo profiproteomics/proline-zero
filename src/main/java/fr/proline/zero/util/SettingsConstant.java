@@ -59,4 +59,6 @@ public class SettingsConstant {
 		return "off";
 	}
 
+	public static final int numberOfMountpoints=3;
+
 }

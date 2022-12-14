@@ -160,10 +160,12 @@ public final class ConfigManager {
 		}
 	}
 	public void updateCortexConfigFile(){
-		if(mountPointsManager.isMountHasBeenChanged()){
+		if(mountPointsManager.mountHasBeenChanged()){
 			//VDS ==> passe par MountPointManager => mountPointsManager.updateConfig()
 			//Et pas connaissance de JsonAcces !
-			JsonAccess.getInstance().updateConfgFileMountPoints(mountPointsManager.getMountPointMap());
+
+			//JsonAccess.getInstance().updateConfgFileMountPoints(mountPointsManager.getMountPointMap());
+			mountPointsManager.updateCortexConfigFile(mountPointsManager.getMountPointMap());
 		}
 	}
 
@@ -243,6 +245,7 @@ public final class ConfigManager {
 		lastErrorMessage = "";
 		boolean success = memoryManager.verif();
 		success = advancedManager.verif() && success;
+		success=success&& mountPointsManager.verif();
 
 		if (!success) {
 			StringBuilder errorMessage = new StringBuilder();
@@ -255,6 +258,11 @@ public final class ConfigManager {
 				errorMessage.append(advancedManager.getErrorMessage());
 				errorMessage.append("\n");
 			}
+			if (Objects.nonNull(mountPointsManager.getErrorMessage())) {
+				errorMessage.append(mountPointsManager.getErrorMessage());
+				errorMessage.append("\n");
+			}
+
 			lastErrorMessage = errorMessage.toString();
 		}
 		return success;
@@ -263,7 +271,7 @@ public final class ConfigManager {
 	// checks if Proline Zero can be launched or if there is a fatal error in one of
 	// the utils
 	public boolean isErrorFatal() {
-		return memoryManager.isErrorFatal() || advancedManager.isErrorFatal();
+		return memoryManager.isErrorFatal() || advancedManager.isErrorFatal()|| mountPointsManager.isErrorFatal() ;
 	}
 
 }
