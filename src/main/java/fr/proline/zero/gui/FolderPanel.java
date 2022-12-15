@@ -19,7 +19,6 @@ import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 
 
-import dorkbox.util.Sys;
 import fr.proline.zero.util.*;
 
 
@@ -34,6 +33,9 @@ public class FolderPanel extends JPanel {
 //	private GridBagConstraints mzdbListPanelConstraints;
 	private JPanel fastaListPanel;
 	private GridBagConstraints fastaListPanelConstraints;
+
+	private Color stringColor = new Color(60, 0, 180);
+	private Color errorColor= new Color(200,0,150);
 
 
 	public FolderPanel() {
@@ -249,7 +251,7 @@ public class FolderPanel extends JPanel {
 	private JPanel createFolderListPanel() {
 		// creation du panel et layout
 		JPanel folderListPanel = new JPanel(new GridBagLayout());
-		//folderListPanel.setBorder(BorderFactory.createTitledBorder("Folder list"));
+		folderListPanel.setBorder(BorderFactory.createTitledBorder("Folder list"));
 		GridBagConstraints c = new GridBagConstraints();
 		c.weightx = 1;
 		c.weighty = 1;
@@ -313,11 +315,9 @@ public class FolderPanel extends JPanel {
 		if (temp!=null) {
 			JLabel fieldInitial = new JLabel(MountPointUtils.getMountPointDefaultPathLabel(mpt) + ": ");
 			fieldInitial.setPreferredSize(new Dimension(60, 20));
-			Color stringColor = new Color(0, 0, 180);
 			fieldInitial.setForeground(stringColor);
 			anyPanel.add(fieldInitial, anyPanelConstraints);
 			String path=temp.get(MountPointUtils.getMountPointDefaultPathLabel(mpt));
-
 			JTextField pathInitial = new JTextField(temp.get(MountPointUtils.getMountPointDefaultPathLabel(mpt)));
 			pathInitial.setPreferredSize(new Dimension(300, 20));
 			pathInitial.setEnabled(false);
@@ -328,7 +328,7 @@ public class FolderPanel extends JPanel {
 			if (path!=null){
 				if (wrong.contains(temp.get(MountPointUtils.getMountPointDefaultPathLabel(mpt)))){
 					pathInitial.setEnabled(true);
-					pathInitial.setForeground(Color.RED);
+					pathInitial.setForeground(errorColor);
 					pathInitial.setToolTipText("This folder does not exist");
 				    anyPanel.add(pathInitial, anyPanelConstraints);
 					anyPanelConstraints.fill = GridBagConstraints.NONE;
@@ -337,14 +337,13 @@ public class FolderPanel extends JPanel {
 					JButton clearButton = new JButton(eraserIcon);
 					clearButton.setHorizontalAlignment(SwingConstants.CENTER);
 					clearButton.setToolTipText("Click to delete mount point");
-					clearButton.addActionListener(delFolderPath2(mpt,MountPointUtils.getMountPointDefaultPathLabel(mpt)));
+					clearButton.addActionListener(delFolderPathV2(mpt,MountPointUtils.getMountPointDefaultPathLabel(mpt)));
 					anyPanel.add(clearButton, anyPanelConstraints);
 			}
 				else{
 					pathInitial.setEnabled(false);
 					anyPanel.add(pathInitial,anyPanelConstraints);
 					anyPanelConstraints.gridx++;
-
 				}
 			}
 			anyPanelConstraints.gridx++;
@@ -372,9 +371,6 @@ public class FolderPanel extends JPanel {
 				resultPath.setEditable(false);
 				resultPath.setEnabled(false);
 				if (temp.get(key).length() > 87) {
-			/*boolean resize=Popup.yesNo("Do you want to resize your window?");
-			if (resize==true) {
-				ConfigWindow.getInstance().resizeWindow();}*/
 					resultPath.setEnabled(true);
 					resultPath.setEditable(true);
 				} else {
@@ -385,9 +381,9 @@ public class FolderPanel extends JPanel {
 				anyPanelConstraints.weightx = 1.6;
 				if (wrong.contains(temp.get(key))){
 					resultPath.setEnabled(true);
-					resultPath.setEditable(true);
-					resultPath.setForeground(Color.RED);
-					resultPath.setToolTipText("This folder does not exist you should delete it");}
+					resultPath.setEditable(false);
+					resultPath.setForeground(errorColor);
+					resultPath.setToolTipText("This path does not exists you should delete it by clicking on the delete button ");}
 				anyPanel.add(resultPath, anyPanelConstraints);
 				anyPanelConstraints.fill = GridBagConstraints.NONE;
 				anyPanelConstraints.weightx = 0;
@@ -425,7 +421,6 @@ public class FolderPanel extends JPanel {
 				Boolean pathExists=Files.exists(pathToTest);
 				Boolean verifUserEntry=(!folderPath.isEmpty() && !folderField.isEmpty())
 						|| (!folderPath.isEmpty() && dataTypeBox.getSelectedItem().equals("Fasta folder"));
-
 
 				String type = dataTypeBox.getSelectedItem().toString();
 				if (pathExists &&verifUserEntry) {
@@ -554,11 +549,11 @@ public class FolderPanel extends JPanel {
 		};
 		return clearFields;
 	}
-	private ActionListener delFolderPath2(MountPointUtils.MountPointType mountPointType,String key) {
+	private ActionListener delFolderPathV2(MountPointUtils.MountPointType mountPointType, String key) {
 		ActionListener clearFields = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 
-				boolean delSucces=ConfigManager.getInstance().getMountPointManager().delMountPointEntry2(mountPointType,key);
+				boolean delSucces=ConfigManager.getInstance().getMountPointManager().delMountPointEntryForced(mountPointType,key);
 				if (delSucces) {
 					updateJpanel();
 				}
