@@ -195,19 +195,6 @@ public class MountPointUtils {
                 }
             }
 
-           /* // check if mountPoints contain at least one key, to be removed
-            public boolean emptymountPoints() {
-            boolean isEmpty=false;
-            for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
-            Map<String, String> specificMPEntries = mountPointMap.get(mountPointType);
-           if (specificMPEntries==null){
-           isEmpty=true;
-           break;}
-            }
-            return isEmpty;
-            }*/
-
-
 
         public boolean verif(){
         errorMessage=null;
@@ -215,8 +202,7 @@ public class MountPointUtils {
         errorFatal = false;
         StringBuilder message=new StringBuilder();
         if (!atLeastOneMpoint()){
-            message.append("Missing Mounting points  \n Please add at least one \n");
-            verifOK=false;
+            message.append("No mounting points, please add at least one \n");
             errorFatal=true;
 
         }
@@ -228,22 +214,24 @@ public class MountPointUtils {
                 message.append("\n The following paths do not exist: \n");
             }
             for (int i=0;i< pathW.size();i++)
-            {message.append(pathW.get(i)+"\n");}
-            verifOK=false;
+            {message.append("\n"+pathW.get(i)+"\n");
+            }
             errorFatal=true;
         }
         if (!defaultMptsExist()&&atLeastOneMpoint()&& allPathsExist()){
+
             message.append("Minor error: missing default mounting point : \n");
             for (int i=0;i< missingMPs.size();i++)
             {
                 message.append(missingMPs.get(i)+"\n");
             }
-            verifOK=false;
             // no fatal error
+
         }
-
-
+        if (message.length()>0){
         errorMessage=message.toString();
+        verifOK=false;}
+
         return  verifOK;
 
         }
@@ -291,10 +279,11 @@ public class MountPointUtils {
         }
         public boolean defaultMptsExist(){
             int cpt=0;
-            boolean[] verif = new boolean[SettingsConstant.numberOfMountpoints];
+            boolean[] verif = new boolean[MountPointType.values().length];
             missingMPs.clear();
 
             for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
+
                 Map<String, String> specificMPEntries = mountPointMap.get(mountPointType);
                 verif[cpt]=true;
                 if (specificMPEntries==null){
@@ -304,8 +293,8 @@ public class MountPointUtils {
                     verif[cpt]=false;
                     missingMPs.add(mountPointType.getDisplayString());
                 }
-                cpt=cpt+1;
-            }
+                cpt=cpt+1;}
+
             boolean MpExist=true;
             for (int i=0;i< verif.length;i++){
                 MpExist=MpExist&&verif[i];
@@ -316,6 +305,7 @@ public class MountPointUtils {
         public ArrayList<String> getpathWrong(){
         return pathW;
         }
+
 
 
 }
