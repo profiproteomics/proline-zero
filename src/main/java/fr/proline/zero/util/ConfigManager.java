@@ -136,7 +136,7 @@ public final class ConfigManager {
 	}
 
 	// updates config files
-	public void updateConfigFileZero() {
+	public void updateConfigurationParams() {
 		try {
 			Parameters params = new Parameters();
 			FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(
@@ -154,12 +154,15 @@ public final class ConfigManager {
 			if (advancedManager.hasBeenChanged()) {
 				updateFileAdvanced(builder);
 			}
+			if (mountPointsManager.mountHasBeenChanged()){
+				mountPointsManager.updateCortexConfigFile(mountPointsManager.getMountPointMap());
+			}
 
 		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		}
 	}
-	public void updateCortexConfigFile(){
+	/*public void updateCortexConfigFile(){
 		if(mountPointsManager.mountHasBeenChanged()){
 			//VDS ==> passe par MountPointManager => mountPointsManager.updateConfig()
 			//Et pas connaissance de JsonAcces !
@@ -167,7 +170,7 @@ public final class ConfigManager {
 			//JsonAccess.getInstance().updateConfgFileMountPoints(mountPointsManager.getMountPointMap());
 			mountPointsManager.updateCortexConfigFile(mountPointsManager.getMountPointMap());
 		}
-	}
+	}*/
 
 	private void updateFileMemory(FileBasedConfigurationBuilder<FileBasedConfiguration> builder)
 			throws ConfigurationException {

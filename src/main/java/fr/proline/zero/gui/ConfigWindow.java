@@ -32,6 +32,7 @@ public class ConfigWindow extends JDialog {
 	private JButton cancelButton;
 	private JButton restoreButton;
 
+
 	private ConfigManager configManager;
 
 	private boolean firstClick = false;
@@ -337,8 +338,8 @@ public class ConfigWindow extends JDialog {
 		if (success) {
 			// no errors after verification : we launch proline with the current
 			// configuration
-			ConfigManager.getInstance().updateConfigFileZero();
-			ConfigManager.getInstance().updateCortexConfigFile();
+			ConfigManager.getInstance().updateConfigurationParams();
+			//ConfigManager.getInstance().updateCortexConfigFile();
 			setVisible(false);
 
 		} else {
@@ -363,8 +364,8 @@ public class ConfigWindow extends JDialog {
 				msgToDisplay.append("\nContinue and launch Proline Zero ?");
 				boolean yesPressed = Popup.yesNo(msgToDisplay.toString());
 				if (yesPressed) {
-					ConfigManager.getInstance().updateConfigFileZero();
-					ConfigManager.getInstance().updateCortexConfigFile();
+					ConfigManager.getInstance().updateConfigurationParams();
+					//ConfigManager.getInstance().updateCortexConfigFile();
 					setVisible(false);
 				}
 			}

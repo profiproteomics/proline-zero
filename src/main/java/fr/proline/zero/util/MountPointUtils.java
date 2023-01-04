@@ -41,6 +41,8 @@ public class MountPointUtils {
     private boolean errorFatal;
 
 
+
+
     private ArrayList<String> invalidPaths = new ArrayList<>();
     private ArrayList<String> missingMPs = new ArrayList<>();
 
@@ -69,8 +71,8 @@ public class MountPointUtils {
         }
     }
 
-    public static String getMountPointDefaultPathLabel(MountPointType mpt) {
-        String valueToReturn = null;
+   /* public static String getMountPointDefaultPathLabel2(MountPointType mpt) {
+        String valueToReturn =null;
         if (mpt.equals(MountPointType.RAW)) {
             valueToReturn = ProlineFiles.USER_CORTEX_RAW_FILES_MOUNT_POINT;
         }
@@ -81,9 +83,23 @@ public class MountPointUtils {
             valueToReturn = ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT;
         }
         return valueToReturn;
+    }*/
+    public static String getMountPointDefaultPathLabel(MountPointType mpt) {
+        //String valueToReturn =null;
+        if (mpt.equals(MountPointType.RAW)) {
+            return ProlineFiles.USER_CORTEX_RAW_FILES_MOUNT_POINT;
+        }
+       else if (mpt.equals(MountPointType.RESULT)) {
+            return ProlineFiles.USER_CORTEX_RESULT_FILES_POINT;
+        }
+
+        else {
+            return ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT;
+        }
+
     }
 
-    public boolean addMountPointEntry(MountPointType mountPointType, String value, String path) {
+    /*public boolean addMountPointEntry(MountPointType mountPointType, String value, String path) {
         boolean succes = false;
         if (mountPointMap.get(mountPointType) == null) {
             Map<String, String> initialMap = new HashMap<>();
@@ -100,6 +116,27 @@ public class MountPointUtils {
         }
 
         return succes;
+    }*/
+    public boolean addMountPointEntry(MountPointType mountPointType, String value, String path) {
+
+        if (mountPointMap.get(mountPointType) == null) {
+            Map<String, String> initialMap = new HashMap<>();
+            initialMap.put(value, path);
+            mountPointMap.put(mountPointType, initialMap);
+            mountHasBeenChanged = true;
+            return true;
+        } else if (!labelExists(value) && !pathExists(path)) {
+            Map<String, String> currentKValue = mountPointMap.get(mountPointType);
+            currentKValue.put(value, path);
+            mountPointMap.put(mountPointType, currentKValue);
+            mountHasBeenChanged = true;
+            return true;
+        }
+        else {
+            return false;
+        }
+
+
     }
 
     private boolean pathExists(String path) {
@@ -140,7 +177,7 @@ public class MountPointUtils {
         }
     }
 
-    // called to delete a default mounting point
+    // called to delete a default mounting point when the path is invalid
     public boolean delMountPointEntryForced(MountPointType mountPointType, String key) {
 
         Map<String, String> currentKValue = mountPointMap.get(mountPointType);
@@ -199,7 +236,7 @@ public class MountPointUtils {
 
     public boolean verif() {
         errorMessage = null;
-        boolean isValid = true;
+        //boolean isValid = true;
         errorFatal = false;
         StringBuilder message = new StringBuilder();
         if (!atLeastOneMpoint()) {
@@ -228,10 +265,13 @@ public class MountPointUtils {
         }
         if (message.length() > 0) {
             errorMessage = message.toString();
-            isValid = false;
+           // isValid = false;
         }
 
-        return isValid;
+        System.out.println(message.length());
+
+        return message.length()==0;
+
 
     }
 

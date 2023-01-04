@@ -62,8 +62,8 @@ public class Main {
 				// The config window will save the properties in the file, if it's not displayed
 				// we still need to save the properties because we may have changed them with
 				// the verif() method
-				ConfigManager.getInstance().updateConfigFileZero();
-				ConfigManager.getInstance().updateCortexConfigFile();
+				ConfigManager.getInstance().updateConfigurationParams();
+				//ConfigManager.getInstance().updateCortexConfigFile();
 			}
 
 			logger.info("First launch, update port");
