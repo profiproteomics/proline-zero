@@ -26,6 +26,10 @@ public final class ConfigManager {
 
 	private MountPointUtils mountPointsManager;
 
+	private ParsingRulesUtils parsingRulesManager;
+
+
+
 	private String lastErrorMessage;
 
 	private ConfigManager() {
@@ -47,6 +51,7 @@ public final class ConfigManager {
 		advancedManager = new AdvancedAndServerUtils();
 
 		mountPointsManager = new MountPointUtils();
+		parsingRulesManager= new ParsingRulesUtils();
 
 		lastErrorMessage = "";
 	}
@@ -69,6 +74,9 @@ public final class ConfigManager {
 
 	public MountPointUtils getMountPointManager() {
 		return mountPointsManager;
+	}
+	public ParsingRulesUtils getParsingRulesManager() {
+		return parsingRulesManager;
 	}
 
 	public void setStudioActive(boolean b) {
@@ -155,22 +163,16 @@ public final class ConfigManager {
 				updateFileAdvanced(builder);
 			}
 			if (mountPointsManager.mountHasBeenChanged()){
-				mountPointsManager.updateCortexConfigFile(mountPointsManager.getMountPointMap());
+				mountPointsManager.updateCortexConfigFile();
+			}
+			if (parsingRulesManager.isParseRulesHasBeenChanged()){
+				parsingRulesManager.updateConfigFileParseRules();
 			}
 
 		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		}
 	}
-	/*public void updateCortexConfigFile(){
-		if(mountPointsManager.mountHasBeenChanged()){
-			//VDS ==> passe par MountPointManager => mountPointsManager.updateConfig()
-			//Et pas connaissance de JsonAcces !
-
-			//JsonAccess.getInstance().updateConfgFileMountPoints(mountPointsManager.getMountPointMap());
-			mountPointsManager.updateCortexConfigFile(mountPointsManager.getMountPointMap());
-		}
-	}*/
 
 	private void updateFileMemory(FileBasedConfigurationBuilder<FileBasedConfiguration> builder)
 			throws ConfigurationException {
@@ -231,8 +233,8 @@ public final class ConfigManager {
 		setShowConfigDialog(Config.showConfigDialog());
 		memoryManager.restoreValues();
 		advancedManager.restoreValues();
-		// update mounting points from restored application.conf
 		mountPointsManager.restoreMountPoints();
+		parsingRulesManager.restoreParseRules();
 		// TODO other utils restore to their originals
 	}
 

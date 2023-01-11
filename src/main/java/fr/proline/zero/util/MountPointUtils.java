@@ -1,14 +1,9 @@
 
 package fr.proline.zero.util;
-
-
-import com.typesafe.config.*;
-import com.typesafe.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileWriter;
-import java.io.IOException;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,8 +36,6 @@ public class MountPointUtils {
     private boolean errorFatal;
 
 
-
-
     private ArrayList<String> invalidPaths = new ArrayList<>();
     private ArrayList<String> missingMPs = new ArrayList<>();
 
@@ -71,52 +64,20 @@ public class MountPointUtils {
         }
     }
 
-   /* public static String getMountPointDefaultPathLabel2(MountPointType mpt) {
-        String valueToReturn =null;
-        if (mpt.equals(MountPointType.RAW)) {
-            valueToReturn = ProlineFiles.USER_CORTEX_RAW_FILES_MOUNT_POINT;
-        }
-        if (mpt.equals(MountPointType.RESULT)) {
-            valueToReturn = ProlineFiles.USER_CORTEX_RESULT_FILES_POINT;
-        }
-        if (mpt.equals(MountPointType.MZDB)) {
-            valueToReturn = ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT;
-        }
-        return valueToReturn;
-    }*/
+
     public static String getMountPointDefaultPathLabel(MountPointType mpt) {
-        //String valueToReturn =null;
+
         if (mpt.equals(MountPointType.RAW)) {
             return ProlineFiles.USER_CORTEX_RAW_FILES_MOUNT_POINT;
-        }
-       else if (mpt.equals(MountPointType.RESULT)) {
+        } else if (mpt.equals(MountPointType.RESULT)) {
             return ProlineFiles.USER_CORTEX_RESULT_FILES_POINT;
-        }
-
-        else {
+        } else {
             return ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT;
         }
 
     }
 
-    /*public boolean addMountPointEntry(MountPointType mountPointType, String value, String path) {
-        boolean succes = false;
-        if (mountPointMap.get(mountPointType) == null) {
-            Map<String, String> initialMap = new HashMap<>();
-            initialMap.put(value, path);
-            mountPointMap.put(mountPointType, initialMap);
-            mountHasBeenChanged = true;
-            succes = true;
-        } else if (!labelExists(value) && !pathExists(path)) {
-            Map<String, String> currentKValue = mountPointMap.get(mountPointType);
-            currentKValue.put(value, path);
-            mountPointMap.put(mountPointType, currentKValue);
-            mountHasBeenChanged = true;
-            succes = true;
-        }
 
-        return succes;
-    }*/
     public boolean addMountPointEntry(MountPointType mountPointType, String value, String path) {
 
         if (mountPointMap.get(mountPointType) == null) {
@@ -131,8 +92,7 @@ public class MountPointUtils {
             mountPointMap.put(mountPointType, currentKValue);
             mountHasBeenChanged = true;
             return true;
-        }
-        else {
+        } else {
             return false;
         }
 
@@ -162,75 +122,44 @@ public class MountPointUtils {
     }
 
 
-    public boolean delMountPointEntry(MountPointType mountPointType, String key) {
-        Map<String, String> currentKValue = mountPointMap.get(mountPointType);
-        boolean canBeDeleted = (!key.equals(ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT)) && (!key.equals(ProlineFiles.USER_CORTEX_RESULT_FILES_POINT));
-        boolean mPointExists = currentKValue.containsKey(key);
-        if (canBeDeleted && mPointExists) {
+    public boolean delMountPointEntry(MountPointType mountPointType, String key, Boolean forced) {
+        boolean success = true;
+        if (!forced) {
+            Map<String, String> currentKValue = mountPointMap.get(mountPointType);
+            boolean canBeDeleted = (!key.equals(ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT)) && (!key.equals(ProlineFiles.USER_CORTEX_RESULT_FILES_POINT));
+            boolean mPointExists = currentKValue.containsKey(key);
+            if (canBeDeleted && mPointExists) {
+                currentKValue.remove(key);
+                mountPointMap.put(mountPointType, currentKValue);
+                mountHasBeenChanged = true;
+
+
+            } else {
+                success = false;
+            }
+
+
+        }
+        if (forced) {
+            Map<String, String> currentKValue = mountPointMap.get(mountPointType);
+            logger.info(currentKValue.toString());
             currentKValue.remove(key);
+            logger.info(currentKValue.toString());
             mountPointMap.put(mountPointType, currentKValue);
             mountHasBeenChanged = true;
-            return true;
 
-        } else {
-            return false;
+            success = true;
+
         }
-    }
-
-    // called to delete a default mounting point when the path is invalid
-    public boolean delMountPointEntryForced(MountPointType mountPointType, String key) {
-
-        Map<String, String> currentKValue = mountPointMap.get(mountPointType);
-        logger.info(currentKValue.toString());
-        currentKValue.remove(key);
-        logger.info(currentKValue.toString());
-        mountPointMap.put(mountPointType, currentKValue);
-        mountHasBeenChanged = true;
-
-        return true;
-
+        return success;
     }
 
     public void restoreMountPoints() {
-
         mountPointMap = JsonAccess.getInstance().getMountPointMaps();
     }
 
-    public void updateCortexConfigFile(HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt) {
-
-        ConfigObject toBePreserved = JsonAccess.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
-        int sizeOfMpts = MountPointUtils.MountPointType.values().length;
-        com.typesafe.config.Config[] builtConfig = new com.typesafe.config.Config[sizeOfMpts];
-        com.typesafe.config.Config[] mergedConf = new com.typesafe.config.Config[builtConfig.length];
-        int cpt = 0;
-        for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
-            Map<String, String> specificMPEntries = mpt.get(mountPointType);
-            if (specificMPEntries == null) {
-                builtConfig[cpt] = ConfigFactory.empty().atKey(mountPointType.getJsonKey());
-            } else {
-                builtConfig[cpt] = ConfigValueFactory.fromMap(specificMPEntries).atKey(mountPointType.getJsonKey());
-            }
-            if (cpt == 0) {
-                mergedConf[cpt] = builtConfig[cpt];
-            } else {
-                mergedConf[cpt] = mergedConf[cpt - 1].withFallback(builtConfig[cpt]);
-            }
-            cpt++;
-        }
-
-        com.typesafe.config.Config finalMpts = mergedConf[cpt - 1].atKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
-        // final merge
-        Config finalConfig = finalMpts.withFallback(toBePreserved);
-        String finalWrite = finalConfig.root().render(ConfigRenderOptions.concise().setFormatted(true).setJson(false).setComments(true));
-        // configHasBeenChanged=true;
-
-        try {
-            FileWriter writer = new FileWriter(ProlineFiles.CORTEX_CONFIG_FILE);
-            writer.write(finalWrite);
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public void updateCortexConfigFile() {
+        JsonAccess.getInstance().updateCortexConfigFileJson(mountPointMap);
     }
 
 
@@ -239,7 +168,7 @@ public class MountPointUtils {
         //boolean isValid = true;
         errorFatal = false;
         StringBuilder message = new StringBuilder();
-        if (!atLeastOneMpoint()) {
+        if (!atLeastOneMPoint()) {
             message.append("No mounting points, please add at least one \n");
             errorFatal = true;
 
@@ -249,28 +178,28 @@ public class MountPointUtils {
             } else {
                 message.append("\n The following paths do not exist: \n");
             }
-            for (int i = 0; i < invalidPaths.size(); i++) {
-                message.append("\n" + invalidPaths.get(i) + "\n");
+            for (String invalidPath : invalidPaths) {
+                message.append("\n" + invalidPath + "\n");
             }
             errorFatal = true;
         }
-        if (!defaultMptsExist() && atLeastOneMpoint() && allPathsExist()) {
+        if (!defaultMptsExist() && atLeastOneMPoint() && allPathsExist()) {
 
             message.append("Minor error missing default mounting point : \n");
-            for (int i = 0; i < missingMPs.size(); i++) {
-                message.append(missingMPs.get(i) + "\n");
+            for (String missingMP : missingMPs) {
+                message.append(missingMP + "\n");
             }
             // no fatal error
 
         }
         if (message.length() > 0) {
             errorMessage = message.toString();
-           // isValid = false;
+            // isValid = false;
         }
 
         System.out.println(message.length());
 
-        return message.length()==0;
+        return message.length() == 0;
 
 
     }
@@ -286,7 +215,7 @@ public class MountPointUtils {
 
 
     // check if at least one mounting point is present
-    public boolean atLeastOneMpoint() {
+    public boolean atLeastOneMPoint() {
         ArrayList<String> mountPointsPresent = new ArrayList<>();
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             if (mountPointMap.get(mountPointType) != null) {
@@ -305,7 +234,7 @@ public class MountPointUtils {
             if (temp != null) {
                 for (String key : temp.keySet()) {
                     Path pathToTest = Paths.get(temp.get(key));
-                    Boolean pathPresent = Files.exists(pathToTest);
+                    boolean pathPresent = Files.exists(pathToTest);
                     if (!pathPresent) {
                         invalidPaths.add(temp.get(key));
                     }

@@ -2,6 +2,7 @@ package fr.proline.zero;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import fr.proline.zero.util.*;
 import org.apache.commons.io.FileUtils;
@@ -37,10 +38,11 @@ public class Main {
 			// first launch
 			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists();
 
-
 			// we check that all of our properties are correct and will not give errors
 			boolean isOK = ConfigManager.getInstance().verif();
+			logger.info("error message:   "+ConfigManager.getInstance().getMountPointManager().getErrorMessage());
 
+			//ConfigManager.getInstance().getParsingRulesManager().test();
 			// else we displayed the error messages
 			if (!isOK) {
 				if (ConfigManager.getInstance().isErrorFatal()) {
@@ -51,7 +53,6 @@ public class Main {
 					Popup.warning(ConfigManager.getInstance().getLastErrorMessage());
 				}
 			}
-
 			// launch, if needed, the config window (fatal error or show config_dialog = on)
 			if (ConfigManager.getInstance().showConfigDialog() || ConfigManager.getInstance().isErrorFatal()) {
 				// building the window and all its components here

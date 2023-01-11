@@ -28,14 +28,14 @@ public class FolderPanel extends JPanel {
     private JTextField folderLabelField;
     private JTextField folderPathField;
     private JPanel resultListPanel;
-    //	private GridBagConstraints resultListPanelConstraints;
+
     private JPanel mzdbListPanel;
-    //	private GridBagConstraints mzdbListPanelConstraints;
+
     private JPanel fastaListPanel;
     private GridBagConstraints fastaListPanelConstraints;
 
-    private Color stringColor = new Color(50, 0, 230);
-    private Color errorColor = new Color(255, 0, 50);
+    private final Color stringColor = new Color(50, 0, 230);
+    private final Color errorColor = new Color(255, 0, 50);
 
 
     public FolderPanel() {
@@ -73,6 +73,7 @@ public class FolderPanel extends JPanel {
         add(Box.createHorizontalGlue(), folderPanelConstraints);
 
     }
+
 
     //VDS TODO: test lighter update method...
     private void updateJpanel() {
@@ -156,22 +157,20 @@ public class FolderPanel extends JPanel {
         dataTypeBox.addItem(MountPointUtils.MountPointType.RESULT.getDisplayString());
         dataTypeBox.addItem(MountPointUtils.MountPointType.MZDB.getDisplayString());
         dataTypeBox.addItem("Fasta folder");
-//		dataTypeBox.setPreferredSize(new Dimension(100, 20));
-//		dataTypeBox.setMinimumSize(new Dimension(100, 20));
+
         dataTypeBox.addActionListener(greyLabelforFasta());
         dataTypeBox.setEnabled(true);
 
         folderLabelField = new JTextField();
-//		folderLabelField.setPreferredSize(new Dimension(60, 20));
-//		folderLabelField.setMinimumSize(new Dimension(60, 20));
+
 
         folderPathField = new JTextField();
-//		folderPathField.setPreferredSize(new Dimension(160, 20));
-//		folderPathField.setEditable(true);
+
 
         JButton addButton = new JButton("add");
         JButton clearButton = new JButton("clear");
         JButton browseButton = new JButton("folder");
+
         try {
 
             Icon addIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("plus.png")));
@@ -242,6 +241,8 @@ public class FolderPanel extends JPanel {
         addFolderConstraint.gridx++;
         addButton.setEnabled(true);
         addFolderPanel.add(addButton, addFolderConstraint);
+        addFolderConstraint.gridy++;
+
 
         return addFolderPanel;
     }
@@ -294,9 +295,9 @@ public class FolderPanel extends JPanel {
         anyPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
         anyPanelConstraints.anchor = GridBagConstraints.EAST;
 
-        Icon eraserIcon = null;
+        Icon deleteIcon = null;
         try {
-            eraserIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
+            deleteIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -309,8 +310,6 @@ public class FolderPanel extends JPanel {
         // get mounting points to be displayed
         Map<String, String> temp = ConfigManager.getInstance().getMountPointManager().getMountPointMap().get(mpt);
         //places none deletable mounting point at the top of the list
-        //anyPanelConstraints.gridx = 0;
-        //anyPanelConstraints.weightx = 0.1;
         if (temp != null) {
             JLabel fieldInitial = new JLabel(MountPointUtils.getMountPointDefaultPathLabel(mpt) + ": ");
             fieldInitial.setPreferredSize(new Dimension(60, 20));
@@ -333,10 +332,10 @@ public class FolderPanel extends JPanel {
                     anyPanelConstraints.fill = GridBagConstraints.NONE;
                     anyPanelConstraints.weightx = 0;
                     anyPanelConstraints.gridx++;
-                    JButton clearButton = new JButton(eraserIcon);
+                    JButton clearButton = new JButton(deleteIcon);
                     clearButton.setHorizontalAlignment(SwingConstants.CENTER);
                     clearButton.setToolTipText("Click to delete mount point");
-                    clearButton.addActionListener(delFolderPathV2(mpt, MountPointUtils.getMountPointDefaultPathLabel(mpt)));
+                    clearButton.addActionListener(delFolderPath(mpt, MountPointUtils.getMountPointDefaultPathLabel(mpt), true));
                     anyPanel.add(clearButton, anyPanelConstraints);
                 } else {
                     pathInitial.setEnabled(false);
@@ -371,8 +370,6 @@ public class FolderPanel extends JPanel {
                 if (temp.get(key).length() > 87) {
                     resultPath.setEnabled(true);
                     resultPath.setEditable(true);
-                } else {
-                    resultPath.setEnabled(false);
                 }
                 anyPanelConstraints.gridx++;
                 anyPanelConstraints.anchor = GridBagConstraints.EAST;
@@ -387,10 +384,10 @@ public class FolderPanel extends JPanel {
                 anyPanelConstraints.fill = GridBagConstraints.NONE;
                 anyPanelConstraints.weightx = 0;
                 anyPanelConstraints.gridx++;
-                JButton clearButton = new JButton(eraserIcon);
+                JButton clearButton = new JButton(deleteIcon);
                 clearButton.setHorizontalAlignment(SwingConstants.CENTER);
                 clearButton.setToolTipText("Click to delete mount point");
-                clearButton.addActionListener(delFolderPath(mpt, key));
+                clearButton.addActionListener(delFolderPath(mpt, key, false));
                 anyPanel.add(clearButton, anyPanelConstraints);
                 anyPanelConstraints.gridy++;
 
@@ -530,11 +527,11 @@ public class FolderPanel extends JPanel {
         return clearFields;
     }
 
-    private ActionListener delFolderPath(MountPointUtils.MountPointType mountPointType, String key) {
+    private ActionListener delFolderPath(MountPointUtils.MountPointType mountPointType, String key, boolean forced) {
         ActionListener clearFields = new ActionListener() {
             public void actionPerformed(ActionEvent event) {
 
-                boolean delSucces = ConfigManager.getInstance().getMountPointManager().delMountPointEntry(mountPointType, key);
+                boolean delSucces = ConfigManager.getInstance().getMountPointManager().delMountPointEntry(mountPointType, key, forced);
                 if (delSucces) {
                     updateJpanel();
                 } else {
@@ -545,20 +542,6 @@ public class FolderPanel extends JPanel {
         return clearFields;
     }
 
-    private ActionListener delFolderPathV2(MountPointUtils.MountPointType mountPointType, String key) {
-        ActionListener clearFields = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-
-                boolean delSucces = ConfigManager.getInstance().getMountPointManager().delMountPointEntryForced(mountPointType, key);
-                if (delSucces) {
-                    updateJpanel();
-                } else {
-                    Popup.warning("This Mount point cannot be deleted");
-                }
-            }
-        };
-        return clearFields;
-    }
 
     public void updateValues() {
         updateJpanel();

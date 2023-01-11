@@ -68,6 +68,42 @@ public class JsonAccess {
         }
 
     }
+    public void updateCortexConfigFileJson(HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt) {
+
+        ConfigObject toBePreserved = JsonAccess.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
+        int sizeOfMpts = MountPointUtils.MountPointType.values().length;
+        com.typesafe.config.Config[] builtConfig = new com.typesafe.config.Config[sizeOfMpts];
+        com.typesafe.config.Config[] mergedConf = new com.typesafe.config.Config[builtConfig.length];
+        int cpt = 0;
+        for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
+            Map<String, String> specificMPEntries = mpt.get(mountPointType);
+            if (specificMPEntries == null) {
+                builtConfig[cpt] = ConfigFactory.empty().atKey(mountPointType.getJsonKey());
+            } else {
+                builtConfig[cpt] = ConfigValueFactory.fromMap(specificMPEntries).atKey(mountPointType.getJsonKey());
+            }
+            if (cpt == 0) {
+                mergedConf[cpt] = builtConfig[cpt];
+            } else {
+                mergedConf[cpt] = mergedConf[cpt - 1].withFallback(builtConfig[cpt]);
+            }
+            cpt++;
+        }
+
+        com.typesafe.config.Config finalMpts = mergedConf[cpt - 1].atKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
+        // final merge
+        Config finalConfig = finalMpts.withFallback(toBePreserved);
+        String finalWrite = finalConfig.root().render(ConfigRenderOptions.concise().setFormatted(true).setJson(false).setComments(true));
+        // configHasBeenChanged=true;
+
+        try {
+            FileWriter writer = new FileWriter(ProlineFiles.CORTEX_CONFIG_FILE);
+            writer.write(finalWrite);
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     // Return MountPoint Values read from config files.
     public HashMap<MountPointUtils.MountPointType, Map<String,String>> getMountPointMaps()

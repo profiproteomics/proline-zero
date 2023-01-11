@@ -48,6 +48,9 @@ public class ProlineFiles {
     public final static File ADMIN_JAR_FILE = new File(ADMIN_DIRECTORY + "/Proline-Admin-GUI-" + Config.getAdminVersion() + ".jar");
     public final static File ADMIN_LOG_FILE = new File(ADMIN_DIRECTORY + "/logs/proline_admin_gui_log.txt");
     public final static File ADMIN_CONFIG_FILE = new File(ADMIN_DIRECTORY + "/config/application.conf");
+    public final static File SEQ_REPO_DIRECTORY= new File(WORKING_DIRECTORY+"/PM-SequenceRepository-2.3.0");
+    public final static File PARSING_RULES_CONFIG_FILE= new File (SEQ_REPO_DIRECTORY+"/config/parsing-rules.conf");
+    public final static File PARSING_RULES_CONFIG_FILE2= new File (SEQ_REPO_DIRECTORY+"/config/Xparsing-rules.conf");
 
     /*
      * Proline Cortex files
@@ -72,6 +75,7 @@ public class ProlineFiles {
     public static String USER_CORTEX_RESULT_FILES_POINT ="mascot_data";
 
     public static String USER_CORTEX_RAW_FILES_MOUNT_POINT="raw_files";
+    public static String PARSING_RULES="parsing-rules";
 
 
 
