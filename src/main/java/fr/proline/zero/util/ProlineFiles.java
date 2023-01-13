@@ -76,6 +76,7 @@ public class ProlineFiles {
 
     public static String USER_CORTEX_RAW_FILES_MOUNT_POINT="raw_files";
     public static String PARSING_RULES="parsing-rules";
+    public static String FASTA_DIRECTORIES="local-fasta-directories";
 
 
 

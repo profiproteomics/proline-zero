@@ -168,6 +168,9 @@ public final class ConfigManager {
 			if (parsingRulesManager.isParseRulesHasBeenChanged()){
 				parsingRulesManager.updateConfigFileParseRules();
 			}
+			if(parsingRulesManager.isFastaDirectoriesHasBeenchanged()){
+				parsingRulesManager.updateConfigFileFastaDirectories();
+			}
 
 		} catch (ConfigurationException e) {
 			e.printStackTrace();
@@ -235,6 +238,7 @@ public final class ConfigManager {
 		advancedManager.restoreValues();
 		mountPointsManager.restoreMountPoints();
 		parsingRulesManager.restoreParseRules();
+		parsingRulesManager.restoreFastaDirectories();
 		// TODO other utils restore to their originals
 	}
 

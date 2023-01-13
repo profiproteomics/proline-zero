@@ -1,9 +1,6 @@
 package fr.proline.zero.gui;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -18,13 +15,20 @@ public class ParsingRulesPanel extends JPanel {
     private JTextField labelField;
     private JTextField accessionParseRuleField;
     private JTextField fastaPatternField;
-    private JTextField fastaVersionField;
-    private Component filler;
     private JPanel addParsingRules;
+    private JPanel parsingRuleFields;
 
     private GridBagConstraints c;
 
-    public ArrayList<String> buildtestlist(){
+    private ArrayList<String> fastaList;
+    private JTextField fastaAdded;
+    private GridBagConstraints parsingConstraints;
+
+    private boolean noPriorAdd = true;
+
+    private JList<String> jList;
+
+    public ArrayList<String> listForTests() {
         ArrayList<String> gfg = new ArrayList<String>();
         gfg.add("Geeks");
         gfg.add("for");
@@ -34,9 +38,7 @@ public class ParsingRulesPanel extends JPanel {
     }
 
 
-
     public ParsingRulesPanel() {
-
         initialize();
 
     }
@@ -138,6 +140,7 @@ public class ParsingRulesPanel extends JPanel {
         addParsingRules.add(new JLabel("Add a parsing rule : "), c);
 
         c.gridy++;
+        c.anchor=GridBagConstraints.FIRST_LINE_START;
         addParsingRules.add(createParsingRuleFieldsPanel(), c);
 
         c.gridwidth = 1;
@@ -154,97 +157,150 @@ public class ParsingRulesPanel extends JPanel {
         return addParsingRules;
     }
 
+
     private JPanel createParsingRuleFieldsPanel() {
         // creation du panel et du layout
-        JPanel parsingRuleFields = new JPanel(new GridBagLayout());
+        parsingRuleFields = new JPanel(new GridBagLayout());
         parsingRuleFields.setBorder(BorderFactory.createTitledBorder(""));
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.insets = new java.awt.Insets(5, 5, 5, 5);
+        parsingConstraints = new GridBagConstraints();
+        parsingConstraints.fill = GridBagConstraints.HORIZONTAL;
+        parsingConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
+        parsingConstraints.insets = new Insets(5, 5, 5, 5);
 
         // creation des widgets
         labelField = new JTextField();
-        labelField.setPreferredSize(new Dimension(60, 20));
+      //  labelField.setPreferredSize(new Dimension(60, 20));
 
         accessionParseRuleField = new JTextField();
-        accessionParseRuleField.setPreferredSize(new Dimension(60, 20));
+       // accessionParseRuleField.setPreferredSize(new Dimension(60, 20));
 
         fastaPatternField = new JTextField();
-        fastaPatternField.setPreferredSize(new Dimension(200, 20));
+       // fastaPatternField.setPreferredSize(new Dimension(200, 20));
+        fastaList = new ArrayList<>();
 
-        fastaVersionField = new JTextField();
-        fastaVersionField.setPreferredSize(new Dimension(200, 20));
-
-        filler = Box.createHorizontalGlue();
 
         // ajout des widgets au layout
-        c.gridx = 0;
-        c.gridy = 0;
-        parsingRuleFields.add(new JLabel("Label : "), c);
+        parsingConstraints.gridx = 0;
+        parsingConstraints.gridy = 0;
+      //  parsingConstraints.anchor=GridBagConstraints.FIRST_LINE_START;
+        parsingRuleFields.add(new JLabel("Label : "), parsingConstraints);
 
-        c.gridx++;
-        parsingRuleFields.add(new JLabel("Accession Parse Rule : "), c);
+        parsingConstraints.gridx++;
+      //  parsingConstraints.anchor=GridBagConstraints.CENTER;
+        parsingRuleFields.add(new JLabel("Accession Parse Rule : "), parsingConstraints);
 
-        c.gridy++;
-        c.gridx = 0;
-        parsingRuleFields.add(labelField, c);
+        parsingConstraints.gridy++;
+        parsingConstraints.gridx = 0;
+        parsingRuleFields.add(labelField, parsingConstraints);
 
-        c.gridx++;
-        parsingRuleFields.add(accessionParseRuleField, c);
+        parsingConstraints.gridx++;
+        parsingRuleFields.add(accessionParseRuleField, parsingConstraints);
 
-        c.gridy++;
-        c.gridx = 0;
-        parsingRuleFields.add(new JLabel("Fasta Pattern : "), c);
 
-        c.gridx++;
-        parsingRuleFields.add(new JLabel("Fasta file : "), c);
+        parsingConstraints.gridy = 0;
+        parsingConstraints.gridx++;
+        parsingRuleFields.add(new JLabel("Fasta Pattern : "), parsingConstraints);
 
-        c.gridy++;
-        c.gridx = 0;
-        c.weightx = 1;
-        parsingRuleFields.add(fastaPatternField, c);
+        parsingConstraints.gridy++;
 
-        c.gridx++;
-        parsingRuleFields.add(fastaVersionField, c);
+        parsingRuleFields.add(fastaPatternField, parsingConstraints);
+        JLabel fastaLabel = new JLabel("fasta-names:  ");
+        parsingConstraints.gridx = 0;
+        parsingConstraints.gridy++;
+        parsingConstraints.anchor=GridBagConstraints.SOUTHWEST;
+        parsingRuleFields.add(fastaLabel, parsingConstraints);
+
+        parsingConstraints.gridx = 0;
+        parsingConstraints.gridy++;
+
+        fastaAdded = new JTextField();
+        //labels = new ArrayList<>();
+
+        fastaAdded.setPreferredSize(new Dimension(50, 30));
+        parsingRuleFields.add(fastaAdded, parsingConstraints);
+        //String fasta = fastaAdded.getText();
+        JButton addButton = new JButton("add");
+        try {
+
+            Icon addIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("ajouter.png")));
+            addButton = new JButton(addIcon);
+            addButton.addActionListener(addFastaName());
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        parsingConstraints.gridx++;
+        parsingConstraints.weightx=0;
+        parsingConstraints.anchor = GridBagConstraints.SOUTHWEST;
+        parsingRuleFields.add(addButton, parsingConstraints);
+        parsingConstraints.gridx++;
+
+
+        // private JTextField fastaVersionField;
+        Component filler = Box.createHorizontalGlue();
 
         return parsingRuleFields;
 
     }
-    private JPanel displaysetOfRules(){
-        JPanel displayRules=new JPanel(new GridBagLayout());
-        GridBagConstraints constraints=new GridBagConstraints();
-        displayRules.setBorder(BorderFactory.createTitledBorder("List of parsingRules"));
-        ArrayList<ParsingRule> setOfRules=ConfigManager.getInstance().getParsingRulesManager().getSetOfRules();
-        constraints.gridy=0;
-        constraints.gridx=0;
-        for (int i=0;i< setOfRules.size();i++){
-            ParsingRule toBedisplayed=setOfRules.get(i);
-            String label=toBedisplayed.getName();
-            String fastaVersion=toBedisplayed.getFasta_version();
-            String protein=toBedisplayed.getProtein();
-            JTextField labelField=new JTextField(label);
-            JTextField fastaVersionField=new JTextField(fastaVersion);
-            JTextField proteinField=new JTextField(protein);
-            constraints.gridx=0;
-            constraints.weightx=1;
-            displayRules.add(labelField,constraints);
-            constraints.weightx=1;
-            constraints.gridx++;
-            displayRules.add(fastaVersionField,constraints);
-            constraints.weightx=1;
-            constraints.gridx++;
 
-            displayRules.add(proteinField,constraints);
+
+    private JPanel displaysetOfRules() {
+        JPanel displayRules = new JPanel(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints();
+        displayRules.setBorder(BorderFactory.createTitledBorder("List of parsingRules"));
+        ArrayList<ParsingRule> setOfRules = ConfigManager.getInstance().getParsingRulesManager().getSetOfRules();
+        constraints.gridy = 0;
+        constraints.gridx = 0;
+        Icon deleteIcon ;
+        try {
+            deleteIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        for (int i = 0; i < setOfRules.size(); i++) {
+            ParsingRule toBedisplayed = setOfRules.get(i);
+            String label = toBedisplayed.getName();
+            String fastaVersion = toBedisplayed.getFasta_version();
+            String protein = toBedisplayed.getProtein();
+            JLabel labelField = new JLabel(label);
+            JTextField fastaVersionField = new JTextField(fastaVersion);
+            JTextField proteinField = new JTextField(protein);
+            constraints.gridx = 0;
+            constraints.weightx = 0.2;
+            constraints.anchor = GridBagConstraints.WEST;
+            constraints.fill = GridBagConstraints.NONE;
+
+            displayRules.add(labelField, constraints);
+            constraints.weightx = 1;
+            constraints.gridx++;
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+
+            fastaVersionField.setPreferredSize(new Dimension(150, 20));
+            displayRules.add(fastaVersionField, constraints);
+            constraints.weightx = 1;
+            constraints.gridx++;
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+
+            proteinField.setPreferredSize(new Dimension(150, 20));
+            displayRules.add(proteinField, constraints);
+            constraints.gridx++;
+            JButton deleteButton = new JButton(deleteIcon);
+            deleteButton.setHorizontalAlignment(SwingConstants.CENTER);
+            deleteButton.setToolTipText("Click to delete the parsing rule");
+            deleteButton.addActionListener(dellRule(toBedisplayed));
+            constraints.anchor = GridBagConstraints.EAST;
+            constraints.fill = GridBagConstraints.NONE;
+            displayRules.add(deleteButton, constraints);
 
             constraints.gridy++;
         }
-        return  displayRules;
+        return displayRules;
     }
 
     public void updateValues() {
         // TODO Auto-generated method stub
-
+        updatePanel();
     }
 
     private ActionListener addRule() {
@@ -257,14 +313,13 @@ public class ParsingRulesPanel extends JPanel {
                     String addedLabel = labelField.getText();
                     String addedRegex = accessionParseRuleField.getText();
                     String addedFasta = fastaPatternField.getText();
+                    ArrayList<String> list = fastaList;
 
-                    ParsingRule pr = new ParsingRule(addedLabel,buildtestlist() , addedFasta, addedRegex);
-                    boolean success= ConfigManager.getInstance().getParsingRulesManager().addNewRule(pr);
-                    if (success){
-                   // ConfigManager.getInstance().getParsingRulesManager().updateConfigFileParseRules();
-                    updatePanel();
-                        revalidate();
-                        repaint();}
+                    ParsingRule pr = new ParsingRule(addedLabel, list, addedFasta, addedRegex);
+                    boolean success = ConfigManager.getInstance().getParsingRulesManager().addNewRule(pr);
+                    if (success) {
+                        updatePanel();
+                    }
                 }
 
             }
@@ -272,70 +327,64 @@ public class ParsingRulesPanel extends JPanel {
         return addParseRule;
     }
 
-/*    // TODO : à refaire avec un nouveau panel
-    private ActionListener addParsingRule() {
-        ActionListener addParseRule = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                setLayout(new GridBagLayout());
-                GridBagConstraints constraints = new GridBagConstraints();
-                if (!labelField.getText().isEmpty() && !accessionParseRuleField.getText().isEmpty()
-                        && !fastaPatternField.getText().isEmpty()) {
-
-                    JLabel addedLabel = new JLabel(labelField.getText());
-                    JLabel addedRegex = new JLabel(accessionParseRuleField.getText());
-                    JLabel addedFasta = new JLabel(fastaPatternField.getText());
-
-                    addParsingRules.remove(filler);
-                    constraints.fill = GridBagConstraints.NONE;
-                    constraints.weighty = 0;
-                    constraints.gridx = 0;
-
-                    addParsingRules.add(addedLabel, constraints);
-                    constraints.gridx++;
-
-                    addParsingRules.add(addedRegex, constraints);
-                    constraints.gridx++;
-
-                    addParsingRules.add(addedFasta, constraints);
-                    constraints.gridx++;
-
-                    // remove button
-                    JButton delete = new JButton("x");
-                    try {
-                        Icon crossIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
-                        delete.setText("");
-                        delete.setIcon(crossIcon);
-                    } catch (IOException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    }
-                    addParsingRules.add(delete, constraints);
-
-                    ActionListener delParseRule = new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            addParsingRules.remove(addedLabel);
-                            addParsingRules.remove(addedFasta);
-                            addParsingRules.remove(addedRegex);
-                            addParsingRules.remove(delete);
-                            revalidate();
-                            repaint();
-                        }
-                    };
-                    delete.addActionListener(delParseRule);
-                    constraints.gridy++;
-
-                    labelField.setText("");
-                    accessionParseRuleField.setText("");
-                    fastaPatternField.setText("");
-
-                    constraints.fill = GridBagConstraints.VERTICAL;
-                    constraints.weighty = 1;
-                    addParsingRules.add(filler, constraints);
-                    revalidate();
-                    repaint();
+    private ActionListener dellRule(ParsingRule parsingRuleToBeDeleted) {
+        ActionListener dellParseRule = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean success = ConfigManager.getInstance().getParsingRulesManager().dellRule(parsingRuleToBeDeleted);
+                if (success) {
+                    updatePanel();
                 }
+
             }
         };
-        return addParseRule;
-    }*/
+        return dellParseRule;
+    }
+
+    private ActionListener addFastaName() {
+        ActionListener fastaListener = new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+
+                String fastaName = fastaAdded.getText();
+                if (fastaName.length() != 0) {
+                    fastaList.add(fastaName);
+                    fastaAdded.setText("");
+                    parsingConstraints.gridx++;
+
+                    String[] fastaStringArray = new String[fastaList.size()];
+                    for (int i = 0; i < fastaList.size(); i++) {
+                        fastaStringArray[i] = fastaList.get(i);
+                    }
+
+                    if (noPriorAdd) {
+                        jList = new JList<>(fastaStringArray);
+                        jList.setBorder(BorderFactory.createTitledBorder("fasta-names"));
+                        jList.setSize(100, 100);
+                        parsingRuleFields.add(jList, parsingConstraints);
+                        repaint();
+                        revalidate();
+                        noPriorAdd = false;
+                    } else {
+                        parsingRuleFields.remove(jList);
+                        jList = new JList<>(fastaStringArray);
+                        jList.setBorder(BorderFactory.createTitledBorder("fasta-names"));
+                        jList.setSize(100, 100);
+                        parsingRuleFields.add(jList, parsingConstraints);
+                        repaint();
+                        revalidate();
+                    }
+
+
+                }
+                else {
+                    Popup.warning("you must enter a value");
+                }
+            }
+
+
+        };
+        return fastaListener;
+    }
+
+
 }

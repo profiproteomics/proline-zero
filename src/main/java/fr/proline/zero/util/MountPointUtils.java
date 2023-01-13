@@ -40,7 +40,8 @@ public class MountPointUtils {
     private ArrayList<String> missingMPs = new ArrayList<>();
 
     public MountPointUtils() {
-        mountPointMap = JsonAccess.getInstance().getMountPointMaps();
+       // mountPointMap = JsonAccess.getInstance().getMountPointMaps();
+        mountPointMap=SuperJson.getInstanceMountPoints().getMountPointMaps();
     }
 
     public enum MountPointType {
@@ -99,6 +100,7 @@ public class MountPointUtils {
 
     }
 
+
     private boolean pathExists(String path) {
         boolean pathExists = false;
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
@@ -155,11 +157,11 @@ public class MountPointUtils {
     }
 
     public void restoreMountPoints() {
-        mountPointMap = JsonAccess.getInstance().getMountPointMaps();
+        mountPointMap = SuperJson.getInstanceMountPoints().getMountPointMaps();
     }
 
     public void updateCortexConfigFile() {
-        JsonAccess.getInstance().updateCortexConfigFileJson(mountPointMap);
+        SuperJson.getInstanceMountPoints().updateCortexConfigFileJson(mountPointMap);
     }
 
 

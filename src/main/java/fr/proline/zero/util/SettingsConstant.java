@@ -41,8 +41,8 @@ public class SettingsConstant {
 	public final static String SERVER_TIMEOUT_TOOLTIP = "Server default timeout : Time to wait before considering a component as unavailable";
 	public final static String JVM_PATH_TOOLTIP = "JVM Path : Path to a Java Runtime to be used by ProlineZero components.";
 	public final static String FORCE_DATASTORE_UPDATE_TOOLTIP = "Force Datastore update : Force \"run Proline Admin update\". This may be necessary when only some list data have been updated (such as quantitation methods...)";
-	public final static String PARSING_RULES_HELP_PANE = "<br> Specify parsing rules used by Sequence Repository to retrieve Protein accession from fasta entry.<br>"
-			+ "A complete description is given in Proline Admin documentation or on Forum \"Parsing rules for Sequence Repository\" topic";
+	public final static String PARSING_RULES_HELP_PANE = " Specify parsing rules used by Sequence Repository to retrieve\n Protein accession from fasta entry."
+			+ "A complete description \nis given in Proline Admin documentation\n or on Forum \"Parsing rules for Sequence Repository\" topic";
 
 	public static boolean isBooleanTrue(String booleanValue) {
 		if (booleanValue != null

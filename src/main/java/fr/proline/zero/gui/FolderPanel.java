@@ -21,6 +21,8 @@ import javax.swing.filechooser.FileSystemView;
 
 import fr.proline.zero.util.*;
 
+import static java.lang.String.valueOf;
+
 
 public class FolderPanel extends JPanel {
     private JTextField maximumTmpFolderSizeField;
@@ -122,7 +124,7 @@ public class FolderPanel extends JPanel {
         // creation des widgets
 
         maximumTmpFolderSizeField = new JTextField();
-        maximumTmpFolderSizeField.setText(String.valueOf(ConfigManager.getInstance().getMaxTmpFolderSize()));
+        maximumTmpFolderSizeField.setText(valueOf(ConfigManager.getInstance().getMaxTmpFolderSize()));
         maximumTmpFolderSizeField.setToolTipText(SettingsConstant.FOLDER_MAX_SIZE_TOOLTIP);
 
         // ajout des widgets au layout
@@ -399,11 +401,39 @@ public class FolderPanel extends JPanel {
         fastaListPanel = new JPanel(new GridBagLayout());
         fastaListPanel.setBorder(BorderFactory.createTitledBorder("Fasta files folders"));
         fastaListPanelConstraints = new GridBagConstraints();
+        Icon deleteIcon = null;
+        try {
+            deleteIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("cross.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         fastaListPanelConstraints.insets = new Insets(5, 5, 5, 5);
         fastaListPanelConstraints.gridx = 0;
         fastaListPanelConstraints.gridy = 0;
         fastaListPanelConstraints.weightx = 1;
-        fastaListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+        //fastaListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+
+        ArrayList<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
+        for (int k = 0; k < fastaToBeDisplayed.size(); k++) {
+            fastaListPanelConstraints.gridx=0;
+            fastaListPanelConstraints.weightx=0.1;
+            fastaListPanel.add(new JLabel("Fasta Folder "+ valueOf(k+1)),fastaListPanelConstraints);
+            JTextField pathFasta = new JTextField(fastaToBeDisplayed.get(k));
+            pathFasta.setEnabled(false);
+            fastaListPanelConstraints.gridx++;
+            fastaListPanelConstraints.fill=GridBagConstraints.HORIZONTAL;
+            fastaListPanelConstraints.anchor=GridBagConstraints.WEST;
+            fastaListPanelConstraints.weightx=1.5;
+            fastaListPanel.add(pathFasta,fastaListPanelConstraints);
+            fastaListPanelConstraints.gridx++;
+            JButton clearButton = new JButton(deleteIcon);
+            clearButton.addActionListener(dellFastaFolder(fastaToBeDisplayed.get(k)));
+            clearButton.setHorizontalAlignment(SwingConstants.CENTER);
+            fastaListPanelConstraints.weightx=0;
+            fastaListPanel.add(clearButton,fastaListPanelConstraints);
+            fastaListPanelConstraints.gridy++;
+
+        }
     }
 
 
@@ -422,8 +452,8 @@ public class FolderPanel extends JPanel {
                 if (pathExists && verifUserEntry) {
                     switch (type) {
                         case "Result folder":
-                            boolean addSuccesresult = ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.RESULT, folderField, folderPath);
-                            if (addSuccesresult) {
+                            boolean addSuccessResult = ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.RESULT, folderField, folderPath);
+                            if (addSuccessResult) {
                                 folderPathField.setText("");
                                 folderLabelField.setText("");
                                 updateJpanel();
@@ -435,8 +465,8 @@ public class FolderPanel extends JPanel {
                             break;
 
                         case "Mzdb folder":
-                            boolean addSuccesmzdb = ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.MZDB, folderField, folderPath);
-                            if (addSuccesmzdb) {
+                            boolean addSuccessMzdb = ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.MZDB, folderField, folderPath);
+                            if (addSuccessMzdb) {
                                 folderPathField.setText("");
                                 folderLabelField.setText("");
                                 updateJpanel();
@@ -447,8 +477,8 @@ public class FolderPanel extends JPanel {
                             }
                             break;
                         case "Raw folders":
-                            boolean addSuccesraw = ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.RAW, folderField, folderPath);
-                            if (addSuccesraw) {
+                            boolean addSuccesRaws = ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.RAW, folderField, folderPath);
+                            if (addSuccesRaws) {
                                 folderPathField.setText("");
                                 folderLabelField.setText("");
                                 updateJpanel();
@@ -458,16 +488,24 @@ public class FolderPanel extends JPanel {
                                 folderLabelField.setText("");
                             }
                             break;
+                        case "Fasta folder":
+                            boolean addSuccesFasta=ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(folderPath);
+                            if (addSuccesFasta){
+                                folderPathField.setText("");
+
+                                updateJpanel();
+
+                            }
+                            else {
+                                Popup.warning("fasta folder has not been added");
+                                folderPathField.setText("");
+                            }
+
+                            break;
 
                         // TODO not implemented
-                        default: //(String) dataTypeBox.getSelectedItem() = FASTA File
-                            fastaListPanelConstraints.weightx = 1;
-                            //fastaListPanel.add(path, fastaListPanelConstraints);
-                            fastaListPanelConstraints.gridx++;
-                            fastaListPanelConstraints.weightx = 0;
-                            //fastaListPanel.add(delete, fastaListPanelConstraints);
-                            fastaListPanelConstraints.gridx = 0;
-                            fastaListPanelConstraints.gridy++;
+                        default:
+                            Popup.error("no such type of Folder");
                             break;
                     }
                     revalidate();
@@ -528,7 +566,7 @@ public class FolderPanel extends JPanel {
     }
 
     private ActionListener delFolderPath(MountPointUtils.MountPointType mountPointType, String key, boolean forced) {
-        ActionListener clearFields = new ActionListener() {
+        ActionListener dellPath = new ActionListener() {
             public void actionPerformed(ActionEvent event) {
 
                 boolean delSucces = ConfigManager.getInstance().getMountPointManager().delMountPointEntry(mountPointType, key, forced);
@@ -539,7 +577,25 @@ public class FolderPanel extends JPanel {
                 }
             }
         };
-        return clearFields;
+        return dellPath;
+    }
+    private ActionListener dellFastaFolder(String path){
+
+        ActionListener dellPath=new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean dellSucess=ConfigManager.getInstance().getParsingRulesManager().dellFastaFolder(path);
+                if (dellSucess)
+                {
+                    updateJpanel();
+                }
+                else {
+                    Popup.warning("you are not allowed to delete this path");
+                }
+
+            }
+        };
+        return dellPath;
     }
 
 
