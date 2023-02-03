@@ -9,11 +9,15 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import fr.proline.studio.gui.DefaultDialog;
+import fr.proline.studio.gui.HourglassPanel;
 import fr.proline.zero.util.*;
+import fr.proline.studio.utils.IconManager;
+
+
 
 public class ParsingRulesPanel extends JPanel {
     private JTextField labelField;
-
     private JTextField fastaInput;
     private JTextField proteinField;
     private JTextField fastaVersionField;
@@ -97,7 +101,7 @@ public class ParsingRulesPanel extends JPanel {
         addParsingRules.setBorder(BorderFactory.createTitledBorder("Add Parsing Rule "));
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new java.awt.Insets(5, 5, 5, 5);
+        c.insets = new java.awt.Insets(9, 5, 5, 5);
         // creation des elements
         JButton plus = new JButton("");
         JButton clearButton = new JButton("");
@@ -113,12 +117,13 @@ public class ParsingRulesPanel extends JPanel {
             clearButton.setIcon(eraserIcon);
             clearButton.addActionListener(clearParsingRule());
             Icon testIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("tick.png")));
-            testButton.setIcon(testIcon);
-            testButton.setEnabled(false);
+            testButton.setIcon(IconManager.getIcon(IconManager.IconType.TEST));
+            testButton.setEnabled(true);
             testButton.addActionListener(testAction());
             cancelEditButton.setEnabled(editingContext);
-            Icon editIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("arrow-circle.png")));
-            cancelEditButton.setIcon(editIcon);
+           // Icon editIcon = new ImageIcon(ImageIO.read(ClassLoader.getSystemResource("arrow-circle.png")));
+            Icon editCancel=IconManager.getIcon(IconManager.IconType.UNDO);
+            cancelEditButton.setIcon(editCancel);
             cancelEditButton.addActionListener(cancelEditAction());
         } catch (IOException e1) {
             // TODO Auto-generated catch block
@@ -130,7 +135,7 @@ public class ParsingRulesPanel extends JPanel {
         c.gridy = 0;
 
 
-        c.anchor = GridBagConstraints.WEST;
+        c.anchor = GridBagConstraints.NORTHWEST;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1;
         addParsingRules.add(ParsingRuleAdder(), c);
@@ -140,7 +145,7 @@ public class ParsingRulesPanel extends JPanel {
         c.fill = GridBagConstraints.HORIZONTAL;
 
         c.anchor = GridBagConstraints.WEST;
-
+        c.insets = new java.awt.Insets(3, 5, 5, 5);
         addParsingRules.add(fastaDirectoriesAdder(), c);
 
 
@@ -178,6 +183,7 @@ public class ParsingRulesPanel extends JPanel {
     private JPanel displayButtons(JButton clearButton, JButton testButton, JButton plus, JButton editButton) {
         JPanel displayButtons = new JPanel(new GridBagLayout());
         GridBagConstraints buttonsConstraints = new GridBagConstraints();
+        buttonsConstraints.insets=new Insets(3,3,3,3);
         buttonsConstraints.gridx = 0;
         buttonsConstraints.gridy = 0;
         buttonsConstraints.fill = GridBagConstraints.HORIZONTAL;
@@ -185,7 +191,8 @@ public class ParsingRulesPanel extends JPanel {
         buttonsConstraints.weightx = 1;
         buttonsConstraints.ipadx = 5;
         displayButtons.add(spacer, buttonsConstraints);
-        /*add(Box.createHorizontalStrut(100),buttonsConstraints);*/
+        // tried horizontalStrut but not very efficient
+       // displayButtons.add(Box.createHorizontalStrut(100),buttonsConstraints);
         buttonsConstraints.fill = GridBagConstraints.NONE;
         buttonsConstraints.anchor = GridBagConstraints.EAST;
         buttonsConstraints.weightx = 0;
@@ -410,7 +417,7 @@ public class ParsingRulesPanel extends JPanel {
             constraints.weightx = 1;
             displayRules.add(displayParsingRules(setOfRules.get(i)), constraints);
             // edit button
-            JButton editButton = new JButton("Edit");
+            JButton editButton = new JButton(IconManager.getIcon(IconManager.IconType.EDIT));
             editButton.setHorizontalAlignment(SwingConstants.LEFT);
             editButton.setToolTipText("Click to edit the parsing rule");
             editButton.addActionListener(editRule(setOfRules.get(i)));
@@ -433,12 +440,37 @@ public class ParsingRulesPanel extends JPanel {
 
         return displayRules;
     }
+    private ArrayList<Integer> sizeOfFields(ParsingRule prule){
+        ArrayList<Integer> sizeInPixels=new ArrayList<>(4);
+        // TODO later :calculate size in pixels
+        int labelSize=prule.getName().length();
+        int fastaPathsSize=buildFastas(prule.getFastaNameRegExp()).length();
+        int fastaVersionSize=prule.getFastaVersionRegExp().length();
+        int proteinSize=prule.getProteinAccRegExp().length();
+        sizeInPixels.add(0,labelSize);
+        sizeInPixels.add(1,fastaPathsSize);
+        sizeInPixels.add(2,fastaVersionSize);
+        sizeInPixels.add(3,proteinSize);
+        return sizeInPixels;
+    }
+    private ArrayList<Integer> spacerSize(ArrayList<Integer> sizeOfFields){
+        ArrayList<Integer> SizesOfSpacer=new ArrayList<>(2);
+        // TODO calculate the lengths of spacers
+        int diff1=(sizeOfFields.get(0)-sizeOfFields.get(1));
+        int diff2=(sizeOfFields.get(2)-sizeOfFields.get(3));
+        SizesOfSpacer.add(0,50+diff1);
+        SizesOfSpacer.add(1,50+diff2);
+        return SizesOfSpacer;
+    }
 
-
+    // TODO use spacerSize  to harmonize alignments
     private JPanel displayParsingRules(ParsingRule parsingRule) {
         JPanel displayPr = new JPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         displayPr.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+        ArrayList<Integer> sizes=sizeOfFields(parsingRule);
+        // sizesOfSpacer will contain the values used in Box.createHorizontalStrut
+        ArrayList<Integer> sizesOfSpacer=spacerSize(sizes);
         constraints.insets = new Insets(5, 5, 5, 5);
         constraints.gridy = 0;
         constraints.gridx = 0;
