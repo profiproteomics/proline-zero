@@ -253,7 +253,7 @@ public class FolderPanel extends JPanel {
     private JPanel createFolderListPanel() {
         // creation du panel et layout
         JPanel folderListPanel = new JPanel(new GridBagLayout());
-        folderListPanel.setBorder(BorderFactory.createTitledBorder("Folder list"));
+       // folderListPanel.setBorder(BorderFactory.createTitledBorder("Folder list"));
         GridBagConstraints c = new GridBagConstraints();
         c.weightx = 1;
         c.weighty = 1;
@@ -293,7 +293,7 @@ public class FolderPanel extends JPanel {
         anyPanelConstraints.insets = new Insets(5, 5, 5, 5);
         anyPanelConstraints.gridx = 0;
         anyPanelConstraints.gridy = 0;
-        anyPanelConstraints.weightx = 0.1;
+        anyPanelConstraints.weightx = 0;
         anyPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
         anyPanelConstraints.anchor = GridBagConstraints.EAST;
 
@@ -313,18 +313,20 @@ public class FolderPanel extends JPanel {
         Map<String, String> temp = ConfigManager.getInstance().getMountPointManager().getMountPointMap().get(mpt);
         //places none deletable mounting point at the top of the list
         if (temp != null) {
-            JLabel fieldInitial = new JLabel(MountPointUtils.getMountPointDefaultPathLabel(mpt) + ": ");
-            fieldInitial.setPreferredSize(new Dimension(60, 20));
+            JLabel fieldInitial = new JLabel(MountPointUtils.getMountPointDefaultPathLabel(mpt) + ": ",SwingConstants.RIGHT);
+           // fieldInitial.setPreferredSize(new Dimension(60, 20));
             fieldInitial.setForeground(stringColor);
+            anyPanelConstraints.anchor=GridBagConstraints.EAST;
+            fieldInitial.setEnabled(true);
             anyPanel.add(fieldInitial, anyPanelConstraints);
             String path = temp.get(MountPointUtils.getMountPointDefaultPathLabel(mpt));
             JTextField pathInitial = new JTextField(temp.get(MountPointUtils.getMountPointDefaultPathLabel(mpt)));
-            pathInitial.setPreferredSize(new Dimension(300, 20));
+           // pathInitial.setPreferredSize(new Dimension(300, 20));
             pathInitial.setEnabled(false);
             anyPanelConstraints.gridx++;
-            anyPanelConstraints.anchor = GridBagConstraints.EAST;
+            anyPanelConstraints.anchor = GridBagConstraints.WEST;
             anyPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-            anyPanelConstraints.weightx = 1.6;
+            anyPanelConstraints.weightx = 1;
             if (path != null) {
                 if (pathWrong.contains(temp.get(MountPointUtils.getMountPointDefaultPathLabel(mpt)))) {
                     pathInitial.setEnabled(true);
@@ -342,7 +344,7 @@ public class FolderPanel extends JPanel {
                 } else {
                     pathInitial.setEnabled(false);
                     anyPanel.add(pathInitial, anyPanelConstraints);
-                    anyPanelConstraints.gridx++;
+                   // anyPanelConstraints.gridx++;
                 }
             }
             anyPanelConstraints.gridx++;
@@ -359,11 +361,11 @@ public class FolderPanel extends JPanel {
                 if (key.equals(MountPointUtils.getMountPointDefaultPathLabel(mpt)))
                     continue;
                 anyPanelConstraints.gridx = 0;
-                anyPanelConstraints.weightx = 0.1;
-                anyPanelConstraints.anchor = GridBagConstraints.WEST;
-                anyPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-                JLabel field = new JLabel(key + " : ");
-                field.setPreferredSize(new Dimension(60, 20));
+                anyPanelConstraints.weightx = 0;
+                anyPanelConstraints.anchor = GridBagConstraints.EAST;
+
+                JLabel field = new JLabel(key + " :");
+               // field.setPreferredSize(new Dimension(60, 20));
                 anyPanel.add(field, anyPanelConstraints);
                 JTextField resultPath = new JTextField(temp.get(key));
                 resultPath.setPreferredSize(new Dimension(300, 20));
@@ -374,8 +376,9 @@ public class FolderPanel extends JPanel {
                     resultPath.setEditable(true);
                 }
                 anyPanelConstraints.gridx++;
-                anyPanelConstraints.anchor = GridBagConstraints.EAST;
-                anyPanelConstraints.weightx = 1.6;
+                anyPanelConstraints.anchor = GridBagConstraints.WEST;
+                anyPanelConstraints.weightx = 1;
+                anyPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
                 if (pathWrong.contains(temp.get(key))) {
                     resultPath.setEnabled(true);
                     resultPath.setEditable(false);
@@ -410,14 +413,16 @@ public class FolderPanel extends JPanel {
         fastaListPanelConstraints.insets = new Insets(5, 5, 5, 5);
         fastaListPanelConstraints.gridx = 0;
         fastaListPanelConstraints.gridy = 0;
-        fastaListPanelConstraints.weightx = 1;
+       // fastaListPanelConstraints.weightx = 1;
         //fastaListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
 
         ArrayList<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
         for (int k = 0; k < fastaToBeDisplayed.size(); k++) {
             fastaListPanelConstraints.gridx=0;
             fastaListPanelConstraints.weightx=0.1;
-            fastaListPanel.add(new JLabel("Fasta Folder "+ valueOf(k+1)),fastaListPanelConstraints);
+            fastaListPanelConstraints.anchor=GridBagConstraints.EAST;
+            fastaListPanelConstraints.fill=GridBagConstraints.NONE;
+            fastaListPanel.add(new JLabel("Folder "+ valueOf(k+1)+":"),fastaListPanelConstraints);
             JTextField pathFasta = new JTextField(fastaToBeDisplayed.get(k));
             pathFasta.setEnabled(false);
             fastaListPanelConstraints.gridx++;
@@ -497,7 +502,7 @@ public class FolderPanel extends JPanel {
 
                             }
                             else {
-                                Popup.warning("fasta folder has not been added");
+                                Popup.warning("Path already exists please choose another value");
                                 folderPathField.setText("");
                             }
 
@@ -584,13 +589,13 @@ public class FolderPanel extends JPanel {
         ActionListener dellPath=new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                boolean dellSucess=ConfigManager.getInstance().getParsingRulesManager().dellFastaFolder(path);
+                boolean dellSucess=ConfigManager.getInstance().getParsingRulesManager().deleteFastaFolder(path);
                 if (dellSucess)
                 {
                     updateJpanel();
                 }
                 else {
-                    Popup.warning("you are not allowed to delete this path");
+                    Popup.warning("Error while deleting the directory");
                 }
 
             }

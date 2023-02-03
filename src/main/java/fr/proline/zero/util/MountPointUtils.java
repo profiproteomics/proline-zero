@@ -38,10 +38,12 @@ public class MountPointUtils {
 
     private ArrayList<String> invalidPaths = new ArrayList<>();
     private ArrayList<String> missingMPs = new ArrayList<>();
+    private ArrayList<String> fastaDirectories;
 
     public MountPointUtils() {
        // mountPointMap = JsonAccess.getInstance().getMountPointMaps();
-        mountPointMap=SuperJson.getInstanceMountPoints().getMountPointMaps();
+        mountPointMap= JsonCortexAccess.getInstance().getMountPointMaps();
+       // fastaDirectories=SuperJson.getInstanceParseRules().getFastaPaths();
     }
 
     public enum MountPointType {
@@ -109,7 +111,30 @@ public class MountPointUtils {
                 break;
             }
         }
+        // check if path exists in Fasta Directories
+        ArrayList<String> fastaPaths=ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
+        for (int k=0;k< fastaPaths.size();k++){
+            if (fastaPaths.contains(path)){
+                pathExists=true;
+                break;
+            }
+        }
         return pathExists;
+    }
+    public ArrayList<String> getPaths(){
+
+        ArrayList<String> listofpath=new ArrayList<>();
+        for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
+            Map<String, String> map = getSpecMountPointMap(mountPointType);
+            for (String key : map.keySet()) {
+                listofpath.add(map.get(key));
+
+            }
+        }
+
+
+
+        return listofpath;
     }
 
     private boolean labelExists(String value) {
@@ -134,13 +159,9 @@ public class MountPointUtils {
                 currentKValue.remove(key);
                 mountPointMap.put(mountPointType, currentKValue);
                 mountHasBeenChanged = true;
-
-
             } else {
                 success = false;
             }
-
-
         }
         if (forced) {
             Map<String, String> currentKValue = mountPointMap.get(mountPointType);
@@ -157,11 +178,11 @@ public class MountPointUtils {
     }
 
     public void restoreMountPoints() {
-        mountPointMap = SuperJson.getInstanceMountPoints().getMountPointMaps();
+        mountPointMap = JsonCortexAccess.getInstance().getMountPointMaps();
     }
 
     public void updateCortexConfigFile() {
-        SuperJson.getInstanceMountPoints().updateCortexConfigFileJson(mountPointMap);
+        JsonCortexAccess.getInstance().updateCortexConfigFileJson(mountPointMap);
     }
 
 

@@ -165,11 +165,9 @@ public final class ConfigManager {
 			if (mountPointsManager.mountHasBeenChanged()){
 				mountPointsManager.updateCortexConfigFile();
 			}
-			if (parsingRulesManager.isParseRulesHasBeenChanged()){
-				parsingRulesManager.updateConfigFileParseRules();
-			}
-			if(parsingRulesManager.isFastaDirectoriesHasBeenchanged()){
-				parsingRulesManager.updateConfigFileFastaDirectories();
+
+			if (parsingRulesManager.isParseRulesAndFastaHasBeenChanged()) {
+				parsingRulesManager.updateConfigFileParseRulesAndFasta();
 			}
 
 		} catch (ConfigurationException e) {
@@ -237,8 +235,8 @@ public final class ConfigManager {
 		memoryManager.restoreValues();
 		advancedManager.restoreValues();
 		mountPointsManager.restoreMountPoints();
-		parsingRulesManager.restoreParseRules();
-		parsingRulesManager.restoreFastaDirectories();
+
+		parsingRulesManager.restoreParseRulesAndFastas();
 		// TODO other utils restore to their originals
 	}
 

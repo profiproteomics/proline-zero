@@ -4,9 +4,20 @@ import java.util.ArrayList;
 
 public class ParsingRule {
     private String name;
-    private ArrayList<String> fasta_name;
-    private String fasta_version;
-    private String protein;
+    private ArrayList<String> fastaNameRegExp;
+    private String fastaVersionRegExp;
+    private String proteinAccRegExp;
+    private boolean isEditable;
+
+    public boolean isEditable() {
+        return isEditable;
+    }
+
+    public void setEditable(boolean editable) {
+        isEditable = editable;
+    }
+
+
 
     public String getName() {
         return name;
@@ -16,37 +27,39 @@ public class ParsingRule {
         this.name = name;
     }
 
-    public ArrayList<String> getFasta_name() {
-        return fasta_name;
+    public ArrayList<String> getFastaNameRegExp() {
+        return fastaNameRegExp;
     }
 
-    public void setFasta_name(ArrayList<String> fasta_name) {
-        this.fasta_name = fasta_name;
+    public void setFastaNameRegExp(ArrayList<String> fastaNameRegExp) {
+        this.fastaNameRegExp = fastaNameRegExp;
     }
 
-    public String getFasta_version() {
-        return fasta_version;
+    public String getFastaVersionRegExp() {
+        return fastaVersionRegExp;
     }
 
-    public void setFasta_version(String fasta_version) {
-        this.fasta_version = fasta_version;
+    public void setFastaVersionRegExp(String fastaVersionRegExp) {
+        this.fastaVersionRegExp = fastaVersionRegExp;
     }
 
-    public String getProtein() {
-        return protein;
+    public String getProteinAccRegExp() {
+        return proteinAccRegExp;
     }
 
-    public void setProtein(String protein) {
-        this.protein = protein;
+    public void setProteinAccRegExp(String proteinAccRegExp) {
+        this.proteinAccRegExp = proteinAccRegExp;
     }
 
 
 
 
-    public ParsingRule(String name, ArrayList<String> fasta_name, String fasta_version, String protein) {
+    public ParsingRule(String name, ArrayList<String> fastaNameRegexp, String fastaVersionRegExp, String proteinAccRegExp) {
         this.name = name;
-        this.fasta_name = fasta_name;
-        this.fasta_version = fasta_version;
-        this.protein = protein;
+        this.fastaNameRegExp = fastaNameRegexp;
+        this.fastaVersionRegExp = fastaVersionRegExp;
+        this.proteinAccRegExp = proteinAccRegExp;
+        // to be removed useless
+        this.isEditable=false;
     }
 }

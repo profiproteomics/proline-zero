@@ -14,21 +14,21 @@ import java.io.IOException;
 import java.util.*;
 
 
-public class JsonAccess {
-    private final Logger logger = LoggerFactory.getLogger(JsonAccess.class);
+public class JsonCortexAccess {
+    private final Logger logger = LoggerFactory.getLogger(JsonCortexAccess.class);
 
-    private static JsonAccess instance;
+    private static JsonCortexAccess instance;
     private Config m_cortexProlineConfig = null;
 
-    private JsonAccess() {
+    private JsonCortexAccess() {
         ConfigParseOptions options = ConfigParseOptions.defaults();
         options.setSyntax(ConfigSyntax.CONF);
         m_cortexProlineConfig  = ConfigFactory.parseFile(ProlineFiles.CORTEX_CONFIG_FILE,options);
     }
 
-    public static JsonAccess getInstance() {
+    public static JsonCortexAccess getInstance() {
         if (instance == null) {
-            instance = new JsonAccess();
+            instance = new JsonCortexAccess();
         }
         return instance;
     }
@@ -70,7 +70,7 @@ public class JsonAccess {
     }
     public void updateCortexConfigFileJson(HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt) {
 
-        ConfigObject toBePreserved = JsonAccess.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
+        ConfigObject toBePreserved = JsonCortexAccess.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
         int sizeOfMpts = MountPointUtils.MountPointType.values().length;
         com.typesafe.config.Config[] builtConfig = new com.typesafe.config.Config[sizeOfMpts];
         com.typesafe.config.Config[] mergedConf = new com.typesafe.config.Config[builtConfig.length];
@@ -111,25 +111,6 @@ public class JsonAccess {
         return getMountPointsJson();
     }
 
-    //Pour test rapide
-    //
-        public static void main(String[] argv){
-        Config cfg = JsonAccess.getInstance().getCortexConfig();
-        String data = cfg.root().render(ConfigRenderOptions.concise().setFormatted(true).setJson(false).setComments(true));
-        try {
-            FileWriter writer  = new FileWriter(ProlineFiles.CORTEX_CONFIG_FILE+"2");
-            writer.write(data);
-            writer.close();
 
-//            data = cfg.root().render(ConfigRenderOptions.concise().setOriginComments(true).setFormatted(true).setJson(true));
-//            writer  = new FileWriter(ProlineFiles.CORTEX_CONFIG_FILE+"3");
-//            writer.write(data);
-//            writer.close();
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
 
 }
