@@ -102,6 +102,7 @@ public class JsonSeqRepoAccess {
 
 
     }
+
     public void updateConfigRulesAndFasta(ArrayList<String> fastaPaths, ArrayList<ParsingRule> setOfRules){
         // first updates fasta directories
         ConfigObject toBePreserved = JsonSeqRepoAccess.getInstance().getParsingConfig().root().withoutKey(ProlineFiles.SEQREPO_FASTA_DIRECTORIES);
@@ -116,6 +117,7 @@ public class JsonSeqRepoAccess {
         Config buildFastaName;
 
         Config[] configsbuild = new Config[setOfRules.size()];
+        List<ConfigValue> cfg2 = new ArrayList<>();
 
 
         for (int i = 0; i < setOfRules.size(); i++) {
@@ -134,14 +136,10 @@ public class JsonSeqRepoAccess {
             buildFastaName = ConfigValueFactory.fromIterable(fastaName).atKey(ProlineFiles.FASTA_NAME);
 
             configsbuild[i] = buildLabel.withFallback(buildFastaVersion.withFallback(buildProtein).withFallback(buildFastaName));
-
+            cfg2.add(i, configsbuild[i].root());
 
         }
-        List<ConfigValue> cfg2 = new ArrayList<>();
-        for (int k = 0; k < setOfRules.size(); k++) {
 
-            cfg2.add(k, configsbuild[k].root());
-        }
         ConfigList cfglst = ConfigValueFactory.fromIterable(cfg2);
         ConfigObject reBuiltConfig = toBePreserved2.withFallback(cfglst.atKey(ProlineFiles.SEQREPO_PARSING_RULE_KEY));
 

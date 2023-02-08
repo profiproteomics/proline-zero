@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -38,7 +39,7 @@ public class MountPointUtils {
 
     private ArrayList<String> invalidPaths = new ArrayList<>();
     private ArrayList<String> missingMPs = new ArrayList<>();
-    private ArrayList<String> fastaDirectories;
+
 
     public MountPointUtils() {
        // mountPointMap = JsonAccess.getInstance().getMountPointMaps();
@@ -101,6 +102,18 @@ public class MountPointUtils {
 
 
     }
+    // ChatGpt version
+    public boolean addMountPointEntryGPT(MountPointUtils.MountPointType type, String label, String path) {
+        Map<String, String> currentMap = mountPointMap.getOrDefault(type, new HashMap<>());
+        if (currentMap.containsKey(label) || currentMap.containsValue(path)) {
+            return false;
+        } else {
+            currentMap.put(label, path);
+            mountPointMap.put(type, currentMap);
+            mountHasBeenChanged = true;
+            return true;
+        }
+    }
 
 
     private boolean pathExists(String path) {
@@ -121,23 +134,27 @@ public class MountPointUtils {
         }
         return pathExists;
     }
-    public ArrayList<String> getPaths(){
-
-        ArrayList<String> listofpath=new ArrayList<>();
+    // Chat GPT version not used
+    private boolean pathExistsGPT(String path) {
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
-            Map<String, String> map = getSpecMountPointMap(mountPointType);
-            for (String key : map.keySet()) {
-                listofpath.add(map.get(key));
-
+            Map<String, String> map = mountPointMap.get(mountPointType);
+            if (map != null && map.containsValue(path)) {
+                return true;
             }
         }
-
-
-
-        return listofpath;
+        return ConfigManager.getInstance().getParsingRulesManager().getFastaPaths().contains(path);
     }
 
-    private boolean labelExists(String value) {
+    public List<String> getPaths() {
+        List<String> paths = new ArrayList<>();
+        for (MountPointUtils.MountPointType type : MountPointUtils.MountPointType.values()) {
+            Map<String, String> mountPoints = getSpecMountPointMap(type);
+            paths.addAll(mountPoints.values());
+        }
+        return paths;
+    }
+
+    private boolean labelExistsOLD(String value) {
         boolean exists = false;
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             if ((mountPointMap.get(mountPointType) != null) && (mountPointMap.get(mountPointType).containsKey(value))) {
@@ -146,6 +163,16 @@ public class MountPointUtils {
             }
         }
         return exists;
+    }
+    // CHATGPT version
+    private boolean labelExists(String value) {
+        for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
+            Map<String, String> map = mountPointMap.get(mountPointType);
+            if (map != null && map.containsKey(value)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -165,9 +192,9 @@ public class MountPointUtils {
         }
         if (forced) {
             Map<String, String> currentKValue = mountPointMap.get(mountPointType);
-            logger.info(currentKValue.toString());
+
             currentKValue.remove(key);
-            logger.info(currentKValue.toString());
+
             mountPointMap.put(mountPointType, currentKValue);
             mountHasBeenChanged = true;
 

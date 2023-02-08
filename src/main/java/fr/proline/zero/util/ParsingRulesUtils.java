@@ -11,7 +11,7 @@ public class ParsingRulesUtils {
     private ArrayList<ParsingRule> setOfRules;
     private ArrayList<String> fastaPaths;
 
-    private boolean parseRulesAndFastaHasBeenChanged=false;
+    private boolean parseRulesAndFastaHasBeenChanged = false;
 
     public boolean isLabelExists() {
         return labelExists;
@@ -22,7 +22,21 @@ public class ParsingRulesUtils {
     }
 
     private boolean labelExists;
+    private String errorMessage;
+    private boolean errorFatal;
 
+    public boolean isErrorFatal() {
+
+        return errorFatal;
+    }
+
+    public void setErrorFatal(boolean errorFatal) {
+        this.errorFatal = errorFatal;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
 
     public ParsingRulesUtils() {
         setOfRules = JsonSeqRepoAccess.getInstance().getSetOfRules();
@@ -38,43 +52,51 @@ public class ParsingRulesUtils {
     }
 
 
-
-    public boolean isParseRulesAndFastaHasBeenChanged(){
+    public boolean isParseRulesAndFastaHasBeenChanged() {
         return parseRulesAndFastaHasBeenChanged;
     }
 
 
-
     public boolean addNewRule(ParsingRule newRule) {
         // TODO add other verifications?
-        String label=newRule.getName();
-        if (!labelExists(label)){
+        String label = newRule.getName();
+        if (!labelExists(label)) {
+            setLabelExists(false);
             setOfRules.add(newRule);
             parseRulesAndFastaHasBeenChanged = true;
             return true;
 
-        }
-        else {
-            Popup.warning("label already exists! please choose another label");
+        } else {
+
             setLabelExists(true);
+            Popup.warning("label already exists! please choose another label");
             return false;
         }
 
     }
-    public boolean labelExists(String labelToBeAdded){
+
+    public boolean labelExistsOLD(String labelToBeAdded) {
         boolean labelExists = false;
-        for (int k=0;k< setOfRules.size();k++){
-            String label=setOfRules.get(k).getName();
-            if (label.equals(labelToBeAdded)){
-                labelExists=true;
+        for (int k = 0; k < setOfRules.size(); k++) {
+            String label = setOfRules.get(k).getName();
+            if (label.equals(labelToBeAdded)) {
+                labelExists = true;
                 break;
             }
         }
         return labelExists;
     }
+    public boolean labelExists(String labelToBeAdded) {
+        for (ParsingRule parsingRule : setOfRules) {
+            if (parsingRule.getName().equals(labelToBeAdded)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public boolean deleteRule(ParsingRule ruleToBeDeleted) {
-        parseRulesAndFastaHasBeenChanged=true;
+        parseRulesAndFastaHasBeenChanged = true;
         return setOfRules.remove(ruleToBeDeleted);
     }
 
@@ -102,11 +124,11 @@ public class ParsingRulesUtils {
 
 
     public boolean addFastaFolder(String path) {
-        boolean addOk=false;
+        boolean addOk = false;
         if (canBeAdded(path)) {
             fastaPaths.add(path);
             parseRulesAndFastaHasBeenChanged = true;
-            addOk=true;
+            addOk = true;
         }
         return addOk;
     }
@@ -115,27 +137,36 @@ public class ParsingRulesUtils {
         parseRulesAndFastaHasBeenChanged = true;
         return fastaPaths.remove(path);
     }
+
     // To be deleted?
     public void restoreParseRules() {
         setOfRules = JsonSeqRepoAccess.getInstance().getSetOfRules();
     }
+
     // To be deleted?
     public void restoreFastaDirectories() {
         fastaPaths = JsonSeqRepoAccess.getInstance().getFastaDirectories();
     }
 
-    public void restoreParseRulesAndFastas(){
+    public void restoreParseRulesAndFastas() {
         setOfRules = JsonSeqRepoAccess.getInstance().getSetOfRules();
         fastaPaths = JsonSeqRepoAccess.getInstance().getFastaDirectories();
 
 
     }
 
-    public void updateConfigFileParseRulesAndFasta(){
-        JsonSeqRepoAccess.getInstance().updateConfigRulesAndFasta(fastaPaths,setOfRules);
+    public void updateConfigFileParseRulesAndFasta() {
+        JsonSeqRepoAccess.getInstance().updateConfigRulesAndFasta(fastaPaths, setOfRules);
     }
 
-
+    public boolean verif() {
+        errorMessage = null;
+        errorFatal = false;
+        StringBuilder message = new StringBuilder();
+        // TODO implement verifications
+        //message.append(errorMessage);
+        return message.length() == 0;
+    }
 
 
 }
