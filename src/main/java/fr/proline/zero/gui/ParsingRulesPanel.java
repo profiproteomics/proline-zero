@@ -2,6 +2,7 @@ package fr.proline.zero.gui;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -95,7 +96,6 @@ public class ParsingRulesPanel extends JPanel {
         JPanel addParsingRules = new JPanel(new GridBagLayout());
         addParsingRules.setBorder(BorderFactory.createTitledBorder("Add Parsing Rule "));
         GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new java.awt.Insets(9, 5, 5, 5);
         // creation des elements
 
@@ -136,7 +136,7 @@ public class ParsingRulesPanel extends JPanel {
 
             editingContext = false;
             updatePanel();
-            // Popup.info("Modification canceled");
+
 
         } else {
             Popup.warning("Error while restoring parsing rule ");
@@ -148,7 +148,7 @@ public class ParsingRulesPanel extends JPanel {
     private JPanel createButtonPanel() {
         JPanel displayButtons = new JPanel(new GridBagLayout());
         GridBagConstraints buttonsConstraints = new GridBagConstraints();
-        buttonsConstraints.insets = new Insets(3, 3, 3, 3);
+        buttonsConstraints.insets = new Insets(3, 5, 3, 5);
         buttonsConstraints.gridx = 0;
         buttonsConstraints.gridy = 0;
         buttonsConstraints.fill = GridBagConstraints.HORIZONTAL;
@@ -186,7 +186,7 @@ public class ParsingRulesPanel extends JPanel {
         JButton testButton = new JButton("Test");
         testButton.setIcon(IconManager.getIcon(IconManager.IconType.TEST));
         testButton.addActionListener(e -> {
-            testActionV2();
+            testAction();
         });
         displayButtons.add(testButton, buttonsConstraints);
         buttonsConstraints.gridx++;
@@ -194,7 +194,6 @@ public class ParsingRulesPanel extends JPanel {
         JButton plus = new JButton("Add");
         plus.setIcon(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
         plus.setToolTipText("Click to add your parsing rule");
-
         plus.addActionListener(e -> {
             addRule();
         });
@@ -206,7 +205,7 @@ public class ParsingRulesPanel extends JPanel {
 
     // TODO method called for tests
 
-    private void testActionV2() {
+    private void testAction() {
         System.out.println("button test pressed");
 
     }
@@ -303,7 +302,7 @@ public class ParsingRulesPanel extends JPanel {
 
         fastaNamesTableModel = new DefaultTableModel(data, columns);
         fastaNamesTable = new JTable();
-        // button represents the delete button in the jtable
+
         buttonJTable = new JButton();
         fastaNamesTable.setModel(fastaNamesTableModel);
         fastaNamesTable.setGridColor(jTableColor);
@@ -329,8 +328,6 @@ public class ParsingRulesPanel extends JPanel {
         parsingConstraints.fill = GridBagConstraints.HORIZONTAL;
         fastaPanel.add(scrollPane, parsingConstraints);
 
-        // Debug
-        System.out.println("hauteur: " + fastaPanel.getHeight());
 
         return fastaPanel;
 
@@ -356,38 +353,36 @@ public class ParsingRulesPanel extends JPanel {
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.weightx = 1;
-        labelProt.setPreferredSize(new Dimension(120,20));
-        constraints.insets=new Insets(5,45,5,5);
+        labelProt.setPreferredSize(new Dimension(120, 20));
+        constraints.insets = new Insets(5, 45, 5, 5);
         displayProt.add(labelProt, constraints);
         constraints.gridx++;
         displayProt.add(new JLabel("           "), constraints);
         return displayProt;
     }
 
-    // Concatenate Strings from list of Fasta names
-    private String buildFastas(ArrayList<String> fastaNames) {
-        String builtFasta = "";
-        for (int k = 0; k < fastaNames.size(); k++) {
-            if (k != fastaNames.size() - 1) {
-                builtFasta = builtFasta + fastaNames.get(k) + "; ";
-            } else {
-                builtFasta = builtFasta + fastaNames.get(k);
-            }
-        }
-        return builtFasta;
 
+    private String fastaConcatenator(ArrayList<String> fastaNames) {
+        String builtFasta = "";
+        int cpt=0;
+        for (int k = 0; k < fastaNames.size()-1; k++) {
+
+                builtFasta = builtFasta + fastaNames.get(k) + "; ";
+                cpt++;
+            }
+        return builtFasta + fastaNames.get(cpt);
     }
 
     private JPanel createParsingRulesListPanel() {
         JPanel displayRules = new JPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         displayRules.setBorder(BorderFactory.createTitledBorder("List of parsing rules"));
-        ArrayList<ParsingRule> setOfRules = ConfigManager.getInstance().getParsingRulesManager().getSetOfRules();
+        List<ParsingRule> setOfRules = ConfigManager.getInstance().getParsingRulesManager().getSetOfRules();
         constraints.gridy = 0;
         constraints.gridx = 0;
-        // maximumSizeOfText contains maximum sizes in pixels of the 4 JTextFields
+
         // used to improve alignements
-        ArrayList<Integer> maximumSizeOfText = getMaximum();
+        int[] maximas = getMaximums();
 
 
         for (int i = 0; i < setOfRules.size(); i++) {
@@ -396,13 +391,12 @@ public class ParsingRulesPanel extends JPanel {
             constraints.fill = GridBagConstraints.HORIZONTAL;
             constraints.insets = new Insets(5, 1, 5, 1);
             constraints.weightx = 1;
-            displayRules.add(displayParsingRules(setOfRules.get(i), maximumSizeOfText), constraints);
+            displayRules.add(displayParsingRules(setOfRules.get(i), maximas), constraints);
 
             JButton editButton = new JButton(IconManager.getIcon(IconManager.IconType.EDIT));
             editButton.setHorizontalAlignment(SwingConstants.LEFT);
             editButton.setToolTipText("Click to edit the parsing rule");
             final int finalI = i;
-
             editButton.addActionListener(e -> {
                 editRule(setOfRules.get(finalI));
             });
@@ -429,72 +423,62 @@ public class ParsingRulesPanel extends JPanel {
         return displayRules;
     }
 
-    // Calculates maximmum sizes of String inside all parsingRules
-    private ArrayList<Integer> getMaximum() {
-        ArrayList<ParsingRule> setOfRules = ConfigManager.getInstance().getParsingRulesManager().getSetOfRules();
-        ArrayList<Integer> maximums = new ArrayList<>(4);
-        int max1 = 0;
-        int max2 = 0;
-        int max3 = 0;
-        int max4 = 0;
-        for (int i = 0; i < setOfRules.size(); i++) {
-            ArrayList<Integer> sizesInPixels = getSizesOf4JtextFields(setOfRules.get(i));
-            // TODO later :calculate size in pixels
-            max1 = Math.max(max1, sizesInPixels.get(0));
-            max2 = Math.max(max2, sizesInPixels.get(1));
-            max3 = Math.max(max3, sizesInPixels.get(2));
-            max4 = Math.max(max4, sizesInPixels.get(3));
 
+    private int[] getMaximums() {
+        List<ParsingRule> setOfRules = ConfigManager.getInstance().getParsingRulesManager().getSetOfRules();
 
+        int[] arrayOfMax = {0, 0, 0, 0};
+        for (ParsingRule prule : setOfRules) {
+            List<Integer> sizesInPixels = getSizesGeneric(prule);
+            for (int i = 0; i < sizesInPixels.size(); i++) {
+                arrayOfMax[i] = Math.max(arrayOfMax[i], sizesInPixels.get(i));
+            }
         }
-        maximums.add(0, max1);
-        maximums.add(1, max2);
-        maximums.add(2, max3);
-        maximums.add(3, max4);
-
-        return maximums;
+        return arrayOfMax;
     }
 
-    private ArrayList<String> patchesfortests() {
-        ArrayList<String> testy = new ArrayList<>();
-        testy.add(0, "");
-        testy.add(1, "");
-        testy.add(2, "");
-        testy.add(3, "");
-
-
-        return testy;
-    }
 
     private int getSizeinPixels(JTextField jTextField) {
         Font fontused = jTextField.getFont();
         FontMetrics fontMetrics = jTextField.getFontMetrics(fontused);
         String stringInTextField = jTextField.getText();
-
         return fontMetrics.stringWidth(stringInTextField);
 
     }
 
-    private ArrayList<Integer> getSizesOf4JtextFields(ParsingRule parsingRule) {
-        ArrayList<Integer> patches = new ArrayList<>(4);
-        JTextField labelField = new JTextField(parsingRule.getName());
-        int size1 = getSizeinPixels(labelField);
-        patches.add(0, size1);
-        JTextField fastaField = new JTextField(buildFastas(parsingRule.getFastaNameRegExp()));
-        int size2 = getSizeinPixels(fastaField);
-        patches.add(1, size2);
+    private List<Integer> getSizesGeneric(ParsingRule parsingRule) {
+        List<Integer> sizes = new ArrayList<>(4);
+        JTextField nameField = new JTextField(parsingRule.getName());
+        JTextField fastaNameField = new JTextField(fastaConcatenator(parsingRule.getFastaNameRegExp()));
         JTextField fastaVersionField = new JTextField(parsingRule.getFastaVersionRegExp());
-        int size3 = getSizeinPixels(fastaVersionField);
-        patches.add(2, size3);
-        JTextField proteinField = new JTextField(parsingRule.getProteinAccRegExp());
-        int size4 = getSizeinPixels(proteinField);
-        patches.add(3, size4);
-        return patches;
+        JTextField proteinAccField = new JTextField(parsingRule.getProteinAccRegExp());
+
+        sizes.add(getSizeinPixels(nameField));
+        sizes.add(getSizeinPixels(fastaNameField));
+        sizes.add(getSizeinPixels(fastaVersionField));
+        sizes.add(getSizeinPixels(proteinAccField));
+
+        return sizes;
+    }
+
+
+    private JSpinner spinnerFasta(ParsingRule parsingRule) {
+        ArrayList<String> fastasRules = parsingRule.getFastaNameRegExp();
+        String[] str = new String[fastasRules.size()];
+
+        for (int i = 0; i < fastasRules.size(); i++) {
+            str[i] = fastasRules.get(i);
+        }
+
+        SpinnerListModel model = new SpinnerListModel(str);
+        JSpinner spinner = new JSpinner(model);
+
+        return spinner;
 
     }
 
 
-    private JPanel displayParsingRules(ParsingRule parsingRule, ArrayList<Integer> maximumSize) {
+    private JPanel displayParsingRules(ParsingRule parsingRule, int[] maximumSize) {
         JPanel displayPr = new JPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         displayPr.setBorder(BorderFactory.createLineBorder(new Color(150, 160, 210), 1));
@@ -508,6 +492,7 @@ public class ParsingRulesPanel extends JPanel {
         String fastaVersion = parsingRule.getFastaVersionRegExp();
         String protein = parsingRule.getProteinAccRegExp();
         ArrayList<String> fastaNames = parsingRule.getFastaNameRegExp();
+        boolean parsingRuleHasManyFastasRules = (fastaNames.size() > 1);
         JLabel jLabelname = new JLabel("Label: ");
         constraints.anchor = GridBagConstraints.EAST;
         constraints.fill = GridBagConstraints.NONE;
@@ -515,7 +500,7 @@ public class ParsingRulesPanel extends JPanel {
         displayPr.add(jLabelname, constraints);
         JTextField labelField = new JTextField(label);
         labelField.setEnabled(parsingRule.isEditable());
-        labelField.setPreferredSize(new Dimension(maximumSize.get(0), 20));
+        labelField.setPreferredSize(new Dimension(maximumSize[0], 20));
         constraints.gridx++;
         constraints.anchor = GridBagConstraints.EAST;
         constraints.weightx = 1;
@@ -528,16 +513,28 @@ public class ParsingRulesPanel extends JPanel {
         constraints.fill = GridBagConstraints.NONE;
         constraints.weightx = 0;
         displayPr.add(fastaName, constraints);
-        JTextField fastaField = new JTextField(buildFastas(fastaNames));
-        fastaField.setPreferredSize(new Dimension(maximumSize.get(1), 20));
-        fastaField.setEnabled(parsingRule.isEditable());
-        fastaField.setEditable(parsingRule.isEditable());
-        constraints.gridx++;
-        constraints.anchor = GridBagConstraints.EAST;
-        constraints.weightx = 1;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
+        if (!parsingRuleHasManyFastasRules) {
+            JTextField fastaField = new JTextField(fastaConcatenator(fastaNames));
 
-        displayPr.add(fastaField, constraints);
+
+            fastaField.setEnabled(parsingRule.isEditable());
+            fastaField.setEditable(parsingRule.isEditable());
+            fastaField.setPreferredSize(new Dimension(maximumSize[1], 20));
+            constraints.gridx++;
+            constraints.anchor = GridBagConstraints.EAST;
+            constraints.weightx = 1;
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            displayPr.add(fastaField, constraints);
+        } else {
+            JSpinner fastaField = spinnerFasta(parsingRule);
+            fastaField.setPreferredSize(new Dimension(maximumSize[1], 20));
+            constraints.gridx++;
+            constraints.anchor = GridBagConstraints.EAST;
+            constraints.weightx = 1;
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            displayPr.add(fastaField, constraints);
+        }
+
         JLabel jLabelFastaVersion = new JLabel("Fasta Version Rule: ");
         constraints.gridx = 0;
         constraints.gridy++;
@@ -552,7 +549,7 @@ public class ParsingRulesPanel extends JPanel {
         constraints.weightx = 1;
         constraints.anchor = GridBagConstraints.EAST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        FastaVersionRegExp.setPreferredSize(new Dimension(maximumSize.get(2), 20));
+        FastaVersionRegExp.setPreferredSize(new Dimension(maximumSize[2], 20));
         displayPr.add(FastaVersionRegExp, constraints);
         JLabel jLabelProtein = new JLabel("Protein Accession Rule: ");
         constraints.gridx++;
@@ -567,7 +564,7 @@ public class ParsingRulesPanel extends JPanel {
         constraints.weightx = 1;
         constraints.anchor = GridBagConstraints.EAST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        proteinField.setPreferredSize(new Dimension(maximumSize.get(3), 20));
+        proteinField.setPreferredSize(new Dimension(maximumSize[3], 20));
         displayPr.add(proteinField, constraints);
 
         return displayPr;
@@ -691,8 +688,6 @@ public class ParsingRulesPanel extends JPanel {
             buttonJTable.setToolTipText("Click to remove Rule");
             buttonJTable.setSize(20, 20);
             buttonJTable.setBorderPainted(false);
-            Insets insets = buttonJTable.getInsets();
-
 
             return buttonJTable;
 
@@ -718,11 +713,7 @@ public class ParsingRulesPanel extends JPanel {
 
 
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-
-
             label = (value == null) ? "" : value.toString();
-
-
             isPushed = true;
             return button;
         }
@@ -761,7 +752,6 @@ public class ParsingRulesPanel extends JPanel {
             setForeground(Color.WHITE);
             setOpaque(true);
             setBackground(new Color(130, 140, 190));
-            // setBackground(new Color(170, 170, 170));
             setBorder(BorderFactory.createEtchedBorder());
         }
 

@@ -5,11 +5,14 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -31,6 +34,12 @@ public class FolderPanel extends JPanel {
 
     private final Color stringColor = new Color(50, 0, 230);
     private final Color errorColor = new Color(255, 0, 50);
+    // Attempt to move cursor to browsebutton
+    private int xbrowsePosition;
+    private int ybrowsePosition;
+
+    private JButton browseButton;
+
 
     public FolderPanel() {
         super();
@@ -141,7 +150,7 @@ public class FolderPanel extends JPanel {
 
         JButton addButton = new JButton(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
         JButton clearButton = new JButton(IconManager.getIcon(IconManager.IconType.CLEAR_ALL));
-        JButton browseButton = new JButton(IconManager.getIcon(IconManager.IconType.OPEN_FILE));
+        browseButton = new JButton(IconManager.getIcon(IconManager.IconType.OPEN_FILE));
 
         addButton.addActionListener(e -> {
             addFolderAction();
@@ -294,14 +303,14 @@ public class FolderPanel extends JPanel {
                 if (defaultMountPointHasAWrongPath) {
                     pathInitial.setEnabled(true);
                     pathInitial.setForeground(errorColor);
-                    pathInitial.setToolTipText("This folder does not exist");
+                    // pathInitial.setToolTipText("Click to fix the error");
                     anyPanel.add(pathInitial, anyPanelConstraints);
                     anyPanelConstraints.fill = GridBagConstraints.NONE;
                     anyPanelConstraints.weightx = 0;
                     anyPanelConstraints.gridx++;
-                    JButton clearButton = new JButton(IconManager.getIcon(IconManager.IconType.TRASH));
+                    JButton clearButton = new JButton(IconManager.getIcon(IconManager.IconType.EDIT_SMALL_10X10));
                     clearButton.setHorizontalAlignment(SwingConstants.CENTER);
-                    clearButton.setToolTipText("Click to delete mount point");
+                    clearButton.setToolTipText("Click to repair mounting point");
                     clearButton.setSize(20, 15);
                     clearButton.addActionListener(e -> {
                         deleteFolderPath(mpt, MountPointUtils.getMountPointDefaultPathLabel(mpt), true);
@@ -384,8 +393,6 @@ public class FolderPanel extends JPanel {
         maximum = Math.max(size1, size2);
         maximum = Math.max(maximum, size3);
 
-
-        System.out.println("maximum:   " + maximum);
         return maximum;
 
 
@@ -393,7 +400,7 @@ public class FolderPanel extends JPanel {
 
 
     private void initFastaFolderPanel(JPanel fastaListPanel) {
-        //fastaListPanel = new JPanel(new GridBagLayout());
+
         fastaListPanel.setBorder(BorderFactory.createTitledBorder("Fasta files folders"));
         GridBagConstraints fastaListPanelConstraints = new GridBagConstraints();
 
@@ -403,7 +410,9 @@ public class FolderPanel extends JPanel {
 
 
         ArrayList<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
+        List<String> wrongFastaDirectories = ConfigManager.getInstance().getParsingRulesManager().getInvalidFastaPaths();
         for (int k = 0; k < fastaToBeDisplayed.size(); k++) {
+            boolean errorInThePath = wrongFastaDirectories != null && wrongFastaDirectories.contains(fastaToBeDisplayed.get(k));
             fastaListPanelConstraints.gridx = 0;
             fastaListPanelConstraints.weightx = 0;
             fastaListPanelConstraints.anchor = GridBagConstraints.EAST;
@@ -413,6 +422,13 @@ public class FolderPanel extends JPanel {
             fastaListPanel.add(fastaLabel, fastaListPanelConstraints);
             JTextField pathFasta = new JTextField(fastaToBeDisplayed.get(k));
             pathFasta.setEnabled(false);
+            if (errorInThePath) {
+                pathFasta.setEnabled(true);
+                pathFasta.setEditable(false);
+                pathFasta.setForeground(errorColor);
+                pathFasta.setToolTipText("This path is not valid, you should delete it");
+            }
+
             fastaListPanelConstraints.gridx++;
             fastaListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
             fastaListPanelConstraints.anchor = GridBagConstraints.WEST;
@@ -420,13 +436,29 @@ public class FolderPanel extends JPanel {
 
             fastaListPanel.add(pathFasta, fastaListPanelConstraints);
             fastaListPanelConstraints.gridx++;
+            JButton clearButton;
+            if (errorInThePath) {
+                clearButton = new JButton(IconManager.getIcon(IconManager.IconType.EDIT_SMALL_10X10));
+                clearButton.setToolTipText("Click to repair mounting point");
+                final int kFinal = k;
+                clearButton.addActionListener(e -> {
+                    // deleteFastaFolder(fastaToBeDisplayed.get(kFinal));
+                    try {
+                        repairFastaDirectory(fastaToBeDisplayed.get(kFinal));
+                    } catch (AWTException ex) {
+                        throw new RuntimeException(ex);
+                    }
 
-            JButton clearButton = new JButton(IconManager.getIcon(IconManager.IconType.TRASH));
+                });
+            } else {
+                clearButton = new JButton(IconManager.getIcon(IconManager.IconType.TRASH));
+                final int kFinal = k;
+                clearButton.addActionListener(e -> {
+                    deleteFastaFolder(fastaToBeDisplayed.get(kFinal));
+                });
 
-            final int kFinal = k;
-            clearButton.addActionListener(e -> {
-                deleteFastaFolder(fastaToBeDisplayed.get(kFinal));
-            });
+            }
+
 
             clearButton.setHorizontalAlignment(SwingConstants.CENTER);
             fastaListPanelConstraints.weightx = 0;
@@ -551,9 +583,18 @@ public class FolderPanel extends JPanel {
     private void deleteFolderPath(MountPointUtils.MountPointType mountPointType, String key, boolean forced) {
         boolean delSucces = ConfigManager.getInstance().getMountPointManager().delMountPointEntry(mountPointType, key, forced);
         if (delSucces) {
+
             updateJpanel();
+            if (forced) {
+                // guides the user during the edit of mounting point
+                folderLabelField.setText(MountPointUtils.getMountPointDefaultPathLabel(mountPointType));
+                dataTypeBox.setSelectedItem(mountPointType.getDisplayString());
+                browseButton.requestFocus();
+
+            }
+
         } else {
-            Popup.warning("This Mount point cannot be deleted");
+            Popup.warning("The mounting point has not been deleted");
         }
 
     }
@@ -569,6 +610,23 @@ public class FolderPanel extends JPanel {
 
     }
 
+    private void repairFastaDirectory(String path) throws AWTException {
+
+        boolean dellSuccess = ConfigManager.getInstance().getParsingRulesManager().deleteFastaFolder(path);
+        if (dellSuccess) {
+            updateJpanel();
+            dataTypeBox.setSelectedItem("Fasta folder");
+            browseButton.requestFocus();
+            // TODO use basicRobot implementation of Robot
+            // cursor supposed to move to browsebutton
+            Robot r = new Robot();
+            xbrowsePosition = browseButton.getX();
+            ybrowsePosition = browseButton.getY();
+            System.out.println("position: " + xbrowsePosition + "  y: " + ybrowsePosition);
+        }
+
+    }
+
 
     public void updateValues() {
         updateJpanel();
@@ -576,7 +634,7 @@ public class FolderPanel extends JPanel {
         // TODO
     }
 
-    // calculate the size in Pixels of the text of a JLabel
+    // calculate the size in Pixels of the text inside a JLabel
     private int getSizeInPixels(JLabel jLabel) {
         Font fontused = jLabel.getFont();
         FontMetrics fm = jLabel.getFontMetrics(fontused);

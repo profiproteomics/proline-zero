@@ -42,9 +42,9 @@ public class MountPointUtils {
 
 
     public MountPointUtils() {
-       // mountPointMap = JsonAccess.getInstance().getMountPointMaps();
+
         mountPointMap= JsonCortexAccess.getInstance().getMountPointMaps();
-       // fastaDirectories=SuperJson.getInstanceParseRules().getFastaPaths();
+
     }
 
     public enum MountPointType {
@@ -117,25 +117,6 @@ public class MountPointUtils {
 
 
     private boolean pathExists(String path) {
-        boolean pathExists = false;
-        for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
-            if ((mountPointMap.get(mountPointType) != null) && (mountPointMap.get(mountPointType).containsValue(path))) {
-                pathExists = true;
-                break;
-            }
-        }
-        // check if path exists in Fasta Directories
-        ArrayList<String> fastaPaths=ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
-        for (int k=0;k< fastaPaths.size();k++){
-            if (fastaPaths.contains(path)){
-                pathExists=true;
-                break;
-            }
-        }
-        return pathExists;
-    }
-    // Chat GPT version not used
-    private boolean pathExistsGPT(String path) {
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             Map<String, String> map = mountPointMap.get(mountPointType);
             if (map != null && map.containsValue(path)) {
@@ -164,7 +145,7 @@ public class MountPointUtils {
         }
         return exists;
     }
-    // CHATGPT version
+
     private boolean labelExists(String value) {
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             Map<String, String> map = mountPointMap.get(mountPointType);
@@ -197,11 +178,24 @@ public class MountPointUtils {
 
             mountPointMap.put(mountPointType, currentKValue);
             mountHasBeenChanged = true;
-
             success = true;
 
         }
         return success;
+    }
+    //ChatGpt version
+    public boolean deleteMountPointEntry(MountPointType mountPointType, String key, boolean force) {
+        Map<String, String> currentKValue = mountPointMap.get(mountPointType);
+
+        if (!force && (key.equals(ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT) || key.equals(ProlineFiles.USER_CORTEX_RESULT_FILES_POINT))) {
+            return false;
+        }
+
+        currentKValue.remove(key);
+        mountPointMap.put(mountPointType, currentKValue);
+        mountHasBeenChanged = true;
+
+        return true;
     }
 
     public void restoreMountPoints() {
@@ -247,12 +241,13 @@ public class MountPointUtils {
             // isValid = false;
         }
 
-        System.out.println(message.length());
+
 
         return message.length() == 0;
 
 
     }
+
 
     public String getErrorMessage() {
         return errorMessage;
@@ -266,13 +261,13 @@ public class MountPointUtils {
 
     // check if at least one mounting point is present
     public boolean atLeastOneMPoint() {
-        ArrayList<String> mountPointsPresent = new ArrayList<>();
+
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             if (mountPointMap.get(mountPointType) != null) {
-                mountPointsPresent.add(mountPointType.getDisplayString());
+                return true;
             }
         }
-        return !mountPointsPresent.isEmpty();
+        return false;
     }
     // check if all paths inside mountpointmap exist and store wrong paths in an arraylist wrongPaths
 

@@ -2,13 +2,17 @@ package fr.proline.zero.util;
 
 import fr.proline.zero.gui.Popup;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.List;
 
 
 public class ParsingRulesUtils {
 
 
-    private ArrayList<ParsingRule> setOfRules;
+    private List<ParsingRule> setOfRules;
     private ArrayList<String> fastaPaths;
 
     private boolean parseRulesAndFastaHasBeenChanged = false;
@@ -24,6 +28,7 @@ public class ParsingRulesUtils {
     private boolean labelExists;
     private String errorMessage;
     private boolean errorFatal;
+    private List<String> invalidFastaPaths;
 
     public boolean isErrorFatal() {
 
@@ -43,7 +48,7 @@ public class ParsingRulesUtils {
         fastaPaths = JsonSeqRepoAccess.getInstance().getFastaDirectories();
     }
 
-    public ArrayList<ParsingRule> getSetOfRules() {
+    public List<ParsingRule> getSetOfRules() {
         return setOfRules;
     }
 
@@ -75,17 +80,8 @@ public class ParsingRulesUtils {
 
     }
 
-    public boolean labelExistsOLD(String labelToBeAdded) {
-        boolean labelExists = false;
-        for (int k = 0; k < setOfRules.size(); k++) {
-            String label = setOfRules.get(k).getName();
-            if (label.equals(labelToBeAdded)) {
-                labelExists = true;
-                break;
-            }
-        }
-        return labelExists;
-    }
+
+
     public boolean labelExists(String labelToBeAdded) {
         for (ParsingRule parsingRule : setOfRules) {
             if (parsingRule.getName().equals(labelToBeAdded)) {
@@ -111,16 +107,9 @@ public class ParsingRulesUtils {
                 break;
             }
         }
-        // check inside fasta directories
-        for (int k = 0; k < fastaPaths.size(); k++) {
-            if (fastaPaths.get(k).equals(path)) {
-                pathExists = true;
-                break;
-            }
-        }
-
-        return !pathExists;
+        return !pathExists&&!fastaPaths.contains(path);
     }
+
 
 
     public boolean addFastaFolder(String path) {
@@ -159,13 +148,57 @@ public class ParsingRulesUtils {
         JsonSeqRepoAccess.getInstance().updateConfigRulesAndFasta(fastaPaths, setOfRules);
     }
 
+
     public boolean verif() {
         errorMessage = null;
         errorFatal = false;
         StringBuilder message = new StringBuilder();
         // TODO implement verifications
         //message.append(errorMessage);
+        if (!fastaPathsAreValid()) {
+            errorFatal = true;
+            if (invalidFastaPaths.size() > 1) {
+                message.append("Some paths inside seq repo configuration file are not valid: \n");
+
+
+                for (String invalidPath : invalidFastaPaths) {
+                    message.append(invalidPath);
+                    message.append("\n");
+                }
+            } else {
+                message.append("One path is not valid: \n");
+                message.append(invalidFastaPaths.get(0));
+            }
+        }
+        if (noParsingRule()) {
+            message.append("\n Minor error: \n");
+            message.append("There is no current Parsing rule \n");
+        }
+        if (message.length() > 0) {
+            errorMessage = message.toString();
+
+        }
         return message.length() == 0;
+    }
+
+    private boolean fastaPathsAreValid() {
+        invalidFastaPaths = new ArrayList<>();
+        for (String fastaPaths : fastaPaths) {
+
+            Path pathToTest = Paths.get(fastaPaths);
+            if (!Files.exists(pathToTest)) {
+                invalidFastaPaths.add(fastaPaths);
+            }
+        }
+        return invalidFastaPaths.isEmpty();
+    }
+
+    public List<String> getInvalidFastaPaths() {
+        return invalidFastaPaths;
+    }
+
+    private boolean noParsingRule() {
+        return setOfRules.isEmpty();
     }
 
 

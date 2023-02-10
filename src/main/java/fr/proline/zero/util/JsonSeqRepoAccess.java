@@ -103,7 +103,7 @@ public class JsonSeqRepoAccess {
 
     }
 
-    public void updateConfigRulesAndFasta(ArrayList<String> fastaPaths, ArrayList<ParsingRule> setOfRules){
+    public void updateConfigRulesAndFasta(ArrayList<String> fastaPaths, List<ParsingRule> setOfRules){
         // first updates fasta directories
         ConfigObject toBePreserved = JsonSeqRepoAccess.getInstance().getParsingConfig().root().withoutKey(ProlineFiles.SEQREPO_FASTA_DIRECTORIES);
 
