@@ -34,9 +34,6 @@ public class FolderPanel extends JPanel {
 
     private final Color stringColor = new Color(50, 0, 230);
     private final Color errorColor = new Color(255, 0, 50);
-    // Attempt to move cursor to browsebutton
-    private int xbrowsePosition;
-    private int ybrowsePosition;
 
     private JButton browseButton;
 
@@ -264,7 +261,7 @@ public class FolderPanel extends JPanel {
 
 
     private void initAnyFolderPanel(MountPointUtils.MountPointType mpt, JPanel anyPanel) {
-        ArrayList<String> pathWrong = ConfigManager.getInstance().getMountPointManager().getInvalidPaths();
+        List<String> pathWrong = ConfigManager.getInstance().getMountPointManager().getInvalidPaths();
         GridBagConstraints anyPanelConstraints = new GridBagConstraints();
         anyPanel.setBorder(BorderFactory.createTitledBorder(mpt.getDisplayString()));
         anyPanelConstraints.insets = new Insets(5, 5, 5, 5);
@@ -383,12 +380,12 @@ public class FolderPanel extends JPanel {
     }
 
     private int getMaximumSizesOfJLabels() {
-        int maximum = 0;
+        int maximum;
         JLabel masotLabel = new JLabel(MountPointUtils.getMountPointDefaultPathLabel(MountPointUtils.MountPointType.RESULT));
         int size1 = getSizeInPixels(masotLabel);
         JLabel mzdbPanel = new JLabel((MountPointUtils.getMountPointDefaultPathLabel(MountPointUtils.MountPointType.MZDB)));
         int size2 = getSizeInPixels(mzdbPanel);
-        JLabel fastaLabel = new JLabel("Folder: " + valueOf(1));
+        JLabel fastaLabel = new JLabel("Folder: " + 1);
         int size3 = getSizeInPixels(fastaLabel);
         maximum = Math.max(size1, size2);
         maximum = Math.max(maximum, size3);
@@ -409,7 +406,7 @@ public class FolderPanel extends JPanel {
         fastaListPanelConstraints.gridy = 0;
 
 
-        ArrayList<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
+        List<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
         List<String> wrongFastaDirectories = ConfigManager.getInstance().getParsingRulesManager().getInvalidFastaPaths();
         for (int k = 0; k < fastaToBeDisplayed.size(); k++) {
             boolean errorInThePath = wrongFastaDirectories != null && wrongFastaDirectories.contains(fastaToBeDisplayed.get(k));
@@ -417,7 +414,7 @@ public class FolderPanel extends JPanel {
             fastaListPanelConstraints.weightx = 0;
             fastaListPanelConstraints.anchor = GridBagConstraints.EAST;
             fastaListPanelConstraints.fill = GridBagConstraints.NONE;
-            JLabel fastaLabel = new JLabel("Folder    " + valueOf(k + 1) + ":", SwingConstants.RIGHT);
+            JLabel fastaLabel = new JLabel("Folder    " + (k + 1) + ":", SwingConstants.RIGHT);
             fastaLabel.setPreferredSize(new Dimension(getMaximumSizesOfJLabels() + 8, 20));
             fastaListPanel.add(fastaLabel, fastaListPanelConstraints);
             JTextField pathFasta = new JTextField(fastaToBeDisplayed.get(k));
@@ -620,8 +617,9 @@ public class FolderPanel extends JPanel {
             // TODO use basicRobot implementation of Robot
             // cursor supposed to move to browsebutton
             Robot r = new Robot();
-            xbrowsePosition = browseButton.getX();
-            ybrowsePosition = browseButton.getY();
+            // Attempt to move cursor to browsebutton
+            int xbrowsePosition = browseButton.getX();
+            int ybrowsePosition = browseButton.getY();
             System.out.println("position: " + xbrowsePosition + "  y: " + ybrowsePosition);
         }
 
@@ -658,13 +656,8 @@ public class FolderPanel extends JPanel {
             f.pack();
 
             f.setVisible(true);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (UnsupportedLookAndFeelException e) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
+                 UnsupportedLookAndFeelException e) {
             throw new RuntimeException(e);
         }
 

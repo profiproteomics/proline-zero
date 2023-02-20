@@ -11,9 +11,10 @@ import java.util.List;
 
 public class ParsingRulesUtils {
 
+    private final String defaultProteinAccRule;
 
     private List<ParsingRule> setOfRules;
-    private ArrayList<String> fastaPaths;
+    private List<String> fastaPaths;
 
     private boolean parseRulesAndFastaHasBeenChanged = false;
 
@@ -46,13 +47,18 @@ public class ParsingRulesUtils {
     public ParsingRulesUtils() {
         setOfRules = JsonSeqRepoAccess.getInstance().getSetOfRules();
         fastaPaths = JsonSeqRepoAccess.getInstance().getFastaDirectories();
+        defaultProteinAccRule = JsonSeqRepoAccess.getInstance().getDefaultProtein();
+    }
+
+    public String getDefaultProteinAccRule() {
+        return defaultProteinAccRule;
     }
 
     public List<ParsingRule> getSetOfRules() {
         return setOfRules;
     }
 
-    public ArrayList<String> getFastaPaths() {
+    public List<String> getFastaPaths() {
         return fastaPaths;
     }
 
@@ -127,25 +133,15 @@ public class ParsingRulesUtils {
         return fastaPaths.remove(path);
     }
 
-    // To be deleted?
-    public void restoreParseRules() {
-        setOfRules = JsonSeqRepoAccess.getInstance().getSetOfRules();
-    }
-
-    // To be deleted?
-    public void restoreFastaDirectories() {
-        fastaPaths = JsonSeqRepoAccess.getInstance().getFastaDirectories();
-    }
-
-    public void restoreParseRulesAndFastas() {
+    public void restoreParseRulesAndFastas(){
         setOfRules = JsonSeqRepoAccess.getInstance().getSetOfRules();
         fastaPaths = JsonSeqRepoAccess.getInstance().getFastaDirectories();
 
 
     }
 
-    public void updateConfigFileParseRulesAndFasta() {
-        JsonSeqRepoAccess.getInstance().updateConfigRulesAndFasta(fastaPaths, setOfRules);
+    public void updateConfigFileParseRulesAndFasta(){
+        JsonSeqRepoAccess.getInstance().updateConfigRulesAndFasta(fastaPaths,setOfRules);
     }
 
 

@@ -77,11 +77,11 @@ public class ProlineFiles {
     public static String USER_CORTEX_RAW_FILES_MOUNT_POINT="raw_files";
     public static String SEQREPO_PARSING_RULE_KEY ="parsing-rules";
     public static String SEQREPO_FASTA_DIRECTORIES ="local-fasta-directories";
-    public static String PROTEIN_DEFAULT_REGEX="default-protein-accession";
-    public final static String NAME ="name";
-    public final static String FASTA_NAME="fasta-name";
-    public final static String FASTA_VERSION="fasta-version";
-    public final static String PROTEIN="protein-accession";
+    public static String SEQREPO_PROTEIN_DEFAULT_REGEX ="default-protein-accession";
+    public final static String PARSING_RULE_NAME ="name";
+    public final static String PARSING_RULE_FASTA_NAME ="fasta-name";
+    public final static String PARSING_RULE_FASTA_VERSION ="fasta-version";
+    public final static String PARSING_RULE_PROTEIN ="protein-accession";
 
 
 

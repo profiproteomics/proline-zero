@@ -18,11 +18,11 @@ public class JsonCortexAccess {
     private final Logger logger = LoggerFactory.getLogger(JsonCortexAccess.class);
 
     private static JsonCortexAccess instance;
-    private Config m_cortexProlineConfig = null;
+    private Config m_cortexProlineConfig;
 
     private JsonCortexAccess() {
         ConfigParseOptions options = ConfigParseOptions.defaults();
-        options.setSyntax(ConfigSyntax.CONF);
+        options = options.setSyntax(ConfigSyntax.CONF);
         m_cortexProlineConfig  = ConfigFactory.parseFile(ProlineFiles.CORTEX_CONFIG_FILE,options);
     }
 
@@ -33,7 +33,6 @@ public class JsonCortexAccess {
         return instance;
     }
 
-    // Appel depuis constructeur ... puis refait à chaque appel ...
     public Config getCortexConfig(){
         return  m_cortexProlineConfig;
     }
@@ -68,6 +67,7 @@ public class JsonCortexAccess {
         }
 
     }
+
     public void updateCortexConfigFileJson(HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt) {
 
         ConfigObject toBePreserved = JsonCortexAccess.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);

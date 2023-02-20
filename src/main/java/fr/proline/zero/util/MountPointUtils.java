@@ -310,7 +310,7 @@ public class MountPointUtils {
         return missingMPs.isEmpty();
     }
 
-    public ArrayList<String> getInvalidPaths() {
+    public List<String> getInvalidPaths() {
         return invalidPaths;
     }
 

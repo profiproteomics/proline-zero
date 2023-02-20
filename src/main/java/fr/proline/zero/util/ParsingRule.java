@@ -1,10 +1,11 @@
 package fr.proline.zero.util;
 
-import java.util.ArrayList;
+
+import java.util.List;
 
 public class ParsingRule {
     private String name;
-    private ArrayList<String> fastaNameRegExp;
+    private List<String> fastaNameRegExp;
     private String fastaVersionRegExp;
     private String proteinAccRegExp;
     private boolean isEditable;
@@ -17,8 +18,6 @@ public class ParsingRule {
         isEditable = editable;
     }
 
-
-
     public String getName() {
         return name;
     }
@@ -27,11 +26,11 @@ public class ParsingRule {
         this.name = name;
     }
 
-    public ArrayList<String> getFastaNameRegExp() {
+    public List<String> getFastaNameRegExp() {
         return fastaNameRegExp;
     }
 
-    public void setFastaNameRegExp(ArrayList<String> fastaNameRegExp) {
+    public void setFastaNameRegExp(List<String> fastaNameRegExp) {
         this.fastaNameRegExp = fastaNameRegExp;
     }
 
@@ -52,9 +51,7 @@ public class ParsingRule {
     }
 
 
-
-
-    public ParsingRule(String name, ArrayList<String> fastaNameRegexp, String fastaVersionRegExp, String proteinAccRegExp) {
+    public ParsingRule(String name, List<String> fastaNameRegexp, String fastaVersionRegExp, String proteinAccRegExp) {
         this.name = name;
         this.fastaNameRegExp = fastaNameRegexp;
         this.fastaVersionRegExp = fastaVersionRegExp;
