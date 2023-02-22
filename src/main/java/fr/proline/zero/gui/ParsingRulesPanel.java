@@ -27,11 +27,12 @@ public class ParsingRulesPanel extends JPanel {
 
     private List<String> fastaList;
 
-    private boolean editingContext;
 
     private JTable fastaNamesTable;
 
     private ParsingRule parsingRuleEditedBackUp;
+    private JDialog editDialog;
+    private JDialog createDialog;
 
 
     public ParsingRulesPanel() {
@@ -46,7 +47,7 @@ public class ParsingRulesPanel extends JPanel {
         c.anchor = GridBagConstraints.WEST;
         c.weightx = 1;
         c.weighty = 1;
-
+        c.insets = new java.awt.Insets(10, 6, 10, 6);
         // creation des widgets
 
         HelpHeaderPanel help = new HelpHeaderPanel("Parsing Rules", SettingsConstant.PARSING_RULES_HELP_PANE);
@@ -59,14 +60,16 @@ public class ParsingRulesPanel extends JPanel {
         c.insets = new java.awt.Insets(20, 15, 0, 15);
         c.gridy++;
 
-        c.fill = GridBagConstraints.HORIZONTAL;
+        c.fill = GridBagConstraints.BOTH;
         c.anchor = GridBagConstraints.WEST;
+        c.weighty = 0;
 
-        add(createParsingRulesPanel(), c);
 
+        add(openJdialogPanel(), c);
         c.gridy++;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.WEST;
+        c.weighty = 1;
 
         add(createProteinAccDefaultRule(), c);
 
@@ -82,11 +85,61 @@ public class ParsingRulesPanel extends JPanel {
         revalidate();
         repaint();
 
+
+    }
+
+    private void openJdialog() {
+        createDialog = new JDialog(ConfigWindow.getInstance(), "Create parsing Rule");
+        createDialog.setSize(new Dimension(700, 300));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.BOTH;
+        JPanel createParsingRulePanel = createParsingRulesPanel();
+        createDialog.add(createParsingRulePanel);
+        createDialog.setLocationRelativeTo(null);
+        createDialog.setVisible(true);
+
+
+    }
+
+    private JPanel openJdialogPanel() {
+        JPanel openDialog = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        openDialog.setBorder(BorderFactory.createTitledBorder("Add parsing rules"));
+
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        // gbc.weightx=1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        JLabel infoJlabel = new JLabel("Click to add a parsing rule: ");
+        openDialog.add(infoJlabel, gbc);
+
+
+        JButton jButtonOpenJdialog = new JButton();
+        jButtonOpenJdialog.setIcon(IconManager.getIcon(IconManager.IconType.DOCUMENT_LIST));
+        jButtonOpenJdialog.addActionListener(e -> {
+            openJdialog();
+
+        });
+        gbc.gridx++;
+        //gbc.gridy=0;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        // gbc.weightx=0;
+        openDialog.add(jButtonOpenJdialog, gbc);
+        add(Box.createHorizontalGlue());
+
+
+        return openDialog;
     }
 
     private void updatePanel() {
         removeAll();
         initialize();
+
 
     }
 
@@ -119,19 +172,39 @@ public class ParsingRulesPanel extends JPanel {
         return addParsingRules;
     }
 
+    private JPanel createParsingRulesJDialog() {
+        // creation du panel et du layout
+        JPanel addParsingRules = new JPanel(new GridBagLayout());
+        addParsingRules.setBorder(BorderFactory.createTitledBorder("Add Parsing Rule "));
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new java.awt.Insets(9, 5, 5, 5);
+        // creation des elements
+
+        c.gridx = 0;
+        c.gridy = 0;
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        addParsingRules.add(newParsingRulePanel(), c);
+
+        c.gridx++;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new java.awt.Insets(3, 5, 5, 5);
+        addParsingRules.add(newFastaNamePanel(), c);
+
+        c.gridy++;
+        c.anchor = GridBagConstraints.EAST;
+        addParsingRules.add(createButtonJDialog(), c);
+        addParsingRules.add(Box.createHorizontalGlue(), c);
+
+        return addParsingRules;
+    }
+
 
     private void cancelEditAction() {
-        // rewrites the rule that has been suppressed at the beginning of editing
-        boolean success = ConfigManager.getInstance().getParsingRulesManager().addNewRule(parsingRuleEditedBackUp);
-        if (success) {
 
-            editingContext = false;
-            updatePanel();
-
-
-        } else {
-            Popup.warning("Error while restoring parsing rule ");
-        }
+        createDialog.dispose();
 
     }
 
@@ -152,8 +225,9 @@ public class ParsingRulesPanel extends JPanel {
         buttonsConstraints.anchor = GridBagConstraints.EAST;
         buttonsConstraints.weightx = 0;
 
+
         JButton cancelEditButton = new JButton("Cancel");
-        cancelEditButton.setEnabled(editingContext);
+
         Icon editCancel = IconManager.getIcon(IconManager.IconType.UNDO);
         cancelEditButton.setToolTipText("Click to cancel current editing");
         cancelEditButton.setIcon(editCancel);
@@ -188,7 +262,83 @@ public class ParsingRulesPanel extends JPanel {
         plus.setIcon(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
         plus.setToolTipText("Click to add your parsing rule");
         plus.addActionListener(e -> {
-            addRule();
+            boolean ruleAdded = addRule();
+            // ConfigWindow.getInstance().pack();
+            if (ruleAdded) {
+                createDialog.dispose();
+                updatePanel();
+            }
+        });
+        displayButtons.add(plus, buttonsConstraints);
+
+        return displayButtons;
+
+    }
+
+    private JPanel createButtonJDialog() {
+        JPanel displayButtons = new JPanel(new GridBagLayout());
+        GridBagConstraints buttonsConstraints = new GridBagConstraints();
+        buttonsConstraints.insets = new Insets(3, 5, 3, 5);
+        buttonsConstraints.gridx = 0;
+        buttonsConstraints.gridy = 0;
+        buttonsConstraints.fill = GridBagConstraints.HORIZONTAL;
+        JLabel spacer = new JLabel("           ");
+        buttonsConstraints.weightx = 1;
+        buttonsConstraints.ipadx = 5;
+        displayButtons.add(spacer, buttonsConstraints);
+
+        buttonsConstraints.fill = GridBagConstraints.NONE;
+        buttonsConstraints.anchor = GridBagConstraints.EAST;
+        buttonsConstraints.weightx = 0;
+
+        JButton cancelEditButton = new JButton("Cancel");
+        // cancelEditButton.setEnabled(editingContext);
+        Icon editCancel = IconManager.getIcon(IconManager.IconType.UNDO);
+        cancelEditButton.setToolTipText("Click to cancel current editing");
+        cancelEditButton.setIcon(editCancel);
+        cancelEditButton.addActionListener(e -> {
+            boolean success = ConfigManager.getInstance().getParsingRulesManager().addNewRule(parsingRuleEditedBackUp);
+            if (success) {
+                editDialog.dispose();
+                // editingContext = false;
+                updatePanel();
+
+            } else {
+                Popup.warning("Error while restoring parsing rule ");
+            }
+        });
+        displayButtons.add(cancelEditButton, buttonsConstraints);
+
+        buttonsConstraints.gridx++;
+        buttonsConstraints.fill = GridBagConstraints.NONE;
+        buttonsConstraints.anchor = GridBagConstraints.EAST;
+        JButton clearButton = new JButton("Clear");
+        clearButton.setIcon(IconManager.getIcon(IconManager.IconType.CLEAR_ALL));
+        clearButton.setToolTipText("Click to reset all fields");
+        clearButton.addActionListener(e -> {
+            clearParsingRule();
+        });
+        displayButtons.add(clearButton, buttonsConstraints);
+
+        buttonsConstraints.gridx++;
+        buttonsConstraints.anchor = GridBagConstraints.EAST;
+        JButton testButton = new JButton("Test");
+        testButton.setIcon(IconManager.getIcon(IconManager.IconType.TEST));
+        testButton.addActionListener(e -> {
+            testAction();
+        });
+        displayButtons.add(testButton, buttonsConstraints);
+
+        buttonsConstraints.gridx++;
+        buttonsConstraints.anchor = GridBagConstraints.EAST;
+        JButton plus = new JButton("Add");
+        plus.setIcon(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
+        plus.setToolTipText("Click to add your parsing rule");
+        plus.addActionListener(e -> {
+            boolean ruleAdded = addRule();
+            if (ruleAdded) {
+                editDialog.dispose();
+            }
         });
         displayButtons.add(plus, buttonsConstraints);
 
@@ -544,7 +694,6 @@ public class ParsingRulesPanel extends JPanel {
         constraints.fill = GridBagConstraints.NONE;
         constraints.weightx = 0;
         displayPr.add(jLabelProtein, constraints);
-
         JTextField proteinField = new JTextField(protein);
         proteinField.setEnabled(parsingRule.isEditable());
         proteinField.setEditable(parsingRule.isEditable());
@@ -565,7 +714,9 @@ public class ParsingRulesPanel extends JPanel {
     }
 
 
-    private void addRule() {
+
+    private boolean addRule() {
+        boolean success = false;
         boolean formFullyFilled = !labelField.getText().isEmpty() && !proteinAccTField.getText().isEmpty()
                 && !fastaVersionTField.getText().isEmpty() && !fastaList.isEmpty();
 
@@ -576,9 +727,9 @@ public class ParsingRulesPanel extends JPanel {
             List<String> list = fastaList;
 
             ParsingRule pr = new ParsingRule(addedLabel, list, addedFasta, addedRegex);
-            boolean success = ConfigManager.getInstance().getParsingRulesManager().addNewRule(pr);
+            success = ConfigManager.getInstance().getParsingRulesManager().addNewRule(pr);
             if (success) {
-                editingContext = false;
+
                 updatePanel();
 
             } else if (formFullyFilled && !ConfigManager.getInstance().getParsingRulesManager().isLabelExists()) {
@@ -589,6 +740,7 @@ public class ParsingRulesPanel extends JPanel {
 
             Popup.warning("Missing values please fill all the fields");
         }
+        return success;
 
     }
 
@@ -635,12 +787,10 @@ public class ParsingRulesPanel extends JPanel {
 
 
     }
-
+    // Old action event before JDialog implementation
 
     private void editRule(ParsingRule parsingRule) {
-        Popup.info("You are entering edit mode \n you can cancel modifications at any time\n by clicking on the cancel button");
-        editingContext = true;
-        // parsingRule.setEditable(true); // to be removed
+
         String label = parsingRule.getName();
         String fastaVersionRegexp = parsingRule.getFastaVersionRegExp();
         String proteinRegexp = parsingRule.getProteinAccRegExp();
@@ -649,19 +799,32 @@ public class ParsingRulesPanel extends JPanel {
         parsingRuleEditedBackUp = new ParsingRule(label, fastaNames, fastaVersionRegexp, proteinRegexp);
         // parsing rule is deleted
         boolean success = ConfigManager.getInstance().getParsingRulesManager().deleteRule(parsingRule);
-        if (success) {
-            updatePanel();
-        }
-        //display values in the adder panel so user can modify them
+
+        editDialog = new JDialog(ConfigWindow.getInstance(), "Editing Dialog");
+
+        editDialog.setSize(new Dimension(700, 300));
+
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.fill = GridBagConstraints.BOTH;
+        JPanel editJPanel = createParsingRulesJDialog();
         fastaList = parsingRule.getFastaNameRegExp();
         labelField.setText(parsingRule.getName());
         fastaVersionTField.setText(parsingRule.getFastaVersionRegExp());
         proteinAccTField.setText(parsingRule.getProteinAccRegExp());
+
         // draws the jTable to be modified
         for (int k = 0; k < fastaNames.size(); k++) {
             Object[] vector = {fastaNames.get(k), removeFastaNameRuleJButton};
             fastaNamesTableModel.addRow(vector);
         }
+
+        editDialog.add(editJPanel);
+        editDialog.setLocationRelativeTo(null);
+        editDialog.setVisible(true);
+
 
     }
 

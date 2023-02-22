@@ -157,7 +157,7 @@ public class MountPointUtils {
     }
 
 
-    public boolean delMountPointEntry(MountPointType mountPointType, String key, Boolean forced) {
+    public boolean deleteMountPointEntry(MountPointType mountPointType, String key, Boolean forced) {
         boolean success = true;
         if (!forced) {
             Map<String, String> currentKValue = mountPointMap.get(mountPointType);
@@ -183,20 +183,7 @@ public class MountPointUtils {
         }
         return success;
     }
-    //ChatGpt version
-    public boolean deleteMountPointEntry(MountPointType mountPointType, String key, boolean force) {
-        Map<String, String> currentKValue = mountPointMap.get(mountPointType);
 
-        if (!force && (key.equals(ProlineFiles.USER_CORTEX_MZDB_MOUNT_POINT) || key.equals(ProlineFiles.USER_CORTEX_RESULT_FILES_POINT))) {
-            return false;
-        }
-
-        currentKValue.remove(key);
-        mountPointMap.put(mountPointType, currentKValue);
-        mountHasBeenChanged = true;
-
-        return true;
-    }
 
     public void restoreMountPoints() {
         mountPointMap = JsonCortexAccess.getInstance().getMountPointMaps();
@@ -313,6 +300,8 @@ public class MountPointUtils {
     public List<String> getInvalidPaths() {
         return invalidPaths;
     }
+
+    public List<String> getMissingMPs(){return missingMPs;}
 
 
 }

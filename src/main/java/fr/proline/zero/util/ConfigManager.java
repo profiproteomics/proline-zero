@@ -250,10 +250,10 @@ public final class ConfigManager {
     public boolean verif() {
 
         lastErrorMessage = "";
-        boolean success = memoryManager.verif()&& advancedManager.verif()&& mountPointsManager.verif()&& parsingRulesManager.verif();
-        /*success = advancedManager.verif() && success;
-        success = success && mountPointsManager.verif();
-        success = success && parsingRulesManager.verif();*/
+        boolean success = memoryManager.verif();
+        success = advancedManager.verif() && success;
+        success = mountPointsManager.verif()&&success;
+        success = parsingRulesManager.verif()&&success;
 
         if (!success) {
             StringBuilder errorMessage = new StringBuilder();
