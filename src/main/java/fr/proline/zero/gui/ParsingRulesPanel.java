@@ -91,6 +91,7 @@ public class ParsingRulesPanel extends JPanel {
     private void openJdialog() {
         createDialog = new JDialog(ConfigWindow.getInstance(), "Create parsing Rule");
         createDialog.setSize(new Dimension(700, 300));
+        createDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -263,7 +264,7 @@ public class ParsingRulesPanel extends JPanel {
         plus.setToolTipText("Click to add your parsing rule");
         plus.addActionListener(e -> {
             boolean ruleAdded = addRule();
-            // ConfigWindow.getInstance().pack();
+
             if (ruleAdded) {
                 createDialog.dispose();
                 updatePanel();
@@ -300,7 +301,7 @@ public class ParsingRulesPanel extends JPanel {
             boolean success = ConfigManager.getInstance().getParsingRulesManager().addNewRule(parsingRuleEditedBackUp);
             if (success) {
                 editDialog.dispose();
-                // editingContext = false;
+
                 updatePanel();
 
             } else {
@@ -509,7 +510,7 @@ public class ParsingRulesPanel extends JPanel {
         StringBuilder builtFasta = new StringBuilder();
         for (int k = 0; k < fastaNames.size(); k++) {
             builtFasta.append(fastaNames.get(k));
-            if(k < (fastaNames.size()-1))
+            if (k < (fastaNames.size() - 1))
                 builtFasta.append("; ");
         }
         return builtFasta.toString();
@@ -650,25 +651,16 @@ public class ParsingRulesPanel extends JPanel {
         constraints.fill = GridBagConstraints.NONE;
         constraints.weightx = 0;
         displayPr.add(fastaName, constraints);
-        if (!parsingRuleHasManyFastasRules) {
-            JTextField fastaField = new JTextField(fastaConcatenator(fastaNames));
-            fastaField.setEnabled(parsingRule.isEditable());
-            fastaField.setEditable(parsingRule.isEditable());
-            fastaField.setPreferredSize(new Dimension(maximumSize[1], 20));
-            constraints.gridx++;
-            constraints.anchor = GridBagConstraints.EAST;
-            constraints.weightx = 1;
-            constraints.fill = GridBagConstraints.HORIZONTAL;
-            displayPr.add(fastaField, constraints);
-        } else {
-            JSpinner fastaField = spinnerFasta(parsingRule);
-            fastaField.setPreferredSize(new Dimension(maximumSize[1], 20));
-            constraints.gridx++;
-            constraints.anchor = GridBagConstraints.EAST;
-            constraints.weightx = 1;
-            constraints.fill = GridBagConstraints.HORIZONTAL;
-            displayPr.add(fastaField, constraints);
-        }
+        // JSpinner removed
+        JTextField fastaField = new JTextField(fastaConcatenator(fastaNames));
+        fastaField.setEnabled(parsingRule.isEditable());
+        fastaField.setEditable(parsingRule.isEditable());
+        fastaField.setPreferredSize(new Dimension(maximumSize[1], 20));
+        constraints.gridx++;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        displayPr.add(fastaField, constraints);
 
         JLabel jLabelFastaVersion = new JLabel("Fasta Version Rule: ");
         constraints.gridx = 0;
@@ -711,8 +703,8 @@ public class ParsingRulesPanel extends JPanel {
     public void updateValues() {
         // TODO Auto-generated method stub
         updatePanel();
+        ConfigWindow.getInstance().pack();
     }
-
 
 
     private boolean addRule() {
@@ -787,7 +779,6 @@ public class ParsingRulesPanel extends JPanel {
 
 
     }
-    // Old action event before JDialog implementation
 
     private void editRule(ParsingRule parsingRule) {
 
@@ -803,6 +794,7 @@ public class ParsingRulesPanel extends JPanel {
         editDialog = new JDialog(ConfigWindow.getInstance(), "Editing Dialog");
 
         editDialog.setSize(new Dimension(700, 300));
+        editDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
 
         GridBagConstraints c = new GridBagConstraints();
