@@ -68,12 +68,13 @@ public class ParsingRulesUtils {
     }
 
 
-    public boolean addNewRule(ParsingRule newRule) {
+    public boolean addNewRule(ParsingRule newRule, int index) {
         // TODO add other verifications?
         String label = newRule.getName();
         if (!labelExists(label)) {
             setLabelExists(false);
-            setOfRules.add(newRule);
+            setOfRules.add(index,newRule);
+
             parseRulesAndFastaHasBeenChanged = true;
             return true;
 
@@ -99,6 +100,7 @@ public class ParsingRulesUtils {
 
     public boolean deleteRule(ParsingRule ruleToBeDeleted) {
         parseRulesAndFastaHasBeenChanged = true;
+       // int test=setOfRules.indexOf(ruleToBeDeleted);
         return setOfRules.remove(ruleToBeDeleted);
     }
 

@@ -167,6 +167,7 @@ public class MountPointUtils {
                 currentKValue.remove(key);
                 mountPointMap.put(mountPointType, currentKValue);
                 mountHasBeenChanged = true;
+                success=true;
             } else {
                 success = false;
             }
