@@ -2,48 +2,52 @@ package fr.proline.zero.gui;
 
 import java.awt.*;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
 
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.List;
 
 import javax.swing.*;
 
-import javax.swing.filechooser.FileSystemView;
 
-
+import fr.proline.studio.gui.DefaultDialog;
 import fr.proline.studio.utils.IconManager;
+
 import fr.proline.zero.util.*;
 
 import static java.lang.String.valueOf;
 
 
 public class FolderPanel extends JPanel {
-    private JComboBox<String> dataTypeBox;
-    private JTextField folderLabelField;
-    private JTextField folderPathField;
-    private JDialog repairJDialog;
-    private int index;
+
 
 
     private final Color stringColor = new Color(50, 0, 230);
     private final Color errorColor = new Color(255, 0, 50);
 
-    // private JButton browseButton;
+
+
 
     private MountPointUtils.MountPointType mountPointTypeEdited;
 
-    private enum Context {editingDefaultMPts, editingFastas, editingMpts, addingAMountPoint}
+
+
 
     private String labelEdited;
+
+
     private String pathBackup;
 
 
+
+
+
+
+    public ArrayList<String> valuesInsideDialog;
 
 
     public FolderPanel() {
@@ -109,7 +113,7 @@ public class FolderPanel extends JPanel {
         // creation des widgets
 
         JTextField maximumTmpFolderSizeField = new JTextField();
-        // maximumTmpFolderSizeField.setText(valueOf(ConfigManager.getInstance().getMaxTmpFolderSize()));
+
         maximumTmpFolderSizeField.setText(valueOf(ConfigManager.getMaxTmpFolderSize()));
         maximumTmpFolderSizeField.setToolTipText(SettingsConstant.FOLDER_MAX_SIZE_TOOLTIP);
 
@@ -132,180 +136,6 @@ public class FolderPanel extends JPanel {
     }
 
 
-    private JPanel createAddFolderPanel(Context context) {
-        // creation du panel et du layout
-        JPanel addFolderPanel = new JPanel(new GridBagLayout());
-        //
-        GridBagConstraints addFolderConstraint = new GridBagConstraints();
-        addFolderConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
-        addFolderConstraint.anchor = GridBagConstraints.EAST;
-        addFolderConstraint.fill = GridBagConstraints.HORIZONTAL;
-
-        // creation des widgets
-        dataTypeBox = new JComboBox<String>();
-        dataTypeBox.addItem(MountPointUtils.MountPointType.RESULT.getDisplayString());
-        dataTypeBox.addItem(MountPointUtils.MountPointType.MZDB.getDisplayString());
-        dataTypeBox.addItem("Fasta folder");
-
-
-        dataTypeBox.addActionListener(e -> {
-            greyLabelforFasta();
-        });
-
-        dataTypeBox.setEnabled(true);
-
-        folderLabelField = new JTextField();
-
-        folderPathField = new JTextField();
-
-        if (context.equals(Context.editingDefaultMPts)) {
-            folderLabelField.setText(MountPointUtils.getMountPointDefaultPathLabel(mountPointTypeEdited));
-            dataTypeBox.setSelectedItem(mountPointTypeEdited.getDisplayString());
-            folderLabelField.setEnabled(false);
-            folderLabelField.setEditable(false);
-            dataTypeBox.setEnabled(false);
-
-        }
-        if (context.equals(Context.editingFastas)) {
-
-            dataTypeBox.setSelectedItem("Fasta folder");
-          //  folderLabelField.setText("Folder    " + valueOf(index + 1) + ":");
-            folderLabelField.setText("");
-            dataTypeBox.setEnabled(false);
-            folderLabelField.setEnabled(false);
-            folderLabelField.setEditable(false);
-
-        }
-        if (context.equals(Context.editingMpts)) {
-            dataTypeBox.setSelectedItem(mountPointTypeEdited.getDisplayString());
-            folderLabelField.setText(labelEdited);
-            dataTypeBox.setEnabled(false);
-            folderLabelField.setEnabled(false);
-            folderLabelField.setEditable(false);
-
-        }
-        if (context.equals(Context.addingAMountPoint)) {
-            addFolderPanel.setBorder(BorderFactory.createTitledBorder("Add folder"));
-
-        } else {
-            addFolderPanel.setBorder(BorderFactory.createTitledBorder("Edit Folder"));
-        }
-
-
-        JButton addButton = new JButton(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
-        JButton clearButton = new JButton(IconManager.getIcon(IconManager.IconType.CLEAR_ALL));
-        JButton browseButton = new JButton(IconManager.getIcon(IconManager.IconType.OPEN_FILE));
-        JButton cancelButton = new JButton(IconManager.getIcon(IconManager.IconType.UNDO));
-
-        addButton.addActionListener(e -> {
-            boolean mountPointAdded = addFolderAction();
-
-            if (mountPointAdded) {
-                repairJDialog.dispose();
-            }
-
-
-        });
-
-        clearButton.addActionListener(e -> {
-            if (context.equals(Context.addingAMountPoint)) {
-                clearAction();
-            } else {
-                folderPathField.setText("");
-            }
-        });
-        browseButton.addActionListener(e -> {
-            openFolderView();
-        });
-        cancelButton.addActionListener(e -> {
-            //  restore mounting point
-            if (pathBackup != null && context.equals(Context.editingDefaultMPts)) {
-                ConfigManager.getInstance().getMountPointManager().addMountPointEntry(mountPointTypeEdited, MountPointUtils.getMountPointDefaultPathLabel(mountPointTypeEdited), pathBackup);
-            }
-            if (pathBackup != null && context.equals(Context.editingMpts)) {
-                ConfigManager.getInstance().getMountPointManager().addMountPointEntry(mountPointTypeEdited, labelEdited, pathBackup);
-            }
-            if (pathBackup != null && context.equals(Context.editingFastas)) {
-                ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(pathBackup);
-
-            }
-            // to do restore fastas and mount points
-            repairJDialog.dispose();
-        });
-
-        // ajout des widgets au layout
-        addFolderConstraint.gridx = 0;
-        addFolderConstraint.gridy = 0;
-        JLabel l = new JLabel("Data type : ", SwingConstants.RIGHT);
-        l.setEnabled(true);
-        addFolderPanel.add(l, addFolderConstraint);
-
-        addFolderConstraint.gridx++;
-        addFolderConstraint.anchor = GridBagConstraints.WEST;
-        addFolderPanel.add(dataTypeBox, addFolderConstraint);
-
-        addFolderConstraint.gridx = 0;
-        addFolderConstraint.gridy++;
-        addFolderConstraint.anchor = GridBagConstraints.EAST;
-        l = new JLabel("Label : ", SwingConstants.RIGHT);
-        l.setEnabled(true);
-
-        addFolderPanel.add(l, addFolderConstraint);
-        addFolderConstraint.gridx++;
-        addFolderConstraint.anchor = GridBagConstraints.WEST;
-        addFolderConstraint.weightx = 0.3;
-        folderLabelField.setEnabled(true);
-        addFolderPanel.add(folderLabelField, addFolderConstraint);
-
-        addFolderConstraint.weightx = 0;
-        addFolderConstraint.gridx = 0;
-        addFolderConstraint.gridy++;
-        addFolderConstraint.anchor = GridBagConstraints.EAST;
-        l = new JLabel("Path : ", SwingConstants.RIGHT);
-        l.setEnabled(true);
-        folderPathField.setEnabled(true);
-        browseButton.setEnabled(true);
-        addFolderPanel.add(l, addFolderConstraint);
-        addFolderConstraint.gridx++;
-        addFolderConstraint.anchor = GridBagConstraints.WEST;
-        addFolderConstraint.weightx = 1;
-        addFolderPanel.add(folderPathField, addFolderConstraint);
-
-
-        addFolderConstraint.fill = GridBagConstraints.NONE;
-        addFolderConstraint.gridx++;
-        addFolderPanel.add(browseButton, addFolderConstraint);
-
-        addFolderConstraint.gridy++;
-        addFolderConstraint.gridx = 1;
-        addFolderConstraint.anchor = GridBagConstraints.EAST;
-        addFolderPanel.add(cancelButton, addFolderConstraint);
-
-        addFolderConstraint.fill = GridBagConstraints.NONE;
-        addFolderConstraint.weightx = 0;
-
-
-
-        addFolderConstraint.anchor = GridBagConstraints.CENTER;
-
-        addFolderConstraint.gridx = 1;
-        clearButton.setEnabled(true);
-        addFolderPanel.add(clearButton, addFolderConstraint);
-
-
-        addButton.setEnabled(true);
-        addFolderConstraint.gridy=3;
-        addFolderConstraint.gridx=2;
-        addFolderConstraint.anchor=GridBagConstraints.WEST;
-        addFolderPanel.add(addButton, addFolderConstraint);
-        add(Box.createHorizontalGlue());
-
-       // addFolderConstraint.gridy++;
-
-
-        return addFolderPanel;
-    }
-
     private JPanel createAddFolderPanel() {
         JPanel addFolderPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -318,11 +148,30 @@ public class FolderPanel extends JPanel {
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.WEST;
         openAddJDialog.setSize(30, 30);
+
         openAddJDialog.addActionListener(e -> {
-            openRepairJDialog(Context.addingAMountPoint);
+
+
+           FolderEditDialog addDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.AddingAMountPoint, null, null, null);
+
+            addDialog.centerToWindow(ConfigWindow.getInstance());
+            addDialog.setSize(500, 270);
+            addDialog.setVisible(true);
+
+            // TODO execute if button ok is clicked inside dialog
+
+            if (addDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+
+                valuesInsideDialog = addDialog.getValuesEntered();
+
+                addFolderAction();
+
+
+            }
+
 
         });
-        gbc.insets=new Insets(5,30,5,10);
+        gbc.insets = new Insets(5, 30, 5, 10);
         addFolderPanel.add(openAddJDialog, gbc);
 
 
@@ -332,7 +181,7 @@ public class FolderPanel extends JPanel {
     private JPanel createFolderListPanel() {
         // creation du panel et layout
         JPanel folderListPanel = new JPanel(new GridBagLayout());
-        // folderListPanel.setBorder(BorderFactory.createTitledBorder("Folder list"));
+        folderListPanel.setBorder(BorderFactory.createTitledBorder("List of Folders"));
         GridBagConstraints c = new GridBagConstraints();
 
         c.weightx = 1;
@@ -383,10 +232,6 @@ public class FolderPanel extends JPanel {
         anyPanelConstraints.gridy = 0;
         anyPanelConstraints.weightx = 0;
         anyPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-
-
-        // get mounting points to be displayed
-
 
         //places none deletable mounting point at the top of the list
         if (temp != null) {
@@ -442,16 +287,27 @@ public class FolderPanel extends JPanel {
             editButton.setHorizontalAlignment(SwingConstants.CENTER);
             editButton.setToolTipText("Click to edit ");
             editButton.setSize(20, 15);
-            editButton.addActionListener(e -> {
-                // delete the wrong path
-                int index = 0;
 
-                if (path != null) {
+            editButton.addActionListener(e -> {
+
+
                     pathBackup = path;
                     ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mpt, MountPointUtils.getMountPointDefaultPathLabel(mpt), true);
+
+
+
+                FolderEditDialog editDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingDefaultMPts, pathBackup, null, mpt);
+
+                editDialog.centerToWindow(ConfigWindow.getInstance());
+                editDialog.setSize(500, 270);
+                editDialog.setVisible(true);
+                if (editDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+                    valuesInsideDialog = editDialog.getValuesEntered();
+                    addFolderAction();
                 }
-                mountPointTypeEdited = mpt;
-                openRepairJDialog(Context.editingDefaultMPts);
+                if (editDialog.getButtonClicked() == DefaultDialog.BUTTON_CANCEL) {
+                    ConfigManager.getInstance().getMountPointManager().addMountPointEntry(mpt, MountPointUtils.getMountPointDefaultPathLabel(mpt), pathBackup);
+                }
 
 
             });
@@ -462,6 +318,10 @@ public class FolderPanel extends JPanel {
             anyPanelConstraints.weightx = 0;
             JLabel resultLabel = new JLabel(IconManager.getIcon(IconManager.IconType.LOCK));
             resultLabel.setToolTipText("This mount point cannot be deleted");
+            // patch used to harmonize elements
+            if (temp.size() == 1) {
+                resultLabel.setPreferredSize(new Dimension(50, 20));
+            }
             anyPanel.add(resultLabel);
 
             anyPanelConstraints.gridy++;
@@ -508,17 +368,32 @@ public class FolderPanel extends JPanel {
                 editButton2.addActionListener(e -> {
                     mountPointTypeEdited = mpt;
                     pathBackup = temp.get(key);
-                    ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mpt, key, false);
                     labelEdited = key;
-                    openRepairJDialog(Context.editingMpts);
+                    ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mpt, key, false);
+
+
+                    FolderEditDialog editDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingMpts, pathBackup, labelEdited, mpt);
+                    editDialog.centerToWindow(ConfigWindow.getInstance());
+                    editDialog.setSize(500, 270);
+                    editDialog.setVisible(true);
+                    if (editDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+                        valuesInsideDialog = editDialog.getValuesEntered();
+                        addFolderAction();
+                    }
+                    if (editDialog.getButtonClicked() == DefaultDialog.BUTTON_CANCEL) {
+                        ConfigManager.getInstance().getMountPointManager().addMountPointEntry(mpt, labelEdited, pathBackup);
+                    }
+
 
                 });
                 anyPanelConstraints.insets = new Insets(5, 2, 5, 2);
                 anyPanel.add(editButton2, anyPanelConstraints);
                 JButton clearButton = new JButton(IconManager.getIcon(IconManager.IconType.TRASH));
-                clearButton.setSize(20, 30);
+                clearButton.setSize(10, 20);
+
                 clearButton.setHorizontalAlignment(SwingConstants.CENTER);
                 clearButton.setToolTipText("Click to delete mount point");
+                //clearButton.setText("Delete");
 
                 clearButton.addActionListener(e -> {
                     deleteFolderPath(mpt, key, false);
@@ -531,46 +406,6 @@ public class FolderPanel extends JPanel {
         }
     }
 
-    private void openRepairJDialog(Context context) {
-        if (context.equals(Context.addingAMountPoint)){
-            repairJDialog=new JDialog(ConfigWindow.getInstance(),"Add a Mounting Point");
-        }
-        else {
-        repairJDialog = new JDialog(ConfigWindow.getInstance(), "Edit mounting point");}
-
-        repairJDialog.setSize(new Dimension(600, 300));
-        // repairJDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        repairJDialog.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                // restore mounting point edited if user close the JDialog
-                if (pathBackup != null && context.equals(Context.editingDefaultMPts)) {
-                    ConfigManager.getInstance().getMountPointManager().addMountPointEntry(mountPointTypeEdited, MountPointUtils.getMountPointDefaultPathLabel(mountPointTypeEdited), pathBackup);
-                }
-                if (pathBackup != null && context.equals(Context.editingMpts)) {
-                    ConfigManager.getInstance().getMountPointManager().addMountPointEntry(mountPointTypeEdited, labelEdited, pathBackup);
-                }
-                if (pathBackup != null && context.equals(Context.editingFastas)) {
-                    ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(pathBackup);
-
-                }
-                //TODO treats the case adding a mount point
-
-                repairJDialog.dispose();
-
-            }
-        });
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.BOTH;
-        JPanel repairMountingPoint = createAddFolderPanel(context);
-        repairJDialog.add(repairMountingPoint);
-        repairJDialog.setLocationRelativeTo(null);
-        repairJDialog.setVisible(true);
-
-    }
 
     private int getMaximumSizesOfJLabels() {
         int maximum = 0;
@@ -632,15 +467,34 @@ public class FolderPanel extends JPanel {
             editButton.setToolTipText("Click to repair mounting point");
             final int kFinal = k;
             final String pathedited = fastaToBeDisplayed.get(k);
+
             editButton.addActionListener(e -> {
-                // save path and position inside the list before delete
-                index = kFinal;
+
                 pathBackup = pathedited;
-                editFastaDirectory(pathedited);
+                boolean deleteSuccess = ConfigManager.getInstance().getParsingRulesManager().deleteFastaFolder(pathBackup);
+
+                FolderEditDialog editFastaDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingFastas, pathBackup, null, null);
+                editFastaDialog.centerToWindow(ConfigWindow.getInstance());
+                editFastaDialog.setSize(500, 270);
+                editFastaDialog.setVisible(true);
+
+                if (editFastaDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+
+                    valuesInsideDialog = editFastaDialog.getValuesEntered();
+
+                    addFolderAction();
+                }
+                if (editFastaDialog.getButtonClicked() == DefaultDialog.BUTTON_CANCEL) {
+
+                    ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(pathBackup);
+
+                }
+
+
             });
 
             JButton clearButton = new JButton(IconManager.getIcon(IconManager.IconType.TRASH));
-            // final int kFinal = k;
+
             clearButton.addActionListener(e -> {
                 deleteFastaFolder(fastaToBeDisplayed.get(kFinal));
             });
@@ -663,31 +517,60 @@ public class FolderPanel extends JPanel {
         }
     }
 
-    private boolean addFolderAction() {
-        String folderField = folderLabelField.getText();
-        String folderPath = folderPathField.getText();
-        Path pathToTest = Paths.get(folderPath);
-        Boolean pathExists = Files.exists(pathToTest);
-        Boolean verifUserEntry = (!folderPath.isEmpty() && !folderField.isEmpty())
-                || (!folderPath.isEmpty() && dataTypeBox.getSelectedItem().equals("Fasta folder"));
+    private void deleteFolderPath(MountPointUtils.MountPointType mountPointType, String key, boolean forced) {
+        boolean deleteConfirmation = Popup.yesNo("Are you sure you want to delete this Folder?");
+        if (deleteConfirmation) {
+            boolean deleteSucces = ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mountPointType, key, forced);
+            if (deleteSucces) {
 
-        String type = dataTypeBox.getSelectedItem().toString();
+                updateJpanel();
+
+
+            } else {
+                Popup.warning("The mounting point has not been deleted");
+            }
+        }
+
+    }
+
+
+    private void deleteFastaFolder(String path) {
+
+        boolean deleteConfirmation = Popup.yesNo("Are you sure you want to delete this Folder?");
+        if (deleteConfirmation) {
+            boolean deleteSucess = ConfigManager.getInstance().getParsingRulesManager().deleteFastaFolder(path);
+            if (deleteSucess) {
+                updateJpanel();
+            } else {
+                Popup.warning("Error while deleting the directory");
+            }
+        }
+
+    }
+
+    public boolean addFolderAction() {
+
+        // verifications are done inside FolderEditDialog
+        //
+        String folderField = valuesInsideDialog.get(0);
+        String folderPath = valuesInsideDialog.get(1);
+        String type = valuesInsideDialog.get(2);
+
+
         boolean overallSuccess = false;
-        if (pathExists && verifUserEntry) {
+        if (true) {
             switch (type) {
                 case "Result folder":
                     boolean addSuccessResult = ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.RESULT, folderField, folderPath);
                     if (addSuccessResult) {
-                        folderPathField.setText("");
-                        folderLabelField.setText("");
+
                         updateJpanel();
                         ConfigWindow.getInstance().pack();
                         overallSuccess = true;
 
                     } else {
-                        Popup.warning("The label and/or the path already exist please choose new values");
-                        folderPathField.setText("");
-                        // folderLabelField.setText("");
+                        Popup.warning("Error while adding the mounting point");
+
 
                     }
                     break;
@@ -695,37 +578,33 @@ public class FolderPanel extends JPanel {
                 case "Mzdb folder":
                     boolean addSuccessMzdb = ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.MZDB, folderField, folderPath);
                     if (addSuccessMzdb) {
-                        folderPathField.setText("");
-                        folderLabelField.setText("");
+                        //folderPathField.setText("");
+                        //folderLabelField.setText("");
+                        // updateJpanel();
                         updateJpanel();
                         ConfigWindow.getInstance().pack();
                         overallSuccess = true;
                     } else {
-                        Popup.warning("The label and/or the path already exist please choose new values");
-                        folderPathField.setText("");
-                        // folderLabelField.setText("");
+                        Popup.warning("Error while adding the mounting point");
 
                     }
                     break;
                 case "Raw folders":
                     boolean addSuccesRaw = ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.RAW, folderField, folderPath);
                     if (addSuccesRaw) {
-                        folderPathField.setText("");
-                        //  folderLabelField.setText("");
+
                         updateJpanel();
                         ConfigWindow.getInstance().pack();
                         overallSuccess = true;
                     } else {
-                        Popup.warning("The label and/or the path already exist please choose new values");
-                        folderPathField.setText("");
-                        folderLabelField.setText("");
+                        Popup.warning("Error while adding the mounting point");
+
 
                     }
                     break;
                 case "Fasta folder":
                     boolean addSuccesFasta = ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(folderPath);
                     if (addSuccesFasta) {
-                        folderPathField.setText("");
 
                         updateJpanel();
                         ConfigWindow.getInstance().pack();
@@ -733,8 +612,8 @@ public class FolderPanel extends JPanel {
 
 
                     } else {
-                        Popup.warning("Path already exists please choose another value");
-                        folderPathField.setText("");
+                        Popup.warning("Errror while adding Fasta folder");
+
 
                     }
 
@@ -748,85 +627,10 @@ public class FolderPanel extends JPanel {
             }
             revalidate();
             repaint();
-        } else {
-            if (!pathExists) {
-                Popup.warning("The path you specified doesn't exist");
-
-            }
-            if (pathExists) {
-                Popup.warning("Please fill path and label");
-
-            }
         }
         return overallSuccess;
     }
 
-
-    private void greyLabelforFasta() {
-
-        if (dataTypeBox.getSelectedItem().equals("Fasta folder")) {
-            folderLabelField.setText("");
-            folderLabelField.setEnabled(false);
-        } else {
-            folderLabelField.setEnabled(true);
-        }
-
-    }
-
-
-    private void openFolderView() {
-        JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-        jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int returnValue = jfc.showOpenDialog(null);
-
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = jfc.getSelectedFile();
-            folderPathField.setToolTipText(selectedFile.getAbsolutePath());
-            folderPathField.setText(selectedFile.getAbsolutePath());
-        }
-    }
-
-
-    private void clearAction() {
-        folderPathField.setText("");
-        folderLabelField.setText("");
-
-    }
-
-    private void deleteFolderPath(MountPointUtils.MountPointType mountPointType, String key, boolean forced) {
-        boolean deleteSucces = ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mountPointType, key, forced);
-        if (deleteSucces) {
-
-            updateJpanel();
-
-
-        } else {
-            Popup.warning("The mounting point has not been deleted");
-        }
-
-    }
-
-
-    private void deleteFastaFolder(String path) {
-        boolean deleteSucess = ConfigManager.getInstance().getParsingRulesManager().deleteFastaFolder(path);
-        if (deleteSucess) {
-            updateJpanel();
-        } else {
-            Popup.warning("Error while deleting the directory");
-        }
-
-    }
-
-    private void editFastaDirectory(String path) {
-
-
-        boolean deleteSuccess = ConfigManager.getInstance().getParsingRulesManager().deleteFastaFolder(path);
-
-
-        openRepairJDialog(Context.editingFastas);
-
-
-    }
 
     public void updateValues() {
         updateJpanel();

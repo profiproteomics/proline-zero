@@ -84,7 +84,7 @@ public class MountPointUtils {
 
     public boolean addMountPointEntry(MountPointType mountPointType, String value, String path) {
 
-        if (mountPointMap.get(mountPointType) == null) {
+        if (mountPointMap.get(mountPointType) == null&&!labelExists(value)&&!pathExists(path)) {
             Map<String, String> initialMap = new HashMap<>();
             initialMap.put(value, path);
             mountPointMap.put(mountPointType, initialMap);
@@ -102,18 +102,6 @@ public class MountPointUtils {
 
 
     }
-    // ChatGpt version
-    public boolean addMountPointEntryGPT(MountPointUtils.MountPointType type, String label, String path) {
-        Map<String, String> currentMap = mountPointMap.getOrDefault(type, new HashMap<>());
-        if (currentMap.containsKey(label) || currentMap.containsValue(path)) {
-            return false;
-        } else {
-            currentMap.put(label, path);
-            mountPointMap.put(type, currentMap);
-            mountHasBeenChanged = true;
-            return true;
-        }
-    }
 
 
     private boolean pathExists(String path) {
@@ -125,6 +113,12 @@ public class MountPointUtils {
         }
         return ConfigManager.getInstance().getParsingRulesManager().getFastaPaths().contains(path);
     }
+    public boolean getIfPathExist(String path){
+        return pathExists(path);
+    }
+    public boolean getIfLabelExists(String value){
+        return labelExists(value);
+    }
 
     public List<String> getPaths() {
         List<String> paths = new ArrayList<>();
@@ -135,16 +129,7 @@ public class MountPointUtils {
         return paths;
     }
 
-    private boolean labelExistsOLD(String value) {
-        boolean exists = false;
-        for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
-            if ((mountPointMap.get(mountPointType) != null) && (mountPointMap.get(mountPointType).containsKey(value))) {
-                exists = true;
-                break;
-            }
-        }
-        return exists;
-    }
+
 
     private boolean labelExists(String value) {
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {

@@ -194,6 +194,9 @@ public class ConfigWindow extends JDialog {
 
 						// then we update graphically the values from the util
 						memoryPanel.updateMemoryValues();
+						// Bug seems to be fixed
+						tabbedPane.setEnabledAt(3, true);
+
 
 					} else {
 

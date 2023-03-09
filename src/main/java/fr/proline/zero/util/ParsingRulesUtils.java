@@ -68,12 +68,12 @@ public class ParsingRulesUtils {
     }
 
 
-    public boolean addNewRule(ParsingRule newRule, int index) {
+    public boolean addNewRule(ParsingRule newRule) {
         // TODO add other verifications?
         String label = newRule.getName();
         if (!labelExists(label)) {
             setLabelExists(false);
-            setOfRules.add(index,newRule);
+            setOfRules.add(newRule);
 
             parseRulesAndFastaHasBeenChanged = true;
             return true;
@@ -87,7 +87,20 @@ public class ParsingRulesUtils {
 
     }
 
+    public  ParsingRule updateParsingRule(ParsingRule ruleModified, String name, String fastaVersionRegExp, String proteinAccRegExp, List<String> fastaNameRegExp ){
+        ruleModified.setName(name);
+        ruleModified.setFastaNameRegExp(fastaNameRegExp);
+        ruleModified.setProteinAccRegExp(proteinAccRegExp);
+        ruleModified.setFastaVersionRegExp(fastaVersionRegExp);
+        return ruleModified;
+    }
 
+    public void updateSetOfRules(int index, ParsingRule newParsingRule){
+
+        setOfRules.set(index,newParsingRule);
+        parseRulesAndFastaHasBeenChanged = true;
+
+    }
 
     public boolean labelExists(String labelToBeAdded) {
         for (ParsingRule parsingRule : setOfRules) {
