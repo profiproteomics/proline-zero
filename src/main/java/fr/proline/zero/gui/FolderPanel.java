@@ -25,26 +25,17 @@ import static java.lang.String.valueOf;
 public class FolderPanel extends JPanel {
 
 
-
     private final Color stringColor = new Color(50, 0, 230);
     private final Color errorColor = new Color(255, 0, 50);
 
 
-
-
     private MountPointUtils.MountPointType mountPointTypeEdited;
-
-
 
 
     private String labelEdited;
 
 
     private String pathBackup;
-
-
-
-
 
 
     public ArrayList<String> valuesInsideDialog;
@@ -152,7 +143,7 @@ public class FolderPanel extends JPanel {
         openAddJDialog.addActionListener(e -> {
 
 
-           FolderEditDialog addDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.AddingAMountPoint, null, null, null);
+            FolderEditDialog addDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.AddingAMountPoint, null, null, null);
 
             addDialog.centerToWindow(ConfigWindow.getInstance());
             addDialog.setSize(500, 270);
@@ -291,9 +282,8 @@ public class FolderPanel extends JPanel {
             editButton.addActionListener(e -> {
 
 
-                    pathBackup = path;
-                    ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mpt, MountPointUtils.getMountPointDefaultPathLabel(mpt), true);
-
+                pathBackup = path;
+                ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mpt, MountPointUtils.getMountPointDefaultPathLabel(mpt), true);
 
 
                 FolderEditDialog editDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingDefaultMPts, pathBackup, null, mpt);
@@ -366,12 +356,10 @@ public class FolderPanel extends JPanel {
                 editButton2.setHorizontalAlignment(SwingConstants.CENTER);
                 editButton2.setToolTipText("Click to edit mounting point");
                 editButton2.addActionListener(e -> {
-                    mountPointTypeEdited = mpt;
+
                     pathBackup = temp.get(key);
                     labelEdited = key;
                     ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mpt, key, false);
-
-
                     FolderEditDialog editDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingMpts, pathBackup, labelEdited, mpt);
                     editDialog.centerToWindow(ConfigWindow.getInstance());
                     editDialog.setSize(500, 270);
@@ -383,7 +371,6 @@ public class FolderPanel extends JPanel {
                     if (editDialog.getButtonClicked() == DefaultDialog.BUTTON_CANCEL) {
                         ConfigManager.getInstance().getMountPointManager().addMountPointEntry(mpt, labelEdited, pathBackup);
                     }
-
 
                 });
                 anyPanelConstraints.insets = new Insets(5, 2, 5, 2);
@@ -522,10 +509,7 @@ public class FolderPanel extends JPanel {
         if (deleteConfirmation) {
             boolean deleteSucces = ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mountPointType, key, forced);
             if (deleteSucces) {
-
                 updateJpanel();
-
-
             } else {
                 Popup.warning("The mounting point has not been deleted");
             }

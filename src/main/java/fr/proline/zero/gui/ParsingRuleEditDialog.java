@@ -6,6 +6,7 @@ import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.ParsingRule;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
@@ -23,14 +24,15 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     private DefaultTableModel fastaNamesTableModel;
 
     private JTable fastaNamesTable;
-    private static String emptyColummnIdentifier ="      ";
-    private static final String[] columns = {"Rule", emptyColummnIdentifier};
-    private static final Color jTableColor = new Color(120, 133, 199);
+    private static String deleteColummnIdentifier = "      ";
+    private static final String[] columns = {"Rule", deleteColummnIdentifier};
+    private static final Color jTableColor = new Color(174, 182, 222);
 
     private static final Color testTableColor = new Color(200, 200, 200);
 
 
     private TypeOfDialog typeOfDialog;
+
     enum TypeOfDialog {Add, Edit}
 
 
@@ -38,7 +40,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
         super(Parent);
         if (typeOfDialog.equals(TypeOfDialog.Add)) {
-            this.typeOfDialog=TypeOfDialog.Add;
+            this.typeOfDialog = TypeOfDialog.Add;
             this.setButtonVisible(BUTTON_HELP, false);
             this.setButtonVisible(BUTTON_CANCEL, true);
             this.setButtonVisible(BUTTON_SAVE, false);
@@ -66,7 +68,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             super.pack();
         }
         if (typeOfDialog.equals(TypeOfDialog.Edit)) {
-            this.typeOfDialog=TypeOfDialog.Edit;
+            this.typeOfDialog = TypeOfDialog.Edit;
             this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
             this.setButtonVisible(BUTTON_CANCEL, true);
             this.setButtonVisible(BUTTON_HELP, false);
@@ -97,59 +99,37 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
     }
 
-    private JPanel createParsingRulesJDialog(ParsingRuleEditDialog.TypeOfDialog typeOfDialog, ParsingRule parsingRuleEditedBackUp) {
+
+    private JPanel createParsingRulesJDialog(ParsingRuleEditDialog.TypeOfDialog typeOfDialog, ParsingRule parsingRuleEdited) {
         // creation du panel et du layout
         JPanel addParsingRules = new JPanel(new GridBagLayout());
-        if (typeOfDialog.equals(ParsingRuleEditDialog.TypeOfDialog.Add)) {
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new java.awt.Insets(9, 5, 5, 5);
+        // creation des elements
 
-            GridBagConstraints c = new GridBagConstraints();
-            c.insets = new java.awt.Insets(9, 5, 5, 5);
-            // creation des elements
+        c.gridx = 0;
+        c.gridy = 0;
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        addParsingRules.add(newParsingRulePanel(), c);
 
-            c.gridx = 0;
-            c.gridy = 0;
-            c.anchor = GridBagConstraints.NORTHWEST;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1;
-            addParsingRules.add(newParsingRulePanel(), c);
-
-            c.gridx++;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.anchor = GridBagConstraints.WEST;
-            c.insets = new java.awt.Insets(3, 5, 5, 5);
-            addParsingRules.add(newFastaNamePanel(), c);
+        c.gridx++;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new java.awt.Insets(3, 5, 5, 5);
+        addParsingRules.add(newFastaNamePanel(), c);
 
 
-            addParsingRules.add(Box.createHorizontalGlue(), c);
-
-        }
+        addParsingRules.add(Box.createHorizontalGlue(), c);
+       // JtextFields are filled with previous values if parsing rule is edited
         if (typeOfDialog.equals(ParsingRuleEditDialog.TypeOfDialog.Edit)) {
 
 
-            GridBagConstraints c = new GridBagConstraints();
-            c.insets = new java.awt.Insets(9, 5, 5, 5);
-            // creation des elements
-
-            c.gridx = 0;
-            c.gridy = 0;
-            c.anchor = GridBagConstraints.NORTHWEST;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1;
-            addParsingRules.add(newParsingRulePanel(), c);
-
-            c.gridx++;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.anchor = GridBagConstraints.WEST;
-            c.insets = new java.awt.Insets(3, 5, 5, 5);
-            addParsingRules.add(newFastaNamePanel(), c);
-
-
-            addParsingRules.add(Box.createHorizontalGlue(), c);
-            // entries are filled with previous values
-            labelField.setText(parsingRuleEditedBackUp.getName());
-            fastaVersionTField.setText(parsingRuleEditedBackUp.getFastaVersionRegExp());
-            proteinAccTField.setText(parsingRuleEditedBackUp.getProteinAccRegExp());
-            List<String> fastaNames = parsingRuleEditedBackUp.getFastaNameRegExp();
+            labelField.setText(parsingRuleEdited.getName());
+            fastaVersionTField.setText(parsingRuleEdited.getFastaVersionRegExp());
+            proteinAccTField.setText(parsingRuleEdited.getProteinAccRegExp());
+            List<String> fastaNames = parsingRuleEdited.getFastaNameRegExp();
 
             fastaList = fastaNames;
             // draws the jTable to be modified
@@ -262,14 +242,15 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         fastaNamesTable.setGridColor(jTableColor);
         fastaNamesTable.setRowHeight(20);
         fastaNamesTable.setShowGrid(true);
-        fastaNamesTable.setIntercellSpacing(new Dimension(3, 3));
+        fastaNamesTable.setIntercellSpacing(new Dimension(2, 2));
+        fastaNamesTable.setDefaultRenderer(Object.class, new CustomRenderer());
 
         fastaNamesTable.getTableHeader().setDefaultRenderer(new SimpleHeaderRenderer());
 
 
-        fastaNamesTable.getColumn(emptyColummnIdentifier).setCellRenderer(new TableButtonRenderer());
-        fastaNamesTable.getColumn(emptyColummnIdentifier).setCellEditor(new TableButtonEditor(new JCheckBox()));
-        fastaNamesTable.getColumn(emptyColummnIdentifier).setMaxWidth(40);
+        fastaNamesTable.getColumn(deleteColummnIdentifier).setCellRenderer(new TableButtonRenderer());
+        fastaNamesTable.getColumn(deleteColummnIdentifier).setCellEditor(new TableButtonEditor(new JCheckBox()));
+        fastaNamesTable.getColumn(deleteColummnIdentifier).setMaxWidth(40);
         JScrollPane scrollPane = new JScrollPane(fastaNamesTable);
 
         scrollPane.setPreferredSize(new Dimension(new Dimension(110, 100)));
@@ -287,7 +268,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
     }
 
-    // used to add a rule check if JTextFields are filled
+
     @Override
     protected boolean okCalled() {
         System.out.println("Ok pressed");
@@ -300,31 +281,38 @@ public class ParsingRuleEditDialog extends DefaultDialog {
                 highlight(labelField);
                 setStatus(true, "Please add a label");
                 entriesAreValid = false;
-            }
-            if (proteinAccTField.getText().isEmpty()) {
+            } else if (proteinAccTField.getText().isEmpty()) {
                 highlight(proteinAccTField);
                 setStatus(true, "please add a protein regex");
                 entriesAreValid = false;
-            }
-            if (fastaVersionTField.getText().isEmpty()) {
+            } else if (fastaVersionTField.getText().isEmpty()) {
                 highlight(fastaVersionTField);
                 setStatus(true, "Please add a regex");
                 entriesAreValid = false;
-            }
-            if (fastaList.isEmpty()) {
+            } else if (fastaList.isEmpty()) {
                 highlight(fastaNamesTable);
                 setStatus(true, "Please add at least one fasta rule");
                 entriesAreValid = false;
             }
-        } else if (ConfigManager.getInstance().getParsingRulesManager().labelExists(labelField.getText())&&this.typeOfDialog.equals(TypeOfDialog.Add)) {
+
+
+        } else if (ConfigManager.getInstance().getParsingRulesManager().labelExists(labelField.getText()) && this.typeOfDialog.equals(TypeOfDialog.Add)) {
             highlight(labelField);
             setStatus(true, "Label already exists please choose another name ");
             entriesAreValid = false;
-        }
-
-        if (formFullyFilled && forgottenEntry) {
+        } else if (forgottenEntry) {
             highlight(fastaNameTField);
-            setStatus(false, "you might have forgotten an entry ");
+            setStatus(false, "you might have forgotten an entry! ");
+           // TODO popup should be deplaced
+            String[] options = {"Delete", "Add"};
+            boolean  deleteOrAdd = Popup.optionYesNO("Do you want to add the value or delete it?", options);
+            if (deleteOrAdd){
+                fastaNameTField.setText("");
+
+            }
+            else {
+                addFastaNames();
+            }
             entriesAreValid = false;
 
         }
@@ -342,26 +330,26 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
         System.out.println("Cancel pressed");
 
-        return true;
+        return Popup.yesNo("Do you want to close this window ?");
     }
 
 
     // used to reset fields inside Dialog
     protected boolean backCalled() {
-       // boolean confirmation = Popup.yesNo("Erase entries");
 
-            labelField.setText("");
-            fastaVersionTField.setText("");
-            proteinAccTField.setText("");
-            fastaNameTField.setText("");
+        // a popup to confirm action could be added?
+        labelField.setText("");
+        fastaVersionTField.setText("");
+        proteinAccTField.setText("");
+        fastaNameTField.setText("");
 
-            for (int k = fastaList.size() - 1; k >= 0; k--) {
-                fastaNamesTableModel.removeRow(k);
+        for (int k = fastaList.size() - 1; k >= 0; k--) {
+            fastaNamesTableModel.removeRow(k);
 
-            }
-            fastaList.clear();
-            revalidate();
-            repaint();
+        }
+        fastaList.clear();
+        revalidate();
+        repaint();
 
 
         return true;
@@ -393,7 +381,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
             removeFastaNameRuleJButton.setIcon(IconManager.getIcon(IconManager.IconType.TRASH));
             removeFastaNameRuleJButton.setBackground(new Color(210, 210, 230));
-            // button.setBackground(CyclicColorPalette.GROUP4_PALETTE[11]);
+
             removeFastaNameRuleJButton.setToolTipText("Click to remove Rule");
             removeFastaNameRuleJButton.setSize(20, 20);
             removeFastaNameRuleJButton.setBorderPainted(false);
@@ -403,6 +391,30 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         }
 
     }
+
+    class CustomRenderer extends DefaultTableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            if (isSelected) {
+                // Change color?
+            } else {
+
+                if (row % 2 == 0) {
+                    c.setBackground(new Color(213, 218, 241));
+                } else {
+
+                    c.setBackground(Color.WHITE);
+                }
+            }
+
+            return c;
+        }
+    }
+
 
     public class TableButtonEditor extends DefaultCellEditor {
         protected JButton button;
@@ -460,7 +472,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             setFont(new Font("Courier", Font.PLAIN, 11));
             setForeground(Color.WHITE);
             setOpaque(true);
-            // setBackground(new Color(130, 140, 190));
+            setBackground(new Color(213, 24, 30));
             setBackground(jTableColor);
             setBorder(BorderFactory.createEtchedBorder());
         }

@@ -20,15 +20,12 @@ public class FolderEditDialog extends DefaultDialog {
     private JComboBox dataTypeBox;
     private JTextField folderLabelField;
     private JTextField folderPathField;
-  //  private MountPointUtils.MountPointType mountPointTypeEdited;
-    int index;
-  //  private final String labelEdited;
-   // private final String pathBackup;
-    private TypeOfDialog context;
+
+    private TypeOfDialog typeOfDialog;
     private boolean firstCall = true;
     private String backuplabel = "";
     private String backupPath = "";
-    private FolderEditDialog folderEditDialog;
+
 
 
     public enum TypeOfDialog {EditingDefaultMPts, EditingFastas, EditingMpts, AddingAMountPoint}
@@ -42,7 +39,7 @@ public class FolderEditDialog extends DefaultDialog {
 
         this.setInternalComponent(createAddFolderPanel(typeOfDialog, mountPointType));
 
-        this.context = typeOfDialog;
+        this.typeOfDialog = typeOfDialog;
         this.setButtonName(6, "Clear");
         this.setButtonIcon(6, IconManager.getIcon(IconManager.IconType.ERASER));
         this.setButtonIcon(0, IconManager.getIcon(IconManager.IconType.PLUS_16X16));
@@ -224,8 +221,7 @@ public class FolderEditDialog extends DefaultDialog {
         return values;
     }
 
-
-    // used to add a mounting point
+    // Verifies if entries can be added
     @Override
     protected boolean okCalled() {
         System.out.println("Ok pressed");
@@ -272,13 +268,8 @@ public class FolderEditDialog extends DefaultDialog {
             setStatus(true, "path already exists please choose another value");
             entriesAreValid = false;
 
-        } else if (pathAlreadyExists && labelAlreadyExists) {
-            // does not highlight both only one
-            highlight(folderPathField);
-            highlight(folderLabelField);
-            setStatus(true, "path and label already exist");
-            entriesAreValid = false;
         }
+
         return entriesAreValid;
 
     }
@@ -297,7 +288,7 @@ public class FolderEditDialog extends DefaultDialog {
 
             backuplabel = folderLabelField.getText();
             backupPath = folderPathField.getText();
-            if (this.context.equals(TypeOfDialog.EditingFastas)||this.context.equals(TypeOfDialog.EditingDefaultMPts)) {
+            if (this.typeOfDialog.equals(TypeOfDialog.EditingFastas)||this.typeOfDialog.equals(TypeOfDialog.EditingDefaultMPts)) {
                 folderPathField.setText("");
                 firstCall = false;
                 setButtonName(BUTTON_BACK, "Undo");
