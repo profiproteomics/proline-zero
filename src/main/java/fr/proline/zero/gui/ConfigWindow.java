@@ -152,7 +152,7 @@ public class ConfigWindow extends JDialog {
 //		tabbedPane.addChangeListener(resizeDynamique());
 		//VDS TODO : implement to allow !
 		tabbedPane.setEnabledAt(3, true);
-
+		pack();
 		return tabbedPane;
 	}
 

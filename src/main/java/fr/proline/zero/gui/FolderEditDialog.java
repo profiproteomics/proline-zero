@@ -21,9 +21,9 @@ public class FolderEditDialog extends DefaultDialog {
     private JTextField folderLabelField;
     private JTextField folderPathField;
 
-    private TypeOfDialog typeOfDialog;
+    private final TypeOfDialog typeOfDialog;
     private boolean firstCall = true;
-    private String backuplabel = "";
+    private String backupLabel = "";
     private String backupPath = "";
 
 
@@ -37,55 +37,53 @@ public class FolderEditDialog extends DefaultDialog {
         this.setButtonVisible(BUTTON_HELP, false);
 
 
-        this.setInternalComponent(createAddFolderPanel(typeOfDialog, mountPointType));
+            this.setInternalComponent(createAddFolderPanel(typeOfDialog, mountPointType));
 
-        this.typeOfDialog = typeOfDialog;
-        this.setButtonName(6, "Clear");
-        this.setButtonIcon(6, IconManager.getIcon(IconManager.IconType.ERASER));
-        this.setButtonIcon(0, IconManager.getIcon(IconManager.IconType.PLUS_16X16));
-        this.setButtonName(0, "Add");
-        this.setButtonName(4, "Edit");
-        if (typeOfDialog.equals(TypeOfDialog.AddingAMountPoint)) {
-
-            this.setTitle("Add Mounting Point");
-            this.setIconImage(IconManager.getImage(IconManager.IconType.PLUS_16X16));
-
-
-        } else if (typeOfDialog.equals(TypeOfDialog.EditingFastas)) {
-            this.setTitle("Edit Fasta Folder");
-            this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
-            folderPathField.setText(pathBackup);
-            folderLabelField.setEnabled(false);
-            dataTypeBox.setSelectedItem("Fasta folder");
-            dataTypeBox.setEnabled(false);
-
+            this.typeOfDialog = typeOfDialog;
+            this.setButtonName(BUTTON_BACK, "Clear");
+            this.setButtonIcon(BUTTON_BACK, IconManager.getIcon(IconManager.IconType.ERASER));
+            this.setButtonIcon(BUTTON_OK, IconManager.getIcon(IconManager.IconType.PLUS_16X16));
+            this.setButtonName(BUTTON_OK, "Add");
             this.setButtonVisible(BUTTON_OK, true);
-            this.setButtonVisible(BUTTON_SAVE, false);
+            this.setButtonVisible(BUTTON_BACK, true);
+
+            if (typeOfDialog.equals(TypeOfDialog.AddingAMountPoint)) {
+
+                this.setTitle("Add Mounting Point");
+                this.setIconImage(IconManager.getImage(IconManager.IconType.PLUS_16X16));
 
 
-        } else if (typeOfDialog.equals(TypeOfDialog.EditingDefaultMPts)) {
-            this.setTitle("Edit  Mounting Point By Default");
-            this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
-            this.setButtonVisible(BUTTON_OK, true);
-            this.setButtonVisible(BUTTON_SAVE, false);
-            folderPathField.setText(pathBackup);
-            folderLabelField.setText(MountPointUtils.getMountPointDefaultPathLabel(mountPointType));
-            folderLabelField.setEnabled(false);
-            folderLabelField.setEditable(false);
-            dataTypeBox.setSelectedItem(mountPointType.getDisplayString());
-            dataTypeBox.setEnabled(false);
-        } else if (typeOfDialog.equals(TypeOfDialog.EditingMpts)) {
-            this.setTitle("Edit Mounting Point");
-            this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
-            this.setButtonVisible(BUTTON_OK, true);
-            this.setButtonVisible(BUTTON_SAVE, false);
-            folderLabelField.setText(labelEdited);
-            folderPathField.setText(pathBackup);
-            dataTypeBox.setSelectedItem(mountPointType.getDisplayString());
-            dataTypeBox.setEnabled(false);
+            } else if (typeOfDialog.equals(TypeOfDialog.EditingFastas)) {
+                this.setTitle("Edit Fasta Folder");
+                this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
+                folderPathField.setText(pathBackup);
+                folderLabelField.setEnabled(false);
+                dataTypeBox.setSelectedItem("Fasta folder");
+                dataTypeBox.setEnabled(false);
 
-        }
-        this.setButtonVisible(BUTTON_BACK, true);
+
+            } else if (typeOfDialog.equals(TypeOfDialog.EditingDefaultMPts)) {
+                this.setTitle("Edit  Mounting Point By Default");
+                this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
+                folderPathField.setText(pathBackup);
+                folderLabelField.setText(MountPointUtils.getMountPointDefaultPathLabel(mountPointType));
+                folderLabelField.setEnabled(false);
+                folderLabelField.setEditable(false);
+                dataTypeBox.setSelectedItem(mountPointType.getDisplayString());
+                dataTypeBox.setEnabled(false);
+            } else if (typeOfDialog.equals(TypeOfDialog.EditingMpts)) {
+
+                this.setTitle("Edit Mounting Point");
+                this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
+                folderLabelField.setText(labelEdited);
+                folderPathField.setText(pathBackup);
+                dataTypeBox.setSelectedItem(mountPointType.getDisplayString());
+                dataTypeBox.setEnabled(false);
+
+            }
+
+
+
         this.setResizable(true);
         super.pack();
     }
@@ -286,7 +284,7 @@ public class FolderEditDialog extends DefaultDialog {
 
         if (firstCall) {
 
-            backuplabel = folderLabelField.getText();
+            backupLabel = folderLabelField.getText();
             backupPath = folderPathField.getText();
             if (this.typeOfDialog.equals(TypeOfDialog.EditingFastas)||this.typeOfDialog.equals(TypeOfDialog.EditingDefaultMPts)) {
                 folderPathField.setText("");
@@ -303,7 +301,7 @@ public class FolderEditDialog extends DefaultDialog {
             }
         } else {
 
-            folderLabelField.setText(backuplabel);
+            folderLabelField.setText(backupLabel);
             folderPathField.setText(backupPath);
             setButtonName(BUTTON_BACK, "Clear");
             setButtonIcon(BUTTON_BACK, IconManager.getIcon(IconManager.IconType.ERASER));

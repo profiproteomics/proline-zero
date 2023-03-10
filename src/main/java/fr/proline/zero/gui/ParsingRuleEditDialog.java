@@ -32,7 +32,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
     private TypeOfDialog typeOfDialog;
 
-    enum TypeOfDialog {Add, Edit}
+    enum TypeOfDialog {Add, Edit, ViewFastas}
 
 
     public ParsingRuleEditDialog(Window Parent, TypeOfDialog typeOfDialog, ParsingRule parsingRule) {
@@ -44,7 +44,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
         this.setButtonName(BUTTON_DEFAULT, "Test");
         this.setButtonVisible(BUTTON_DEFAULT, true);
-        this.setButtonEnabled(BUTTON_DEFAULT, false);
+       // this.setButtonEnabled(BUTTON_DEFAULT, false);
         this.setButtonIcon(BUTTON_DEFAULT, IconManager.getIcon(IconManager.IconType.TEST));
 
         this.setButtonVisible(BUTTON_BACK, true);
@@ -56,7 +56,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
         if (typeOfDialog.equals(TypeOfDialog.Add)) {
             this.setButtonName(BUTTON_OK, "Add");
-            //this.setButtonName(BUTTON_SAVE, "Edit"); VDS Not used ?
+
 
             this.setIconImage(IconManager.getImage(IconManager.IconType.PLUS_16X16));
             this.setTitle("Add Parsing Rule");
@@ -65,15 +65,28 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         if (typeOfDialog.equals(TypeOfDialog.Edit)) {
             this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
 
-            // this.setButtonName(4, "Edit"); VDS not used
+
             this.setButtonName(BUTTON_OK, "Update");
             this.setTitle("Edit Parsing Rule");
 
         }
+        if (!typeOfDialog.equals(TypeOfDialog.ViewFastas)) {
+            JPanel internalPanel = createParsingRulesJPanel(parsingRule);
+            setInternalComponent(internalPanel);
 
-        JPanel internalPanel = createParsingRulesJPanel(parsingRule);
 
-        setInternalComponent(internalPanel);
+        } else {
+            // called when viewing fastas
+            this.setIconImage(IconManager.getImage(IconManager.IconType.TABLE));
+            this.setButtonVisible(BUTTON_CANCEL, false);
+            this.setButtonVisible(BUTTON_DEFAULT, false);
+            this.setButtonVisible(BUTTON_BACK, false);
+            this.setButtonName(BUTTON_OK,"Close");
+            this.setStatusVisible(false);
+
+            JPanel viewFasta = viewFastaNamePanel(parsingRule);
+            setInternalComponent(viewFasta);
+        }
         this.setStatusVisible(true);
         this.setResizable(true);
 
@@ -105,7 +118,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
 
         addParsingRules.add(Box.createHorizontalGlue(), c);
-       // JtextFields are filled with previous values if parsing rule is edited
+        // JtextFields are filled with previous values if parsing rule is edited
         if (typeOfDialog.equals(ParsingRuleEditDialog.TypeOfDialog.Edit)) {
 
 
@@ -228,7 +241,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         fastaNamesTable.setIntercellSpacing(new Dimension(2, 2));
         fastaNamesTable.setDefaultRenderer(Object.class, new CustomRenderer());
 
-//        fastaNamesTable.getTableHeader().setDefaultRenderer(new SimpleHeaderRenderer());
+       // fastaNamesTable.getTableHeader().setDefaultRenderer(new SimpleHeaderRenderer());
 
 
         fastaNamesTable.getColumn(deleteColummnIdentifier).setCellRenderer(new TableButtonRenderer());
@@ -251,10 +264,68 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
     }
 
+    private JPanel viewFastaNamePanel(ParsingRule parsingRule) {
+        JPanel fastaPanel = new JPanel(new GridBagLayout());
+
+       // fastaPanel.setBorder(BorderFactory.createTitledBorder("View Fasta Name Rules: "));
+        GridBagConstraints parsingConstraints = new GridBagConstraints();
+        parsingConstraints.insets = new Insets(5, 5, 5, 5);
+
+        parsingConstraints.gridy = 0;
+        parsingConstraints.gridx = 0;
+        parsingConstraints.fill = GridBagConstraints.HORIZONTAL;
+
+
+        // parsingConstraints.gridy++;
+        parsingConstraints.anchor = GridBagConstraints.WEST;
+        fastaPanel.add(new JLabel("Fasta Name Rules: "), parsingConstraints);
+
+        fastaNamesTableModel = new DefaultTableModel();
+        fastaNamesTableModel.setColumnIdentifiers(columns);
+        fastaNamesTable = new JTable();
+
+        removeFastaNameRuleJButton = new JButton();
+
+        fastaNamesTable.setModel(fastaNamesTableModel);
+        fastaNamesTable.setGridColor(jTableColor);
+        fastaNamesTable.setRowHeight(20);
+        fastaNamesTable.setShowGrid(true);
+        fastaNamesTable.setIntercellSpacing(new Dimension(2, 2));
+        fastaNamesTable.setDefaultRenderer(Object.class, new CustomRenderer());
+
+        fastaNamesTable.getTableHeader().setDefaultRenderer(new SimpleHeaderRenderer());
+        fastaNamesTable.getColumn(deleteColummnIdentifier).setCellRenderer((table, value, isSelected, hasFocus, row, column) -> null);
+        fastaNamesTable.getColumn(deleteColummnIdentifier).setCellEditor(null);
+        fastaNamesTable.getColumn(deleteColummnIdentifier).setMaxWidth(40);
+        fastaList = parsingRule.getFastaNameRegExp();
+        for (int k = 0; k < fastaList.size(); k++) {
+            Object[] vector = {fastaList.get(k), null};
+            fastaNamesTableModel.addRow(vector);
+        }
+        JScrollPane scrollPane = new JScrollPane(fastaNamesTable);
+
+        scrollPane.setPreferredSize(new Dimension(new Dimension(110, 100)));
+
+        parsingConstraints.gridy++;
+        parsingConstraints.gridwidth = 2;
+        parsingConstraints.gridx = 0;
+        parsingConstraints.weightx = 1;
+        parsingConstraints.fill = GridBagConstraints.BOTH;
+        fastaPanel.add(scrollPane, parsingConstraints);
+
+
+        return fastaPanel;
+
+
+    }
+
 
     @Override
     protected boolean okCalled() {
         System.out.println("Ok pressed");
+        if (this.typeOfDialog.equals(TypeOfDialog.ViewFastas)) {
+            return true;
+        }
         boolean entriesAreValid = true;
         boolean formFullyFilled = !labelField.getText().isEmpty() && !proteinAccTField.getText().isEmpty()
                 && !fastaVersionTField.getText().isEmpty() && !fastaList.isEmpty();
@@ -286,20 +357,18 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         } else if (forgottenEntry) {
             highlight(fastaNameTField);
             setStatus(false, "you might have forgotten an entry! ");
-           // TODO popup should be deplaced
+            // TODO popup should be deplaced
             String[] options = {"Delete", "Add"};
-            boolean  deleteOrAdd = Popup.optionYesNO("Do you want to add the value or delete it?", options);
-            if (deleteOrAdd){
+            boolean deleteOrAdd = Popup.optionYesNO("Do you want to add the value or delete it?", options);
+            if (deleteOrAdd) {
                 fastaNameTField.setText("");
 
-            }
-            else {
+            } else {
                 addFastaNames();
             }
             entriesAreValid = false;
 
         }
-
         return entriesAreValid;
     }
 
@@ -313,7 +382,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
         System.out.println("Cancel pressed");
 
-        return Popup.yesNo("Do you want to close this window ?");
+        return true;
     }
 
 
@@ -333,7 +402,6 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         fastaList.clear();
         revalidate();
         repaint();
-
 
         return true;
 
@@ -383,7 +451,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             if (isSelected) {
-                // Change color?
+                c.setBackground(Color.LIGHT_GRAY);
             } else {
 
                 if (row % 2 == 0) {

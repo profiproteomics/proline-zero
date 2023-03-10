@@ -1,6 +1,8 @@
 package fr.proline.zero.gui;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,97 +115,23 @@ public class ParsingRulesPanel extends JPanel {
 
 
 
-    //VDS nom : createAddParsingRuleAccessPanel ?
-//    private JPanel jdialogAccessPanel() {
-//        JPanel openDialog = new JPanel(new GridBagLayout());
-//        GridBagConstraints gbc = new GridBagConstraints();
-//
-//        gbc.insets = new Insets(5, 5, 5, 5);
-//        gbc.gridy = 0;
-//        gbc.gridx = 0;
-//        gbc.anchor = GridBagConstraints.WEST;
-//        gbc.weightx = 0;
-//
-//        JLabel infoJlabel = new JLabel("Add Parsing Rule: ");
-//        openDialog.add(infoJlabel, gbc);
-//
-//
-//        JButton jButtonOpenJdialog = new JButton();
-//        jButtonOpenJdialog.setIcon(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
-//        jButtonOpenJdialog.addActionListener(e -> {
-//
-//          ParsingRuleEditDialog  newDialog = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.Add, null);
-//            newDialog.centerToWindow(ConfigWindow.getInstance());
-//            newDialog.setSize(630, 300);
-//            newDialog.centerToScreen();
-//            newDialog.setVisible(true);
-//            if (newDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
-//                ParsingRule parsingRuleAdded = newDialog.getParsingRuleInsideDialog();
-//                boolean addSuccess = ConfigManager.getInstance().getParsingRulesManager().addNewRule(parsingRuleAdded);
-//                if (addSuccess) {
-//                    updatePanel();
-//                } else {
-//                    Popup.warning("Error while adding the parsing rule");
-//                }
-//
-//            }
-//
-//
-//        });
-//        gbc.gridx++;
-//
-//        gbc.fill = GridBagConstraints.NONE;
-//        gbc.anchor = GridBagConstraints.WEST;
-//        gbc.weightx = 0;
-//        openDialog.add(jButtonOpenJdialog, gbc);
-//        add(Box.createHorizontalGlue());
-//
-//        return openDialog;
-//    }
-
     private void updatePanel() {
         removeAll();
         initialize();
     }
 
 
-//    private JPanel createProteinAccDefaultRule() {
-//        JPanel displayProt = new JPanel(new GridBagLayout());
-//        GridBagConstraints constraints = new GridBagConstraints();
-//        //displayProt.setBorder(BorderFactory.createTitledBorder(""));
-//        constraints.insets = new Insets(5, 5, 5, 5);
-//        constraints.gridx = 0;
-//        constraints.gridy = 0;
-//        constraints.anchor = GridBagConstraints.WEST;
-//        constraints.fill = GridBagConstraints.NONE;
-//        constraints.weightx = 0;
-//        displayProt.add(new JLabel("Default Protein Accession Rule: "), constraints);
-//
-//        String protByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
-//        JTextField labelProt = new JTextField(protByDefault);
-//        labelProt.setForeground(Color.DARK_GRAY);
-//        constraints.gridx++;
-//        constraints.anchor = GridBagConstraints.WEST;
-//        constraints.fill = GridBagConstraints.HORIZONTAL;
-//        constraints.weightx = 1;
-//        labelProt.setPreferredSize(new Dimension(200, 20));
-//        constraints.insets = new Insets(5, 5, 5, 5);
-//        displayProt.add(labelProt, constraints);
-//        add(Box.createHorizontalGlue());
-//
-//        return displayProt;
-//    }
-
-
+    // concatenate only two first rules
     private String fastaConcatenator(List<String> fastaNames) {
         StringBuilder builtFasta = new StringBuilder();
-        for (int k = 0; k < fastaNames.size(); k++) {
+        for (int k = 0; k < fastaNames.size()&&k<2; k++) {
             builtFasta.append(fastaNames.get(k));
-            if (k < (fastaNames.size() - 1))
+            if (k < (1))
                 builtFasta.append("; ");
         }
         return builtFasta.toString();
     }
+
 
     private JPanel createParsingRulesListPanel() {
         JPanel displayRules = new JPanel(new GridBagLayout());
@@ -280,6 +208,31 @@ public class ParsingRulesPanel extends JPanel {
         return new JSpinner(model);
 
     }
+    // not used
+    private JPanel viewer(ParsingRule parsingRule){
+
+        JPanel fastaviewer=new JPanel(new GridBagLayout());
+        GridBagConstraints gbc=new GridBagConstraints();
+        String firstelements=parsingRule.getFastaNameRegExp().get(0);
+        firstelements=firstelements+";"+parsingRule.getFastaNameRegExp().get(1);
+        JLabel viewer=new JLabel(firstelements);
+        gbc.fill=GridBagConstraints.HORIZONTAL;
+        fastaviewer.add(viewer,gbc);
+        gbc.gridx++;
+        JButton viewButton=new JButton(IconManager.getIcon(IconManager.IconType.TEST));
+        viewButton.addActionListener(e -> {
+          System.out.println("pressed!!!!");
+            ParsingRuleEditDialog viewFastas=new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.ViewFastas,parsingRule);
+            viewFastas.setSize(new Dimension(350,300));
+            viewFastas.setLocationRelativeTo(null);
+            viewFastas.setVisible(true);
+
+        });
+        gbc.fill=GridBagConstraints.NONE;
+        fastaviewer.add(viewButton,gbc);
+        return fastaviewer;
+    }
+
 
 
     private JPanel displayParsingRules(ParsingRule parsingRule, int[] maximumSize, int index) {
@@ -317,16 +270,31 @@ public class ParsingRulesPanel extends JPanel {
         constraints.fill = GridBagConstraints.NONE;
         constraints.weightx = 0;
         displayPr.add(fastaName, constraints);
-        // JSpinner removed
         JTextField fastaField = new JTextField(fastaConcatenator(fastaNames));
         fastaField.setEnabled(parsingRule.isEditable());
         fastaField.setEditable(parsingRule.isEditable());
-        fastaField.setPreferredSize(new Dimension(maximumSize[1], 20));
+        fastaField.setPreferredSize(new Dimension(maximumSize[1]-13, 20));
         constraints.gridx++;
-        constraints.anchor = GridBagConstraints.EAST;
-        constraints.weightx = 1;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.weightx = 0.8;
+        constraints.fill = GridBagConstraints.NONE;
+       // fastaField.setPreferredSize(new Dimension(190,20));
         displayPr.add(fastaField, constraints);
+        JButton wiewfastaButton=new JButton(IconManager.getIcon(IconManager.IconType.TABLE));
+        wiewfastaButton.setMargin(new Insets(0,2,2,0));
+        wiewfastaButton.addActionListener(e -> {
+
+            ParsingRuleEditDialog viewFastas=new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.ViewFastas,parsingRule);
+            viewFastas.setSize(new Dimension(300,250));
+            viewFastas.setLocationRelativeTo(labelField);
+            viewFastas.setVisible(true);
+
+        });
+       // constraints.gridx++;
+        constraints.fill=GridBagConstraints.NONE;
+        constraints.anchor=GridBagConstraints.EAST;
+        constraints.weightx=0.2;
+        displayPr.add(wiewfastaButton,constraints);
 
         JLabel jLabelFastaVersion = new JLabel("Fasta Version Rule: ");
         constraints.gridx = 0;
@@ -388,7 +356,7 @@ public class ParsingRulesPanel extends JPanel {
         JButton editButton = new JButton(IconManager.getIcon(IconManager.IconType.EDIT));
         editButton.setHorizontalAlignment(SwingConstants.LEFT);
         editButton.setToolTipText("Click to edit the parsing rule");
-        editButton.setMargin(new Insets(1, 13, 1, 13));
+        editButton.setMargin(new Insets(1, 9, 1, 9));
         editButton.addActionListener(e -> {
             //  editing = true;
             editRule(parsingRule);
@@ -396,7 +364,7 @@ public class ParsingRulesPanel extends JPanel {
         JButton deleteButton = new JButton(IconManager.getIcon(IconManager.IconType.TRASH));
         deleteButton.setHorizontalAlignment(SwingConstants.LEFT);
         deleteButton.setToolTipText("Click to delete the parsing rule");
-        deleteButton.setMargin(new Insets(1, 13, 1, 13));
+        deleteButton.setMargin(new Insets(1, 9, 1, 9));
         deleteButton.addActionListener(e -> {
             deleteRule(parsingRule);
         });
@@ -448,20 +416,21 @@ public class ParsingRulesPanel extends JPanel {
         int index = setOfRules.indexOf(parsingRule);
 
 
-       ParsingRuleEditDialog newDialog = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.Edit, parsingRule);
+        ParsingRuleEditDialog newDialog = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.Edit, parsingRule);
 
         newDialog.centerToScreen();
         newDialog.setVisible(true);
         newDialog.setSize(630, 280);
 
         if (newDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+
             ParsingRule editedParsingRule = newDialog.getParsingRuleInsideDialog();
-
-
-            parsingRule = ConfigManager.getInstance().getParsingRulesManager().updateParsingRule(parsingRule, editedParsingRule.getName(),
-                    editedParsingRule.getFastaVersionRegExp(),
-                    editedParsingRule.getProteinAccRegExp(), editedParsingRule.getFastaNameRegExp());
-            ConfigManager.getInstance().getParsingRulesManager().updateSetOfRules(index, parsingRule);
+           /* parsingRule.setName(editedParsingRule.getName());
+            parsingRule.setFastaNameRegExp(editedParsingRule.getFastaNameRegExp());
+            parsingRule.setFastaVersionRegExp(editedParsingRule.getFastaVersionRegExp());
+            parsingRule.setProteinAccRegExp(editedParsingRule.getProteinAccRegExp());*/
+          //  parsingRule=editedParsingRule;
+            ConfigManager.getInstance().getParsingRulesManager().updateSetOfRules(index, editedParsingRule);
             updatePanel();
         }
 
