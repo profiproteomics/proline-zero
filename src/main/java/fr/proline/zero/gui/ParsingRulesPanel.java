@@ -27,48 +27,65 @@ public class ParsingRulesPanel extends JPanel {
         c.anchor = GridBagConstraints.NORTHWEST;
         c.weightx = 1;
         c.weighty = 0;
-        c.insets = new java.awt.Insets(0, 6, 10, 6);
-        // creation des widgets
-
-        HelpHeaderPanel help = new HelpHeaderPanel("Parsing Rules", SettingsConstant.PARSING_RULES_HELP_PANE);
-
-        // ajout des widgets au layout
+        c.gridwidth = 2;
+        c.insets = new java.awt.Insets(5, 5, 5, 5);
         c.gridx = 0;
         c.gridy = 0;
+        HelpHeaderPanel help = new HelpHeaderPanel("Parsing Rules", SettingsConstant.PARSING_RULES_HELP_PANE);
         add(help, c);
 
-        c.insets = new java.awt.Insets(20, 15, 0, 15);
+        c.gridwidth = 1;
+        c.insets = new java.awt.Insets(5, 5, 5, 5);
         c.gridy++;
-
         c.fill = GridBagConstraints.NONE;
-        c.anchor = GridBagConstraints.NORTHWEST;
         c.weighty = 0;
         c.weightx = 0;
+        c.anchor = GridBagConstraints.EAST;
+        add( new JLabel("Add Parsing Rule: "), c);
 
+        JButton jButtonOpenJdialog = new JButton();
+        jButtonOpenJdialog.setIcon(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
+        jButtonOpenJdialog.addActionListener(e -> {
+            openAddDialog();
+        });
+        c.gridx++;
+        c.anchor = GridBagConstraints.WEST;
+        add(jButtonOpenJdialog, c);
 
-        add(jdialogAccessPanel(), c);
+        c.gridx = 0;
         c.gridy++;
         c.fill = GridBagConstraints.NONE;
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.weighty = 0.1;
+        c.gridwidth = 1;
+        c.weighty = 0;
+        c.anchor = GridBagConstraints.EAST;
+        add(new JLabel("Default Protein Accession Rule: "), c);
 
-        add(createProteinAccDefaultRule(), c);
+        String protByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
+        JTextField labelProt = new JTextField(protByDefault);
+        c.anchor = GridBagConstraints.WEST;
+        c.gridx++;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        labelProt.setPreferredSize(new Dimension(200, 20));
+        add(labelProt, c);
 
+        c.gridx = 0;
+        c.gridwidth = 2;
         c.gridy++;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.NORTHWEST;
-        c.weighty = 1;
+        c.weighty = 0;
         add(createParsingRulesListPanel(), c);
+
         c.gridy++;
         c.anchor = GridBagConstraints.NORTHEAST;
         c.weighty = 0;
         c.fill = GridBagConstraints.NONE;
         add(globalButtonTest(), c);
 
-
         c.fill = GridBagConstraints.VERTICAL;
-
-        add(Box.createHorizontalGlue(), c);
+        c.weighty = 1;
+        add(Box.createVerticalGlue(), c);
 
         revalidate();
         repaint();
@@ -76,89 +93,106 @@ public class ParsingRulesPanel extends JPanel {
 
     }
 
-
-    private JPanel jdialogAccessPanel() {
-        JPanel openDialog = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-
-
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.gridy = 0;
-        gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.weightx = 0;
-
-        JLabel infoJlabel = new JLabel("Add Parsing Rule: ");
-        openDialog.add(infoJlabel, gbc);
-
-
-        JButton jButtonOpenJdialog = new JButton();
-        jButtonOpenJdialog.setIcon(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
-        jButtonOpenJdialog.addActionListener(e -> {
-
-          ParsingRuleEditDialog  newDialog = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.Add, null);
-            newDialog.centerToWindow(ConfigWindow.getInstance());
-            newDialog.setSize(630, 300);
-            newDialog.centerToScreen();
-            newDialog.setVisible(true);
-            if (newDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
-                ParsingRule parsingRuleAdded = newDialog.getParsingRuleInsideDialog();
-                boolean addSuccess = ConfigManager.getInstance().getParsingRulesManager().addNewRule(parsingRuleAdded);
-                if (addSuccess) {
-                    updatePanel();
-                } else {
-                    Popup.warning("Error while adding the parsing rule");
-                }
-
+    private void openAddDialog() {
+        ParsingRuleEditDialog  newDialog = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.Add, null);
+        newDialog.centerToWindow(ConfigWindow.getInstance());
+        newDialog.setSize(630, 300);
+        newDialog.centerToScreen();
+        newDialog.setVisible(true);
+        if (newDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+            ParsingRule parsingRuleAdded = newDialog.getParsingRuleInsideDialog();
+            boolean addSuccess = ConfigManager.getInstance().getParsingRulesManager().addNewRule(parsingRuleAdded);
+            if (addSuccess) {
+                updatePanel();
+            } else {
+                Popup.warning("Error while adding the parsing rule");
             }
 
-
-        });
-        gbc.gridx++;
-
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.weightx = 0;
-        openDialog.add(jButtonOpenJdialog, gbc);
-        add(Box.createHorizontalGlue());
-
-        return openDialog;
+        }
     }
+
+
+
+    //VDS nom : createAddParsingRuleAccessPanel ?
+//    private JPanel jdialogAccessPanel() {
+//        JPanel openDialog = new JPanel(new GridBagLayout());
+//        GridBagConstraints gbc = new GridBagConstraints();
+//
+//        gbc.insets = new Insets(5, 5, 5, 5);
+//        gbc.gridy = 0;
+//        gbc.gridx = 0;
+//        gbc.anchor = GridBagConstraints.WEST;
+//        gbc.weightx = 0;
+//
+//        JLabel infoJlabel = new JLabel("Add Parsing Rule: ");
+//        openDialog.add(infoJlabel, gbc);
+//
+//
+//        JButton jButtonOpenJdialog = new JButton();
+//        jButtonOpenJdialog.setIcon(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
+//        jButtonOpenJdialog.addActionListener(e -> {
+//
+//          ParsingRuleEditDialog  newDialog = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.Add, null);
+//            newDialog.centerToWindow(ConfigWindow.getInstance());
+//            newDialog.setSize(630, 300);
+//            newDialog.centerToScreen();
+//            newDialog.setVisible(true);
+//            if (newDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+//                ParsingRule parsingRuleAdded = newDialog.getParsingRuleInsideDialog();
+//                boolean addSuccess = ConfigManager.getInstance().getParsingRulesManager().addNewRule(parsingRuleAdded);
+//                if (addSuccess) {
+//                    updatePanel();
+//                } else {
+//                    Popup.warning("Error while adding the parsing rule");
+//                }
+//
+//            }
+//
+//
+//        });
+//        gbc.gridx++;
+//
+//        gbc.fill = GridBagConstraints.NONE;
+//        gbc.anchor = GridBagConstraints.WEST;
+//        gbc.weightx = 0;
+//        openDialog.add(jButtonOpenJdialog, gbc);
+//        add(Box.createHorizontalGlue());
+//
+//        return openDialog;
+//    }
 
     private void updatePanel() {
         removeAll();
         initialize();
-
-
     }
 
 
-    private JPanel createProteinAccDefaultRule() {
-        JPanel displayProt = new JPanel(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
-        //displayProt.setBorder(BorderFactory.createTitledBorder(""));
-        constraints.insets = new Insets(5, 10, 5, 10);
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.weightx = 0;
-        displayProt.add(new JLabel("Default Protein Accession Rule: "), constraints);
-
-        String protByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
-        JTextField labelProt = new JTextField(protByDefault);
-        labelProt.setForeground(Color.DARK_GRAY);
-        constraints.gridx++;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.weightx = 1;
-        labelProt.setPreferredSize(new Dimension(200, 20));
-        constraints.insets = new Insets(5, 10, 5, 10);
-        displayProt.add(labelProt, constraints);
-        add(Box.createHorizontalGlue());
-
-        return displayProt;
-    }
+//    private JPanel createProteinAccDefaultRule() {
+//        JPanel displayProt = new JPanel(new GridBagLayout());
+//        GridBagConstraints constraints = new GridBagConstraints();
+//        //displayProt.setBorder(BorderFactory.createTitledBorder(""));
+//        constraints.insets = new Insets(5, 5, 5, 5);
+//        constraints.gridx = 0;
+//        constraints.gridy = 0;
+//        constraints.anchor = GridBagConstraints.WEST;
+//        constraints.fill = GridBagConstraints.NONE;
+//        constraints.weightx = 0;
+//        displayProt.add(new JLabel("Default Protein Accession Rule: "), constraints);
+//
+//        String protByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
+//        JTextField labelProt = new JTextField(protByDefault);
+//        labelProt.setForeground(Color.DARK_GRAY);
+//        constraints.gridx++;
+//        constraints.anchor = GridBagConstraints.WEST;
+//        constraints.fill = GridBagConstraints.HORIZONTAL;
+//        constraints.weightx = 1;
+//        labelProt.setPreferredSize(new Dimension(200, 20));
+//        constraints.insets = new Insets(5, 5, 5, 5);
+//        displayProt.add(labelProt, constraints);
+//        add(Box.createHorizontalGlue());
+//
+//        return displayProt;
+//    }
 
 
     private String fastaConcatenator(List<String> fastaNames) {

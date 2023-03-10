@@ -30,7 +30,6 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
     private static final Color testTableColor = new Color(200, 200, 200);
 
-
     private TypeOfDialog typeOfDialog;
 
     enum TypeOfDialog {Add, Edit}
@@ -39,68 +38,52 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     public ParsingRuleEditDialog(Window Parent, TypeOfDialog typeOfDialog, ParsingRule parsingRule) {
 
         super(Parent);
-        if (typeOfDialog.equals(TypeOfDialog.Add)) {
-            this.typeOfDialog = TypeOfDialog.Add;
-            this.setButtonVisible(BUTTON_HELP, false);
-            this.setButtonVisible(BUTTON_CANCEL, true);
-            this.setButtonVisible(BUTTON_SAVE, false);
-            this.setButtonVisible(BUTTON_BACK, true);
-            this.setButtonVisible(BUTTON_DEFAULT, true);
 
-            this.setButtonName(0, "Add");
-            this.setButtonName(2, "Test");
-            this.setButtonIcon(2, IconManager.getIcon(IconManager.IconType.TEST));
-            this.setButtonEnabled(2, false);
-            // only for test
+        //Configure commons buttons for all TypeOfDialog
+        this.setButtonVisible(BUTTON_HELP, false);
+
+        this.setButtonName(BUTTON_DEFAULT, "Test");
+        this.setButtonVisible(BUTTON_DEFAULT, true);
+        this.setButtonEnabled(BUTTON_DEFAULT, false);
+        this.setButtonIcon(BUTTON_DEFAULT, IconManager.getIcon(IconManager.IconType.TEST));
+
+        this.setButtonVisible(BUTTON_BACK, true);
+        this.setButtonName(BUTTON_BACK, "Clear");
+        this.setButtonIcon(BUTTON_BACK, IconManager.getIcon(IconManager.IconType.ERASER));
+
+        this.setButtonIcon(BUTTON_OK, IconManager.getIcon(IconManager.IconType.PLUS_16X16));
+        this.typeOfDialog = typeOfDialog;
+
+        if (typeOfDialog.equals(TypeOfDialog.Add)) {
+            this.setButtonName(BUTTON_OK, "Add");
+            //this.setButtonName(BUTTON_SAVE, "Edit"); VDS Not used ?
+
             this.setIconImage(IconManager.getImage(IconManager.IconType.PLUS_16X16));
-            this.setButtonIcon(0, IconManager.getIcon(IconManager.IconType.PLUS_16X16));
-            this.setButtonIcon(6, IconManager.getIcon(IconManager.IconType.ERASER));
-            this.setButtonName(4, "Edit");
-            this.setButtonName(6, "Clear");
             this.setTitle("Add Parsing Rule");
 
-            JPanel internalPanel = createParsingRulesJDialog(typeOfDialog, parsingRule);
-            setInternalComponent(internalPanel);
-            this.setStatusVisible(true);
-            this.setResizable(true);
-
-
-            super.pack();
         }
         if (typeOfDialog.equals(TypeOfDialog.Edit)) {
-            this.typeOfDialog = TypeOfDialog.Edit;
             this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
-            this.setButtonVisible(BUTTON_CANCEL, true);
-            this.setButtonVisible(BUTTON_HELP, false);
-            this.setButtonVisible(BUTTON_OK, true);
 
-            this.setButtonVisible(BUTTON_BACK, true);
-            this.setButtonVisible(BUTTON_DEFAULT, true);
-            this.setButtonName(2, "Test");
-            this.setButtonIcon(2, IconManager.getIcon(IconManager.IconType.TEST));
-            this.setButtonName(6, "Clear");
-            this.setButtonIcon(6, IconManager.getIcon(IconManager.IconType.ERASER));
-            this.setButtonName(4, "Edit");
+            // this.setButtonName(4, "Edit"); VDS not used
             this.setButtonName(BUTTON_OK, "Update");
-            this.setButtonIcon(BUTTON_OK, IconManager.getIcon(IconManager.IconType.PLUS_16X16));
-            this.setButtonEnabled(2, false);
             this.setTitle("Edit Parsing Rule");
-            JPanel internalPanel = createParsingRulesJDialog(typeOfDialog, parsingRule);
-
-            setInternalComponent(internalPanel);
-            this.setStatusVisible(true);
-            this.setResizable(true);
-            //  super.doClick(0);
-
-            super.pack();
 
         }
+
+        JPanel internalPanel = createParsingRulesJPanel(parsingRule);
+
+        setInternalComponent(internalPanel);
+        this.setStatusVisible(true);
+        this.setResizable(true);
+
+        super.pack();
 
 
     }
 
 
-    private JPanel createParsingRulesJDialog(ParsingRuleEditDialog.TypeOfDialog typeOfDialog, ParsingRule parsingRuleEdited) {
+    private JPanel createParsingRulesJPanel(ParsingRule parsingRuleEdited) {
         // creation du panel et du layout
         JPanel addParsingRules = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -167,7 +150,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         parsingPanel.add(labelField, constraints);
 
         constraints.gridy++;
-        JLabel fastaVersion = new JLabel("Fasta version rule: ");
+        JLabel fastaVersion = new JLabel("Fasta Version Rule: ");
         constraints.gridx = 0;
         constraints.anchor = GridBagConstraints.SOUTHEAST;
         constraints.fill = GridBagConstraints.NONE;
@@ -186,7 +169,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         constraints.anchor = GridBagConstraints.SOUTHEAST;
         constraints.fill = GridBagConstraints.NONE;
         constraints.weightx = 0;
-        JLabel protlabel = new JLabel("Protein accession rule: ");
+        JLabel protlabel = new JLabel("Protein Accession Rule: ");
         parsingPanel.add(protlabel, constraints);
 
         proteinAccTField = new JTextField();
@@ -245,7 +228,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         fastaNamesTable.setIntercellSpacing(new Dimension(2, 2));
         fastaNamesTable.setDefaultRenderer(Object.class, new CustomRenderer());
 
-        fastaNamesTable.getTableHeader().setDefaultRenderer(new SimpleHeaderRenderer());
+//        fastaNamesTable.getTableHeader().setDefaultRenderer(new SimpleHeaderRenderer());
 
 
         fastaNamesTable.getColumn(deleteColummnIdentifier).setCellRenderer(new TableButtonRenderer());
