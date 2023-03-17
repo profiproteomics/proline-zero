@@ -41,9 +41,8 @@ public class ConfigWindow extends JDialog {
 		super(null, Dialog.ModalityType.APPLICATION_MODAL);
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			initialize();
 			setResizable(true);
-			setSize(new Dimension(700,990));
+			initialize();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -113,12 +112,12 @@ public class ConfigWindow extends JDialog {
 		c.gridy++;
 		c.weighty = 0;
 		internalPanel.add(doNotShowAgainBox, c);
+		JScrollPane sPane = new JScrollPane();
 
 		c.gridy++;
 		c.weightx = 5;
 		internalPanel.add(createBottomButtonsPanel(), c);
 
-		JScrollPane sPane = new JScrollPane();
 		sPane.setViewportView(internalPanel);
 		add(sPane,BorderLayout.CENTER);
 		pack();

@@ -1,23 +1,16 @@
 package fr.proline.zero.gui;
 
-import java.awt.*;
-
-
-import java.lang.reflect.Array;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.List;
-
-import javax.swing.*;
-
-
 import fr.proline.studio.gui.DefaultDialog;
 import fr.proline.studio.utils.IconManager;
+import fr.proline.zero.util.ConfigManager;
+import fr.proline.zero.util.MountPointUtils;
+import fr.proline.zero.util.SettingsConstant;
 
-import fr.proline.zero.util.*;
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.valueOf;
 
@@ -29,7 +22,7 @@ public class FolderPanel extends JPanel {
     private final Color errorColor = new Color(255, 0, 50);
 
 
-    private MountPointUtils.MountPointType mountPointTypeEdited;
+    private MountPointUtils.MountPointType mountPointTypeEdited; //VDS not used ?
 
 
     private String labelEdited;
@@ -53,25 +46,60 @@ public class FolderPanel extends JPanel {
         GridBagConstraints folderPanelConstraints = new GridBagConstraints();
         folderPanelConstraints.fill = GridBagConstraints.BOTH;
         folderPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-
+        folderPanelConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         folderPanelConstraints.gridx = 0;
         folderPanelConstraints.gridy = 0;
         folderPanelConstraints.weightx = 1;
-        folderPanelConstraints.weighty = 0.5;
+        folderPanelConstraints.weighty = 0;
+        folderPanelConstraints.gridwidth = 3;
         HelpHeaderPanel help = new HelpHeaderPanel("Folder", SettingsConstant.FOLDERS_HELP_PANE);
         add(help, folderPanelConstraints);
 
-        folderPanelConstraints.insets = new java.awt.Insets(20, 15, 5, 15);
+        // temp folder size
+        folderPanelConstraints.gridwidth = 1;
+        folderPanelConstraints.gridy++;
+        folderPanelConstraints.weightx = 0;
+        folderPanelConstraints.fill = GridBagConstraints.NONE;
+        folderPanelConstraints.anchor = GridBagConstraints.EAST;
+        add(new JLabel("Maximum size for temp folder :"), folderPanelConstraints);
+
+        JTextField maximumTmpFolderSizeField = new JTextField();
+        maximumTmpFolderSizeField.setText(valueOf(ConfigManager.getMaxTmpFolderSize()));
+        maximumTmpFolderSizeField.setToolTipText(SettingsConstant.FOLDER_MAX_SIZE_TOOLTIP);
+        maximumTmpFolderSizeField.setToolTipText(SettingsConstant.FOLDER_MAX_SIZE_TOOLTIP);
+        folderPanelConstraints.gridx++;
+        folderPanelConstraints.weightx = 0.5;
+        folderPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+        folderPanelConstraints.anchor = GridBagConstraints.WEST;
+        add(maximumTmpFolderSizeField, folderPanelConstraints);
+
+        folderPanelConstraints.gridx++;
+        folderPanelConstraints.weightx = 0;
+        folderPanelConstraints.insets = new java.awt.Insets(5, 5, 5, 15);
+        add(new JLabel("Mo"), folderPanelConstraints);
+
+        // Add Mountung Point
+        folderPanelConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        folderPanelConstraints.gridx=0;
         folderPanelConstraints.gridy++;
         folderPanelConstraints.weightx = 0;
         folderPanelConstraints.weighty = 0;
-        add(createTmpFolderPanel(), folderPanelConstraints);
-
-        folderPanelConstraints.gridy++;
         folderPanelConstraints.fill = GridBagConstraints.NONE;
-        folderPanelConstraints.anchor = GridBagConstraints.WEST;
+        folderPanelConstraints.anchor = GridBagConstraints.EAST;
+        //add(createTmpFolderPanel(), folderPanelConstraints);
+        add(new JLabel("Add Mounting Point :"), folderPanelConstraints);
 
-        add(createAddFolderPanel(), folderPanelConstraints);
+        JButton openAddDialogButton = new JButton(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
+        openAddDialogButton.addActionListener(e -> {
+            openAddDialog();
+        });
+        folderPanelConstraints.gridx++;
+        folderPanelConstraints.anchor = GridBagConstraints.WEST;
+        folderPanelConstraints.gridwidth = 2;
+        add(openAddDialogButton, folderPanelConstraints);
+
+        folderPanelConstraints.gridx = 0;
+        folderPanelConstraints.gridwidth = 3;
         folderPanelConstraints.fill = GridBagConstraints.BOTH;
         folderPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
         folderPanelConstraints.gridy++;
@@ -83,6 +111,18 @@ public class FolderPanel extends JPanel {
 
     }
 
+    private void openAddDialog(){
+        FolderEditDialog addDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.AddingAMountPoint, null, null, null);
+        addDialog.centerToWindow(ConfigWindow.getInstance());
+        addDialog.setSize(500, 270);
+        addDialog.setVisible(true);
+
+        // TODO execute if button ok is clicked inside dialog
+        if (addDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+            valuesInsideDialog = addDialog.getValuesEntered();
+            addFolderAction();
+        }
+    }
 
     //VDS TODO: test lighter update method...
     private void updateJpanel() {
@@ -92,82 +132,83 @@ public class FolderPanel extends JPanel {
         repaint();
     }
 
-
-    private JPanel createTmpFolderPanel() {
-        // creation du panel et du layout
-        JPanel tmpFolderPanel = new JPanel(new GridBagLayout());
-        tmpFolderPanel.setToolTipText(SettingsConstant.FOLDER_MAX_SIZE_TOOLTIP);
-        GridBagConstraints tmpFolderConstraint = new GridBagConstraints();
-        tmpFolderConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
-        tmpFolderConstraint.anchor = GridBagConstraints.NORTHWEST;
-
-        // creation des widgets
-
-        JTextField maximumTmpFolderSizeField = new JTextField();
-
-        maximumTmpFolderSizeField.setText(valueOf(ConfigManager.getMaxTmpFolderSize()));
-        maximumTmpFolderSizeField.setToolTipText(SettingsConstant.FOLDER_MAX_SIZE_TOOLTIP);
-
-        // ajout des widgets au layout
-        tmpFolderConstraint.gridx = 0;
-        tmpFolderConstraint.gridy = 0;
-        tmpFolderConstraint.fill = GridBagConstraints.HORIZONTAL;
-        tmpFolderPanel.add(new JLabel("Maximum size for temp folder : ", SwingConstants.RIGHT), tmpFolderConstraint);
-
-        tmpFolderConstraint.gridx++;
-        tmpFolderConstraint.weightx = 0.5;
-        tmpFolderConstraint.fill = GridBagConstraints.BOTH;
-        tmpFolderPanel.add(maximumTmpFolderSizeField, tmpFolderConstraint);
-
-        tmpFolderConstraint.gridx++;
-        tmpFolderConstraint.weightx = 0;
-        tmpFolderPanel.add(new JLabel("Mo"), tmpFolderConstraint);
-
-        return tmpFolderPanel;
-    }
-
-
-    private JPanel createAddFolderPanel() {
-        JPanel addFolderPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        JLabel addFolderLabel = new JLabel("Add Mounting Point: ");
-        addFolderPanel.add(addFolderLabel, gbc);
-        gbc.gridx++;
-        JButton openAddJDialog = new JButton(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.WEST;
-        openAddJDialog.setSize(30, 30);
-
-        openAddJDialog.addActionListener(e -> {
-
-
-            FolderEditDialog addDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.AddingAMountPoint, null, null, null);
-
-            addDialog.centerToWindow(ConfigWindow.getInstance());
-            addDialog.setSize(500, 270);
-            addDialog.setVisible(true);
-
-            // TODO execute if button ok is clicked inside dialog
-
-            if (addDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
-
-                valuesInsideDialog = addDialog.getValuesEntered();
-
-                addFolderAction();
-
-
-            }
-
-
-        });
-        gbc.insets = new Insets(5, 30, 5, 10);
-        addFolderPanel.add(openAddJDialog, gbc);
-
-
-        return addFolderPanel;
-    }
+// VDS A Supprimer
+//    private JPanel createTmpFolderPanel() {
+//        // creation du panel et du layout
+//        JPanel tmpFolderPanel = new JPanel(new GridBagLayout());
+//        tmpFolderPanel.setToolTipText(SettingsConstant.FOLDER_MAX_SIZE_TOOLTIP);
+//        GridBagConstraints tmpFolderConstraint = new GridBagConstraints();
+//        tmpFolderConstraint.insets = new java.awt.Insets(2, 5, 2, 5);
+//        tmpFolderConstraint.anchor = GridBagConstraints.NORTHWEST;
+//
+//        // creation des widgets
+//
+//        JTextField maximumTmpFolderSizeField = new JTextField();
+//
+//        maximumTmpFolderSizeField.setText(valueOf(ConfigManager.getMaxTmpFolderSize()));
+//        maximumTmpFolderSizeField.setToolTipText(SettingsConstant.FOLDER_MAX_SIZE_TOOLTIP);
+//
+//        // ajout des widgets au layout
+//        tmpFolderConstraint.gridx = 0;
+//        tmpFolderConstraint.gridy = 0;
+//        tmpFolderConstraint.fill = GridBagConstraints.HORIZONTAL;
+//        tmpFolderPanel.add(new JLabel("Maximum size for temp folder : ", SwingConstants.RIGHT), tmpFolderConstraint);
+//
+//        tmpFolderConstraint.gridx++;
+//        tmpFolderConstraint.weightx = 0.5;
+//        tmpFolderConstraint.fill = GridBagConstraints.BOTH;
+//        tmpFolderPanel.add(maximumTmpFolderSizeField, tmpFolderConstraint);
+//
+//        tmpFolderConstraint.gridx++;
+//        tmpFolderConstraint.weightx = 0;
+//        tmpFolderPanel.add(new JLabel("Mo"), tmpFolderConstraint);
+//
+//        return tmpFolderPanel;
+//    }
+//
+//
+//    private JPanel createAddFolderPanel() {
+//        JPanel addFolderPanel = new JPanel(new GridBagLayout());
+//        GridBagConstraints gbc = new GridBagConstraints();
+//        gbc.gridx = 0;
+//        gbc.gridy = 0;
+//        gbc.insets = new Insets(5, 5, 5, 5);
+//        JLabel addFolderLabel = new JLabel("Add Mounting Point: ");
+//        addFolderPanel.add(addFolderLabel, gbc);
+//        gbc.gridx++;
+//        JButton openAddJDialog = new JButton(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
+//        gbc.fill = GridBagConstraints.NONE;
+//        gbc.anchor = GridBagConstraints.NORTHWEST;
+//        openAddJDialog.setSize(30, 30);
+//
+//        openAddJDialog.addActionListener(e -> {
+//
+//
+//            FolderEditDialog addDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.AddingAMountPoint, null, null, null);
+//
+//            addDialog.centerToWindow(ConfigWindow.getInstance());
+//            addDialog.setSize(500, 270);
+//            addDialog.setVisible(true);
+//
+//            // TODO execute if button ok is clicked inside dialog
+//
+//            if (addDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+//
+//                valuesInsideDialog = addDialog.getValuesEntered();
+//
+//                addFolderAction();
+//
+//
+//            }
+//
+//
+//        });
+//        gbc.insets = new Insets(5, 5, 5, 5);
+//        addFolderPanel.add(openAddJDialog, gbc);
+//
+//
+//        return addFolderPanel;
+//    }
 
     private JPanel createFolderListPanel() {
         // creation du panel et layout

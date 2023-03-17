@@ -1,16 +1,15 @@
 package fr.proline.zero.gui;
 
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
+import fr.proline.studio.gui.DefaultDialog;
+import fr.proline.studio.utils.IconManager;
+import fr.proline.zero.util.ConfigManager;
+import fr.proline.zero.util.ParsingRule;
+import fr.proline.zero.util.SettingsConstant;
 
 import javax.swing.*;
-
-import fr.proline.studio.gui.DefaultDialog;
-import fr.proline.zero.util.*;
-import fr.proline.studio.utils.IconManager;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ParsingRulesPanel extends JPanel {
@@ -126,7 +125,7 @@ public class ParsingRulesPanel extends JPanel {
         StringBuilder builtFasta = new StringBuilder();
         for (int k = 0; k < fastaNames.size()&&k<2; k++) {
             builtFasta.append(fastaNames.get(k));
-            if (k < (1))
+            if (k < 1 && fastaNames.size()>k+1)
                 builtFasta.append("; ");
         }
         return builtFasta.toString();
@@ -239,7 +238,7 @@ public class ParsingRulesPanel extends JPanel {
         JPanel displayPr = new JPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         displayPr.setBorder(BorderFactory.createLineBorder(new Color(150, 160, 210), 1));
-        constraints.insets = new Insets(3, 5, 3, 5);
+        constraints.insets = new Insets(5, 5, 5, 5);
         constraints.gridy = 0;
         constraints.gridx = 0;
 
@@ -247,7 +246,7 @@ public class ParsingRulesPanel extends JPanel {
         String fastaVersion = parsingRule.getFastaVersionRegExp();
         String protein = parsingRule.getProteinAccRegExp();
         List<String> fastaNames = parsingRule.getFastaNameRegExp();
-        boolean parsingRuleHasManyFastasRules = (fastaNames.size() > 1);
+        boolean parsingRuleHasManyFastasRules = (fastaNames.size() > 2);
 
         JLabel jLabelname = new JLabel("Label: ");
         constraints.anchor = GridBagConstraints.EAST;
@@ -270,31 +269,41 @@ public class ParsingRulesPanel extends JPanel {
         constraints.fill = GridBagConstraints.NONE;
         constraints.weightx = 0;
         displayPr.add(fastaName, constraints);
+
         JTextField fastaField = new JTextField(fastaConcatenator(fastaNames));
         fastaField.setEnabled(parsingRule.isEditable());
         fastaField.setEditable(parsingRule.isEditable());
-        fastaField.setPreferredSize(new Dimension(maximumSize[1]-13, 20));
+//        fastaField.setPreferredSize(new Dimension(maximumSize[1]-13, 20));
         constraints.gridx++;
         constraints.anchor = GridBagConstraints.WEST;
-        constraints.weightx = 0.8;
-        constraints.fill = GridBagConstraints.NONE;
+        constraints.weightx =1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
        // fastaField.setPreferredSize(new Dimension(190,20));
         displayPr.add(fastaField, constraints);
-        JButton wiewfastaButton=new JButton(IconManager.getIcon(IconManager.IconType.TABLE));
-        wiewfastaButton.setMargin(new Insets(0,2,2,0));
-        wiewfastaButton.addActionListener(e -> {
 
-            ParsingRuleEditDialog viewFastas=new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.ViewFastas,parsingRule);
-            viewFastas.setSize(new Dimension(300,250));
-            viewFastas.setLocationRelativeTo(labelField);
-            viewFastas.setVisible(true);
 
-        });
-       // constraints.gridx++;
-        constraints.fill=GridBagConstraints.NONE;
-        constraints.anchor=GridBagConstraints.EAST;
-        constraints.weightx=0.2;
-        displayPr.add(wiewfastaButton,constraints);
+        //VDS peut etre trouver juste ... Je le teste
+//        JButton wiewfastaButton=new JButton(IconManager.getIcon(IconManager.IconType.TABLE));
+        if(parsingRuleHasManyFastasRules) {
+            //VDS : Mettre un tooltip pour expliquer
+            JButton wiewfastaButton = new JButton("...");
+            wiewfastaButton.setMargin(new Insets(0, 2, 2, 0));
+            wiewfastaButton.addActionListener(e -> {
+                // Juste une popup avec la liste .. Du style :
+//                JList<String> values = new JList<>(fastaNames.toArray(new String[fastaNames.size()]));
+//                JOptionPane.showMessageDialog(this, values,"ee", JOptionPane.WARNING_MESSAGE );
+                ParsingRuleEditDialog viewFastas = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.ViewFastas, parsingRule);
+                viewFastas.setSize(new Dimension(300, 250));
+                viewFastas.setLocationRelativeTo(labelField);
+                viewFastas.setVisible(true);
+
+            });
+            constraints.gridx++;
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.anchor = GridBagConstraints.EAST;
+            constraints.weightx = 0;
+            displayPr.add(wiewfastaButton, constraints);
+        }
 
         JLabel jLabelFastaVersion = new JLabel("Fasta Version Rule: ");
         constraints.gridx = 0;
@@ -320,6 +329,7 @@ public class ParsingRulesPanel extends JPanel {
         constraints.fill = GridBagConstraints.NONE;
         constraints.weightx = 0;
         displayPr.add(jLabelProtein, constraints);
+
         JTextField proteinField = new JTextField(protein);
         proteinField.setEnabled(parsingRule.isEditable());
         proteinField.setEditable(parsingRule.isEditable());
@@ -327,10 +337,12 @@ public class ParsingRulesPanel extends JPanel {
         constraints.weightx = 1;
         constraints.anchor = GridBagConstraints.EAST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
+        if(parsingRuleHasManyFastasRules)
+            constraints.gridwidth=2;
         proteinField.setPreferredSize(new Dimension(maximumSize[3], 20));
         displayPr.add(proteinField, constraints);
 
-        constraints.gridx = 3;
+        constraints.gridwidth=parsingRuleHasManyFastasRules ? 5 : 4;
         constraints.gridy++;
 
         constraints.anchor=GridBagConstraints.EAST;

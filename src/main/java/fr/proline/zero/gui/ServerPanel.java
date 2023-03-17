@@ -52,6 +52,7 @@ public class ServerPanel extends JPanel {
 		c.weighty = 0;
 		c.gridx = 0;
 		c.gridy = 0;
+		c.insets = new java.awt.Insets(5, 5, 5, 5);
 		c.gridwidth = 2;
 		add(help, c);
 
