@@ -22,14 +22,9 @@ public class FolderEditDialog extends DefaultDialog {
     private JTextField folderPathField;
 
     private final TypeOfDialog typeOfDialog;
-    private boolean firstCall = true;
-    private String backupLabel = "";
-    private String backupPath = "";
-
 
 
     public enum TypeOfDialog {EditingDefaultMPts, EditingFastas, EditingMpts, AddingAMountPoint}
-
 
 
     public FolderEditDialog(Window parent, TypeOfDialog typeOfDialog, String pathBackup, String labelEdited, MountPointUtils.MountPointType mountPointType) {
@@ -48,7 +43,7 @@ public class FolderEditDialog extends DefaultDialog {
 
         if (typeOfDialog.equals(TypeOfDialog.AddingAMountPoint)) {
 
-            this.setTitle("Add Mounting Point");
+            this.setTitle("Add folder");
             this.setIconImage(IconManager.getImage(IconManager.IconType.PLUS_16X16));
 
             this.setButtonName(BUTTON_OK, "Add");
@@ -83,7 +78,6 @@ public class FolderEditDialog extends DefaultDialog {
         }
 
 
-
         this.setResizable(true);
         super.pack();
     }
@@ -97,7 +91,12 @@ public class FolderEditDialog extends DefaultDialog {
         dataTypeBox = new JComboBox<String>();
         dataTypeBox.addItem(MountPointUtils.MountPointType.RESULT.getDisplayString());
         dataTypeBox.addItem(MountPointUtils.MountPointType.MZDB.getDisplayString());
-        dataTypeBox.addItem("Fasta folder");
+
+        boolean SeqRepoIsActive = ConfigWindow.getInstance().seqRepoIsActive();
+
+        if (SeqRepoIsActive) {
+            dataTypeBox.addItem("Fasta folder");
+        }
 
         dataTypeBox.addActionListener(e -> {
             greyLabelforFasta();
@@ -108,19 +107,6 @@ public class FolderEditDialog extends DefaultDialog {
         folderLabelField.setEnabled(true);
         folderPathField = new JTextField();
         folderPathField.setEnabled(true);
-      /*  if (context.equals(TypeOfDialog.EditingDefaultMPts)) {
-
-
-        }
-        if (context.equals(TypeOfDialog.EditingFastas)) {
-
-
-
-
-        }
-        if (context.equals(TypeOfDialog.EditingMpts)) {
-
-        }*/
 
         JButton browseButton = new JButton(IconManager.getIcon(IconManager.IconType.OPEN_FILE));
 
@@ -179,12 +165,10 @@ public class FolderEditDialog extends DefaultDialog {
         addFolderConstraint.gridy++;
         addFolderConstraint.gridx = 0;
         addFolderConstraint.weighty = 1;
-        add(Box.createVerticalGlue(),addFolderConstraint);
+        add(Box.createVerticalGlue(), addFolderConstraint);
 
         return addFolderPanel;
     }
-
-
 
 
     private void greyLabelforFasta() {
@@ -282,40 +266,23 @@ public class FolderEditDialog extends DefaultDialog {
     @Override
     protected boolean backCalled() {
 
-        if (firstCall) {
 
-            backupLabel = folderLabelField.getText();
-            backupPath = folderPathField.getText();
-            if (this.typeOfDialog.equals(TypeOfDialog.EditingFastas)||this.typeOfDialog.equals(TypeOfDialog.EditingDefaultMPts)) {
-                folderPathField.setText("");
-                firstCall = false;
-                setButtonName(BUTTON_BACK, "Undo");
-                setButtonIcon(BUTTON_BACK, IconManager.getIcon(IconManager.IconType.BACK));
-            }
-            else {
-                folderLabelField.setText("");
-                folderPathField.setText("");
-                setButtonName(BUTTON_BACK, "Undo");
-                setButtonIcon(BUTTON_BACK, IconManager.getIcon(IconManager.IconType.BACK));
-                firstCall = false;
-            }
+        if (this.typeOfDialog.equals(TypeOfDialog.EditingFastas) || this.typeOfDialog.equals(TypeOfDialog.EditingDefaultMPts)) {
+            folderPathField.setText("");
+
+
         } else {
-
-            folderLabelField.setText(backupLabel);
-            folderPathField.setText(backupPath);
-            setButtonName(BUTTON_BACK, "Clear");
-            setButtonIcon(BUTTON_BACK, IconManager.getIcon(IconManager.IconType.ERASER));
-
-            firstCall = true;
+            folderLabelField.setText("");
+            folderPathField.setText("");
 
         }
+
         return true;
     }
 
     @Override
     protected boolean saveCalled() {
         System.out.println("Save called");
-
         return true;
     }
 }

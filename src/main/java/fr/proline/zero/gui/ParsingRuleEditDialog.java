@@ -44,7 +44,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
         this.setButtonName(BUTTON_DEFAULT, "Test");
         this.setButtonVisible(BUTTON_DEFAULT, true);
-       // this.setButtonEnabled(BUTTON_DEFAULT, false);
+        this.setButtonEnabled(BUTTON_DEFAULT, false);
         this.setButtonIcon(BUTTON_DEFAULT, IconManager.getIcon(IconManager.IconType.TEST));
 
         this.setButtonVisible(BUTTON_BACK, true);
@@ -56,22 +56,19 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
         if (typeOfDialog.equals(TypeOfDialog.Add)) {
             this.setButtonName(BUTTON_OK, "Add");
-
-
             this.setIconImage(IconManager.getImage(IconManager.IconType.PLUS_16X16));
             this.setTitle("Add Parsing Rule");
 
         }
         if (typeOfDialog.equals(TypeOfDialog.Edit)) {
             this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
-
-
             this.setButtonName(BUTTON_OK, "Update");
             this.setTitle("Edit Parsing Rule");
 
         }
         if (!typeOfDialog.equals(TypeOfDialog.ViewFastas)) {
             JPanel internalPanel = createParsingRulesJPanel(parsingRule);
+            setStatusVisible(false);
             setInternalComponent(internalPanel);
 
 
@@ -82,10 +79,21 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             this.setButtonVisible(BUTTON_DEFAULT, false);
             this.setButtonVisible(BUTTON_BACK, false);
             this.setButtonName(BUTTON_OK,"Close");
+            this.setButtonIcon(BUTTON_OK,IconManager.getIcon(IconManager.IconType.CANCEL));
             this.setStatusVisible(false);
+            List<String> fastaNames=parsingRule.getFastaNameRegExp();
 
-            JPanel viewFasta = viewFastaNamePanel(parsingRule);
-            setInternalComponent(viewFasta);
+            JList<String> fastaJList= new JList<>(fastaNames.toArray(new String[fastaNames.size()]));
+            JScrollPane scrollPane=new JScrollPane(fastaJList);
+
+            JPanel fastaPanelViewer=new JPanel(new GridBagLayout());
+            GridBagConstraints gbc=new GridBagConstraints();
+
+            gbc.gridx=0;
+            gbc.gridy=0;
+            gbc.fill=GridBagConstraints.BOTH;
+            fastaPanelViewer.add(scrollPane,gbc);
+            setInternalComponent(fastaPanelViewer);
         }
         this.setStatusVisible(true);
         this.setResizable(true);

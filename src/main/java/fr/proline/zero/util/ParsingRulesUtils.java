@@ -200,6 +200,9 @@ public class ParsingRulesUtils {
             if (!Files.exists(pathToTest)) {
                 invalidFastaPaths.add(fastaPaths);
             }
+            if (pathToTest.toString().equals("")){
+                invalidFastaPaths.add("a fasta folder path  is an empty string");
+            }
         }
         return invalidFastaPaths.isEmpty();
     }

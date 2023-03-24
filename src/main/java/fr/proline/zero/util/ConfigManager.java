@@ -240,6 +240,18 @@ public final class ConfigManager {
         // TODO other utils restore to their originals
     }
 
+
+    // returns true if any element has been changed
+    public boolean configHasChanged(){
+       // boolean mountPointsChanged=getMountPointManager().mountHasBeenChanged();
+        boolean mountPointsChanged=mountPointsManager.mountHasBeenChanged();
+        boolean parseRulesOrFastasHaveChanged=parsingRulesManager.isParseRulesAndFastaHasBeenChanged();
+        boolean memoryHasChanged=memoryManager.hasBeenChanged();
+        boolean serverSettingsHaveChanged=advancedManager.hasBeenChanged();
+        return mountPointsChanged||parseRulesOrFastasHaveChanged||memoryHasChanged||serverSettingsHaveChanged||hasBeenChanged;
+
+    }
+
     public String getLastErrorMessage() {
         return lastErrorMessage;
     }

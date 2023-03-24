@@ -49,7 +49,7 @@ public class MountPointUtils {
 
     public enum MountPointType {
         RAW(ProlineFiles.CORTEX_RAW_FILES_MOUNT_POINT, "Raw folder"),
-        MZDB(ProlineFiles.CORTEX_MZDB_MOUNT_POINT, "Mzdb folder"),
+        MZDB(ProlineFiles.CORTEX_MZDB_MOUNT_POINT, "mzDB folder"),
         RESULT(ProlineFiles.CORTEX_RESULT_FILES_MOUNT_POINT, "Result folder");
         private final String jsonKey;
         private final String displayStr;
@@ -214,8 +214,6 @@ public class MountPointUtils {
             // isValid = false;
         }
 
-
-
         return message.length() == 0;
 
 
@@ -252,9 +250,14 @@ public class MountPointUtils {
             if (temp != null) {
                 for (String key : temp.keySet()) {
                     Path pathToTest = Paths.get(temp.get(key));
-                    boolean pathPresent = Files.exists(pathToTest);
+
+                    boolean pathPresent = Files.exists(pathToTest); // returns true even if path is empty string???
+                    boolean pathIsEmptyString=pathToTest.toString().equals("");
                     if (!pathPresent) {
                         invalidPaths.add(temp.get(key));
+                    } else if(pathIsEmptyString) {
+                        invalidPaths.add(key+" : the path corresponding to that label is an empty string");
+
                     }
 
                 }
@@ -262,6 +265,7 @@ public class MountPointUtils {
         }
         return invalidPaths.isEmpty();
     }
+
 
 
     public boolean defaultMptsExist() {
