@@ -56,7 +56,7 @@ public class ParsingRule {
         this.fastaNameRegExp = fastaNameRegexp;
         this.fastaVersionRegExp = fastaVersionRegExp;
         this.proteinAccRegExp = proteinAccRegExp;
-        // to be removed useless
+        // to be removed useless;
         this.isEditable=false;
     }
 }

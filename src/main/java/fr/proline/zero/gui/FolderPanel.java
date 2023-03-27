@@ -21,6 +21,8 @@ public class FolderPanel extends JPanel {
     private final Color stringColor = new Color(50, 0, 230);
     private final Color errorColor = new Color(255, 0, 50);
 
+    private final Color softErrorColor =new Color(243, 227, 227);
+
 
     private MountPointUtils.MountPointType mountPointTypeEdited; //VDS not used ?
 
@@ -118,7 +120,7 @@ public class FolderPanel extends JPanel {
         FolderEditDialog addDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.AddingAMountPoint, null, null, null);
        // addDialog.centerToWindow(ConfigWindow.getInstance());
         addDialog.setLocationRelativeTo(help);
-        addDialog.setSize(450, 270);
+        addDialog.setSize(450, 200);
         addDialog.setVisible(true);
 
         // TODO execute if button ok is clicked inside dialog
@@ -240,7 +242,9 @@ public class FolderPanel extends JPanel {
             }
             // indicates the path of the folder is an empty string
             if (path.equals("")){
-                fieldInitial.setForeground(errorColor);
+               // fieldInitial.setForeground(errorColor);
+                pathInitial.setText("This path is not valid please enter a path for this mount point");
+                pathInitial.setBackground(softErrorColor);
             }
 
             anyPanelConstraints.fill = GridBagConstraints.NONE;
@@ -262,7 +266,7 @@ public class FolderPanel extends JPanel {
                 FolderEditDialog editDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingDefaultMPts, pathBackup, null, mpt);
                 editDialog.setLocationRelativeTo(help);
                // editDialog.centerToWindow(ConfigWindow.getInstance());
-                editDialog.setSize(500, 270);
+                editDialog.setSize(500, 200);
                 editDialog.setVisible(true);
                 if (editDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
                     valuesInsideDialog = editDialog.getValuesEntered();
@@ -299,9 +303,7 @@ public class FolderPanel extends JPanel {
                 JLabel field = new JLabel(key + " :", SwingConstants.RIGHT);
                 field.setPreferredSize(new Dimension(getMaximumSizesOfJLabels() + 8, 20));
                 anyPanelConstraints.anchor = GridBagConstraints.EAST;
-                if(mountPointsToBeDisplayed.get(key).equals("")){
-                    field.setForeground(errorColor);
-                }
+
                 anyPanel.add(field, anyPanelConstraints);
 
                 JTextField resultPath = new JTextField(mountPointsToBeDisplayed.get(key));
@@ -312,17 +314,24 @@ public class FolderPanel extends JPanel {
                     resultPath.setEnabled(true);
                     resultPath.setEditable(true);
                 }
+                if(mountPointsToBeDisplayed.get(key).equals("")){
+                   // field.setForeground(errorColor);
+                    resultPath.setBackground(softErrorColor);
+                    resultPath.setText("This path is not valid please enter a path for this mount point");
+
+                }
                 anyPanelConstraints.gridx++;
                 anyPanelConstraints.anchor = GridBagConstraints.WEST;
                 anyPanelConstraints.weightx = 1;
                 anyPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
                 if (pathWrong.contains(mountPointsToBeDisplayed.get(key))) {
                     resultPath.setEnabled(true);
-                    resultPath.setEditable(false);
+                    resultPath.setEditable(true);
                     resultPath.setForeground(errorColor);
                     resultPath.setToolTipText("This path does not exist you should delete it by clicking on the delete button ");
 
                 }
+                anyPanelConstraints.insets=new Insets(0,5,0,5);
                 anyPanel.add(resultPath, anyPanelConstraints);
                 anyPanelConstraints.fill = GridBagConstraints.NONE;
                 anyPanelConstraints.weightx = 0;
@@ -339,7 +348,7 @@ public class FolderPanel extends JPanel {
                     FolderEditDialog editDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingMpts, pathBackup, labelEdited, mpt);
                   //  editDialog.centerToWindow(ConfigWindow.getInstance());
                     editDialog.setLocationRelativeTo(help);
-                    editDialog.setSize(500, 270);
+                    editDialog.setSize(500, 200);
                     editDialog.setVisible(true);
                     if (editDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
                         valuesInsideDialog = editDialog.getValuesEntered();
@@ -408,17 +417,20 @@ public class FolderPanel extends JPanel {
             fastaListPanelConstraints.fill = GridBagConstraints.NONE;
             JLabel fastaLabel = new JLabel("Folder    " + valueOf(k + 1) + ":", SwingConstants.RIGHT);
             fastaLabel.setPreferredSize(new Dimension(getMaximumSizesOfJLabels() + 8, 20));
-            if (fastaToBeDisplayed.get(k).equals("")){
-                fastaLabel.setForeground(errorColor);
-            }
+
             fastaListPanel.add(fastaLabel, fastaListPanelConstraints);
             JTextField pathFasta = new JTextField(fastaToBeDisplayed.get(k));
             pathFasta.setEnabled(false);
             if (errorInThePath) {
                 pathFasta.setEnabled(true);
-                pathFasta.setEditable(false);
+                pathFasta.setEditable(true);
                 pathFasta.setForeground(errorColor);
                 pathFasta.setToolTipText("This path is not valid");
+            }
+            if (fastaToBeDisplayed.get(k).equals("")){
+                pathFasta.setBackground(softErrorColor);
+                pathFasta.setForeground(Color.WHITE);
+                pathFasta.setText("This path is not valid please enter a path for this mount point");
             }
 
             fastaListPanelConstraints.gridx++;
@@ -443,7 +455,7 @@ public class FolderPanel extends JPanel {
                 FolderEditDialog editFastaDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingFastas, pathBackup, null, null);
                // editFastaDialog.centerToWindow(ConfigWindow.getInstance());
                 editFastaDialog.setLocationRelativeTo(help);
-                editFastaDialog.setSize(500, 270);
+                editFastaDialog.setSize(500, 200);
                 editFastaDialog.setVisible(true);
 
                 if (editFastaDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {

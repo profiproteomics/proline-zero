@@ -14,9 +14,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <server.version>2.3.0-SNAPSHOT</server.version>
+        <server.version>2.3.0tmt-SNAPSHOT </server.version>
         <admin.version>2.3.0-SNAPSHOT</admin.version>
-        <studio.version>2.3.0-SNAPSHOT</studio.version>
+        <studio.version>2.3.0tmt-SNAPSHOT</studio.version>
         <commons.version>1.2.0-SNAPSHOT</commons.version>
         <hornetq.version>2.4.0.Final</hornetq.version>
         <dist.data>${project.basedir}/data/sample</dist.data>
@@ -314,7 +314,7 @@
                 <dependency>
                     <groupId>fr.proline</groupId>
                     <artifactId>pm-sequence-repository</artifactId>
-                    <version>${server.version}</version>
+                    <version>${admin.version}</version> <!-- to change !! VDS -->
                     <classifier>bin</classifier>
                     <type>zip</type>
                     <exclusions>
