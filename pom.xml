@@ -314,7 +314,7 @@
                 <dependency>
                     <groupId>fr.proline</groupId>
                     <artifactId>pm-sequence-repository</artifactId>
-                    <version>${admin.version}</version> <!-- to change !! VDS -->
+                    <version>${server.version}</version> <!-- to change !! VDS -->
                     <classifier>bin</classifier>
                     <type>zip</type>
                     <exclusions>
