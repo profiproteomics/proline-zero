@@ -1,7 +1,12 @@
 package fr.proline.zero.util;
 
 
+import fr.proline.module.seq.config.ParsingRuleEntry;
+import fr.proline.module.seq.config.SeqRepoConfig;
+
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ParsingRule {
     private String name;
@@ -58,5 +63,26 @@ public class ParsingRule {
         this.proteinAccRegExp = proteinAccRegExp;
         // to be removed useless;
         this.isEditable=false;
+    }
+    public static synchronized ParsingRule getParsingRuleEntry(final String fastaFileName) {
+        assert (fastaFileName != null) : "getParsingRuleEntry() fastaFileName is null";
+
+        ParsingRule result = null;
+        for(ParsingRule nextPR : ConfigManager.getInstance().getParsingRulesManager().getSetOfRules()){
+            for(String fastaRegEx : nextPR.getFastaNameRegExp()){
+                final Pattern pattern = Pattern.compile(fastaRegEx, Pattern.CASE_INSENSITIVE);
+                final Matcher matcher = pattern.matcher(fastaFileName);
+                if (matcher.find()) {
+
+                    result = nextPR;
+                    break;
+                }
+
+            } // End loop for each regex
+            if( result!=null)
+                break;
+        }
+
+        return result;
     }
 }

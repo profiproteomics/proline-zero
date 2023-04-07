@@ -1,23 +1,33 @@
 package fr.proline.zero.gui;
 
+import fr.proline.module.seq.service.FastaPathsScanner;
 import fr.proline.studio.gui.DefaultDialog;
+import fr.proline.studio.gui.InfoDialog;
 import fr.proline.studio.utils.IconManager;
 import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.ParsingRule;
+import fr.proline.zero.util.RegExUtil;
 import fr.proline.zero.util.SettingsConstant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.Set;
 
-import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS;
+import static fr.proline.module.seq.Constants.LATIN_1_CHARSET;
+import static fr.proline.studio.gui.DefaultDialog.BUTTON_CANCEL;
+import static fr.proline.studio.gui.DefaultDialog.BUTTON_OK;
 
 
 public class ParsingRulesPanel extends JPanel {
+    private final Object m_foundFastaFilesLock = new Object();
+    private Map<String, List<File>> m_foundFastaFiles;
+    private static final Logger LOG = LoggerFactory.getLogger(ParsingRulesPanel.class);
 
     public ParsingRulesPanel() {
         initialize();
@@ -82,12 +92,12 @@ public class ParsingRulesPanel extends JPanel {
         c.anchor = GridBagConstraints.NORTHWEST;
         c.weighty = 0;
         //---------------
-        JPanel rulesListPanel=createParsingRulesListPanel();
-        JScrollPane scrollPane=new JScrollPane(rulesListPanel);
+        // JPanel rulesListPanel=createParsingRulesListPanel();
+        JScrollPane scrollPane = new JScrollPane(createParsingRulesListPanel());
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setPreferredSize(new Dimension(700,550));
+        scrollPane.setPreferredSize(new Dimension(700, 550));
         scrollPane.setBorder(null);
-        add(scrollPane,c);
+        add(scrollPane, c);
         //---------------
         //add(createParsingRulesListPanel(), c);
 
@@ -187,10 +197,11 @@ public class ParsingRulesPanel extends JPanel {
         return fontMetrics.stringWidth(stringInTextField);
 
     }
-    private int getsiezinPixelsbutton(JButton button){
-        Font fontused=button.getFont();
-        FontMetrics fontMetrics= button.getFontMetrics(fontused);
-        String stringInsideButton=button.getText();
+
+    private int getSizeInPixelsButton(JButton button) {
+        Font fontused = button.getFont();
+        FontMetrics fontMetrics = button.getFontMetrics(fontused);
+        String stringInsideButton = button.getText();
         return fontMetrics.stringWidth(stringInsideButton);
 
     }
@@ -200,13 +211,13 @@ public class ParsingRulesPanel extends JPanel {
         List<Integer> sizes = new ArrayList<>(4);
         JTextField nameField = new JTextField(parsingRule.getName());
         JTextField fastaNameField = new JTextField(fastaConcatenator(parsingRule.getFastaNameRegExp()));
-        boolean manyFastaRules=parsingRule.getFastaNameRegExp().size()>2;
+        boolean manyFastaRules = parsingRule.getFastaNameRegExp().size() > 2;
         int val = (manyFastaRules) ? 1 : 0;
-        JButton button=new JButton("...");
+        JButton button = new JButton("...");
         JTextField fastaVersionField = new JTextField(parsingRule.getFastaVersionRegExp());
         JTextField proteinAccField = new JTextField(parsingRule.getProteinAccRegExp());
         sizes.add(getSizeinPixels(nameField));
-        sizes.add(getSizeinPixels(fastaNameField)+getsiezinPixelsbutton(button)*val);
+        sizes.add(getSizeinPixels(fastaNameField) + getSizeInPixelsButton(button) * val);
         sizes.add(getSizeinPixels(fastaVersionField));
         sizes.add(getSizeinPixels(proteinAccField));
 
@@ -276,7 +287,7 @@ public class ParsingRulesPanel extends JPanel {
 
         JTextField labelField = new JTextField(label);
         labelField.setEnabled(parsingRule.isEditable());
-        labelField.setPreferredSize(new Dimension(maximumSize[0]+15, 20));
+        labelField.setPreferredSize(new Dimension(maximumSize[0] + 15, 20));
 
 
         constraints.gridx++;
@@ -318,14 +329,13 @@ public class ParsingRulesPanel extends JPanel {
             JButton viewfastaButton = new JButton("...");
             viewfastaButton.setMargin(new Insets(0, 0, 2, 0));
             viewfastaButton.setToolTipText("Click to display the list of fasta rules");
-           // viewfastaButton.setIcon(IconManager.getIcon(IconManager.IconType.TABLE));
+            // viewfastaButton.setIcon(IconManager.getIcon(IconManager.IconType.TABLE));
             viewfastaButton.addActionListener(e -> {
 
                 //-------------- Dialog Version------------------//
            /*    ParsingRuleEditDialog viewFastas = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.ViewFastas, parsingRule);
                 viewFastas.setLocationRelativeTo(viewfastaButton);
                 viewFastas.setVisible(true);*/
-
 
 
                 // ----------------------JOptionPane Version----------------//
@@ -342,7 +352,7 @@ public class ParsingRulesPanel extends JPanel {
             constraints.fill = GridBagConstraints.NONE;
             constraints.anchor = GridBagConstraints.EAST;
             constraints.weightx = 0;
-            constraints.insets=new Insets(0,2,0,5);
+            constraints.insets = new Insets(0, 2, 0, 5);
 
             displayPr.add(viewfastaButton, constraints);
         }
@@ -362,8 +372,8 @@ public class ParsingRulesPanel extends JPanel {
         constraints.weightx = 1;
         constraints.anchor = GridBagConstraints.EAST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets=new Insets(0,5,0,5);
-        fastaVersionRegExpTF.setPreferredSize(new Dimension(maximumSize[2]-15, 20));
+        constraints.insets = new Insets(0, 5, 0, 5);
+        fastaVersionRegExpTF.setPreferredSize(new Dimension(maximumSize[2] - 15, 20));
         //constraints.insets=new Insets(0,0,0,0);
         displayPr.add(fastaVersionRegExpTF, constraints);
 
@@ -372,7 +382,7 @@ public class ParsingRulesPanel extends JPanel {
         constraints.anchor = GridBagConstraints.EAST;
         constraints.fill = GridBagConstraints.NONE;
         constraints.weightx = 0;
-        constraints.insets=new Insets(0,5,0,5);
+        constraints.insets = new Insets(0, 5, 0, 5);
         displayPr.add(jLabelProtein, constraints);
 
         JTextField proteinField = new JTextField(protein);
@@ -444,14 +454,135 @@ public class ParsingRulesPanel extends JPanel {
     private JButton globalButtonTest() {
         JButton testButton = new JButton("Test");
         testButton.setIcon(IconManager.getIcon(IconManager.IconType.TEST));
-        testButton.setEnabled(false);
+        testButton.setEnabled(true);
         testButton.addActionListener(e -> {
-            System.out.println("global test button pressed");
+
+            try {
+                GlobalTest();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
 
 
         });
         testButton.setSize(30, 30);
         return testButton;
+    }
+
+    private void GlobalTest() throws Exception {
+
+        System.out.println("test pressed");
+        StringBuilder stringBuilder = new StringBuilder();
+        Map<String, List<File>> fastaPaths = getFastaFiles();
+        Set<Map.Entry<String, List<File>>> entries = fastaPaths.entrySet();
+        for (Map.Entry<String, List<File>> entry : entries) {
+
+            String fastaName = entry.getKey();
+            List<File> FastaFiles = entry.getValue();
+            ParsingRule rule = ParsingRule.getParsingRuleEntry(fastaName);
+
+            // List<String> fastaNameRule = rule.getFastaNameRegExp();
+            //boolean fastaMatchRule = true;
+            // TODO case insensitive?
+
+
+            String protRegex = null;
+
+            if (rule != null) {
+
+                protRegex = rule.getProteinAccRegExp();
+
+            } else {
+
+                protRegex = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
+            }
+
+
+            //Read 3 entries in fasta files using ParsingRuleEntry regEx
+            for (File nextFile : FastaFiles) {
+                String test = nextFile.getName();
+                stringBuilder.append("fasta file:  " + nextFile.getAbsolutePath());
+                stringBuilder.append("\n");
+                BufferedReader br = null;
+                try {
+                    InputStream is = new FileInputStream(nextFile);
+                    br = new BufferedReader(new InputStreamReader(is, LATIN_1_CHARSET));
+
+                    String rawLine = br.readLine();
+                    int countEntry = 0;
+                    int numberOfNoFoundEntry = 0;
+                    while (countEntry < 3 && rawLine != null) {
+
+                        final String trimmedLine = rawLine.trim();
+                        if (!trimmedLine.isEmpty() && trimmedLine.startsWith(">")) { //Found an entry
+                            countEntry++;
+
+                            String foundEntry = RegExUtil.getMatchingString(trimmedLine, protRegex);
+                            if (foundEntry == null) {
+                                numberOfNoFoundEntry++;
+
+                            } else {
+                                stringBuilder.append(trimmedLine+"\n");
+                                stringBuilder.append("protein name:  ");
+                                stringBuilder.append(foundEntry);
+                                stringBuilder.append("\n");
+                            }
+
+                        } // End entryFound
+                        rawLine = br.readLine();
+                    }
+                    if (numberOfNoFoundEntry == 3) {
+                        stringBuilder.append("No protein found inside the file");
+                        stringBuilder.append("\n");
+                    }
+
+
+                    // End read some entries
+
+                } finally {
+
+                    if (br != null) {
+                        try {
+                            br.close();
+                        } catch (IOException exClose) {
+                            LOG.error("Error closing [" + nextFile + ']', exClose);
+                        }
+                    }
+
+                }
+            } //End go through associated fasta files
+
+
+        }
+        System.out.println(stringBuilder.toString());
+        InfoDialog infoDialog = new InfoDialog(ConfigWindow.getInstance(), InfoDialog.InfoType.INFO, "Test results", stringBuilder.toString(), false);
+        infoDialog.setButtonVisible(BUTTON_OK, false);
+        infoDialog.setButtonName(BUTTON_CANCEL, "close");
+       // infoDialog.setSize(700, 500);
+        infoDialog.centerToScreen();
+        infoDialog.pack();
+        infoDialog.setVisible(true);
+
+
+    }
+
+    protected Map<String, List<File>> getFastaFiles() throws Exception {
+        Map<String, List<File>> fastaFiles = null;
+        synchronized (this.m_foundFastaFilesLock) {
+            if (this.m_foundFastaFiles == null) {
+                List<String> localFASTAPaths = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
+                if (localFASTAPaths != null && !localFASTAPaths.isEmpty()) {
+                    fastaFiles = FastaPathsScanner.scanPaths(new FastaPathsScanner(), localFASTAPaths);
+                    this.m_foundFastaFiles = fastaFiles;
+                } else {
+                    LOG.error("No valid localFASTAPaths configured");
+                }
+            } else {
+                fastaFiles = this.m_foundFastaFiles;
+            }
+
+            return fastaFiles;
+        }
     }
 
 

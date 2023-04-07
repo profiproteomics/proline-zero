@@ -265,7 +265,9 @@ public final class ConfigManager {
         boolean success = memoryManager.verif();
         success = advancedManager.verif() && success;
         success = mountPointsManager.verif()&&success;
-        success = parsingRulesManager.verif()&&success;
+        boolean skipVerif=Config.getSeqRepActive();
+
+         success = parsingRulesManager.verif()&&success;
 
         if (!success) {
             StringBuilder errorMessage = new StringBuilder();

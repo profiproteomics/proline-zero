@@ -380,7 +380,7 @@ public class ConfigWindow extends JDialog {
         }
     }
 
-    // when the cross or the cancel button is pressed
+    // when the cancel button is pressed
     private void cancelButtonActionPerformed() {
 
 

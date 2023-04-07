@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ParsingRulesUtils {
 
-    private final String defaultProteinAccRule;
+    private String defaultProteinAccRule = null;
 
     private List<ParsingRule> setOfRules;
     private List<String> fastaPaths;
@@ -87,7 +87,7 @@ public class ParsingRulesUtils {
 
     }
 
-    public  ParsingRule updateParsingRule(ParsingRule ruleModified, String name, String fastaVersionRegExp, String proteinAccRegExp, List<String> fastaNameRegExp ){
+    public ParsingRule updateParsingRule(ParsingRule ruleModified, String name, String fastaVersionRegExp, String proteinAccRegExp, List<String> fastaNameRegExp) {
         ruleModified.setName(name);
         ruleModified.setFastaNameRegExp(fastaNameRegExp);
         ruleModified.setProteinAccRegExp(proteinAccRegExp);
@@ -95,9 +95,9 @@ public class ParsingRulesUtils {
         return ruleModified;
     }
 
-    public void updateSetOfRules(int index, ParsingRule newParsingRule){
+    public void updateSetOfRules(int index, ParsingRule newParsingRule) {
 
-        setOfRules.set(index,newParsingRule);
+        setOfRules.set(index, newParsingRule);
         parseRulesAndFastaHasBeenChanged = true;
 
     }
@@ -113,7 +113,7 @@ public class ParsingRulesUtils {
 
     public boolean deleteRule(ParsingRule ruleToBeDeleted) {
         parseRulesAndFastaHasBeenChanged = true;
-       // int test=setOfRules.indexOf(ruleToBeDeleted);
+        // int test=setOfRules.indexOf(ruleToBeDeleted);
         return setOfRules.remove(ruleToBeDeleted);
     }
 
@@ -128,9 +128,8 @@ public class ParsingRulesUtils {
                 break;
             }
         }
-        return !pathExists&&!fastaPaths.contains(path);
+        return !pathExists && !fastaPaths.contains(path);
     }
-
 
 
     public boolean addFastaFolder(String path) {
@@ -148,15 +147,15 @@ public class ParsingRulesUtils {
         return fastaPaths.remove(path);
     }
 
-    public void restoreParseRulesAndFastas(){
+    public void restoreParseRulesAndFastas() {
         setOfRules = JsonSeqRepoAccess.getInstance().getSetOfRules();
         fastaPaths = JsonSeqRepoAccess.getInstance().getFastaDirectories();
 
 
     }
 
-    public void updateConfigFileParseRulesAndFasta(){
-        JsonSeqRepoAccess.getInstance().updateConfigRulesAndFasta(fastaPaths,setOfRules);
+    public void updateConfigFileParseRulesAndFasta() {
+        JsonSeqRepoAccess.getInstance().updateConfigRulesAndFasta(fastaPaths, setOfRules);
     }
 
 
@@ -193,18 +192,22 @@ public class ParsingRulesUtils {
     }
 
     private boolean fastaPathsAreValid() {
-        invalidFastaPaths = new ArrayList<>();
+        if (Config.getSeqRepActive())
+        {  invalidFastaPaths = new ArrayList<>();
         for (String fastaPaths : fastaPaths) {
 
             Path pathToTest = Paths.get(fastaPaths);
             if (!Files.exists(pathToTest)) {
                 invalidFastaPaths.add(fastaPaths);
             }
-            if (pathToTest.toString().equals("")){
+            if (pathToTest.toString().equals("")) {
                 invalidFastaPaths.add("a fasta folder path  is an empty string");
             }
         }
-        return invalidFastaPaths.isEmpty();
+        return invalidFastaPaths.isEmpty();}
+        else {
+            return true;
+        }
     }
 
     public List<String> getInvalidFastaPaths() {
