@@ -148,13 +148,16 @@ public class ConfigWindow extends JDialog {
         tabbedPane.add(memoryPanel, "Memory");
         tabbedPane.add(folderPanel, "Folders");
         tabbedPane.add(serverPanel, "Server");
+
+
+
         tabbedPane.add(parsePanel, "Parsing rules");
-        if (!configManager.isSeqRepActive()) {
-            tabbedPane.setEnabledAt(3, false);
-        }
+        tabbedPane.setEnabledAt(3, configManager.isSeqRepActive());
+
+
 //		tabbedPane.addChangeListener(resizeDynamique());
         //VDS TODO : implement to allow !
-        tabbedPane.setEnabledAt(3, true);
+
         pack();
         return tabbedPane;
     }
@@ -184,8 +187,9 @@ public class ConfigWindow extends JDialog {
 
                 // If we activate SeqRep :
                 if (seqRepModuleBox.isSelected()) {
-                    // Test if it is possible regarding memory
-                    boolean canEnable = configManager.getMemoryManager().canEnableSeqRepo();
+                    // Test if it is possible regarding memory and if config file has been found
+                    boolean canEnable = configManager.getMemoryManager().canEnableSeqRepo() && !configManager.noSeqRepoConfigFile();
+
 
                     if (canEnable) {
                         // enable the tab
@@ -193,18 +197,28 @@ public class ConfigWindow extends JDialog {
                         memoryPanel.seqRepBeingActive(true);
 
                         // enable it in the util to recalculate the memory values
-                        configManager.setSeqRepActive(true);
+
 
                         // then we update graphically the values from the util
                         memoryPanel.updateMemoryValues();
                         // Bug seems to be fixed
+                        configManager.setSeqRepActive(true);
+                        parsePanel.updateValues();
                         tabbedPane.setEnabledAt(3, true);
 
 
                     } else {
 
                         // else we basically do the same as if we deactivate it
-                        Popup.warning("there is not enough memory to use sequence repository");
+                        if (!configManager.getMemoryManager().canEnableSeqRepo() && !configManager.noSeqRepoConfigFile()) {
+                            Popup.warning("there is not enough memory to use sequence repository");
+                        }
+                        if (configManager.getMemoryManager().canEnableSeqRepo() && configManager.noSeqRepoConfigFile()) {
+                            Popup.warning("You cannot activate Sequence Repository: no config file found");
+                        }
+                        if (!configManager.getMemoryManager().canEnableSeqRepo() && configManager.noSeqRepoConfigFile()) {
+                            Popup.warning("there is not enough memory and sequence repository config file could not be found");
+                        }
                         seqRepModuleBox.setSelected(false);
                     }
                 } else {

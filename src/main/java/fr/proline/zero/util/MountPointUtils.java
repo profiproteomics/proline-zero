@@ -230,12 +230,15 @@ public class MountPointUtils {
     }
 
 
-    // check if at least one mounting point is present
+    // check if at least one mounting point is present does not check raw mountPointType
     public boolean atLeastOneMPoint() {
 
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
-            if (mountPointMap.get(mountPointType) != null) {
-                return true;
+
+            if (!mountPointType.equals(MountPointType.RAW)) {
+                if (mountPointMap.get(mountPointType) != null) {
+                    return true;
+                }
             }
         }
         return false;
@@ -267,7 +270,7 @@ public class MountPointUtils {
     }
 
 
-
+    // Does not check raw mountpoints
     public boolean defaultMptsExist() {
 
         missingMPs.clear();
@@ -275,14 +278,16 @@ public class MountPointUtils {
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
 
             Map<String, String> specificMPEntries = mountPointMap.get(mountPointType);
+            // CD   Raw mount Points are not evaluated
+            if (!mountPointType.equals(MountPointType.RAW)) {
+                if (specificMPEntries == null) {
+                    missingMPs.add(mountPointType.getDisplayString());
+                } else if (!specificMPEntries.containsKey(getMountPointDefaultPathLabel(mountPointType))) {
 
-            if (specificMPEntries == null) {
-                missingMPs.add(mountPointType.getDisplayString());
-            } else if (!specificMPEntries.containsKey(getMountPointDefaultPathLabel(mountPointType))) {
+                    missingMPs.add(mountPointType.getDisplayString());
+                }
 
-                missingMPs.add(mountPointType.getDisplayString());
             }
-
         }
         return missingMPs.isEmpty();
     }

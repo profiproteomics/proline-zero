@@ -4,10 +4,8 @@ import fr.proline.module.seq.service.FastaPathsScanner;
 import fr.proline.studio.gui.DefaultDialog;
 import fr.proline.studio.gui.InfoDialog;
 import fr.proline.studio.utils.IconManager;
-import fr.proline.zero.util.ConfigManager;
-import fr.proline.zero.util.ParsingRule;
-import fr.proline.zero.util.RegExUtil;
-import fr.proline.zero.util.SettingsConstant;
+import fr.proline.zero.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,95 +23,98 @@ import static fr.proline.studio.gui.DefaultDialog.BUTTON_OK;
 
 
 public class ParsingRulesPanel extends JPanel {
-    private final Object m_foundFastaFilesLock = new Object();
-    private Map<String, List<File>> m_foundFastaFiles;
+
     private static final Logger LOG = LoggerFactory.getLogger(ParsingRulesPanel.class);
 
-    public ParsingRulesPanel() {
-        initialize();
 
+    public ParsingRulesPanel() {
+
+        initialize();
     }
 
 
     private void initialize() {
         // creation du layout
-        setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.weightx = 1;
-        c.weighty = 0;
-        c.gridwidth = 2;
-        c.insets = new java.awt.Insets(5, 5, 5, 5);
-        c.gridx = 0;
-        c.gridy = 0;
-        HelpHeaderPanel help = new HelpHeaderPanel("Parsing Rules", SettingsConstant.PARSING_RULES_HELP_PANE);
-        add(help, c);
+        if (!ConfigManager.getInstance().noSeqRepoConfigFile()) {
+            setLayout(new GridBagLayout());
+            GridBagConstraints c = new GridBagConstraints();
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.anchor = GridBagConstraints.NORTHWEST;
+            c.weightx = 1;
+            c.weighty = 0;
+            c.gridwidth = 2;
+            c.insets = new java.awt.Insets(5, 5, 5, 5);
+            c.gridx = 0;
+            c.gridy = 0;
+            HelpHeaderPanel help = new HelpHeaderPanel("Parsing Rules", SettingsConstant.PARSING_RULES_HELP_PANE);
+            add(help, c);
 
-        c.gridwidth = 1;
-        c.insets = new java.awt.Insets(5, 5, 5, 5);
-        c.gridy++;
-        c.fill = GridBagConstraints.NONE;
-        c.weighty = 0;
-        c.weightx = 0;
-        c.anchor = GridBagConstraints.EAST;
-        add(new JLabel("Add parsing rule: "), c);
+            c.gridwidth = 1;
+            c.insets = new java.awt.Insets(5, 5, 5, 5);
+            c.gridy++;
+            c.fill = GridBagConstraints.NONE;
+            c.weighty = 0;
+            c.weightx = 0;
+            c.anchor = GridBagConstraints.EAST;
+            add(new JLabel("Add parsing rule: "), c);
 
-        JButton jButtonOpenJdialog = new JButton();
-        jButtonOpenJdialog.setIcon(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
-        jButtonOpenJdialog.addActionListener(e -> {
-            openAddDialog();
-        });
-        c.gridx++;
-        c.anchor = GridBagConstraints.WEST;
-        add(jButtonOpenJdialog, c);
+            JButton jButtonOpenJdialog = new JButton();
+            jButtonOpenJdialog.setIcon(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
+            jButtonOpenJdialog.addActionListener(e -> {
+                openAddDialog();
+            });
+            c.gridx++;
+            c.anchor = GridBagConstraints.WEST;
+            add(jButtonOpenJdialog, c);
 
-        c.gridx = 0;
-        c.gridy++;
-        c.fill = GridBagConstraints.NONE;
-        c.gridwidth = 1;
-        c.weighty = 0;
-        c.anchor = GridBagConstraints.EAST;
-        add(new JLabel("Default protein accession rule: "), c);
-
-        String protByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
-        JTextField labelProt = new JTextField(protByDefault);
-        c.anchor = GridBagConstraints.WEST;
-        c.gridx++;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1;
-        labelProt.setPreferredSize(new Dimension(200, 20));
-        add(labelProt, c);
-
-        c.gridx = 0;
-        c.gridwidth = 2;
-        c.gridy++;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.weighty = 0;
-        //---------------
-        // JPanel rulesListPanel=createParsingRulesListPanel();
-        JScrollPane scrollPane = new JScrollPane(createParsingRulesListPanel());
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setPreferredSize(new Dimension(700, 550));
-        scrollPane.setBorder(null);
-        add(scrollPane, c);
-        //---------------
-        //add(createParsingRulesListPanel(), c);
+            c.gridx = 0;
+            c.gridy++;
+            c.fill = GridBagConstraints.NONE;
+            c.gridwidth = 1;
+            c.weighty = 0;
+            c.anchor = GridBagConstraints.EAST;
+            add(new JLabel("Default protein accession rule: "), c);
 
 
-        c.gridy++;
-        c.anchor = GridBagConstraints.NORTHEAST;
-        c.weighty = 0;
-        c.fill = GridBagConstraints.NONE;
-        add(globalButtonTest(), c);
+            String protByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
+            JTextField labelProt = new JTextField(protByDefault);
+            c.anchor = GridBagConstraints.WEST;
+            c.gridx++;
+            // c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 0.5;
+            labelProt.setPreferredSize(labelProt.getPreferredSize());
+            add(labelProt, c);
+            c.weightx = 1;
+            c.gridx = 0;
+            c.gridwidth = 2;
+            c.gridy++;
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.anchor = GridBagConstraints.NORTHWEST;
+            c.weighty = 0;
+            //---------------
+            // JPanel rulesListPanel=createParsingRulesListPanel();
+            JScrollPane scrollPane = new JScrollPane(createParsingRulesListPanel());
+            scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            scrollPane.setPreferredSize(new Dimension(700, 550));
+            scrollPane.setBorder(null);
+            add(scrollPane, c);
+            //---------------
+            //add(createParsingRulesListPanel(), c);
 
-        c.fill = GridBagConstraints.VERTICAL;
-        c.weighty = 1;
-        add(Box.createVerticalGlue(), c);
 
-        revalidate();
-        repaint();
+            c.gridy++;
+            c.anchor = GridBagConstraints.NORTHEAST;
+            c.weighty = 0;
+            c.fill = GridBagConstraints.NONE;
+            add(globalButtonTest(), c);
+
+            c.fill = GridBagConstraints.VERTICAL;
+            c.weighty = 1;
+            add(Box.createVerticalGlue(), c);
+
+            revalidate();
+            repaint();
+        }
 
 
     }
@@ -473,69 +474,80 @@ public class ParsingRulesPanel extends JPanel {
 
         System.out.println("test pressed");
         StringBuilder stringBuilder = new StringBuilder();
-        Map<String, List<File>> fastaPaths = getFastaFiles();
+        Map<String, List<File>> fastaPaths = getFastaFilesMap();
         Set<Map.Entry<String, List<File>>> entries = fastaPaths.entrySet();
+        boolean noResult = true;
         for (Map.Entry<String, List<File>> entry : entries) {
-
             String fastaName = entry.getKey();
             List<File> FastaFiles = entry.getValue();
-            ParsingRule rule = ParsingRule.getParsingRuleEntry(fastaName);
-
-            // List<String> fastaNameRule = rule.getFastaNameRegExp();
-            //boolean fastaMatchRule = true;
-            // TODO case insensitive?
-
-
-            String protRegex = null;
-
+            Object[] resultsOfTest = ParsingRule.getMatchingParsingRule(fastaName);
+            ParsingRule rule = (ParsingRule) resultsOfTest[0];
+            String protRegex;
             if (rule != null) {
 
                 protRegex = rule.getProteinAccRegExp();
-
             } else {
 
                 protRegex = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
             }
 
-
             //Read 3 entries in fasta files using ParsingRuleEntry regEx
             for (File nextFile : FastaFiles) {
-                String test = nextFile.getName();
-                stringBuilder.append("fasta file:  " + nextFile.getAbsolutePath());
+                //stringBuilder.append("fasta file:  " + nextFile.getAbsolutePath());
+                stringBuilder.append("Fasta file: " + nextFile.getName());
                 stringBuilder.append("\n");
+
+                if (resultsOfTest[1] == null) {
+                    stringBuilder.append("No regular expression that match with the name of the file \n");
+                } else {
+                    stringBuilder.append("Label of parsing rule selected: " + ((ParsingRule) resultsOfTest[0]).getName() + "\n");
+                    stringBuilder.append("Fasta Name RegEx:  " + resultsOfTest[1] + "\n");
+                }
+                boolean defaultProtein = protRegex.equals(ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule());
+                if (defaultProtein) {
+                    stringBuilder.append("Default regular expression selected: " + protRegex + "\n");
+                } else {
+                    stringBuilder.append("Regular expression selected to do the test: " + protRegex + "\n");
+                }
+
                 BufferedReader br = null;
+
                 try {
                     InputStream is = new FileInputStream(nextFile);
                     br = new BufferedReader(new InputStreamReader(is, LATIN_1_CHARSET));
 
                     String rawLine = br.readLine();
                     int countEntry = 0;
-                    int numberOfNoFoundEntry = 0;
+                    // int numberOfNoFoundEntry = 0;
+                    boolean proteinHasBeenFound = false;
                     while (countEntry < 3 && rawLine != null) {
 
                         final String trimmedLine = rawLine.trim();
                         if (!trimmedLine.isEmpty() && trimmedLine.startsWith(">")) { //Found an entry
                             countEntry++;
 
-                            String foundEntry = RegExUtil.getMatchingString(trimmedLine, protRegex);
-                            if (foundEntry == null) {
-                                numberOfNoFoundEntry++;
 
-                            } else {
-                                stringBuilder.append(trimmedLine+"\n");
+                            String foundEntry = ParsingRulesUtils.getMatchingString(trimmedLine, protRegex);
+                            if (foundEntry != null) {
+                                proteinHasBeenFound = true;
+                                stringBuilder.append(trimmedLine + "\n");
                                 stringBuilder.append("protein name:  ");
                                 stringBuilder.append(foundEntry);
                                 stringBuilder.append("\n");
+                                noResult = false;
+
                             }
 
                         } // End entryFound
                         rawLine = br.readLine();
+
                     }
-                    if (numberOfNoFoundEntry == 3) {
+
+                    if (!proteinHasBeenFound) {
                         stringBuilder.append("No protein found inside the file");
                         stringBuilder.append("\n");
                     }
-
+                    stringBuilder.append("------------------------------------------------------------\n");
 
                     // End read some entries
 
@@ -554,35 +566,32 @@ public class ParsingRulesPanel extends JPanel {
 
 
         }
-        System.out.println(stringBuilder.toString());
-        InfoDialog infoDialog = new InfoDialog(ConfigWindow.getInstance(), InfoDialog.InfoType.INFO, "Test results", stringBuilder.toString(), false);
+        if (noResult) {
+            stringBuilder.append("The test did not return any results you might check your fasta files in the folder panel");
+        }
+
+        System.out.println(stringBuilder);
+        InfoDialog infoDialog = new InfoDialog(ConfigWindow.getInstance(), InfoDialog.InfoType.NO_ICON, "Test results", stringBuilder.toString(), false);
         infoDialog.setButtonVisible(BUTTON_OK, false);
         infoDialog.setButtonName(BUTTON_CANCEL, "close");
-       // infoDialog.setSize(700, 500);
+        infoDialog.setSize(1200, 500);
         infoDialog.centerToScreen();
-        infoDialog.pack();
         infoDialog.setVisible(true);
 
 
     }
 
-    protected Map<String, List<File>> getFastaFiles() throws Exception {
-        Map<String, List<File>> fastaFiles = null;
-        synchronized (this.m_foundFastaFilesLock) {
-            if (this.m_foundFastaFiles == null) {
-                List<String> localFASTAPaths = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
-                if (localFASTAPaths != null && !localFASTAPaths.isEmpty()) {
-                    fastaFiles = FastaPathsScanner.scanPaths(new FastaPathsScanner(), localFASTAPaths);
-                    this.m_foundFastaFiles = fastaFiles;
-                } else {
-                    LOG.error("No valid localFASTAPaths configured");
-                }
-            } else {
-                fastaFiles = this.m_foundFastaFiles;
-            }
 
-            return fastaFiles;
+    protected Map<String, List<File>> getFastaFilesMap() throws Exception {
+        Map<String, List<File>> fastaFiles = null;
+        List<String> localFASTAPaths = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
+        if (localFASTAPaths != null && !localFASTAPaths.isEmpty()) {
+            fastaFiles = FastaPathsScanner.scanPaths(new FastaPathsScanner(), localFASTAPaths);
+
+        } else {
+            LOG.error("No valid localFASTAPaths configured");
         }
+        return fastaFiles;
     }
 
 
@@ -594,16 +603,14 @@ public class ParsingRulesPanel extends JPanel {
                 updatePanel();
             }
         }
-
     }
 
 
     private void editRule(ParsingRule parsingRule) {
 
-
         List<ParsingRule> setOfRules = ConfigManager.getInstance().getParsingRulesManager().getSetOfRules();
-        int index = setOfRules.indexOf(parsingRule);
 
+        int index = setOfRules.indexOf(parsingRule);
 
         ParsingRuleEditDialog newDialog = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.Edit, parsingRule);
 

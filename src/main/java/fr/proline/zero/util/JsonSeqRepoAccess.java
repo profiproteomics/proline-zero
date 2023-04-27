@@ -4,10 +4,13 @@ import com.typesafe.config.*;
 
 import com.typesafe.config.Config;
 
+import fr.proline.zero.gui.Popup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -17,19 +20,46 @@ public class JsonSeqRepoAccess {
 
     private final Logger logger = LoggerFactory.getLogger(JsonSeqRepoAccess.class);
     private static JsonSeqRepoAccess instance;
-    private final Config parsingRules;
+    private Config parsingRules;
+
+    private boolean seqRepoFileNotFound = false;
 
 
-    private JsonSeqRepoAccess() {
+    private JsonSeqRepoAccess() throws FileNotFoundException {
+
+
         ConfigParseOptions options = ConfigParseOptions.defaults();
         options = options.setSyntax(ConfigSyntax.CONF);
-        parsingRules = ConfigFactory.parseFile(ProlineFiles.PARSING_RULES_CONFIG_FILE, options);
+        File configFile = ProlineFiles.PARSING_RULES_CONFIG_FILE;
+        try {
+
+            if (configFile.exists()) {
+                parsingRules = ConfigFactory.parseFile(ProlineFiles.PARSING_RULES_CONFIG_FILE, options);
+            }
+            else {
+                parsingRules = ConfigFactory.empty();
+                throw new FileNotFoundException("Seq Repo config file not found");
+            }
+        } catch (FileNotFoundException exception) {
+            // TODO
+            Popup.warning("No configuration file found for sequence repository \n" +
+                    " you can't use sequence repository");
+            ConfigManager.getInstance().setSeqRepActive(false);
+            seqRepoFileNotFound = true;
+            System.out.println("exception: "+exception.getMessage());
+        }
+
 
     }
 
+
     public static JsonSeqRepoAccess getInstance() {
         if (instance == null) {
-            instance = new JsonSeqRepoAccess();
+            try {
+                instance = new JsonSeqRepoAccess();
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
         return instance;
     }
@@ -68,34 +98,44 @@ public class JsonSeqRepoAccess {
 
     }
 
+    public boolean isSeqRepoFileNotFound() {
+        return seqRepoFileNotFound;
+    }
+
     public List<ParsingRule> getSetOfRules() {
-        boolean seqRepoIsActive = fr.proline.zero.util.Config.getSeqRepActive();
 
         ArrayList<ParsingRule> arrayOfPrules = new ArrayList<>();
-        if (seqRepoIsActive) {
-            ConfigList list = parsingRules.getList(ProlineFiles.SEQREPO_PARSING_RULE_KEY);
-
-            for (int i = 0; i < list.size(); i++) {
-                ConfigValue configValue = list.get(i);
-                Map<String, Object> parsingRule = (Map<String, Object>) configValue.unwrapped();
 
 
-                String name = parsingRule.get(ProlineFiles.PARSING_RULE_NAME).toString();
+        try {
+            if (parsingRules.hasPath(ProlineFiles.SEQREPO_PARSING_RULE_KEY)) {
+                ConfigList list = parsingRules.getList(ProlineFiles.SEQREPO_PARSING_RULE_KEY);
+
+                for (int i = 0; i < list.size(); i++) {
+                    ConfigValue configValue = list.get(i);
+                    Map<String, Object> parsingRule = (Map<String, Object>) configValue.unwrapped();
 
 
-                ArrayList<String> fasta = (ArrayList<String>) parsingRule.get(ProlineFiles.PARSING_RULE_FASTA_NAME);
+                    String name = parsingRule.get(ProlineFiles.PARSING_RULE_NAME).toString();
 
 
-                String fastaV = parsingRule.get(ProlineFiles.PARSING_RULE_FASTA_VERSION).toString();
+                    ArrayList<String> fasta = (ArrayList<String>) parsingRule.get(ProlineFiles.PARSING_RULE_FASTA_NAME);
 
-                String protein = parsingRule.get(ProlineFiles.PARSING_RULE_PROTEIN).toString();
 
-                ParsingRule ps = new ParsingRule(name, fasta, fastaV, protein);
+                    String fastaV = parsingRule.get(ProlineFiles.PARSING_RULE_FASTA_VERSION).toString();
 
-                arrayOfPrules.add(i, ps);
+                    String protein = parsingRule.get(ProlineFiles.PARSING_RULE_PROTEIN).toString();
 
+                    ParsingRule ps = new ParsingRule(name, fasta, fastaV, protein);
+
+                    arrayOfPrules.add(i, ps);
+
+                }
             }
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
         }
+
         return arrayOfPrules;
 
 
@@ -103,6 +143,7 @@ public class JsonSeqRepoAccess {
 
     public void updateConfigRulesAndFasta(List<String> fastaPaths, List<ParsingRule> setOfRules) {
         // first updates fasta directories
+        // TODO handle exceptions?
         ConfigObject toBePreserved = JsonSeqRepoAccess.getInstance().getParsingConfig().root().withoutKey(ProlineFiles.SEQREPO_FASTA_DIRECTORIES);
 
         ConfigList cfg = ConfigValueFactory.fromIterable(fastaPaths);

@@ -7,11 +7,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class ParsingRulesUtils {
+    /**
+     * this class handles manipulation of Parsing rules (CRUD) and verifications
+     *
+     */
 
-    private String defaultProteinAccRule = null;
+    private  String defaultProteinAccRule ;
 
     private List<ParsingRule> setOfRules;
     private List<String> fastaPaths;
@@ -22,6 +28,9 @@ public class ParsingRulesUtils {
         return labelExists;
     }
 
+    /**
+     * @param labelExists
+     */
     public void setLabelExists(boolean labelExists) {
         this.labelExists = labelExists;
     }
@@ -30,6 +39,8 @@ public class ParsingRulesUtils {
     private String errorMessage;
     private boolean errorFatal;
     private List<String> invalidFastaPaths;
+
+
 
     public boolean isErrorFatal() {
 
@@ -45,9 +56,11 @@ public class ParsingRulesUtils {
     }
 
     public ParsingRulesUtils() {
+
         setOfRules = JsonSeqRepoAccess.getInstance().getSetOfRules();
         fastaPaths = JsonSeqRepoAccess.getInstance().getFastaDirectories();
         defaultProteinAccRule = JsonSeqRepoAccess.getInstance().getDefaultProtein();
+
     }
 
     public String getDefaultProteinAccRule() {
@@ -170,7 +183,6 @@ public class ParsingRulesUtils {
             if (invalidFastaPaths.size() > 1) {
                 message.append("Some paths inside seq repo configuration file are not valid: \n");
 
-
                 for (String invalidPath : invalidFastaPaths) {
                     message.append(invalidPath);
                     message.append("\n");
@@ -192,8 +204,8 @@ public class ParsingRulesUtils {
     }
 
     private boolean fastaPathsAreValid() {
-        if (Config.getSeqRepActive())
-        {  invalidFastaPaths = new ArrayList<>();
+
+        invalidFastaPaths = new ArrayList<>();
         for (String fastaPaths : fastaPaths) {
 
             Path pathToTest = Paths.get(fastaPaths);
@@ -204,10 +216,8 @@ public class ParsingRulesUtils {
                 invalidFastaPaths.add("a fasta folder path  is an empty string");
             }
         }
-        return invalidFastaPaths.isEmpty();}
-        else {
-            return true;
-        }
+        return invalidFastaPaths.isEmpty();
+
     }
 
     public List<String> getInvalidFastaPaths() {
@@ -216,6 +226,24 @@ public class ParsingRulesUtils {
 
     private boolean noParsingRule() {
         return setOfRules.isEmpty();
+    }
+    public static String getMatchingString(final String sourceText, final String searchStrRegEx) {
+        if(sourceText == null || searchStrRegEx == null)
+            return null;
+
+        Pattern textPattern = Pattern.compile(searchStrRegEx, Pattern.CASE_INSENSITIVE);
+
+        String result = null;
+        if(textPattern != null) {
+            final Matcher matcher = textPattern.matcher(sourceText);
+
+            if (matcher.find()) {
+
+                if (matcher.groupCount() >= 1)
+                    result = matcher.group(1).trim();
+            }
+        }
+        return result;
     }
 
 

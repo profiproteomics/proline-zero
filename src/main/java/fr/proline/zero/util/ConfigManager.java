@@ -50,7 +50,9 @@ public final class ConfigManager {
         advancedManager = new AdvancedAndServerUtils();
 
         mountPointsManager = new MountPointUtils();
-        parsingRulesManager = new ParsingRulesUtils();
+
+        if (seqRepActive)
+        { parsingRulesManager = new ParsingRulesUtils();}
 
         lastErrorMessage = "";
     }
@@ -76,6 +78,9 @@ public final class ConfigManager {
     }
 
     public ParsingRulesUtils getParsingRulesManager() {
+        if (parsingRulesManager == null) {
+            parsingRulesManager = new ParsingRulesUtils();
+        }
         return parsingRulesManager;
     }
 
@@ -183,28 +188,23 @@ public final class ConfigManager {
         config.setProperty("allocation_mode", memoryManager.getAttributionMode().toString());
         config.setProperty("total_max_memory", MemoryUtils.formatMemoryAsString(memoryManager.getTotalMemory()));
         config.setProperty("studio_memory", MemoryUtils.formatMemoryAsString(memoryManager.getStudioMemory()));
-        config.setProperty("server_total_memory",
-                MemoryUtils.formatMemoryAsString(memoryManager.getServerTotalMemory()));
+        config.setProperty("server_total_memory", MemoryUtils.formatMemoryAsString(memoryManager.getServerTotalMemory()));
         config.setProperty("seqrep_memory", MemoryUtils.formatMemoryAsString(memoryManager.getSeqrepMemory()));
         config.setProperty("datastore_memory", MemoryUtils.formatMemoryAsString(memoryManager.getDatastoreMemory()));
-        config.setProperty("proline_cortex_memory",
-                MemoryUtils.formatMemoryAsString(memoryManager.getProlineServerMemory()));
+        config.setProperty("proline_cortex_memory", MemoryUtils.formatMemoryAsString(memoryManager.getProlineServerMemory()));
         config.setProperty("JMS_memory", MemoryUtils.formatMemoryAsString(memoryManager.getJmsMemory()));
 
         // writes in the file
         builder.save();
     }
 
-    private void updateFileAdvanced(FileBasedConfigurationBuilder<FileBasedConfiguration> builder)
-            throws ConfigurationException {
+    private void updateFileAdvanced(FileBasedConfigurationBuilder<FileBasedConfiguration> builder) throws ConfigurationException {
         Configuration config = builder.getConfiguration();
 
         config.setProperty("server_default_timeout", String.valueOf(advancedManager.getServerDefaultTimeout() / 1000));
-        config.setProperty("service_thread_pool_size",
-                String.valueOf(advancedManager.getCortexNbParallelizableServiceRunners()));
+        config.setProperty("service_thread_pool_size", String.valueOf(advancedManager.getCortexNbParallelizableServiceRunners()));
         config.setProperty("java_home", advancedManager.getJvmPath());
-        config.setProperty("force_datastore_update",
-                SettingsConstant.booleanToString(advancedManager.getForceDataStoreUpdate()));
+        config.setProperty("force_datastore_update", SettingsConstant.booleanToString(advancedManager.getForceDataStoreUpdate()));
         config.setProperty("datastore_port", String.valueOf(advancedManager.getDataStorePort()));
         config.setProperty("jms_server_port", String.valueOf(advancedManager.getJmsServerPort()));
         config.setProperty("jms_server_batch_port", String.valueOf(advancedManager.getJmsBatchServerPort()));
@@ -215,8 +215,7 @@ public final class ConfigManager {
         builder.save();
     }
 
-    private void updateFileGeneral(FileBasedConfigurationBuilder<FileBasedConfiguration> builder)
-            throws ConfigurationException {
+    private void updateFileGeneral(FileBasedConfigurationBuilder<FileBasedConfiguration> builder) throws ConfigurationException {
         Configuration config = builder.getConfiguration();
         config.setProperty("sequence_repository_active", SettingsConstant.booleanToString(isSeqRepActive()));
         config.setProperty("proline_studio_active", SettingsConstant.booleanToString(isStudioActive()));
@@ -235,25 +234,28 @@ public final class ConfigManager {
         memoryManager.restoreValues();
         advancedManager.restoreValues();
         mountPointsManager.restoreMountPoints();
-
         parsingRulesManager.restoreParseRulesAndFastas();
         // TODO other utils restore to their originals
     }
 
 
     // returns true if any element has been changed
-    public boolean configHasChanged(){
-       // boolean mountPointsChanged=getMountPointManager().mountHasBeenChanged();
-        boolean mountPointsChanged=mountPointsManager.mountHasBeenChanged();
-        boolean parseRulesOrFastasHaveChanged=parsingRulesManager.isParseRulesAndFastaHasBeenChanged();
-        boolean memoryHasChanged=memoryManager.hasBeenChanged();
-        boolean serverSettingsHaveChanged=advancedManager.hasBeenChanged();
-        return mountPointsChanged||parseRulesOrFastasHaveChanged||memoryHasChanged||serverSettingsHaveChanged||hasBeenChanged;
+    public boolean configHasChanged() {
+        // boolean mountPointsChanged=getMountPointManager().mountHasBeenChanged();
+        boolean mountPointsChanged = mountPointsManager.mountHasBeenChanged();
+        boolean parseRulesOrFastasHaveChanged = parsingRulesManager.isParseRulesAndFastaHasBeenChanged();
+        boolean memoryHasChanged = memoryManager.hasBeenChanged();
+        boolean serverSettingsHaveChanged = advancedManager.hasBeenChanged();
+        return mountPointsChanged || parseRulesOrFastasHaveChanged || memoryHasChanged || serverSettingsHaveChanged || hasBeenChanged;
 
     }
 
     public String getLastErrorMessage() {
         return lastErrorMessage;
+    }
+
+    public boolean noSeqRepoConfigFile(){
+        return JsonSeqRepoAccess.getInstance().isSeqRepoFileNotFound();
     }
 
     // calls for verif of the Utils, pastes the error message (if there is any !)
@@ -264,10 +266,11 @@ public final class ConfigManager {
         lastErrorMessage = "";
         boolean success = memoryManager.verif();
         success = advancedManager.verif() && success;
-        success = mountPointsManager.verif()&&success;
-        boolean skipVerif=Config.getSeqRepActive();
+        success = mountPointsManager.verif() && success;
 
-         success = parsingRulesManager.verif()&&success;
+        if (seqRepActive) {
+            success = parsingRulesManager.verif() && success;
+            }
 
         if (!success) {
             StringBuilder errorMessage = new StringBuilder();

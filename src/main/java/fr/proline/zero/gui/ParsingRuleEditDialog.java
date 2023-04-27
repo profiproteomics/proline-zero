@@ -1,16 +1,10 @@
 package fr.proline.zero.gui;
 
-import fr.proline.core.orm.uds.PeaklistSoftware;
-import fr.proline.module.seq.config.ParsingRuleEntry;
-import fr.proline.module.seq.config.SeqRepoConfig;
-import fr.proline.module.seq.service.DataSourceBuilder;
-import fr.proline.module.seq.service.FastaPathsScanner;
-import fr.proline.module.seq.service.ListMatchingRules;
-//import fr.proline.module.seq.util.RegExUtil;
+
 import fr.proline.studio.gui.DefaultDialog;
-import fr.proline.studio.gui.InfoDialog;
+
 import fr.proline.studio.utils.IconManager;
-import fr.proline.zero.util.RegExUtil;
+
 
 
 import fr.proline.studio.*;
@@ -52,8 +46,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     private static final Color testTableColor = new Color(200, 200, 200);
 
     private TypeOfDialog typeOfDialog;
-    private final Object m_foundFastaFilesLock = new Object();
-    private Map<String, List<File>> m_foundFastaFiles;
+
     private static final Logger LOG = LoggerFactory.getLogger(ParsingRuleEditDialog.class);
 
     enum TypeOfDialog {Add, Edit, ViewFastas}
@@ -369,7 +362,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
                 entriesAreValid = false;
             } else if (proteinAccTField.getText().isEmpty()) {
                 highlight(proteinAccTField);
-                setStatus(true, "please add a protein regex");
+                setStatus(true, "Please add a protein regex");
                 entriesAreValid = false;
             } else if (fastaVersionTField.getText().isEmpty()) {
                 highlight(fastaVersionTField);
@@ -418,163 +411,39 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         return true;
     }
 
-    // Button test
-  /*  @Override
-    protected boolean defaultCalled() {
-        System.out.println("test pressed");
-
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        boolean formFullyFilled = !labelField.getText().isEmpty() && !proteinAccTField.getText().isEmpty()
-                && !fastaVersionTField.getText().isEmpty() && !fastaList.isEmpty();
-
-        // TODO check if entries are filled
-        try {
-            Map<String, List<File>> fastaPaths = getFastaFiles();
-            System.out.println("fastaPaths:  " + fastaPaths.toString());
-            Set<Map.Entry<String, List<File>>> entries = fastaPaths.entrySet();
-            // test the rule inside dialog
-
-
-            if (formFullyFilled) {
-                ParsingRule rule = getParsingRuleInsideDialog();
-                for (Map.Entry<String, List<File>> entry : entries) {
-
-                    String fastaName = entry.getKey();
-                    List<File> fastaFiles = entry.getValue();
-                    List<String> fastaNameRule = rule.getFastaNameRegExp();
-                    boolean fastaMatchRule = false;
-                    // TODO case insensitive?
-                    for (int k = 0; k < fastaNameRule.size(); k++) {
-                        if (fastaName.startsWith(fastaNameRule.get(k))) {
-                            fastaMatchRule = true;
-                            break;
-                        }
-                    }
-
-                    if (fastaMatchRule) {
-
-                        String protRegex = null;
-
-                        if (rule != null) {
-
-                            protRegex = rule.getProteinAccRegExp();
-
-                        } else {
-
-                            protRegex = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
-                        }
-
-
-                        //Read 3 entries in fasta files using ParsingRuleEntry regEx
-                        for (File nextFile : fastaFiles) {
-                            String test = nextFile.getName();
-                            stringBuilder.append("fasta file:  " + nextFile.getAbsolutePath());
-                            stringBuilder.append("\n");
-                            BufferedReader br = null;
-                            try {
-                                InputStream is = new FileInputStream(nextFile);
-                                br = new BufferedReader(new InputStreamReader(is, LATIN_1_CHARSET));
-
-                                String rawLine = br.readLine();
-                                int countEntry = 0;
-                                while (countEntry < 3 && rawLine != null) {
-
-                                    final String trimmedLine = rawLine.trim();
-                                    if (!trimmedLine.isEmpty() && trimmedLine.startsWith(">")) { //Found an entry
-                                        countEntry++;
-
-                                        String foundEntry = RegExUtil.getMatchingString(trimmedLine, protRegex);
-                                        if (foundEntry == null) {
-
-                                            stringBuilder.append("no protein found inside file using Regexp: " + protRegex);
-                                            stringBuilder.append("\n");
-                                        } else {
-                                            stringBuilder.append("protein  extracted:  ");
-                                            stringBuilder.append(foundEntry);
-
-                                            stringBuilder.append("\n");
-                                        }
-
-                                    } // End entryFound
-                                    rawLine = br.readLine();
-                                }
-
-
-                                // End read some entries
-
-                            } finally {
-
-                                if (br != null) {
-                                    try {
-                                        br.close();
-                                    } catch (IOException exClose) {
-                                        LOG.error("Error closing [" + nextFile + ']', exClose);
-                                    }
-                                }
-
-                            }
-                        } //End go through associated fasta files
-
-                    }
-                }
-            } else {
-                Popup.warning("Missing value");
-            }
-
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-
-        if (formFullyFilled) {
-            InfoDialog infoDialog = new InfoDialog(ConfigWindow.getInstance(), InfoDialog.InfoType.INFO, "Test results", stringBuilder.toString(), false);
-            infoDialog.setButtonVisible(0, false);
-            infoDialog.setButtonName(BUTTON_CANCEL, "close");
-            infoDialog.setSize(700,500);
-            infoDialog.centerToScreen();
-            infoDialog.pack();
-            infoDialog.setVisible(true);
-        }
-
-
-        return false;
-    }*/
+    // used to open local test dialog
     @Override
     protected boolean defaultCalled() {
         System.out.println("test pressed");
-        TestDialog testDialog=new TestDialog(ConfigWindow.getInstance(),labelField,fastaVersionTField,proteinAccTField,fastaList);
-        testDialog.centerToScreen();
-        testDialog.setSize(800,300);
-        testDialog.setVisible(true);
 
+        if (proteinAccTField.getText().equals("")) {
+            highlight(proteinAccTField);
+            setStatus(true, "Regular expression missing");
+        } else {
+            TestDialog testDialog = new TestDialog(ConfigWindow.getInstance(), labelField, fastaVersionTField, proteinAccTField, fastaList);
+            testDialog.centerToScreen();
+            testDialog.setSize(800, 300);
+            testDialog.setVisible(true);
+
+
+            if (testDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+                String newProteinRegExp = testDialog.getNewProteinAccessionRule();
+                boolean proteinHasBeenChanged = !newProteinRegExp.equals(proteinAccTField.getText());
+                if (proteinHasBeenChanged) {
+
+                    if (Popup.yesNo("Do you want to update protein RegEx?")) {
+                        proteinAccTField.setText(newProteinRegExp);
+                    }
+                }
+
+
+            }
+        }
 
         return false;
     }
 
-    public static synchronized ParsingRule getParsingRule(final String fastaFileName) {
-        assert (fastaFileName != null) : "getParsingRuleEntry() fastaFileName is null";
 
-        ParsingRule result = null;
-        for (ParsingRule nextPR : ConfigManager.getInstance().getParsingRulesManager().getSetOfRules()) {
-            for (String fastaRegEx : nextPR.getFastaNameRegExp()) {
-                final Pattern pattern = Pattern.compile(fastaRegEx, Pattern.CASE_INSENSITIVE);
-                final Matcher matcher = pattern.matcher(fastaFileName);
-                if (matcher.find()) {
-                    LOG.debug("[{}] matches Fasta Name Regex \"{}\"", fastaFileName, fastaRegEx);
-                    result = nextPR;
-                    break;
-                }
-
-            } // End loop for each regex
-            if (result != null)
-                break;
-        }
-
-        return result;
-    }
 
 
     // used to reset fields inside Dialog
@@ -609,31 +478,13 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             revalidate();
             repaint();
         } else {
-            Popup.warning("please enter value");
+            Popup.warning("Please enter value");
         }
 
 
     }
 
-    protected static void parse(StringBuilder sb, String rule, String fieldName, String stringToParse) {
-        sb.append(fieldName);
-        String ruleTreat;
-        String[] ruleList = rule.split("\\|\\|"); // split at "||"
-        for (String element : ruleList) {
-            if (!element.isEmpty()) {
-                Pattern pattern = Pattern.compile(element);
-                Matcher match = pattern.matcher(stringToParse);
-                boolean findAMatch = match.find();
-                if (findAMatch) {
-                    String firstMatch = match.group(1);
-                    sb.append(firstMatch);
-                    break;//if first rule is match, don't do the next match
-                }
-            }
-        }
 
-        sb.append('\n');
-    }
 
 
     //// Methods used To implement the table

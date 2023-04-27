@@ -1,9 +1,6 @@
 package fr.proline.zero.util;
 
 
-import fr.proline.module.seq.config.ParsingRuleEntry;
-import fr.proline.module.seq.config.SeqRepoConfig;
-
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,27 +59,34 @@ public class ParsingRule {
         this.fastaVersionRegExp = fastaVersionRegExp;
         this.proteinAccRegExp = proteinAccRegExp;
         // to be removed useless;
-        this.isEditable=false;
+        this.isEditable = false;
     }
-    public static synchronized ParsingRule getParsingRuleEntry(final String fastaFileName) {
-        assert (fastaFileName != null) : "getParsingRuleEntry() fastaFileName is null";
 
-        ParsingRule result = null;
-        for(ParsingRule nextPR : ConfigManager.getInstance().getParsingRulesManager().getSetOfRules()){
-            for(String fastaRegEx : nextPR.getFastaNameRegExp()){
+
+    public static Object[] getMatchingParsingRule(final String fastaFileName) {
+        assert (fastaFileName != null) : "getParsingRuleEntry() fastaFileName is null";
+        // resultObject stores the parsing rule and the fasta name regex that match with the name of the file
+        Object[] resultObject=new Object[2];
+
+
+        for (ParsingRule nextPR : ConfigManager.getInstance().getParsingRulesManager().getSetOfRules()) {
+            for (String fastaRegEx : nextPR.getFastaNameRegExp()) {
                 final Pattern pattern = Pattern.compile(fastaRegEx, Pattern.CASE_INSENSITIVE);
+
                 final Matcher matcher = pattern.matcher(fastaFileName);
                 if (matcher.find()) {
-
-                    result = nextPR;
+                    resultObject[0]=nextPR;
+                    resultObject[1]=fastaRegEx;
+                    // loop ends as soon as a fastaRegex match with the name of the file
                     break;
                 }
 
             } // End loop for each regex
-            if( result!=null)
+            if (resultObject != null)
+                // loop ends at first match
                 break;
         }
 
-        return result;
+        return resultObject;
     }
 }
