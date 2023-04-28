@@ -4,10 +4,8 @@ import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.SettingsConstant;
 
 import javax.imageio.ImageIO;
-import javax.sound.midi.SysexMessage;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -148,7 +146,6 @@ public class ConfigWindow extends JDialog {
         tabbedPane.add(memoryPanel, "Memory");
         tabbedPane.add(folderPanel, "Folders");
         tabbedPane.add(serverPanel, "Server");
-
 
 
         tabbedPane.add(parsePanel, "Parsing rules");
@@ -412,7 +409,7 @@ public class ConfigWindow extends JDialog {
 
     // called when the cross of the window is clicked
     private void windowClosingActionPerformed() {
-        boolean configHasChanged=ConfigManager.getInstance().configHasChanged();
+        boolean configHasChanged = ConfigManager.getInstance().configHasChanged();
 
         if (configHasChanged) {
 
@@ -429,8 +426,6 @@ public class ConfigWindow extends JDialog {
                 if (secondUserChoice == JOptionPane.NO_OPTION) {
                     System.exit(0);
                 }
-
-
             }
 
             if (userChoice == JOptionPane.NO_OPTION) {
@@ -444,7 +439,6 @@ public class ConfigWindow extends JDialog {
                 if (launchProline == JOptionPane.NO_OPTION) {
                     System.exit(0);
                 }
-
 
             }
 
@@ -500,6 +494,10 @@ public class ConfigWindow extends JDialog {
         doNotShowAgainBox.setSelected(!configManager.showConfigDialog());
         studioModuleBox.setSelected(configManager.isStudioActive());
         seqRepModuleBox.setSelected(configManager.isSeqRepActive());
+    }
+
+    public String getDefaultProteinInsideParsePanel() {
+        return parsePanel.getCurrentDefaultProtein();
     }
 
 }

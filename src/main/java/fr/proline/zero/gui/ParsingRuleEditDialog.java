@@ -6,8 +6,6 @@ import fr.proline.studio.gui.DefaultDialog;
 import fr.proline.studio.utils.IconManager;
 
 
-
-import fr.proline.studio.*;
 import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.ParsingRule;
 import org.slf4j.Logger;
@@ -18,15 +16,10 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.io.*;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static fr.proline.module.seq.Constants.LATIN_1_CHARSET;
+;
 
 public class ParsingRuleEditDialog extends DefaultDialog {
     private JTextField labelField;
@@ -35,9 +28,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     private JTextField fastaNameTField;
     private List<String> fastaList;
     private JButton removeFastaNameRuleJButton;
-
     private DefaultTableModel fastaNamesTableModel;
-
     private JTable fastaNamesTable;
     private static String deleteColummnIdentifier = "      ";
     private static final String[] columns = {"Rule", deleteColummnIdentifier};
@@ -431,9 +422,13 @@ public class ParsingRuleEditDialog extends DefaultDialog {
                 boolean proteinHasBeenChanged = !newProteinRegExp.equals(proteinAccTField.getText());
                 if (proteinHasBeenChanged) {
 
-                    if (Popup.yesNo("Do you want to update protein RegEx?")) {
+                    String[] options = {"Keep", "Change"};
+                    boolean userChooseToKeepOldValue = Popup.optionYesNO("During the test you modified the value of the protein accession rule\n" +
+                            "you have the possibility to change the value", options);
+                    if (!userChooseToKeepOldValue) {
                         proteinAccTField.setText(newProteinRegExp);
                     }
+
                 }
 
 
@@ -442,8 +437,6 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
         return false;
     }
-
-
 
 
     // used to reset fields inside Dialog
@@ -483,8 +476,6 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
 
     }
-
-
 
 
     //// Methods used To implement the table

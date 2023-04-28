@@ -25,6 +25,7 @@ import static fr.proline.studio.gui.DefaultDialog.BUTTON_OK;
 public class ParsingRulesPanel extends JPanel {
 
     private static final Logger LOG = LoggerFactory.getLogger(ParsingRulesPanel.class);
+    private JTextField labelProt;
 
 
     public ParsingRulesPanel() {
@@ -77,7 +78,7 @@ public class ParsingRulesPanel extends JPanel {
 
 
             String protByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
-            JTextField labelProt = new JTextField(protByDefault);
+            labelProt = new JTextField(protByDefault);
             c.anchor = GridBagConstraints.WEST;
             c.gridx++;
             // c.fill = GridBagConstraints.HORIZONTAL;
@@ -487,10 +488,9 @@ public class ParsingRulesPanel extends JPanel {
 
                 protRegex = rule.getProteinAccRegExp();
             } else {
-
+                //TODO use current value or the one inside config file?
                 protRegex = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
             }
-
             //Read 3 entries in fasta files using ParsingRuleEntry regEx
             for (File nextFile : FastaFiles) {
                 //stringBuilder.append("fasta file:  " + nextFile.getAbsolutePath());
@@ -500,9 +500,10 @@ public class ParsingRulesPanel extends JPanel {
                 if (resultsOfTest[1] == null) {
                     stringBuilder.append("No regular expression that match with the name of the file \n");
                 } else {
-                    stringBuilder.append("Label of parsing rule selected: " + ((ParsingRule) resultsOfTest[0]).getName() + "\n");
+                    stringBuilder.append("Parsing rule selected: " + ((ParsingRule) resultsOfTest[0]).getName() + "\n");
                     stringBuilder.append("Fasta Name RegEx:  " + resultsOfTest[1] + "\n");
                 }
+                // Warning curent or inside config file
                 boolean defaultProtein = protRegex.equals(ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule());
                 if (defaultProtein) {
                     stringBuilder.append("Default regular expression selected: " + protRegex + "\n");
@@ -567,7 +568,7 @@ public class ParsingRulesPanel extends JPanel {
 
         }
         if (noResult) {
-            stringBuilder.append("The test did not return any results you might check your fasta files in the folder panel");
+            stringBuilder.append("The test did not return any results you might check fasta files inside the folder panel");
         }
 
         System.out.println(stringBuilder);
@@ -629,6 +630,10 @@ public class ParsingRulesPanel extends JPanel {
     }
 
 
+
+    public String getCurrentDefaultProtein() {
+        return labelProt.getText();
+    }
 }
 
 

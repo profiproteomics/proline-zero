@@ -1,5 +1,6 @@
 package fr.proline.zero.util;
 
+import fr.proline.zero.gui.ConfigWindow;
 import fr.proline.zero.gui.Popup;
 
 import java.nio.file.Files;
@@ -13,7 +14,8 @@ import java.util.regex.Pattern;
 
 public class ParsingRulesUtils {
     /**
-     * this class handles manipulation of Parsing rules (CRUD) and verifications
+     * This class handles the management of parsing rules
+     * CRUD and Verifications
      *
      */
 
@@ -77,7 +79,8 @@ public class ParsingRulesUtils {
 
 
     public boolean isParseRulesAndFastaHasBeenChanged() {
-        return parseRulesAndFastaHasBeenChanged;
+        boolean defaultProteinChanged=!getDefaultProteinAccRule().equals(ConfigWindow.getInstance().getDefaultProteinInsideParsePanel());
+        return parseRulesAndFastaHasBeenChanged||defaultProteinChanged;
     }
 
 
@@ -166,9 +169,10 @@ public class ParsingRulesUtils {
 
 
     }
-
+    // TODO add the possibility to change default protein regex
     public void updateConfigFileParseRulesAndFasta() {
-        JsonSeqRepoAccess.getInstance().updateConfigRulesAndFasta(fastaPaths, setOfRules);
+       // JsonSeqRepoAccess.getInstance().updateConfigRulesAndFasta(fastaPaths, setOfRules);
+        JsonSeqRepoAccess.getInstance().updateConfigRulesAndFastaV2(fastaPaths,setOfRules,ConfigWindow.getInstance().getDefaultProteinInsideParsePanel());
     }
 
 
