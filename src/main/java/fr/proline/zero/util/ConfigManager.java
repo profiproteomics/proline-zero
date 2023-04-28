@@ -28,6 +28,8 @@ public final class ConfigManager {
 
     private ParsingRulesUtils parsingRulesManager;
 
+    private ParsingRulesTester parsingRulesTester;
+
 
     private String lastErrorMessage;
 
@@ -51,8 +53,10 @@ public final class ConfigManager {
 
         mountPointsManager = new MountPointUtils();
 
-        if (seqRepActive)
-        { parsingRulesManager = new ParsingRulesUtils();}
+        if (seqRepActive) {
+            parsingRulesManager = new ParsingRulesUtils();
+            parsingRulesTester = new ParsingRulesTester();
+        }
 
         lastErrorMessage = "";
     }
@@ -82,6 +86,14 @@ public final class ConfigManager {
             parsingRulesManager = new ParsingRulesUtils();
         }
         return parsingRulesManager;
+    }
+
+    public ParsingRulesTester getParsingRulesTester(){
+        if (parsingRulesTester==null){
+            parsingRulesTester=new ParsingRulesTester();
+
+        }
+        return parsingRulesTester;
     }
 
     public void setStudioActive(boolean b) {
@@ -254,8 +266,8 @@ public final class ConfigManager {
         return lastErrorMessage;
     }
 
-    public boolean noSeqRepoConfigFile(){
-        return JsonSeqRepoAccess.getInstance().isSeqRepoFileNotFound();
+    public boolean noSeqRepoConfigFile() {
+        return ProlineFiles.isSeqRepoConfigFileNotFound();
     }
 
     // calls for verif of the Utils, pastes the error message (if there is any !)
@@ -270,7 +282,7 @@ public final class ConfigManager {
 
         if (seqRepActive) {
             success = parsingRulesManager.verif() && success;
-            }
+        }
 
         if (!success) {
             StringBuilder errorMessage = new StringBuilder();
@@ -302,6 +314,12 @@ public final class ConfigManager {
     // the utils
     public boolean isErrorFatal() {
         return memoryManager.isErrorFatal() || advancedManager.isErrorFatal() || mountPointsManager.isErrorFatal() || parsingRulesManager.isErrorFatal();
+    }
+
+    public void setProteinByDefault(String newProteinByDefault) {
+
+        parsingRulesManager.setProteinByDefault(newProteinByDefault);
+
     }
 
 }

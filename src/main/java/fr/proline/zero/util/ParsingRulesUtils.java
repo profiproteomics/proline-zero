@@ -1,6 +1,5 @@
 package fr.proline.zero.util;
 
-import fr.proline.zero.gui.ConfigWindow;
 import fr.proline.zero.gui.Popup;
 
 import java.nio.file.Files;
@@ -16,14 +15,13 @@ public class ParsingRulesUtils {
     /**
      * This class handles the management of parsing rules
      * CRUD and Verifications
-     *
      */
 
-    private  String defaultProteinAccRule ;
+    private String defaultProteinAccRule;
 
     private List<ParsingRule> setOfRules;
     private List<String> fastaPaths;
-
+    // to do rename
     private boolean parseRulesAndFastaHasBeenChanged = false;
 
     public boolean isLabelExists() {
@@ -41,7 +39,6 @@ public class ParsingRulesUtils {
     private String errorMessage;
     private boolean errorFatal;
     private List<String> invalidFastaPaths;
-
 
 
     public boolean isErrorFatal() {
@@ -79,8 +76,7 @@ public class ParsingRulesUtils {
 
 
     public boolean isParseRulesAndFastaHasBeenChanged() {
-        boolean defaultProteinChanged=!getDefaultProteinAccRule().equals(ConfigWindow.getInstance().getDefaultProteinInsideParsePanel());
-        return parseRulesAndFastaHasBeenChanged||defaultProteinChanged;
+        return parseRulesAndFastaHasBeenChanged;
     }
 
 
@@ -166,13 +162,15 @@ public class ParsingRulesUtils {
     public void restoreParseRulesAndFastas() {
         setOfRules = JsonSeqRepoAccess.getInstance().getSetOfRules();
         fastaPaths = JsonSeqRepoAccess.getInstance().getFastaDirectories();
+        defaultProteinAccRule = JsonSeqRepoAccess.getInstance().getDefaultProtein();
 
 
     }
+
     // TODO add the possibility to change default protein regex
     public void updateConfigFileParseRulesAndFasta() {
-       // JsonSeqRepoAccess.getInstance().updateConfigRulesAndFasta(fastaPaths, setOfRules);
-        JsonSeqRepoAccess.getInstance().updateConfigRulesAndFastaV2(fastaPaths,setOfRules,ConfigWindow.getInstance().getDefaultProteinInsideParsePanel());
+        // JsonSeqRepoAccess.getInstance().updateConfigRulesAndFasta(fastaPaths, setOfRules);
+        JsonSeqRepoAccess.getInstance().updateConfigRulesAndFastaV2(fastaPaths, setOfRules, defaultProteinAccRule);
     }
 
 
@@ -232,13 +230,13 @@ public class ParsingRulesUtils {
         return setOfRules.isEmpty();
     }
     public static String getMatchingString(final String sourceText, final String searchStrRegEx) {
-        if(sourceText == null || searchStrRegEx == null)
+        if (sourceText == null || searchStrRegEx == null)
             return null;
 
         Pattern textPattern = Pattern.compile(searchStrRegEx, Pattern.CASE_INSENSITIVE);
 
         String result = null;
-        if(textPattern != null) {
+        if (textPattern != null) {
             final Matcher matcher = textPattern.matcher(sourceText);
 
             if (matcher.find()) {
@@ -251,6 +249,10 @@ public class ParsingRulesUtils {
     }
 
 
+    public void setProteinByDefault(String newProteinByDefault) {
+        defaultProteinAccRule = newProteinByDefault;
+        parseRulesAndFastaHasBeenChanged = true;
+    }
 }
 
 

@@ -411,7 +411,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             highlight(proteinAccTField);
             setStatus(true, "Regular expression missing");
         } else {
-            TestDialog testDialog = new TestDialog(ConfigWindow.getInstance(), labelField, fastaVersionTField, proteinAccTField, fastaList);
+            TestParsingRuleDialog testDialog = new TestParsingRuleDialog(ConfigWindow.getInstance(), labelField, fastaVersionTField, proteinAccTField, fastaList);
             testDialog.centerToScreen();
             testDialog.setSize(800, 300);
             testDialog.setVisible(true);

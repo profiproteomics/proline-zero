@@ -174,4 +174,14 @@ public class ProlineFiles {
     public final static URL PROGRESS_ICON = getImage("hourGlass.png");
     public final static URL HELP_ICON = getImage("question.png");
 
+    private static boolean seqRepoConfigFileNotFound=false;
+    public static boolean isSeqRepoConfigFileNotFound() {
+        return seqRepoConfigFileNotFound;
+    }
+    public static void setSeqRepoConfigFileNotFound(boolean seqRepoConfigFile) {
+        seqRepoConfigFileNotFound = seqRepoConfigFile;
+    }
+
+
+
 }

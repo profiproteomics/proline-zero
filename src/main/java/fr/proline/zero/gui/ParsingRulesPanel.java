@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
@@ -25,7 +27,7 @@ import static fr.proline.studio.gui.DefaultDialog.BUTTON_OK;
 public class ParsingRulesPanel extends JPanel {
 
     private static final Logger LOG = LoggerFactory.getLogger(ParsingRulesPanel.class);
-    private JTextField labelProt;
+    // private JTextField labelProt;
 
 
     public ParsingRulesPanel() {
@@ -78,7 +80,33 @@ public class ParsingRulesPanel extends JPanel {
 
 
             String protByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
-            labelProt = new JTextField(protByDefault);
+            JTextField labelProt = new JTextField(protByDefault);
+            labelProt.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+
+                    String textInsideTextField = labelProt.getText();
+                    System.out.println("insertCalled");
+                    ConfigManager.getInstance().setProteinByDefault(textInsideTextField);
+
+
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+
+                    String textInsideTextField = labelProt.getText();
+                    System.out.println("remove called");
+                    ConfigManager.getInstance().setProteinByDefault(textInsideTextField);
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+                    System.out.println("changed called");
+                    // CD never called???
+
+                }
+            });
             c.anchor = GridBagConstraints.WEST;
             c.gridx++;
             // c.fill = GridBagConstraints.HORIZONTAL;
@@ -460,7 +488,8 @@ public class ParsingRulesPanel extends JPanel {
         testButton.addActionListener(e -> {
 
             try {
-                GlobalTest();
+              //  globalTest();
+                ConfigManager.getInstance().getParsingRulesTester().globalTest();
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
@@ -471,7 +500,7 @@ public class ParsingRulesPanel extends JPanel {
         return testButton;
     }
 
-    private void GlobalTest() throws Exception {
+    private void globalTest() throws Exception {
 
         System.out.println("test pressed");
         StringBuilder stringBuilder = new StringBuilder();
@@ -628,13 +657,8 @@ public class ParsingRulesPanel extends JPanel {
         }
 
     }
-
-
-
-    public String getCurrentDefaultProtein() {
-        return labelProt.getText();
-    }
 }
+
 
 
 

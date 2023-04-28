@@ -92,8 +92,7 @@ public class FolderEditDialog extends DefaultDialog {
         dataTypeBox.addItem(MountPointUtils.MountPointType.RESULT.getDisplayString());
         dataTypeBox.addItem(MountPointUtils.MountPointType.MZDB.getDisplayString());
 
-        boolean SeqRepoIsActive = ConfigWindow.getInstance().seqRepoIsActive();
-
+        boolean SeqRepoIsActive=ConfigManager.getInstance().isSeqRepActive();
         if (SeqRepoIsActive) {
             dataTypeBox.addItem("Fasta folder");
         }

@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.List;
 
-public class TestDialog extends DefaultDialog {
+public class TestParsingRuleDialog extends DefaultDialog {
     /**
      * This class represents dialog boxes used to do local tests on parsing rules
      */
@@ -21,7 +21,7 @@ public class TestDialog extends DefaultDialog {
 
     private String protein;
 
-    public TestDialog(Window parent, JTextField label, JTextField fastaVersion, JTextField proteinAccTField, List<String> fastaList) {
+    public TestParsingRuleDialog(Window parent, JTextField label, JTextField fastaVersion, JTextField proteinAccTField, List<String> fastaList) {
         super(parent);
         this.setStatusVisible(true);
         this.setTitle("Test parsing Rule");

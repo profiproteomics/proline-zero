@@ -22,7 +22,7 @@ public class JsonSeqRepoAccess {
     private static JsonSeqRepoAccess instance;
     private Config parsingRules;
 
-    private boolean seqRepoFileNotFound = false;
+   // private boolean seqRepoFileNotFound = false;
 
 
     private JsonSeqRepoAccess() throws FileNotFoundException {
@@ -43,16 +43,14 @@ public class JsonSeqRepoAccess {
         } catch (FileNotFoundException exception) {
             // TODO
             Popup.warning("No configuration file found for sequence repository \n" +
-                    " you can't use sequence repository");
+                    "sequence repository will be deactivated");
             ConfigManager.getInstance().setSeqRepActive(false);
-            seqRepoFileNotFound = true;
+            ProlineFiles.setSeqRepoConfigFileNotFound(true);
             System.out.println("exception: "+exception.getMessage());
         }
 
 
     }
-
-
     public static JsonSeqRepoAccess getInstance() {
         if (instance == null) {
             try {
@@ -98,9 +96,6 @@ public class JsonSeqRepoAccess {
 
     }
 
-    public boolean isSeqRepoFileNotFound() {
-        return seqRepoFileNotFound;
-    }
 
     public List<ParsingRule> getSetOfRules() {
 

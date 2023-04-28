@@ -195,11 +195,11 @@ public class ConfigWindow extends JDialog {
 
                         // enable it in the util to recalculate the memory values
 
-
+                        configManager.setSeqRepActive(true);
                         // then we update graphically the values from the util
                         memoryPanel.updateMemoryValues();
                         // Bug seems to be fixed
-                        configManager.setSeqRepActive(true);
+
                         parsePanel.updateValues();
                         tabbedPane.setEnabledAt(3, true);
 
@@ -496,8 +496,6 @@ public class ConfigWindow extends JDialog {
         seqRepModuleBox.setSelected(configManager.isSeqRepActive());
     }
 
-    public String getDefaultProteinInsideParsePanel() {
-        return parsePanel.getCurrentDefaultProtein();
-    }
+
 
 }
