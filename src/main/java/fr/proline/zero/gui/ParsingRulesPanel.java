@@ -488,8 +488,9 @@ public class ParsingRulesPanel extends JPanel {
         testButton.addActionListener(e -> {
 
             try {
-              //  globalTest();
-                ConfigManager.getInstance().getParsingRulesTester().globalTest();
+
+                ParsingRulesTester.globalTest();
+
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }

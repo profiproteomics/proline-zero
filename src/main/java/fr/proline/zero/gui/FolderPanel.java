@@ -226,6 +226,10 @@ public class FolderPanel extends JPanel {
                     anyPanel.add(pathInitial, anyPanelConstraints);
 
                 }
+                if (path.equals("")) {
+                    pathInitial.setText("This path is not valid please enter a path for this mount point");
+                    pathInitial.setBackground(softErrorColor);
+                }
             } else {
                 // treats the case where default mounting point is not present (path==null)
                 pathInitial.setText("This mount point doesn't exist please click on the button to repair that issue");
@@ -237,10 +241,7 @@ public class FolderPanel extends JPanel {
 
             }
             // indicates the path of the folder is an empty string
-            if (path.equals("")) {
-                pathInitial.setText("This path is not valid please enter a path for this mount point");
-                pathInitial.setBackground(softErrorColor);
-            }
+
 
             anyPanelConstraints.fill = GridBagConstraints.NONE;
             anyPanelConstraints.weightx = 0;

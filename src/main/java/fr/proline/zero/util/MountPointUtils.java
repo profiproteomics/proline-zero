@@ -105,13 +105,24 @@ public class MountPointUtils {
 
 
     private boolean pathExists(String path) {
+        boolean pathExists=false;
+        List<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
+        boolean fastasExist=fastaToBeDisplayed!=null;
+
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             Map<String, String> map = mountPointMap.get(mountPointType);
             if (map != null && map.containsValue(path)) {
-                return true;
+                pathExists=true;
+                break;
             }
         }
-        return ConfigManager.getInstance().getParsingRulesManager().getFastaPaths().contains(path);
+        if (fastaToBeDisplayed!=null){
+            pathExists=fastaToBeDisplayed.contains(path);
+        }
+
+
+        return pathExists;
+
     }
     public boolean getIfPathExist(String path){
         return pathExists(path);

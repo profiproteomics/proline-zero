@@ -2,6 +2,7 @@ package fr.proline.zero.util;
 
 import fr.proline.module.seq.service.FastaPathsScanner;
 import fr.proline.zero.gui.ConfigWindow;
+import fr.proline.zero.gui.Popup;
 import fr.proline.zero.gui.ResultOfGlobalTestDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +22,15 @@ public class ParsingRulesTester {
     private static final Logger LOG = LoggerFactory.getLogger(ParsingRulesTester.class);
 
 
-    public void globalTest() throws Exception {
+    public static void globalTest() throws Exception {
 
         System.out.println("test pressed");
         Map<String, List<File>> fastaPaths = getFastaFilesMap();
+        if (fastaPaths==null){
+            Popup.warning("No fasta files found please add a mount point " +
+                    "inside folder panel");
+            return;
+        }
         Set<Map.Entry<String, List<File>>> entries = fastaPaths.entrySet();
         // resultStore contains parsing rule selected if any plus fasta name regex plus name of file
         ArrayList<Object[]> resultStore = new ArrayList<>();
@@ -109,7 +115,7 @@ public class ParsingRulesTester {
 
     }
 
-    private Map<String, List<File>> getFastaFilesMap() throws Exception {
+    private static Map<String, List<File>> getFastaFilesMap() throws Exception {
         Map<String, List<File>> fastaFiles = null;
         List<String> localFASTAPaths = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
         if (localFASTAPaths != null && !localFASTAPaths.isEmpty()) {
@@ -150,7 +156,6 @@ public class ParsingRulesTester {
         assert (fastaFileName != null) : "getParsingRuleEntry() fastaFileName is null";
         // resultObject stores the parsing rule and the fasta name regex that match with the name of the file
         Object[] resultObject = new Object[3];
-        resultObject[2] = fastaFileName;
 
         for (ParsingRule nextPR : ConfigManager.getInstance().getParsingRulesManager().getSetOfRules()) {
             for (String fastaRegEx : nextPR.getFastaNameRegExp()) {
@@ -164,10 +169,11 @@ public class ParsingRulesTester {
                     break;
                 }
             } // End loop for each regex
-            if (resultObject != null)
+            if (resultObject[1] != null)
                 // loop ends at first match
                 break;
         }
+        resultObject[2] = fastaFileName;
         return resultObject;
     }
 

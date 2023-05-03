@@ -55,7 +55,6 @@ public final class ConfigManager {
 
         if (seqRepActive) {
             parsingRulesManager = new ParsingRulesUtils();
-            parsingRulesTester = new ParsingRulesTester();
         }
 
         lastErrorMessage = "";
@@ -88,9 +87,9 @@ public final class ConfigManager {
         return parsingRulesManager;
     }
 
-    public ParsingRulesTester getParsingRulesTester(){
-        if (parsingRulesTester==null){
-            parsingRulesTester=new ParsingRulesTester();
+    public ParsingRulesTester getParsingRulesTester() {
+        if (parsingRulesTester == null) {
+            parsingRulesTester = new ParsingRulesTester();
 
         }
         return parsingRulesTester;
@@ -299,9 +298,11 @@ public final class ConfigManager {
                 errorMessage.append(mountPointsManager.getErrorMessage());
                 errorMessage.append("\n");
             }
-            if (Objects.nonNull(parsingRulesManager.getErrorMessage())) {
-                errorMessage.append(parsingRulesManager.getErrorMessage());
-                errorMessage.append("\n");
+            if (seqRepActive) {
+                if (Objects.nonNull(parsingRulesManager.getErrorMessage())) {
+                    errorMessage.append(parsingRulesManager.getErrorMessage());
+                    errorMessage.append("\n");
+                }
             }
 
 
@@ -313,7 +314,11 @@ public final class ConfigManager {
     // checks if Proline Zero can be launched or if there is a fatal error in one of
     // the utils
     public boolean isErrorFatal() {
-        return memoryManager.isErrorFatal() || advancedManager.isErrorFatal() || mountPointsManager.isErrorFatal() || parsingRulesManager.isErrorFatal();
+        if (seqRepActive){
+            return memoryManager.isErrorFatal() || advancedManager.isErrorFatal() || mountPointsManager.isErrorFatal() || parsingRulesManager.isErrorFatal();}
+        else {
+            return memoryManager.isErrorFatal()|| advancedManager.isErrorFatal()|| mountPointsManager.isErrorFatal();
+        }
     }
 
     public void setProteinByDefault(String newProteinByDefault) {
