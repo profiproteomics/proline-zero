@@ -86,12 +86,10 @@ public class ParsingRulesUtils {
         if (!labelExists(label)) {
             setLabelExists(false);
             setOfRules.add(newRule);
-
             parseRulesAndFastaHasBeenChanged = true;
             return true;
 
         } else {
-
             setLabelExists(true);
             Popup.warning("label already exists! please choose another label");
             return false;
@@ -229,25 +227,6 @@ public class ParsingRulesUtils {
     private boolean noParsingRule() {
         return setOfRules.isEmpty();
     }
-    public static String getMatchingString(final String sourceText, final String searchStrRegEx) {
-        if (sourceText == null || searchStrRegEx == null)
-            return null;
-
-        Pattern textPattern = Pattern.compile(searchStrRegEx, Pattern.CASE_INSENSITIVE);
-
-        String result = null;
-        if (textPattern != null) {
-            final Matcher matcher = textPattern.matcher(sourceText);
-
-            if (matcher.find()) {
-
-                if (matcher.groupCount() >= 1)
-                    result = matcher.group(1).trim();
-            }
-        }
-        return result;
-    }
-
 
     public void setProteinByDefault(String newProteinByDefault) {
         defaultProteinAccRule = newProteinByDefault;

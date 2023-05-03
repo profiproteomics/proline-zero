@@ -1,9 +1,11 @@
+
 package fr.proline.zero.gui;
 
 import fr.proline.studio.gui.DefaultDialog;
 
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,8 +13,10 @@ import java.util.List;
 
 public class TestParsingRuleDialog extends DefaultDialog {
     /**
-     * This class represents dialog boxes used to do local tests on parsing rules
+     * This class implements a dialog boxe used to do local tests on parsing rules
+     * works but shall not be used
      */
+
     private JTextField lineField;
 
     private JTextField proteinAccTField;
@@ -150,3 +154,4 @@ public class TestParsingRuleDialog extends DefaultDialog {
 
 
 }
+

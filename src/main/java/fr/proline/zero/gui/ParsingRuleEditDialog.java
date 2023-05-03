@@ -8,6 +8,7 @@ import fr.proline.studio.utils.IconManager;
 
 import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.ParsingRule;
+import fr.proline.zero.util.ParsingRulesTester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,8 @@ import java.awt.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 ;
 
 public class ParsingRuleEditDialog extends DefaultDialog {
@@ -28,6 +31,8 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     private JTextField fastaNameTField;
     private List<String> fastaList;
     private JButton removeFastaNameRuleJButton;
+    private JTextField lineField;
+    private JTextField resultOfTest;
     private DefaultTableModel fastaNamesTableModel;
     private JTable fastaNamesTable;
     private static String deleteColummnIdentifier = "      ";
@@ -80,28 +85,10 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             setInternalComponent(internalPanel);
 
 
-        } else {
-            // called when viewing fastas
-            this.setIconImage(IconManager.getImage(IconManager.IconType.TABLE));
-            this.setButtonVisible(BUTTON_CANCEL, false);
-            this.setButtonVisible(BUTTON_DEFAULT, false);
-            this.setButtonVisible(BUTTON_BACK, false);
-            this.setButtonName(BUTTON_OK, "Close");
-            this.setButtonIcon(BUTTON_OK, IconManager.getIcon(IconManager.IconType.CANCEL));
-            this.setStatusVisible(false);
-            List<String> fastaNames = parsingRule.getFastaNameRegExp();
+        }
 
-            JList<String> fastaJList = new JList<>(fastaNames.toArray(new String[fastaNames.size()]));
-            JScrollPane scrollPane = new JScrollPane(fastaJList);
+        else {
 
-            JPanel fastaPanelViewer = new JPanel(new GridBagLayout());
-            GridBagConstraints gbc = new GridBagConstraints();
-
-            gbc.gridx = 0;
-            gbc.gridy = 0;
-            gbc.fill = GridBagConstraints.BOTH;
-            fastaPanelViewer.add(scrollPane, gbc);
-            setInternalComponent(fastaPanelViewer);
         }
         this.setStatusVisible(true);
         this.setResizable(true);
@@ -122,22 +109,15 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         c.gridx = 0;
         c.gridy = 0;
         c.anchor = GridBagConstraints.NORTHWEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1;
+        c.fill=GridBagConstraints.BOTH;
+        c.weightx=1;
         addParsingRules.add(newParsingRulePanel(), c);
 
-        c.gridx++;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
         c.insets = new java.awt.Insets(3, 5, 5, 5);
-        addParsingRules.add(newFastaNamePanel(), c);
+        JPanel fastaNamepanel=newFastaNamePanel();
 
-
-        addParsingRules.add(Box.createHorizontalGlue(), c);
         // JtextFields are filled with previous values if parsing rule is edited
         if (typeOfDialog.equals(ParsingRuleEditDialog.TypeOfDialog.Edit)) {
-
-
             labelField.setText(parsingRuleEdited.getName());
             fastaVersionTField.setText(parsingRuleEdited.getFastaVersionRegExp());
             proteinAccTField.setText(parsingRuleEdited.getProteinAccRegExp());
@@ -149,9 +129,24 @@ public class ParsingRuleEditDialog extends DefaultDialog {
                 Object[] vector = {fastaNames.get(k), removeFastaNameRuleJButton};
                 fastaNamesTableModel.addRow(vector);
             }
-
+            c.weighty=0;
 
         }
+        c.insets = new java.awt.Insets(3, 5, 5, 5);
+        c.gridx++;
+       // c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.WEST;
+        c.gridheight=2;
+        c.weightx=0;
+        addParsingRules.add(fastaNamepanel, c);
+        c.gridx=0;
+        c.gridy=1;
+        c.gridheight=1;
+        c.fill=GridBagConstraints.BOTH;
+        c.weightx=1;
+        addParsingRules.add(createTestPanel(),c);
+        addParsingRules.add(Box.createHorizontalGlue(), c);
+
         return addParsingRules;
 
 
@@ -220,7 +215,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
         parsingConstraints.gridy = 0;
         parsingConstraints.gridx = 0;
-        parsingConstraints.fill = GridBagConstraints.HORIZONTAL;
+        parsingConstraints.fill = GridBagConstraints.BOTH;
 
         fastaList = new ArrayList<>();
         JButton addButton = new JButton(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
@@ -265,13 +260,14 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         fastaNamesTable.getColumn(deleteColummnIdentifier).setMaxWidth(40);
         JScrollPane scrollPane = new JScrollPane(fastaNamesTable);
 
-        scrollPane.setPreferredSize(new Dimension(new Dimension(110, 100)));
+        //scrollPane.setPreferredSize(new Dimension(new Dimension(110, 100)));
 
         parsingConstraints.gridy++;
         parsingConstraints.gridwidth = 2;
         parsingConstraints.gridx = 0;
         parsingConstraints.weightx = 1;
-        parsingConstraints.fill = GridBagConstraints.HORIZONTAL;
+        parsingConstraints.weighty=1;
+        parsingConstraints.fill = GridBagConstraints.BOTH;
         fastaPanel.add(scrollPane, parsingConstraints);
 
 
@@ -279,8 +275,92 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
 
     }
+   /* private JPanel testPanel(){
+        JPanel testPanel=new JPanel(new GridBagLayout());
+        GridBagConstraints gbc=new GridBagConstraints();
+        gbc.insets=new Insets(5,5,5,5);
+        gbc.gridx=0;
+        gbc.gridy=0;
+        gbc.anchor=GridBagConstraints.WEST;
+        gbc.fill=GridBagConstraints.NONE;
+        JLabel entryLineLabel=new JLabel("Fasta entry");
+        testPanel.setBorder(BorderFactory.createTitledBorder("Test"));
+        testPanel.add(entryLineLabel,gbc);
 
-    private JPanel viewFastaNamePanel(ParsingRule parsingRule) {
+        return testPanel;
+
+
+    }*/
+    private JPanel createTestPanel() {
+        JPanel testPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        testPanel.setBorder(BorderFactory.createTitledBorder("Test"));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(5, 2, 5, 2);
+
+        JLabel entryLineLabel = new JLabel("Fasta entry: ");
+        gbc.anchor=GridBagConstraints.WEST;
+        gbc.fill=GridBagConstraints.NONE;
+        gbc.weightx=0;
+
+        testPanel.add(entryLineLabel, gbc);
+        gbc.gridx++;
+
+        lineField = new JTextField();
+        lineField.setEditable(true);
+        lineField.setEnabled(true);
+        gbc.weightx = 1;
+        gbc.fill=GridBagConstraints.HORIZONTAL;
+        testPanel.add(lineField, gbc);
+        JButton testButton = new JButton("Test");
+
+        testButton.addActionListener(e -> {
+
+            String lineTested = lineField.getText();
+            String protRegex = proteinAccTField.getText();
+
+            if (!lineTested.equals("")) {
+                String proteinNameExtracted = ParsingRulesTester.extractProteinNameWithRegEx(lineTested, protRegex);
+                if (proteinNameExtracted != null) {
+                    resultOfTest.setText(proteinNameExtracted);
+                    revalidate();
+                    repaint();
+                } else {
+                    resultOfTest.setText("No protein name extracted");
+                    revalidate();
+                    repaint();
+                }
+            } else {
+                highlight(lineField);
+                setStatus(true, "Please enter a line from a fasta file ");
+            }
+        });
+        gbc.gridx++;
+        gbc.fill = GridBagConstraints.NONE;
+        testButton.setMargin(new Insets(3,3,3,3));
+        gbc.anchor=GridBagConstraints.EAST;
+        gbc.weightx=0;
+        testPanel.add(testButton, gbc);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.anchor=GridBagConstraints.WEST;
+        gbc.weightx=0;
+        testPanel.add(new JLabel("protein name extracted :"), gbc);
+        resultOfTest = new JTextField();
+        resultOfTest.setEnabled(true);
+        resultOfTest.setEditable(true);
+        gbc.gridx++;
+
+        gbc.weightx = 1;
+        gbc.gridwidth=2;
+        gbc.fill=GridBagConstraints.HORIZONTAL;
+        gbc.anchor=GridBagConstraints.EAST;
+        testPanel.add(resultOfTest, gbc);
+        return testPanel;
+    }
+
+  /*  private JPanel viewFastaNamePanel(ParsingRule parsingRule) {
         JPanel fastaPanel = new JPanel(new GridBagLayout());
 
         // fastaPanel.setBorder(BorderFactory.createTitledBorder("View Fasta Name Rules: "));
@@ -333,7 +413,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         return fastaPanel;
 
 
-    }
+    }*/
 
 
     @Override
