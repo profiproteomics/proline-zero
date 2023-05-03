@@ -158,7 +158,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
             displayOneResult.add(proteinExtracted,gbc);
 
         }
-        // to do get lines and proteine
+        
 
 
 
