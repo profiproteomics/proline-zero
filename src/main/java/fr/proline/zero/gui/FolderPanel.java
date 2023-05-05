@@ -416,7 +416,7 @@ public class FolderPanel extends JPanel {
 
         List<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
         List<String> wrongFastaDirectories = ConfigManager.getInstance().getParsingRulesManager().getInvalidFastaPaths();
-        if (fastaToBeDisplayed != null) {
+        if (fastaToBeDisplayed != null&&ConfigManager.getInstance().isSeqRepActive()) {
             for (int k = 0; k < fastaToBeDisplayed.size(); k++) {
                 boolean errorInThePath = wrongFastaDirectories != null && wrongFastaDirectories.contains(fastaToBeDisplayed.get(k));
                 fastaListPanelConstraints.gridx = 0;
@@ -503,6 +503,10 @@ public class FolderPanel extends JPanel {
                 fastaListPanelConstraints.gridy++;
 
             }
+        }
+        else if (!ConfigManager.getInstance().isSeqRepActive()){
+            fastaListPanelConstraints.fill=GridBagConstraints.HORIZONTAL;
+            fastaListPanel.add(new JLabel("Sequence repository is deactivated"),fastaListPanelConstraints);
         }
     }
 

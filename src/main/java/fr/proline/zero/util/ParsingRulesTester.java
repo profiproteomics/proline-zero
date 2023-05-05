@@ -61,7 +61,7 @@ public class ParsingRulesTester {
                         boolean regularExpressionIsValid = isRegexFastaNameValid(rule.getProteinAccRegExp());
                         if (regularExpressionIsValid) {
                             protRegex = rule.getProteinAccRegExp();
-
+                            // if protein accession rule is not valid will use protein by default
                         } else {
                             protRegex = protByDefault;
                         }
@@ -129,7 +129,7 @@ public class ParsingRulesTester {
 
 
     }
-
+    // method imported from seqrepo using FastaPathsScanner works but not adapted to context
     private static Map<String, List<File>> getFastaFilesMap() throws Exception {
         Map<String, List<File>> fastaFiles = null;
         List<String> localFASTAPaths = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
@@ -246,6 +246,7 @@ public class ParsingRulesTester {
 
         return fastaFilesByName;
     }*/
+    // will retrieve all files, key is name of file value are Files with name equal to key
     public static Map<String, List<File>> retrieveFastaFilesV4(List<String> folderPaths) throws IOException {
         Map<String, List<File>> fastaFilesByName = new HashMap<>();
 
@@ -337,7 +338,7 @@ public class ParsingRulesTester {
             // could happen in local test
             Popup.warning("Protein Regex is not valid please modify it");
 
-            return "wrong regex";
+            return "regex not valid, no protein extracted";
 
         }
         return result;

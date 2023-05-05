@@ -326,6 +326,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
             if (!lineTested.equals("")) {
                 String proteinNameExtracted = ParsingRulesTester.extractProteinNameWithRegEx(lineTested, protRegex);
+
                 if (proteinNameExtracted != null) {
                     resultOfTest.setText(proteinNameExtracted);
                     revalidate();

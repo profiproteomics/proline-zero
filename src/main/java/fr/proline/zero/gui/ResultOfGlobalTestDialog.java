@@ -3,7 +3,6 @@ package fr.proline.zero.gui;
 import fr.proline.studio.gui.DefaultDialog;
 import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.ParsingRule;
-import org.python.antlr.ast.Str;
 
 import javax.swing.*;
 import java.awt.*;
@@ -66,7 +65,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
             Map<String,String> lines=linesAndProteins.get(k);
             gbc.ipadx=5;
             gbc.ipady=5;
-            resultPanel.add(displayOneResult(result,lines),gbc);
+            resultPanel.add(displayOneFileResult(result,lines),gbc);
             gbc.gridy++;
             JSeparator lineBar=new JSeparator();
             lineBar.setOrientation(SwingConstants.HORIZONTAL);
@@ -80,7 +79,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
 
     }
 
-    private JPanel displayOneResult(Object[] results,Map<String,String> lines){
+    private JPanel displayOneFileResult(Object[] results, Map<String,String> lines){
         JPanel displayOneResult=new JPanel(new GridBagLayout());
         GridBagConstraints gbc=new GridBagConstraints();
         displayOneResult.setBorder(BorderFactory.createLineBorder(Color.darkGray,1));
@@ -217,7 +216,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
 
 
     }
-
+    // will contain all the parameters to do the test on a file
     private JPanel paramsOfTest(String fastaRegEx,ParsingRule parsingRule){
         JPanel paramsOfTest=new JPanel(new GridLayout(1,4));
         JLabel jLabelRegExName=new JLabel("Fasta name RegEx:  ");

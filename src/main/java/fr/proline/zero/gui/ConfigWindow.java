@@ -202,6 +202,7 @@ public class ConfigWindow extends JDialog {
 
                         parsePanel.updateValues();
                         tabbedPane.setEnabledAt(3, true);
+                        folderPanel.updateValues();
 
 
                     } else {
@@ -234,6 +235,7 @@ public class ConfigWindow extends JDialog {
                     // if seqRepBoxChanging is not set to true, it will loop because of the property
                     // listener on the memory values
                     memoryPanel.updateMemoryValues();
+                    folderPanel.updateValues();
                 }
                 moduleBoxesChanging = false;
             }
