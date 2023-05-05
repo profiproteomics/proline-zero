@@ -416,97 +416,98 @@ public class FolderPanel extends JPanel {
 
         List<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
         List<String> wrongFastaDirectories = ConfigManager.getInstance().getParsingRulesManager().getInvalidFastaPaths();
-        if (fastaToBeDisplayed != null&&ConfigManager.getInstance().isSeqRepActive()) {
-            for (int k = 0; k < fastaToBeDisplayed.size(); k++) {
-                boolean errorInThePath = wrongFastaDirectories != null && wrongFastaDirectories.contains(fastaToBeDisplayed.get(k));
-                fastaListPanelConstraints.gridx = 0;
-                fastaListPanelConstraints.weightx = 0;
-                fastaListPanelConstraints.anchor = GridBagConstraints.EAST;
-                fastaListPanelConstraints.fill = GridBagConstraints.NONE;
-                JLabel fastaLabel = new JLabel("Folder    " + valueOf(k + 1) + ":", SwingConstants.RIGHT);
-                fastaLabel.setPreferredSize(new Dimension(getMaximumSizesOfJLabels() + 8, 20));
+        if (ConfigManager.getInstance().isSeqRepActive()) {
+            if (fastaToBeDisplayed != null) {
+                for (int k = 0; k < fastaToBeDisplayed.size(); k++) {
+                    boolean errorInThePath = wrongFastaDirectories != null && wrongFastaDirectories.contains(fastaToBeDisplayed.get(k));
+                    fastaListPanelConstraints.gridx = 0;
+                    fastaListPanelConstraints.weightx = 0;
+                    fastaListPanelConstraints.anchor = GridBagConstraints.EAST;
+                    fastaListPanelConstraints.fill = GridBagConstraints.NONE;
+                    JLabel fastaLabel = new JLabel("Folder    " + valueOf(k + 1) + ":", SwingConstants.RIGHT);
+                    fastaLabel.setPreferredSize(new Dimension(getMaximumSizesOfJLabels() + 8, 20));
 
-                fastaListPanel.add(fastaLabel, fastaListPanelConstraints);
-                JTextField pathFasta = new JTextField(fastaToBeDisplayed.get(k));
-                pathFasta.setEnabled(false);
-                if (errorInThePath) {
-                    pathFasta.setEnabled(true);
-                    pathFasta.setEditable(true);
-                    pathFasta.setForeground(errorColor);
-                    pathFasta.setToolTipText("This path is not valid");
-                }
-                if (fastaToBeDisplayed.get(k).equals("")) {
-                    pathFasta.setBackground(softErrorColor);
-                    pathFasta.setForeground(Color.WHITE);
-                    pathFasta.setText("This path is not valid please enter a path for this mount point");
-                }
-
-                fastaListPanelConstraints.gridx++;
-                fastaListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-                fastaListPanelConstraints.anchor = GridBagConstraints.WEST;
-                fastaListPanelConstraints.weightx = 1;
-
-                fastaListPanel.add(pathFasta, fastaListPanelConstraints);
-                fastaListPanelConstraints.gridx++;
-
-
-                JButton editButton = new JButton(IconManager.getIcon(IconManager.IconType.EDIT));
-                editButton.setToolTipText("Click to repair mounting point");
-                final int kFinal = k;
-                final String pathedited = fastaToBeDisplayed.get(k);
-
-                editButton.addActionListener(e -> {
-
-                    pathBackup = pathedited;
-                    boolean deleteSuccess = ConfigManager.getInstance().getParsingRulesManager().deleteFastaFolder(pathBackup);
-
-                    FolderEditDialog editFastaDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingFastas, pathBackup, null, null);
-                    // editFastaDialog.centerToWindow(ConfigWindow.getInstance());
-                    editFastaDialog.setLocationRelativeTo(help);
-                    editFastaDialog.setSize(500, 200);
-                    editFastaDialog.setVisible(true);
-
-                    if (editFastaDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
-
-                        valuesInsideDialog = editFastaDialog.getValuesEntered();
-
-                        addFolderAction();
+                    fastaListPanel.add(fastaLabel, fastaListPanelConstraints);
+                    JTextField pathFasta = new JTextField(fastaToBeDisplayed.get(k));
+                    pathFasta.setEnabled(false);
+                    if (errorInThePath) {
+                        pathFasta.setEnabled(true);
+                        pathFasta.setEditable(true);
+                        pathFasta.setForeground(errorColor);
+                        pathFasta.setToolTipText("This path is not valid");
                     }
-                    if (editFastaDialog.getButtonClicked() == DefaultDialog.BUTTON_CANCEL) {
-
-                        ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(pathBackup);
-
+                    if (fastaToBeDisplayed.get(k).equals("")) {
+                        pathFasta.setBackground(softErrorColor);
+                        pathFasta.setForeground(Color.WHITE);
+                        pathFasta.setText("This path is not valid please enter a path for this mount point");
                     }
 
+                    fastaListPanelConstraints.gridx++;
+                    fastaListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+                    fastaListPanelConstraints.anchor = GridBagConstraints.WEST;
+                    fastaListPanelConstraints.weightx = 1;
 
-                });
-
-                JButton clearButton = new JButton(IconManager.getIcon(IconManager.IconType.TRASH));
-
-                clearButton.addActionListener(e -> {
-                    deleteFastaFolder(fastaToBeDisplayed.get(kFinal));
-                });
-
-                editButton.setHorizontalAlignment(SwingConstants.CENTER);
-                fastaListPanelConstraints.weightx = 0;
-                fastaListPanelConstraints.anchor = GridBagConstraints.WEST;
-                fastaListPanelConstraints.fill = GridBagConstraints.NONE;
-                fastaListPanelConstraints.insets = new Insets(5, 2, 5, 2);
-                fastaListPanel.add(editButton, fastaListPanelConstraints);
+                    fastaListPanel.add(pathFasta, fastaListPanelConstraints);
+                    fastaListPanelConstraints.gridx++;
 
 
-                clearButton.setHorizontalAlignment(SwingConstants.CENTER);
-                fastaListPanelConstraints.weightx = 0;
-                fastaListPanelConstraints.gridx++;
-                fastaListPanelConstraints.anchor = GridBagConstraints.EAST;
-                fastaListPanel.add(clearButton, fastaListPanelConstraints);
-                fastaListPanelConstraints.gridy++;
+                    JButton editButton = new JButton(IconManager.getIcon(IconManager.IconType.EDIT));
+                    editButton.setToolTipText("Click to repair mounting point");
+                    final int kFinal = k;
+                    final String pathedited = fastaToBeDisplayed.get(k);
 
+                    editButton.addActionListener(e -> {
+
+                        pathBackup = pathedited;
+                        boolean deleteSuccess = ConfigManager.getInstance().getParsingRulesManager().deleteFastaFolder(pathBackup);
+
+                        FolderEditDialog editFastaDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingFastas, pathBackup, null, null);
+                        // editFastaDialog.centerToWindow(ConfigWindow.getInstance());
+                        editFastaDialog.setLocationRelativeTo(help);
+                        editFastaDialog.setSize(500, 200);
+                        editFastaDialog.setVisible(true);
+
+                        if (editFastaDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+
+                            valuesInsideDialog = editFastaDialog.getValuesEntered();
+
+                            addFolderAction();
+                        }
+                        if (editFastaDialog.getButtonClicked() == DefaultDialog.BUTTON_CANCEL) {
+
+                            ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(pathBackup);
+
+                        }
+
+
+                    });
+
+                    JButton clearButton = new JButton(IconManager.getIcon(IconManager.IconType.TRASH));
+
+                    clearButton.addActionListener(e -> {
+                        deleteFastaFolder(fastaToBeDisplayed.get(kFinal));
+                    });
+
+                    editButton.setHorizontalAlignment(SwingConstants.CENTER);
+                    fastaListPanelConstraints.weightx = 0;
+                    fastaListPanelConstraints.anchor = GridBagConstraints.WEST;
+                    fastaListPanelConstraints.fill = GridBagConstraints.NONE;
+                    fastaListPanelConstraints.insets = new Insets(5, 2, 5, 2);
+                    fastaListPanel.add(editButton, fastaListPanelConstraints);
+
+
+                    clearButton.setHorizontalAlignment(SwingConstants.CENTER);
+                    fastaListPanelConstraints.weightx = 0;
+                    fastaListPanelConstraints.gridx++;
+                    fastaListPanelConstraints.anchor = GridBagConstraints.EAST;
+                    fastaListPanel.add(clearButton, fastaListPanelConstraints);
+                    fastaListPanelConstraints.gridy++;
+
+                }
             }
-        }
-        else if (!ConfigManager.getInstance().isSeqRepActive()){
-            fastaListPanelConstraints.fill=GridBagConstraints.HORIZONTAL;
-            fastaListPanel.add(new JLabel("Sequence repository is deactivated"),fastaListPanelConstraints);
+        } else {
+            fastaListPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+            fastaListPanel.add(new JLabel("Sequence repository is deactivated"), fastaListPanelConstraints);
         }
     }
 
@@ -624,8 +625,7 @@ public class FolderPanel extends JPanel {
     public void updateValues() {
         updateJpanel();
         ConfigWindow.getInstance().pack();
-//
-        // TODO
+        //// TODO
     }
 
     // calculate the size in Pixels of the text inside a JLabel

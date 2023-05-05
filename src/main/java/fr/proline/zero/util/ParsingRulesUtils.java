@@ -7,8 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class ParsingRulesUtils {
@@ -231,6 +229,10 @@ public class ParsingRulesUtils {
     public void setProteinByDefault(String newProteinByDefault) {
         defaultProteinAccRule = newProteinByDefault;
         parseRulesAndFastaHasBeenChanged = true;
+    }
+
+    public boolean testRegex(ParsingRule parsingRule){
+        return ParsingRulesTester.parsingRuleFastaRegexisNotValid(parsingRule);
     }
 }
 

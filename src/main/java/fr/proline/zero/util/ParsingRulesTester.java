@@ -28,7 +28,7 @@ public class ParsingRulesTester {
 
         System.out.println("test pressed");
         List<String> localFASTAPaths = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
-       // Map<String, List<File>> fastaPaths = getFastaFilesMap();
+        // Map<String, List<File>> fastaPaths = getFastaFilesMap();
         Map<String, List<File>> fastaPaths = retrieveFastaFilesV4(localFASTAPaths);
 
         if (fastaPaths == null) {
@@ -61,12 +61,12 @@ public class ParsingRulesTester {
                         boolean regularExpressionIsValid = isRegexFastaNameValid(rule.getProteinAccRegExp());
                         if (regularExpressionIsValid) {
                             protRegex = rule.getProteinAccRegExp();
-                            // if protein accession rule is not valid will use protein by default
+
                         } else {
+                            // if protein accession rule is not valid will use protein by default
                             protRegex = protByDefault;
                         }
-                    }
-                    else {
+                    } else {
                         protRegex = protByDefault;
                     }
 
@@ -75,15 +75,11 @@ public class ParsingRulesTester {
                     try {
                         InputStream is = new FileInputStream(nextFile);
                         br = new BufferedReader(new InputStreamReader(is, LATIN_1_CHARSET));
-
                         String rawLine = br.readLine();
                         int countEntry = 0;
-
                         boolean proteinHasBeenFound = false;
 
-
                         while (countEntry < 3 && rawLine != null) {
-
                             final String trimmedLine = rawLine.trim();
                             if (!trimmedLine.isEmpty() && trimmedLine.startsWith(">")) { //Found an entry
                                 countEntry++;
@@ -97,17 +93,15 @@ public class ParsingRulesTester {
                                 }
                             } // End entryFound
                             rawLine = br.readLine();
-
                         }
                         if (!proteinHasBeenFound && countEntry == 0) {
-                            linePlusProteinName.put("Could not extract any line from file:  "+fastaName, "No protein found");
+                            linePlusProteinName.put("Could not extract any line from file:  " + fastaName, "No protein found");
                         }
 
                         lineResults.add(linePlusProteinName);
 
                         // End read some entries
-                    }
-                     finally {
+                    } finally {
 
                         if (br != null) {
                             try {
@@ -143,110 +137,9 @@ public class ParsingRulesTester {
 
     }
 
-   /* public static Map<String, List<File>> retrieveFastaFiles(List<String> folderPaths) throws IOException {
-        Map<String, List<File>> fastaFilesByName = new HashMap<>();
 
-        for (String folderPath : folderPaths) {
-            Path folder = Paths.get(folderPath);
-            if (Files.isDirectory(folder)) {
-                try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(folder, "*.fasta")) {
-                    for (Path filePath : dirStream) {
-                        if (Files.isRegularFile(filePath)) {
-                            String fileName = filePath.getFileName().toString();
-                            File file = filePath.toFile();
-                            if (!fastaFilesByName.containsKey(fileName)) {
-                                fastaFilesByName.put(fileName, new ArrayList<>());
-                            }
-                            List<File> filesWithName = fastaFilesByName.get(fileName);
-                            if (!filesWithName.contains(file)) {
-                                filesWithName.add(file);
-                            }
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+    // will retrieve all files, key is name of file, values are Files with name equal to key
 
-                try (Stream<Path> walkStream = Files.walk(folder)) {
-                    walkStream.filter(filePath -> filePath.toString().endsWith(".fasta") && Files.isRegularFile(filePath))
-                            .forEach(filePath -> {
-                                String fileName = filePath.getFileName().toString();
-                                File file = filePath.toFile();
-                                if (!fastaFilesByName.containsKey(fileName)) {
-                                    fastaFilesByName.put(fileName, new ArrayList<>());
-                                }
-                                List<File> filesWithName = fastaFilesByName.get(fileName);
-                                if (!filesWithName.contains(file)) {
-                                    filesWithName.add(file);
-                                }
-                            });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return fastaFilesByName;
-    }
-    private static class FastaFileVisitor extends SimpleFileVisitor<Path> {
-        private final Map<String, List<File>> fastaFilesByName;
-
-        FastaFileVisitor(Map<String, List<File>> fastaFilesByName) {
-            this.fastaFilesByName = fastaFilesByName;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) {
-            if (filePath.toString().endsWith(".fasta") && Files.isRegularFile(filePath)) {
-                String fileName = filePath.getFileName().toString();
-                File file = filePath.toFile();
-                if (!fastaFilesByName.containsKey(fileName)) {
-                    fastaFilesByName.put(fileName, new ArrayList<>());
-                }
-                List<File> filesWithName = fastaFilesByName.get(fileName);
-                if (!filesWithName.contains(file)) {
-                    filesWithName.add(file);
-                }
-            }
-            return FileVisitResult.CONTINUE;
-        }
-    }
-    public static Map<String, List<File>> retrieveFastaFilesV3(List<String> folderPaths) throws IOException {
-        Map<String, List<File>> fastaFilesByName = new HashMap<>();
-
-        for (String folderPath : folderPaths) {
-            Path folder = Paths.get(folderPath);
-            if (Files.isDirectory(folder)) {
-                try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(folder, "*.fasta")) {
-                    for (Path filePath : dirStream) {
-                        if (Files.isRegularFile(filePath)) {
-                            String fileName = filePath.getFileName().toString();
-                            File file = filePath.toFile();
-                            if (!fastaFilesByName.containsKey(fileName)) {
-                                fastaFilesByName.put(fileName, new ArrayList<>());
-                            }
-                            List<File> filesWithName = fastaFilesByName.get(fileName);
-                            if (!filesWithName.contains(file)) {
-                                filesWithName.add(file);
-                            }
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                FastaFileVisitor visitor = new FastaFileVisitor(fastaFilesByName);
-                try {
-                    Files.walkFileTree(folder, visitor);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return fastaFilesByName;
-    }*/
-    // will retrieve all files, key is name of file value are Files with name equal to key
     public static Map<String, List<File>> retrieveFastaFilesV4(List<String> folderPaths) throws IOException {
         Map<String, List<File>> fastaFilesByName = new HashMap<>();
 
@@ -275,41 +168,7 @@ public class ParsingRulesTester {
 
         return fastaFilesByName;
     }
-  /*  public static Map<String, List<File>> retrieveFastaFilesV2(List<String> folderPaths) throws IOException {
-        Map<String, List<File>> fastaFilesByName = new HashMap<>();
 
-        for (String folderPath : folderPaths) {
-            Path folder = Paths.get(folderPath);
-            if (Files.isDirectory(folder)) {
-                try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(folder, "*.fasta")) {
-                    for (Path filePath : dirStream) {
-                        if (Files.isRegularFile(filePath)) {
-                            String fileName = filePath.getFileName().toString();
-                            List<File> filesWithName = fastaFilesByName.getOrDefault(fileName, new ArrayList<>());
-                            filesWithName.add(filePath.toFile());
-                            fastaFilesByName.put(fileName, filesWithName);
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                try (Stream<Path> walkStream = Files.walk(folder)) {
-                    walkStream.filter(filePath -> filePath.toString().endsWith(".fasta") && Files.isRegularFile(filePath))
-                            .forEach(filePath -> {
-                                String fileName = filePath.getFileName().toString();
-                                List<File> filesWithName = fastaFilesByName.getOrDefault(fileName, new ArrayList<>());
-                                filesWithName.add(filePath.toFile());
-                                fastaFilesByName.put(fileName, filesWithName);
-                            });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return fastaFilesByName;
-    }*/
 
     public static String extractProteinNameWithRegEx(String line, String protRegex) {
         return getMatchingString(line, protRegex);
@@ -359,7 +218,7 @@ public class ParsingRulesTester {
             Pattern.compile(regex);
             return true;
         } catch (PatternSyntaxException e) {
-            // Popup.warning("Regular expression is not valid please modify it");
+
             return false;
         }
     }
@@ -368,28 +227,51 @@ public class ParsingRulesTester {
     public static Object[] getMatchingParsingRule(final String fastaFileName) {
         assert (fastaFileName != null) : "getParsingRuleEntry() fastaFileName is null";
         // resultObject stores the parsing rule and the fasta name regex that match with the name of the file
-        Object[] resultObject = new Object[3];
+        Object[] resultObject = new Object[4];
 
         for (ParsingRule nextPR : ConfigManager.getInstance().getParsingRulesManager().getSetOfRules()) {
             for (String fastaRegEx : nextPR.getFastaNameRegExp()) {
+                try {
 
-                // TO DO handle compile errors
-                final Pattern pattern = Pattern.compile(fastaRegEx, Pattern.CASE_INSENSITIVE);
+                    final Pattern pattern = Pattern.compile(fastaRegEx, Pattern.CASE_INSENSITIVE);
 
-                final Matcher matcher = pattern.matcher(fastaFileName);
-                if (matcher.find()) {
-                    resultObject[0] = nextPR;
-                    resultObject[1] = fastaRegEx;
-                    // loop ends as soon as a fastaRegex match with the name of the file
+                    final Matcher matcher = pattern.matcher(fastaFileName);
+                    if (matcher.find()) {
+                        resultObject[0] = nextPR;
+                        resultObject[1] = fastaRegEx;
+                        // loop ends as soon as a fastaRegex match with the name of the file
+                        break;
+                    }
+                } catch (PatternSyntaxException patternSyntaxException) {
+
+                    System.out.println("not valid fasta regex: " + fastaRegEx);
+
+                    resultObject[3]=true;
                     break;
                 }
-            } // End loop for each regex
+            }
+            // End loop for each regex
             if (resultObject[1] != null)
                 // loop ends at first match
                 break;
         }
         resultObject[2] = fastaFileName;
         return resultObject;
+    }
+
+    public static boolean parsingRuleFastaRegexisNotValid(ParsingRule parsingRule) {
+        boolean atleastOneFastaIsNotValid = false;
+        List<String> fastaNameRegex = parsingRule.getFastaNameRegExp();
+        int sizeOfFastaRegex = fastaNameRegex.size();
+        for (int j = 0; j < sizeOfFastaRegex; j++) {
+
+            if (!isRegexFastaNameValid(fastaNameRegex.get(j))) {
+                atleastOneFastaIsNotValid = true;
+                break;
+
+            }
+        }
+        return atleastOneFastaIsNotValid;
     }
 
 

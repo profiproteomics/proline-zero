@@ -277,22 +277,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
 
     }
-   /* private JPanel testPanel(){
-        JPanel testPanel=new JPanel(new GridBagLayout());
-        GridBagConstraints gbc=new GridBagConstraints();
-        gbc.insets=new Insets(5,5,5,5);
-        gbc.gridx=0;
-        gbc.gridy=0;
-        gbc.anchor=GridBagConstraints.WEST;
-        gbc.fill=GridBagConstraints.NONE;
-        JLabel entryLineLabel=new JLabel("Fasta entry");
-        testPanel.setBorder(BorderFactory.createTitledBorder("Test"));
-        testPanel.add(entryLineLabel,gbc);
 
-        return testPanel;
-
-
-    }*/
     private JPanel createTestPanel() {
         JPanel testPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -364,6 +349,11 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         testPanel.add(resultOfTest, gbc);
         return testPanel;
     }
+
+    /**
+     *
+     * Method that displays fasta name Regex in a JTable
+     */
 
   /*  private JPanel viewFastaNamePanel(ParsingRule parsingRule) {
         JPanel fastaPanel = new JPanel(new GridBagLayout());

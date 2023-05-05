@@ -14,17 +14,6 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
     private ArrayList<Object[]> resultStore;
     private ArrayList<Map<String,String>> linesAndProteins;
 
-
-
-   /* public ResultOfGlobalTestDialog(Window parent, ArrayList<Object[]> resultStore) {
-
-        super(parent);
-        this.resultStore=resultStore;
-        this.setResizable(true);
-        this.setSize(700,700);
-        setInternalComponent(createResultPanel(resultStore));
-
-    }*/
     public ResultOfGlobalTestDialog(Window parent, ArrayList<Object[]> resultStore, ArrayList<Map<String,String>> linesAndProteins) {
 
         super(parent);
@@ -59,6 +48,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         JLabel numberJLabel=new JLabel("Nombre total de fichiers fasta analysés:  "+numberAsAString);
         resultPanel.add(numberJLabel,gbc);
         gbc.gridy++;
+        // TODO indicate if some fastaRegex used during the test where not valid Regex?
         for (int k=0;k<numberOfResults;k++){
 
             Object[] result=resultStore.get(k);
