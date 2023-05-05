@@ -3,6 +3,7 @@ package fr.proline.zero.gui;
 import fr.proline.studio.gui.DefaultDialog;
 import fr.proline.zero.util.ConfigManager;
 import fr.proline.zero.util.ParsingRule;
+import org.python.antlr.ast.Str;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,6 +14,8 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
 
     private ArrayList<Object[]> resultStore;
     private ArrayList<Map<String,String>> linesAndProteins;
+
+
 
    /* public ResultOfGlobalTestDialog(Window parent, ArrayList<Object[]> resultStore) {
 
@@ -36,7 +39,6 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
 
     private JScrollPane scrollPaneResult(ArrayList<Object[]> resultStore,ArrayList<Map<String,String>> linesAndProteins){
         JScrollPane scrollPane=new JScrollPane(createResultPanel(resultStore,linesAndProteins));
-
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setPreferredSize(new Dimension(800, 700));
         scrollPane.setBorder(null);
@@ -54,17 +56,22 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         gbc.weightx=1;
 
         int numberOfResults=resultStore.size();
+        String numberAsAString=String.valueOf(resultStore.size());
+        JLabel numberJLabel=new JLabel("Nombre total de fichiers fasta analysés:  "+numberAsAString);
+        resultPanel.add(numberJLabel,gbc);
+        gbc.gridy++;
         for (int k=0;k<numberOfResults;k++){
 
             Object[] result=resultStore.get(k);
             Map<String,String> lines=linesAndProteins.get(k);
-            // add display
             gbc.ipadx=5;
             gbc.ipady=5;
             resultPanel.add(displayOneResult(result,lines),gbc);
             gbc.gridy++;
-
-
+            JSeparator lineBar=new JSeparator();
+            lineBar.setOrientation(SwingConstants.HORIZONTAL);
+            resultPanel.add(lineBar,gbc);
+            gbc.gridy++;
 
         }
 
@@ -108,7 +115,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         if (fastaRegEx!=null)
         { jTextFieldFastaRegEx.setText(fastaRegEx);}
         else {
-            jTextFieldFastaRegEx.setText(ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule());
+            jTextFieldFastaRegEx.setText("No parsing rule found, will use "+ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule());
         }
         jTextFieldFastaRegEx.setEnabled(false);
         jTextFieldFastaRegEx.setEditable(false);
@@ -116,7 +123,10 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         gbc.weightx=1;
         gbc.fill=GridBagConstraints.HORIZONTAL;
         displayOneResult.add(jTextFieldFastaRegEx,gbc);
-
+        /*gbc.gridx++;
+        gbc.weightx=1;
+        gbc.fill=GridBagConstraints.NONE;
+        displayOneResult.add(paramsOfTest(fastaRegEx,parsingRule),gbc);*/
 
         int numberOfLines=lines.size();
 
@@ -158,12 +168,6 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
             displayOneResult.add(proteinExtracted,gbc);
 
         }
-        
-
-
-
-
-
         return displayOneResult;
 
     }
@@ -210,6 +214,36 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         }
 
         return resultPanel;
+
+
+    }
+
+    private JPanel paramsOfTest(String fastaRegEx,ParsingRule parsingRule){
+        JPanel paramsOfTest=new JPanel(new GridLayout(1,4));
+        JLabel jLabelRegExName=new JLabel("Fasta name RegEx:  ");
+        paramsOfTest.add(jLabelRegExName);
+        JTextField jTextFieldFastaRegEx=new JTextField();
+        if (fastaRegEx!=null)
+        { jTextFieldFastaRegEx.setText(fastaRegEx);}
+        else {
+            jTextFieldFastaRegEx.setText(ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule());
+        }
+        jTextFieldFastaRegEx.setEnabled(false);
+        jTextFieldFastaRegEx.setEditable(false);
+        paramsOfTest.add(jTextFieldFastaRegEx);
+        JLabel jLabelParsingRuleName=new JLabel("Parsing Rule: ");
+        paramsOfTest.add(jLabelParsingRuleName);
+        JTextField jTextFieldParsingRuleName=new JTextField();
+        if (parsingRule!=null){
+            jTextFieldParsingRuleName.setText(parsingRule.getName());
+        }
+        else {
+            jTextFieldParsingRuleName.setText("No parsing rule found for that file");
+        }
+        paramsOfTest.add(jTextFieldParsingRuleName);
+
+        return paramsOfTest;
+
 
 
     }

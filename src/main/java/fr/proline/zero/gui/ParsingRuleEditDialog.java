@@ -55,14 +55,16 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         //Configure commons buttons for all TypeOfDialog
         this.setButtonVisible(BUTTON_HELP, false);
 
+        // Test button not used anymore
         this.setButtonName(BUTTON_DEFAULT, "Test");
-        this.setButtonVisible(BUTTON_DEFAULT, true);
-        this.setButtonEnabled(BUTTON_DEFAULT, true);
+        this.setButtonVisible(BUTTON_DEFAULT, false);
+        this.setButtonEnabled(BUTTON_DEFAULT, false);
         this.setButtonIcon(BUTTON_DEFAULT, IconManager.getIcon(IconManager.IconType.TEST));
 
         this.setButtonVisible(BUTTON_BACK, true);
         this.setButtonName(BUTTON_BACK, "Clear");
         this.setButtonIcon(BUTTON_BACK, IconManager.getIcon(IconManager.IconType.ERASER));
+
 
         this.setButtonIcon(BUTTON_OK, IconManager.getIcon(IconManager.IconType.PLUS_16X16));
         this.typeOfDialog = typeOfDialog;
@@ -310,10 +312,12 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         lineField = new JTextField();
         lineField.setEditable(true);
         lineField.setEnabled(true);
+        lineField.setToolTipText("Enter a line from a fasta file");
         gbc.weightx = 1;
         gbc.fill=GridBagConstraints.HORIZONTAL;
         testPanel.add(lineField, gbc);
         JButton testButton = new JButton("Test");
+        testButton.setToolTipText("Click to test default protein accesion rule:  "+proteinAccTField.getText());
 
         testButton.addActionListener(e -> {
 

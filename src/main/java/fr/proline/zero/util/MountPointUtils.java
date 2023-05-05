@@ -107,7 +107,7 @@ public class MountPointUtils {
     private boolean pathExists(String path) {
         boolean pathExists=false;
         List<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
-        boolean fastasExist=fastaToBeDisplayed!=null;
+
 
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             Map<String, String> map = mountPointMap.get(mountPointType);

@@ -63,6 +63,7 @@ public class ParsingRulesPanel extends JPanel {
 
             JButton jButtonOpenJdialog = new JButton();
             jButtonOpenJdialog.setIcon(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
+            jButtonOpenJdialog.setToolTipText("Click to add a parsing rule");
             jButtonOpenJdialog.addActionListener(e -> {
                 openAddDialog();
             });
@@ -80,7 +81,14 @@ public class ParsingRulesPanel extends JPanel {
 
 
             String protByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
+            // patch
+            if (protByDefault.equals("")){
+                protByDefault=">(\\\\S+)";
+                ConfigManager.getInstance().getParsingRulesManager().setProteinByDefault(">(\\\\S+)");
+            }
+
             JTextField labelProt = new JTextField(protByDefault);
+
             labelProt.getDocument().addDocumentListener(new DocumentListener() {
                 @Override
                 public void insertUpdate(DocumentEvent e) {
@@ -269,7 +277,7 @@ public class ParsingRulesPanel extends JPanel {
 
     }
 
-    // not used
+    // not used anymore
     private JPanel viewer(ParsingRule parsingRule) {
 
         JPanel fastaviewer = new JPanel(new GridBagLayout());
@@ -281,6 +289,7 @@ public class ParsingRulesPanel extends JPanel {
         fastaviewer.add(viewer, gbc);
         gbc.gridx++;
         JButton viewButton = new JButton(IconManager.getIcon(IconManager.IconType.TEST));
+        viewButton.setToolTipText("Click to wiew  all fasta names regex");
         viewButton.addActionListener(e -> {
             System.out.println("pressed!!!!");
             ParsingRuleEditDialog viewFastas = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.ViewFastas, parsingRule);
@@ -485,17 +494,14 @@ public class ParsingRulesPanel extends JPanel {
         JButton testButton = new JButton("Test");
         testButton.setIcon(IconManager.getIcon(IconManager.IconType.TEST));
         testButton.setEnabled(true);
+        testButton.setToolTipText("Click to proceed to the global test over fasta files");
         testButton.addActionListener(e -> {
-
             try {
-
                 ParsingRulesTester.globalTest();
 
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
-
-
         });
         testButton.setSize(30, 30);
         return testButton;
