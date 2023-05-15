@@ -42,7 +42,6 @@ public class Main {
 			boolean isOK = ConfigManager.getInstance().verif();
 			logger.info("error message:   "+ConfigManager.getInstance().getMountPointManager().getErrorMessage());
 
-			//ConfigManager.getInstance().getParsingRulesManager().test();
 			// else we displayed the error messages
 			if (!isOK) {
 				if (ConfigManager.getInstance().isErrorFatal()) {

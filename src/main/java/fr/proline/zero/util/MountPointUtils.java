@@ -1,5 +1,6 @@
 
 package fr.proline.zero.util;
+import org.python.antlr.ast.Str;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,10 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class MountPointUtils {
@@ -39,6 +37,8 @@ public class MountPointUtils {
 
     private ArrayList<String> invalidPaths = new ArrayList<>();
     private ArrayList<String> missingMPs = new ArrayList<>();
+
+    private ArrayList<String>  duplicatePaths=new ArrayList<>();
 
 
     public MountPointUtils() {
@@ -104,24 +104,26 @@ public class MountPointUtils {
     }
 
 
+
     private boolean pathExists(String path) {
-        boolean pathExists=false;
+        boolean pathExistsInMountpoints=false;
+        boolean pathExistsInFastas=false;
         List<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
 
 
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             Map<String, String> map = mountPointMap.get(mountPointType);
             if (map != null && map.containsValue(path)) {
-                pathExists=true;
+                pathExistsInMountpoints=true;
                 break;
             }
         }
         if (fastaToBeDisplayed!=null){
-            pathExists=fastaToBeDisplayed.contains(path);
+            pathExistsInFastas=fastaToBeDisplayed.contains(path);
         }
 
 
-        return pathExists;
+        return pathExistsInFastas||pathExistsInMountpoints;
 
     }
     public boolean getIfPathExist(String path){
@@ -220,6 +222,14 @@ public class MountPointUtils {
             // no fatal error
 
         }
+        /// added 15/05
+        if(duplicateFileInside(filesPaths())){
+            errorFatal=true;
+            message.append("Some paths in the mount points are identical, please check your mount points \n");
+            for (String duplicatePaths: duplicatePaths){
+                message.append(duplicatePaths+"\n");
+            }
+        }
         if (message.length() > 0) {
             errorMessage = message.toString();
             // isValid = false;
@@ -308,6 +318,54 @@ public class MountPointUtils {
     }
 
     public List<String> getMissingMPs(){return missingMPs;}
+
+    public ArrayList<String> filesPaths(){
+        ArrayList<String > pathsPresent=new ArrayList<>();
+        for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
+            Map<String, String> Mpentries = mountPointMap.get(mountPointType);
+            if (Mpentries != null) {
+                Set<Map.Entry<String, String>> test = Mpentries.entrySet();
+                for (Map.Entry<String, String> entries : test) {
+                    String path = entries.getValue();
+                    pathsPresent.add(path);
+                }
+            }
+        }
+        List<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
+        if (fastaToBeDisplayed!=null){
+            for (int k=0; k< fastaToBeDisplayed.size();k++){
+            String path= fastaToBeDisplayed.get(k);
+            pathsPresent.add(path);
+            }
+        }
+
+
+        return pathsPresent;
+    }
+
+    public boolean duplicateFileInside(ArrayList<String> paths){
+        duplicatePaths.clear();
+
+        boolean duplicateFile=false;
+        for (int i=0;i< paths.size();i++){
+            for (int j=i+1;j< paths.size();j++){
+                String pathi=paths.get(i);
+                String pathj=paths.get(j);
+                duplicateFile=pathi.equals(pathj);
+                if (duplicateFile==true){
+                    duplicatePaths.add(pathi);
+
+                }
+            }
+
+        }
+        return duplicateFile;
+    }
+    public ArrayList<String> getDuplicatePaths(){
+        return duplicatePaths;
+    }
+
+
 
 
 }

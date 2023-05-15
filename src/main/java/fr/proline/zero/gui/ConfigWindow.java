@@ -189,6 +189,10 @@ public class ConfigWindow extends JDialog {
 
 
                     if (canEnable) {
+                        // in case parsing-rules.conf has not been verified
+                        boolean verif=configManager.getParsingRulesManager().verif();
+
+
                         // enable the tab
                         //VDS NYI tabbedPane.setEnabledAt(3, true);
                         memoryPanel.seqRepBeingActive(true);

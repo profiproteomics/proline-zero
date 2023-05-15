@@ -14,14 +14,21 @@ import java.util.Map;
 
 import static java.lang.String.valueOf;
 
+/**
+ * Panel that displays mountpoints: MZDB and RESULT plus Fastas if sequence repository is activated
+ * alllows editing of thse mountpoints
+ *
+ 
+ */
 
 public class FolderPanel extends JPanel {
 
 
-    private final Color stringColor = new Color(50, 0, 230);
-    private final Color errorColor = new Color(255, 0, 50);
 
-    private final Color softErrorColor = new Color(243, 227, 227);
+    private final static Color STRING_COLOR = new Color(50, 0, 230);
+    private final static   Color ERROR_COLOR = new Color(255, 0, 50);
+
+    private final static Color SOFT_ERROR_COLOR = new Color(243, 227, 227);
 
 
     private String labelEdited;
@@ -157,12 +164,12 @@ public class FolderPanel extends JPanel {
         c.gridy = 0;
         JPanel resultListPanel = new JPanel(new GridBagLayout());
 
-        this.initAnyFolderPanel(MountPointUtils.MountPointType.RESULT, resultListPanel);
+        initAnyFolderPanel(MountPointUtils.MountPointType.RESULT, resultListPanel);
         folderListPanel.add(resultListPanel, c);
 
         JPanel mzDBListPanel = new JPanel(new GridBagLayout());
 
-        this.initAnyFolderPanel(MountPointUtils.MountPointType.MZDB, mzDBListPanel);
+        initAnyFolderPanel(MountPointUtils.MountPointType.MZDB, mzDBListPanel);
 
         c.gridy++;
         folderListPanel.add(mzDBListPanel, c);
@@ -170,7 +177,7 @@ public class FolderPanel extends JPanel {
         c.gridy++;
 
         JPanel fastaListPanel = new JPanel(new GridBagLayout());
-        this.initFastaFolderPanel(fastaListPanel);
+        initFastaFolderPanel(fastaListPanel);
         folderListPanel.add(fastaListPanel, c);
 
         return folderListPanel;
@@ -196,7 +203,7 @@ public class FolderPanel extends JPanel {
 
         JLabel fieldInitial = new JLabel(MountPointUtils.getMountPointDefaultPathLabel(mpt) + ": ", SwingConstants.RIGHT);
 
-        fieldInitial.setForeground(stringColor);
+        fieldInitial.setForeground(STRING_COLOR);
         anyPanelConstraints.anchor = GridBagConstraints.EAST;
         fieldInitial.setEnabled(true);
         fieldInitial.setPreferredSize(new Dimension(getMaximumSizesOfJLabels() + 8, 20));
@@ -222,14 +229,14 @@ public class FolderPanel extends JPanel {
         if (path != null) {
             if (defaultMountPointHasAWrongPath) {
                 pathInitial.setEnabled(true);
-                pathInitial.setForeground(errorColor);
+                pathInitial.setForeground(ERROR_COLOR);
                 // pathInitial.setToolTipText("Click to fix the error");
                 anyPanel.add(pathInitial, anyPanelConstraints);
 
 
             } else if (path.equals("")) {
                 pathInitial.setText("This path is not valid please enter a path for this mount point");
-                pathInitial.setBackground(softErrorColor);
+                pathInitial.setBackground(SOFT_ERROR_COLOR);
             } else {
                 pathInitial.setEnabled(false);
                 anyPanel.add(pathInitial, anyPanelConstraints);
@@ -323,7 +330,7 @@ public class FolderPanel extends JPanel {
                     resultPath.setEditable(true);
                 }
                 if (mountPointsToBeDisplayed.get(key).equals("")) {
-                    resultPath.setBackground(softErrorColor);
+                    resultPath.setBackground(SOFT_ERROR_COLOR);
                     resultPath.setText("This path is not valid please enter a path for this mount point");
 
                 }
@@ -334,7 +341,7 @@ public class FolderPanel extends JPanel {
                 if (pathWrong.contains(mountPointsToBeDisplayed.get(key))) {
                     resultPath.setEnabled(true);
                     resultPath.setEditable(true);
-                    resultPath.setForeground(errorColor);
+                    resultPath.setForeground(ERROR_COLOR);
                     resultPath.setToolTipText("This path does not exist you should delete it by clicking on the delete button ");
 
                 }
@@ -416,10 +423,12 @@ public class FolderPanel extends JPanel {
 
         List<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
         List<String> wrongFastaDirectories = ConfigManager.getInstance().getParsingRulesManager().getInvalidFastaPaths();
+        List<String> duplicatePaths=ConfigManager.getInstance().getMountPointManager().getDuplicatePaths();
         if (ConfigManager.getInstance().isSeqRepActive()) {
             if (fastaToBeDisplayed != null) {
                 for (int k = 0; k < fastaToBeDisplayed.size(); k++) {
                     boolean errorInThePath = wrongFastaDirectories != null && wrongFastaDirectories.contains(fastaToBeDisplayed.get(k));
+                    boolean pathIsDuplicate=duplicatePaths.contains(fastaToBeDisplayed.get(k));
                     fastaListPanelConstraints.gridx = 0;
                     fastaListPanelConstraints.weightx = 0;
                     fastaListPanelConstraints.anchor = GridBagConstraints.EAST;
@@ -433,13 +442,20 @@ public class FolderPanel extends JPanel {
                     if (errorInThePath) {
                         pathFasta.setEnabled(true);
                         pathFasta.setEditable(true);
-                        pathFasta.setForeground(errorColor);
+                        pathFasta.setForeground(ERROR_COLOR);
                         pathFasta.setToolTipText("This path is not valid");
                     }
                     if (fastaToBeDisplayed.get(k).equals("")) {
-                        pathFasta.setBackground(softErrorColor);
+                        pathFasta.setBackground(SOFT_ERROR_COLOR);
                         pathFasta.setForeground(Color.WHITE);
                         pathFasta.setText("This path is not valid please enter a path for this mount point");
+                    }
+                    if (pathIsDuplicate){
+                        pathFasta.setEnabled(true);
+                        pathFasta.setEditable(true);
+                        pathFasta.setForeground(ERROR_COLOR);
+                        pathFasta.setToolTipText("This path already exists please choose another path");
+
                     }
 
                     fastaListPanelConstraints.gridx++;
@@ -468,15 +484,12 @@ public class FolderPanel extends JPanel {
                         editFastaDialog.setVisible(true);
 
                         if (editFastaDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
-
                             valuesInsideDialog = editFastaDialog.getValuesEntered();
-
                             addFolderAction();
                         }
                         if (editFastaDialog.getButtonClicked() == DefaultDialog.BUTTON_CANCEL) {
 
                             ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(pathBackup);
-
                         }
 
 
@@ -602,7 +615,7 @@ public class FolderPanel extends JPanel {
 
 
                     } else {
-                        Popup.warning("Errror while adding Fasta folder");
+                        Popup.warning("Error while adding Fasta folder  ");
 
 
                     }
@@ -638,7 +651,7 @@ public class FolderPanel extends JPanel {
     }
 
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         // ConfigWindow.getInstance();
         ConfigManager.getInstance().initialize();
         // ConfigManager.getInstance().getMountPointManager().getMountPointMap();
@@ -658,6 +671,6 @@ public class FolderPanel extends JPanel {
         }
 
 
-    }
+    }*/
 
 }
