@@ -4,15 +4,21 @@ import com.typesafe.config.*;
 
 import com.typesafe.config.Config;
 
+import fr.proline.zero.gui.Popup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 
 import java.util.*;
 
+/**
+ * read and write inside Cortex configfile application.conf
+ */
 
 public class JsonCortexAccess {
     private final Logger logger = LoggerFactory.getLogger(JsonCortexAccess.class);
@@ -23,8 +29,34 @@ public class JsonCortexAccess {
     private JsonCortexAccess() {
         ConfigParseOptions options = ConfigParseOptions.defaults();
         options = options.setSyntax(ConfigSyntax.CONF);
-        m_cortexProlineConfig  = ConfigFactory.parseFile(ProlineFiles.CORTEX_CONFIG_FILE,options);
+        File cortexConfigFile = ProlineFiles.CORTEX_CONFIG_FILE;
+        try {
+
+            if (cortexConfigFile.exists()) {
+
+                m_cortexProlineConfig = ConfigFactory.parseFile(ProlineFiles.CORTEX_CONFIG_FILE, options);
+
+            } else {
+
+                throw new FileNotFoundException("Cortex config file not found");
+            }
+        } catch (FileNotFoundException exception) {
+
+            Popup.warning("No configuration file found for cortex");
+            m_cortexProlineConfig = ConfigFactory.empty();
+
+            logger.warn("exception occurred: " + exception.getMessage());
+        }
+
+
     }
+   /* private JsonCortexAccess() {
+        ConfigParseOptions options = ConfigParseOptions.defaults();
+        options = options.setSyntax(ConfigSyntax.CONF);
+
+
+        m_cortexProlineConfig  = ConfigFactory.parseFile(ProlineFiles.CORTEX_CONFIG_FILE,options);
+    }*/
 
     public static JsonCortexAccess getInstance() {
         if (instance == null) {
@@ -33,33 +65,36 @@ public class JsonCortexAccess {
         return instance;
     }
 
-    public Config getCortexConfig(){
-        return  m_cortexProlineConfig;
+    public Config getCortexConfig() {
+        return m_cortexProlineConfig;
     }
 
-    // returns a hashmap with all mount points  inside cortex application.conf
-   private HashMap<MountPointUtils.MountPointType, Map<String,String>> getMountPointsJson() {
+
+    /**
+     * @return a hashmap with all mount points found inside cortex application.conf
+     */
+    private HashMap<MountPointUtils.MountPointType, Map<String, String>> getMountPointsJson() {
         try {
-                HashMap<MountPointUtils.MountPointType, Map<String, String>> mountPointMap = new HashMap<>();
-                if (m_cortexProlineConfig.hasPath(ProlineFiles.CORTEX_MOUNT_POINTS_KEY)) {
-                    Config mountPointsCfg = m_cortexProlineConfig.getConfig(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
-                    Iterator<MountPointUtils.MountPointType> mpTypeIt = Arrays.stream(MountPointUtils.MountPointType.values()).iterator();
-                    while (mpTypeIt.hasNext()){
-                        MountPointUtils.MountPointType nextMp = mpTypeIt.next();
-                        if (mountPointsCfg.hasPath(nextMp.getJsonKey())) {
-                            HashMap<String, String> specificMountPointMap = new HashMap<>();
-                            Config specificMPCfg = mountPointsCfg.getConfig(nextMp.getJsonKey());
-                            Iterator<Map.Entry<String, ConfigValue>> mpEntriesIt = specificMPCfg.entrySet().iterator();
-                            while (mpEntriesIt.hasNext()) {
-                                Map.Entry<String, ConfigValue> entry = mpEntriesIt.next();
-                                String label = entry.getKey();
-                                String val = specificMPCfg.getString(label);
-                                specificMountPointMap.put(label, val);
-                                mountPointMap.put(nextMp, specificMountPointMap);
-                            }
+            HashMap<MountPointUtils.MountPointType, Map<String, String>> mountPointMap = new HashMap<>();
+            if (m_cortexProlineConfig.hasPath(ProlineFiles.CORTEX_MOUNT_POINTS_KEY)) {
+                Config mountPointsCfg = m_cortexProlineConfig.getConfig(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
+                Iterator<MountPointUtils.MountPointType> mpTypeIt = Arrays.stream(MountPointUtils.MountPointType.values()).iterator();
+                while (mpTypeIt.hasNext()) {
+                    MountPointUtils.MountPointType nextMp = mpTypeIt.next();
+                    if (mountPointsCfg.hasPath(nextMp.getJsonKey())) {
+                        HashMap<String, String> specificMountPointMap = new HashMap<>();
+                        Config specificMPCfg = mountPointsCfg.getConfig(nextMp.getJsonKey());
+                        Iterator<Map.Entry<String, ConfigValue>> mpEntriesIt = specificMPCfg.entrySet().iterator();
+                        while (mpEntriesIt.hasNext()) {
+                            Map.Entry<String, ConfigValue> entry = mpEntriesIt.next();
+                            String label = entry.getKey();
+                            String val = specificMPCfg.getString(label);
+                            specificMountPointMap.put(label, val);
+                            mountPointMap.put(nextMp, specificMountPointMap);
                         }
                     }
                 }
+            }
 
             return mountPointMap;
         } catch (Exception e) {
@@ -68,7 +103,12 @@ public class JsonCortexAccess {
 
     }
 
-    public void updateCortexConfigFileJson(HashMap<MountPointUtils.MountPointType, Map<String, String>> mpt) {
+    /**
+     * Saves mountpointmap when gui is closed
+     *
+     * @param mountPoints
+     */
+    public void updateCortexConfigFileJson(HashMap<MountPointUtils.MountPointType, Map<String, String>> mountPoints) {
 
         ConfigObject toBePreserved = JsonCortexAccess.getInstance().getCortexConfig().root().withoutKey(ProlineFiles.CORTEX_MOUNT_POINTS_KEY);
         int sizeOfMpts = MountPointUtils.MountPointType.values().length;
@@ -76,7 +116,7 @@ public class JsonCortexAccess {
         com.typesafe.config.Config[] mergedConf = new com.typesafe.config.Config[builtConfig.length];
         int cpt = 0;
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
-            Map<String, String> specificMPEntries = mpt.get(mountPointType);
+            Map<String, String> specificMPEntries = mountPoints.get(mountPointType);
             if (specificMPEntries == null) {
                 builtConfig[cpt] = ConfigFactory.empty().atKey(mountPointType.getJsonKey());
             } else {
@@ -94,7 +134,7 @@ public class JsonCortexAccess {
         // final merge
         Config finalConfig = finalMpts.withFallback(toBePreserved);
         String finalWrite = finalConfig.root().render(ConfigRenderOptions.concise().setFormatted(true).setJson(false).setComments(true));
-        // configHasBeenChanged=true;
+
 
         try {
             FileWriter writer = new FileWriter(ProlineFiles.CORTEX_CONFIG_FILE);
@@ -106,11 +146,9 @@ public class JsonCortexAccess {
     }
 
     // Return MountPoint Values read from config files.
-    public HashMap<MountPointUtils.MountPointType, Map<String,String>> getMountPointMaps()
-    {
+    public HashMap<MountPointUtils.MountPointType, Map<String, String>> getMountPointMaps() {
         return getMountPointsJson();
     }
-
 
 
 }

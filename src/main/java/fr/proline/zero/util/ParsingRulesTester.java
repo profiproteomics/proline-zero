@@ -16,12 +16,27 @@ import java.util.regex.PatternSyntaxException;
 
 import static fr.proline.module.seq.Constants.LATIN_1_CHARSET;
 
+/**
+ * This class contains all the methods used to do tests on parsing rules
+ *
+ */
+
 public class ParsingRulesTester {
 
     public ParsingRulesTester() {
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(ParsingRulesTester.class);
+
+
+    /**
+     * globalTest will test all fasta files, for each of these files it will attempt to find a parsingrule that matches with name of file.
+     * Then it will test three lines of the file with protein accession rule of the parsing rule selected. protein name are then extracted.
+     * if no parsing rule is found, the protein rule by default is used to parse the file.
+     * Once results of tests are produced a ResultOfGlobalTestDialog will open
+     *
+     * @throws Exception
+     */
 
 
     public static void globalTest() throws Exception {
@@ -32,7 +47,7 @@ public class ParsingRulesTester {
         Map<String, List<File>> fastaPaths = retrieveFastaFilesV4(localFASTAPaths);
 
         if (fastaPaths == null) {
-            Popup.warning("No fasta files found, you might check fasta directories");
+            Popup.warning("No fasta files found, you might check fasta directories inside folder panel");
             return;
         }
         Set<Map.Entry<String, List<File>>> entries = fastaPaths.entrySet();
@@ -123,7 +138,8 @@ public class ParsingRulesTester {
 
 
     }
-    // method imported from seqrepo using FastaPathsScanner works but not adapted to context
+    // method imported from seqrepo using FastaPathsScanner works but not adapted to context ?
+    //
     private static Map<String, List<File>> getFastaFilesMap() throws Exception {
         Map<String, List<File>> fastaFiles = null;
         List<String> localFASTAPaths = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
@@ -137,10 +153,16 @@ public class ParsingRulesTester {
 
     }
 
+    /**
+     * will retrieve all fasta files, key is name of file, values are Files with name equal to key
+     * recursive method
+     * @param folderPaths
+     * @return  a Map
+     * @author Christophe Delapierre
+     *
+     */
 
-    // will retrieve all files, key is name of file, values are Files with name equal to key
-
-    public static Map<String, List<File>> retrieveFastaFilesV4(List<String> folderPaths) throws IOException {
+    public static Map<String, List<File>> retrieveFastaFilesV4(List<String> folderPaths) {
         Map<String, List<File>> fastaFilesByName = new HashMap<>();
 
         for (String folderPath : folderPaths) {
@@ -173,6 +195,16 @@ public class ParsingRulesTester {
     public static String extractProteinNameWithRegEx(String line, String protRegex) {
         return getMatchingString(line, protRegex);
     }
+
+    /**
+     * method that takes two strings as input parameters: sourceText and protRegEx. It attempts to find a matching substring
+     * within sourceText based on the regular expression protRegEx.
+     * @param sourceText
+     * @param protRegEx
+     * @return String
+     * @author Christophe Delapierre
+     * @throws PatternSyntaxException
+     */
 
     private static String getMatchingString(final String sourceText, final String protRegEx) {
         if (sourceText == null || protRegEx == null)
@@ -223,7 +255,16 @@ public class ParsingRulesTester {
         }
     }
 
-    // Retrieves first parsingrule that contains a fasta name regex that matches with name of file passed
+    /**
+     * Retrieves first parsingrule that contains a fasta name regex that matches with name of file passed
+     * return null if no parsing rule matches
+     * @param fastaFileName
+     * @return Object[]
+     * @author Christophe Delapierre
+     * @throws PatternSyntaxException
+     */
+
+    //
     public static Object[] getMatchingParsingRule(final String fastaFileName) {
         assert (fastaFileName != null) : "getParsingRuleEntry() fastaFileName is null";
         // resultObject stores the parsing rule and the fasta name regex that match with the name of the file
@@ -259,6 +300,13 @@ public class ParsingRulesTester {
         return resultObject;
     }
 
+    /**
+     * Will test the validity of fasta name regex associated with a parsingRule
+     * will return false if at least one regex is not valid
+     *
+     * @param parsingRule
+     * @return boolean
+     */
     public static boolean parsingRuleFastaRegexisNotValid(ParsingRule parsingRule) {
         boolean atleastOneFastaIsNotValid = false;
         List<String> fastaNameRegex = parsingRule.getFastaNameRegExp();
@@ -273,11 +321,24 @@ public class ParsingRulesTester {
         }
         return atleastOneFastaIsNotValid;
     }
+    public static ArrayList<Boolean> testFastaList(List<String> fastaList){
+        ArrayList<Boolean> fastaValid=new ArrayList<>();
+        int sizeOfFastaRegex = fastaList.size();
+        for (int j = 0; j < sizeOfFastaRegex; j++) {
+
+            if (isRegexFastaNameValid(fastaList.get(j))) {
+                fastaValid.add(j,true);
 
 
-    /**
-     * Global test that creates an infoDialog with a string builder inside
-     */
+            }
+            else fastaValid.add(false);
+        }
+        return fastaValid;
+
+    }
+
+
+    // Global test that returns an InfoDialog functionnal
 
     /*   public void globalTest() throws Exception {
 

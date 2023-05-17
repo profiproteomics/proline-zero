@@ -1,8 +1,6 @@
 package fr.proline.zero.gui;
 
-import fr.proline.module.seq.service.FastaPathsScanner;
 import fr.proline.studio.gui.DefaultDialog;
-import fr.proline.studio.gui.InfoDialog;
 import fr.proline.studio.utils.IconManager;
 import fr.proline.zero.util.*;
 
@@ -13,16 +11,13 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import static fr.proline.module.seq.Constants.LATIN_1_CHARSET;
-import static fr.proline.studio.gui.DefaultDialog.BUTTON_CANCEL;
-import static fr.proline.studio.gui.DefaultDialog.BUTTON_OK;
-
+/**
+ * JPanel that display Parsing rules and that allows CRUD operations
+ * a global test over all fasta files is also possible
+ */
 
 public class ParsingRulesPanel extends JPanel {
 
@@ -228,7 +223,7 @@ public class ParsingRulesPanel extends JPanel {
     }
 
 
-    private int getSizeinPixels(JTextField jTextField) {
+    private int getSizeInPixels(JTextField jTextField) {
         Font fontused = jTextField.getFont();
         FontMetrics fontMetrics = jTextField.getFontMetrics(fontused);
         String stringInTextField = jTextField.getText();
@@ -254,10 +249,10 @@ public class ParsingRulesPanel extends JPanel {
         JButton button = new JButton("...");
         JTextField fastaVersionField = new JTextField(parsingRule.getFastaVersionRegExp());
         JTextField proteinAccField = new JTextField(parsingRule.getProteinAccRegExp());
-        sizes.add(getSizeinPixels(nameField));
-        sizes.add(getSizeinPixels(fastaNameField) + getSizeInPixelsButton(button) * val);
-        sizes.add(getSizeinPixels(fastaVersionField));
-        sizes.add(getSizeinPixels(proteinAccField));
+        sizes.add(getSizeInPixels(nameField));
+        sizes.add(getSizeInPixels(fastaNameField) + getSizeInPixelsButton(button) * val);
+        sizes.add(getSizeInPixels(fastaVersionField));
+        sizes.add(getSizeInPixels(proteinAccField));
 
         return sizes;
     }
@@ -277,7 +272,11 @@ public class ParsingRulesPanel extends JPanel {
 
     }
 
-    // not used anymore
+    /**
+     * @deprecated not used
+     * @param parsingRule
+     * @return
+     */
     private JPanel viewer(ParsingRule parsingRule) {
 
         JPanel fastaviewer = new JPanel(new GridBagLayout());
@@ -303,7 +302,13 @@ public class ParsingRulesPanel extends JPanel {
         return fastaviewer;
     }
 
-
+    /**
+     * builds the JPanel that display a particular parsing rule
+     * @param parsingRule
+     * @param maximumSize
+     * @param index
+     * @return
+     */
     private JPanel displayParsingRules(ParsingRule parsingRule, int[] maximumSize, int index) {
         JPanel displayPr = new JPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -495,13 +500,25 @@ public class ParsingRulesPanel extends JPanel {
         testButton.setIcon(IconManager.getIcon(IconManager.IconType.TEST));
         testButton.setEnabled(true);
         testButton.setToolTipText("Click to proceed to the global test over fasta files");
-        testButton.addActionListener(e -> {
+        /*testButton.addActionListener(e -> {
             try {
                 ParsingRulesTester.globalTest();
 
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
+        });*/
+        // test of SwingWorker
+        testButton.addActionListener(e -> {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    ParsingRulesTester.globalTest();
+                    return null;
+                }
+            };
+
+            worker.execute();
         });
         testButton.setSize(30, 30);
         return testButton;

@@ -12,9 +12,11 @@ import java.util.regex.Pattern;
 import java.util.List;
 
 public class TestParsingRuleDialog extends DefaultDialog {
+
     /**
-     * This class implements a dialog boxe used to do local tests on parsing rules
-     * works but shall not be used
+     * This class implements a dialog box used to do local tests on parsing rules
+     * works but shall not be used because test is now done directly in ParsingRuleEditDialog
+     * @deprecated
      */
 
     private JTextField lineField;

@@ -2,6 +2,7 @@ package fr.proline.zero;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import fr.proline.zero.util.*;
@@ -15,6 +16,8 @@ import fr.proline.zero.gui.SplashScreen;
 import fr.proline.zero.gui.ZeroTray;
 import fr.proline.zero.modules.ExecutionSession;
 import fr.proline.zero.modules.IZeroModule;
+
+import javax.swing.*;
 
 public class Main {
 
@@ -39,32 +42,48 @@ public class Main {
 			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists();
 
 			// we check that all of our properties are correct and will not give errors
-			boolean isOK = ConfigManager.getInstance().verif();
+
 			logger.info("error message:   "+ConfigManager.getInstance().getMountPointManager().getErrorMessage());
 
+			// GUI part executed in EDT
+			try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+					public void run() {
+						boolean isOK = ConfigManager.getInstance().verif();
+						if (!isOK) {
+							if (ConfigManager.getInstance().isErrorFatal()) {
+								// fatal errors
+								Popup.error(ConfigManager.getInstance().getLastErrorMessage());
+							} else {
+								// minor errors
+								Popup.warning(ConfigManager.getInstance().getLastErrorMessage());
+							}
+						}
+						// launch, if needed, the config window (fatal error or show config_dialog = on)
+						if (ConfigManager.getInstance().showConfigDialog() || ConfigManager.getInstance().isErrorFatal()) {
+							// building the window and all its components here
+							ConfigWindow paramWindow = ConfigWindow.getInstance();
+							paramWindow.setVisible(true);
+							// WAITING HERE FOR CONFIG WINDOW TO CLOSE
+						} else {
+							// The config window will save the properties in the file, if it's not displayed
+							// we still need to save the properties because we may have changed them with
+							// the verif() method
+							ConfigManager.getInstance().updateConfigurationParams();
+							//ConfigManager.getInstance().updateCortexConfigFile();
+						}
+
+					}
+				});
+			} /*catch (Exception ex) {
+				// Handle exception
+			}*/
+			catch (InvocationTargetException | InterruptedException e) {
+				e.printStackTrace();
+			}
+
 			// else we displayed the error messages
-			if (!isOK) {
-				if (ConfigManager.getInstance().isErrorFatal()) {
-					// fatal errors
-					Popup.error(ConfigManager.getInstance().getLastErrorMessage());
-				} else {
-					// minor errors
-					Popup.warning(ConfigManager.getInstance().getLastErrorMessage());
-				}
-			}
-			// launch, if needed, the config window (fatal error or show config_dialog = on)
-			if (ConfigManager.getInstance().showConfigDialog() || ConfigManager.getInstance().isErrorFatal()) {
-				// building the window and all its components here
-				ConfigWindow paramWindow = ConfigWindow.getInstance();
-				paramWindow.setVisible(true);
-				// WAITING HERE FOR CONFIG WINDOW TO CLOSE
-			} else {
-				// The config window will save the properties in the file, if it's not displayed
-				// we still need to save the properties because we may have changed them with
-				// the verif() method
-				ConfigManager.getInstance().updateConfigurationParams();
-				//ConfigManager.getInstance().updateCortexConfigFile();
-			}
+
 
 			logger.info("First launch, update port");
 			ExecutionSession.updateConfigPort();

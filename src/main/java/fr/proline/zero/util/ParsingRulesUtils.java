@@ -8,12 +8,14 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 
-
+/**
+ * This class handles operations on parsing rules (CRUD)
+ * implements also verifications (uniqueness..)
+ * @see ConfigManager
+ *
+ */
 public class ParsingRulesUtils {
-    /**
-     * This class handles the management of parsing rules
-     * CRUD and Verifications
-     */
+
 
     private String defaultProteinAccRule;
 
@@ -26,9 +28,7 @@ public class ParsingRulesUtils {
         return labelExists;
     }
 
-    /**
-     * @param labelExists
-     */
+
     public void setLabelExists(boolean labelExists) {
         this.labelExists = labelExists;
     }
@@ -163,7 +163,7 @@ public class ParsingRulesUtils {
 
     }
 
-    // TODO add the possibility to change default protein regex
+
     public void updateConfigFileParseRulesAndFasta() {
         // JsonSeqRepoAccess.getInstance().updateConfigRulesAndFasta(fastaPaths, setOfRules);
         JsonSeqRepoAccess.getInstance().updateConfigRulesAndFastaV2(fastaPaths, setOfRules, defaultProteinAccRule);
@@ -231,9 +231,7 @@ public class ParsingRulesUtils {
         parseRulesAndFastaHasBeenChanged = true;
     }
 
-    public boolean testRegex(ParsingRule parsingRule){
-        return ParsingRulesTester.parsingRuleFastaRegexisNotValid(parsingRule);
-    }
+
 }
 
 

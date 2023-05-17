@@ -10,6 +10,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * Contains utilities to manipulate the set of mounting points
+ *implements verifications and ensures consistency (uniqueness or validity of paths)
+ *
+ * @see ConfigManager
+ * @see JsonCortexAccess
+ *
+ *
+ */
+
 
 public class MountPointUtils {
     private boolean mountHasBeenChanged = false;
@@ -47,6 +57,10 @@ public class MountPointUtils {
 
     }
 
+    /**
+     * Enum, represent three different type of mounting points
+     */
+
     public enum MountPointType {
         RAW(ProlineFiles.CORTEX_RAW_FILES_MOUNT_POINT, "Raw folder"),
         MZDB(ProlineFiles.CORTEX_MZDB_MOUNT_POINT, "mzDB folder"),
@@ -81,7 +95,13 @@ public class MountPointUtils {
 
     }
 
-
+    /**
+     * Add a mounting point
+     * @param mountPointType
+     * @param value
+     * @param path
+     * @return true if the mounting point has been added
+     */
     public boolean addMountPointEntry(MountPointType mountPointType, String value, String path) {
 
         if (mountPointMap.get(mountPointType) == null&&!labelExists(value)&&!pathExists(path)) {
@@ -154,7 +174,13 @@ public class MountPointUtils {
         return false;
     }
 
-
+    /**
+     *
+     * @param mountPointType
+     * @param key
+     * @param forced  set forced to true to delete a default mounting point
+     * @return
+     */
     public boolean deleteMountPointEntry(MountPointType mountPointType, String key, Boolean forced) {
         boolean success = true;
         if (!forced) {
@@ -192,6 +218,14 @@ public class MountPointUtils {
         JsonCortexAccess.getInstance().updateCortexConfigFileJson(mountPointMap);
     }
 
+
+    /**
+     *
+     * verifies the validity of paths and the presence of at least one mounting point check if there are duplicate files
+     * builds the error message
+     * @return true if no error in mounting points
+     * @see ConfigManager
+     */
 
     public boolean verif() {
         errorMessage = null;
@@ -246,12 +280,14 @@ public class MountPointUtils {
     }
 
     public boolean isErrorFatal() {
-
         return errorFatal;
     }
 
-
-    // check if at least one mounting point is present does not check raw mountPointType
+    /**
+     * check if at least one mounting point is present
+     * does not check raw mountPointType
+     * @return true if at least one mounting point is present
+     */
     public boolean atLeastOneMPoint() {
 
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
@@ -264,7 +300,15 @@ public class MountPointUtils {
         }
         return false;
     }
-    // check if all paths inside mountpointmap exist and store wrong paths in an arraylist wrongPaths
+    public boolean atLeastOneMPointV2() {
+
+        return mountPointMap.size()!=0;
+    }
+
+    /**
+     * check if all paths inside mountpointmap exist and store wrong paths in an arraylist invalidPaths
+     * @return true if all paths exist
+     */
 
     public boolean allPathsExist() {
 

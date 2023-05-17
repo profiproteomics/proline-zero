@@ -16,9 +16,10 @@ import static java.lang.String.valueOf;
 
 /**
  * Panel that displays mountpoints: MZDB and RESULT plus Fastas if sequence repository is activated
- * alllows editing of thse mountpoints
+ * allows editing of mountpoints
+ * @see ConfigWindow
  *
- 
+ *
  */
 
 public class FolderPanel extends JPanel {

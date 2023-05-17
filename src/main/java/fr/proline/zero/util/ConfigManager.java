@@ -9,6 +9,15 @@ import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
+/**
+ *
+ * Proline Zero configuration manager
+ * @see MemoryUtils
+ * @see AdvancedAndServerUtils
+ * @see MountPointUtils
+ * @see ParsingRulesUtils
+ */
+
 public final class ConfigManager {
 
     boolean studioActive;
@@ -60,7 +69,11 @@ public final class ConfigManager {
         lastErrorMessage = "";
     }
 
-    // Singleton class
+
+    /**
+     *
+     * @return singleton
+     */
     public static ConfigManager getInstance() {
         if (instance == null) {
             instance = new ConfigManager();
@@ -121,6 +134,10 @@ public final class ConfigManager {
         return this.seqRepActive;
     }
 
+    public boolean noSeqRepoConfigFile() {
+        return ProlineFiles.isSeqRepoConfigFileNotFound();
+    }
+
     public void setShowConfigDialog(Boolean b) {
         showConfigDialog = b;
         hasBeenChanged = true;
@@ -159,7 +176,11 @@ public final class ConfigManager {
         return Config.getMaxTmpFolderSize();
     }
 
-    // updates config files
+
+
+    /**
+     * updates config files
+     */
     public void updateConfigurationParams() {
         try {
             Parameters params = new Parameters();
@@ -237,7 +258,9 @@ public final class ConfigManager {
         builder.save();
     }
 
-    // restores the values from the config file
+    /**
+     *restores the values from the config file
+     */
     public void restoreValues() {
         setStudioActive(Config.getStudioActive());
         setSeqRepActive(Config.getSeqRepActive());
@@ -250,9 +273,12 @@ public final class ConfigManager {
     }
 
 
-    // returns true if any element has been changed
+    /**
+     *
+     * @return boolean true if any elements of the utils has changed
+     */
     public boolean configHasChanged() {
-        // boolean mountPointsChanged=getMountPointManager().mountHasBeenChanged();
+
         boolean mountPointsChanged = mountPointsManager.mountHasBeenChanged();
         boolean parseRulesOrFastasHaveChanged = parsingRulesManager.isParseRulesAndFastaHasBeenChanged();
         boolean memoryHasChanged = memoryManager.hasBeenChanged();
@@ -265,13 +291,13 @@ public final class ConfigManager {
         return lastErrorMessage;
     }
 
-    public boolean noSeqRepoConfigFile() {
-        return ProlineFiles.isSeqRepoConfigFileNotFound();
-    }
 
-    // calls for verif of the Utils, pastes the error message (if there is any !)
-    // into errorMessageField
-    //VDS ---> Pas MountPointUtil ? A ajouter
+
+
+
+    /** calls for verifications of the utils, builds the error message
+     * @return true if no error
+     */
     public boolean verif() {
 
         lastErrorMessage = "";

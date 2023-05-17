@@ -15,6 +15,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * Read and Write Sequence Repository config file.
+ * Handles fasta directories as well as  parsing rules
+ * @see ConfigManager
+ *
+ *
+ */
 
 public class JsonSeqRepoAccess {
 
@@ -22,7 +29,6 @@ public class JsonSeqRepoAccess {
     private static JsonSeqRepoAccess instance;
     private Config parsingRules;
 
-   // private boolean seqRepoFileNotFound = false;
 
 
     private JsonSeqRepoAccess() throws FileNotFoundException {
@@ -38,15 +44,16 @@ public class JsonSeqRepoAccess {
             }
             else {
                 parsingRules = ConfigFactory.empty();
-                throw new FileNotFoundException("Seq Repo config file not found");
+                throw new FileNotFoundException("Seq Repo config file parsing-rules.conf not found");
             }
         } catch (FileNotFoundException exception) {
-            // TODO
+
             Popup.warning("No configuration file found for sequence repository \n" +
                     "sequence repository will be deactivated");
             ConfigManager.getInstance().setSeqRepActive(false);
             ProlineFiles.setSeqRepoConfigFileNotFound(true);
-            System.out.println("exception: "+exception.getMessage());
+
+            logger.warn("exception occurred: "+exception.getMessage());
         }
 
 
@@ -135,6 +142,12 @@ public class JsonSeqRepoAccess {
 
 
     }
+
+    /**
+     *
+     * Does not update protein by default
+     * @deprecated
+     */
 
     public void updateConfigRulesAndFasta(List<String> fastaPaths, List<ParsingRule> setOfRules) {
         // first updates fasta directories

@@ -20,9 +20,15 @@ import java.awt.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-;
+
+/**
+ * Extends DefaultDialog (Studio)
+ * Used to edit a parsing Rule
+ * Local test on the protein accession rule of the parsing rule viewed
+ * @see ConfigManager
+ * @see ParsingRule
+ * @see ParsingRulesTester
+ */
 
 public class ParsingRuleEditDialog extends DefaultDialog {
     private JTextField labelField;
@@ -35,16 +41,19 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     private JTextField resultOfTest;
     private DefaultTableModel fastaNamesTableModel;
     private JTable fastaNamesTable;
-    private static String deleteColummnIdentifier = "      ";
+    private static final String deleteColummnIdentifier = "      ";
     private static final String[] columns = {"Rule", deleteColummnIdentifier};
-    private static final Color jTableColor = new Color(174, 182, 222);
+    private static final Color J_TABLE_COLOR = new Color(174, 182, 222);
 
-    private static final Color testTableColor = new Color(200, 200, 200);
+    private static final Color TEST_TABLE_COLOR = new Color(200, 200, 200);
 
     private TypeOfDialog typeOfDialog;
 
     private static final Logger LOG = LoggerFactory.getLogger(ParsingRuleEditDialog.class);
 
+    /**
+     * enum used to differentiate types of dialog
+     */
     enum TypeOfDialog {Add, Edit, ViewFastas}
 
 
@@ -242,13 +251,21 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         parsingConstraints.anchor = GridBagConstraints.WEST;
         fastaPanel.add(new JLabel("Fasta Name Rules: "), parsingConstraints);
 
+        /// test fasta rules
+        JButton testFastaButton=new JButton("test");
+        testFastaButton.addActionListener(e -> {
+            ParsingRulesTester.testFastaList(fastaList);
+        });
+        parsingConstraints.gridx++;
+        fastaPanel.add(testFastaButton,parsingConstraints);
+
         fastaNamesTableModel = new DefaultTableModel();
         fastaNamesTableModel.setColumnIdentifiers(columns);
         fastaNamesTable = new JTable();
 
         removeFastaNameRuleJButton = new JButton();
         fastaNamesTable.setModel(fastaNamesTableModel);
-        fastaNamesTable.setGridColor(jTableColor);
+        fastaNamesTable.setGridColor(J_TABLE_COLOR);
         fastaNamesTable.setRowHeight(20);
         fastaNamesTable.setShowGrid(true);
         fastaNamesTable.setIntercellSpacing(new Dimension(2, 2));
@@ -302,7 +319,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         gbc.fill=GridBagConstraints.HORIZONTAL;
         testPanel.add(lineField, gbc);
         JButton testButton = new JButton("Test");
-        testButton.setToolTipText("Click to test default protein accesion rule:  "+proteinAccTField.getText());
+        testButton.setToolTipText("Click to test protein accesion rule:  "+proteinAccTField.getText());
 
         testButton.addActionListener(e -> {
 
@@ -350,10 +367,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         return testPanel;
     }
 
-    /**
-     *
-     * Method that displays fasta name Regex in a JTable
-     */
+
 
   /*  private JPanel viewFastaNamePanel(ParsingRule parsingRule) {
         JPanel fastaPanel = new JPanel(new GridBagLayout());
@@ -410,7 +424,10 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
     }*/
 
-
+    /**
+     * check if entries inside EditDialog are valid
+     * @return true if entries are all filled and valid (uniqueness of label)
+     */
     @Override
     protected boolean okCalled() {
         System.out.println("Ok pressed");
@@ -463,6 +480,11 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         return entriesAreValid;
     }
 
+    /**
+     * retrieves the parsingrule
+     * @return parsingrule
+     */
+
     public ParsingRule getParsingRuleInsideDialog() {
 
         ParsingRule parsingrule = new ParsingRule(labelField.getText().trim(), fastaList, fastaVersionTField.getText().trim(), proteinAccTField.getText().trim());
@@ -477,7 +499,13 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         return true;
     }
 
-    // used to open local test dialog
+
+
+    /**
+     * @deprecated used to open local test dialog  not used anymore
+     *
+     *
+     */
     @Override
     protected boolean defaultCalled() {
         System.out.println("test pressed");
@@ -503,10 +531,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
                     if (!userChooseToKeepOldValue) {
                         proteinAccTField.setText(newProteinRegExp);
                     }
-
                 }
-
-
             }
         }
 
@@ -514,7 +539,10 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     }
 
 
-    // used to reset fields inside Dialog
+    /**
+     * resets elements inside dialog
+     * @return
+     */
     protected boolean backCalled() {
 
         // a popup to confirm action could be added?
@@ -538,7 +566,11 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     private void addFastaNames() {
 
         String fastaToBeAdded = fastaNameTField.getText().trim();
-        if (fastaToBeAdded.length() != 0) {
+        boolean isValid=ParsingRulesTester.isRegexFastaNameValid(fastaToBeAdded);
+        if (!isValid){
+            Popup.warning("the reg ex you entered is not valid");
+        }
+        else if (fastaToBeAdded.length() != 0) {
             fastaNameTField.setText("");
             fastaList.add(fastaToBeAdded);
             Object[] vector = {fastaToBeAdded, removeFastaNameRuleJButton};
@@ -551,7 +583,6 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
 
     }
-
 
     //// Methods used To implement the table
     public class TableButtonRenderer implements TableCellRenderer {
@@ -577,6 +608,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            ArrayList<Boolean> fastavalid=ParsingRulesTester.testFastaList(fastaList);
 
             if (isSelected) {
                 c.setBackground(Color.LIGHT_GRAY);
@@ -587,6 +619,11 @@ public class ParsingRuleEditDialog extends DefaultDialog {
                 } else {
 
                     c.setBackground(Color.WHITE);
+                }
+                // reg ex not valid should appear red
+                if (fastavalid.get(row).equals(false)){
+                    c.setBackground((new Color(220,0,0)));
+
                 }
             }
 
@@ -652,7 +689,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             setForeground(Color.WHITE);
             setOpaque(true);
             setBackground(new Color(213, 24, 30));
-            setBackground(jTableColor);
+            setBackground(J_TABLE_COLOR);
             setBorder(BorderFactory.createEtchedBorder());
         }
 

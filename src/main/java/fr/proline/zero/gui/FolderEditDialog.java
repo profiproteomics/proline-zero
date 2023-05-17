@@ -16,6 +16,16 @@ import java.util.ArrayList;
 
 import static java.lang.String.valueOf;
 
+
+/**
+ *  used to add or update a mounting point (MZDB plus RESULT) as well as Fastas
+ * @author Christophe Delapierre
+ * @see FolderPanel
+ * @see ConfigManager
+ * @see DefaultDialog
+ *
+ */
+
 public class FolderEditDialog extends DefaultDialog {
     private JComboBox dataTypeBox;
     private JTextField folderLabelField;
@@ -23,23 +33,26 @@ public class FolderEditDialog extends DefaultDialog {
 
     private final TypeOfDialog typeOfDialog;
 
-
+    /**
+     * Four different type of dialogs: add or edit mounting points or fastas
+     */
     public enum TypeOfDialog {EditingDefaultMPts, EditingFastas, EditingMpts, AddingAMountPoint}
 
 
     public FolderEditDialog(Window parent, TypeOfDialog typeOfDialog, String pathBackup, String labelEdited, MountPointUtils.MountPointType mountPointType) {
         super(parent);
-        this.setButtonVisible(BUTTON_HELP, false);
+
 
         this.setInternalComponent(createAddFolderPanel(typeOfDialog, mountPointType));
 
         this.typeOfDialog = typeOfDialog;
         this.setButtonName(BUTTON_BACK, "Clear");
+        this.setButtonVisible(BUTTON_BACK, true);
         this.setButtonIcon(BUTTON_BACK, IconManager.getIcon(IconManager.IconType.ERASER));
         this.setButtonIcon(BUTTON_OK, IconManager.getIcon(IconManager.IconType.PLUS_16X16));
         this.setButtonVisible(BUTTON_OK, true);
-        this.setButtonVisible(BUTTON_BACK, true);
         this.setButtonName(BUTTON_OK, "Update");
+        this.setButtonVisible(BUTTON_HELP, false);
 
         if (typeOfDialog.equals(TypeOfDialog.AddingAMountPoint)) {
 
@@ -194,6 +207,10 @@ public class FolderEditDialog extends DefaultDialog {
         }
     }
 
+    /**
+     *
+     * @return  the three values inside the folder dialog
+     */
     public ArrayList<String> getValuesEntered() {
         ArrayList<String> values = new ArrayList<>(3);
         values.add(0, folderLabelField.getText().trim());
@@ -240,13 +257,13 @@ public class FolderEditDialog extends DefaultDialog {
 
         } else if (labelAlreadyExists) {
             highlight(folderLabelField);
-            setStatus(true, "label already exists please choose another value");
+            setStatus(true, "label already exists please choose another label");
             entriesAreValid = false;
 
 
         } else if (pathAlreadyExists) {
             highlight(folderPathField);
-            setStatus(true, "path already exists please choose another value");
+            setStatus(true, "path already exists please choose another folder");
             entriesAreValid = false;
 
         }
@@ -258,7 +275,6 @@ public class FolderEditDialog extends DefaultDialog {
 
     @Override
     protected boolean cancelCalled() {
-
         return true;
     }
 

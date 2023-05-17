@@ -9,6 +9,13 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Map;
 
+/**
+ * @see  DefaultDialog
+ * Used to display the results of the global test.
+ * For each file display at most 3 lines tested and the name of the protein inside line
+ * @author Christophe Delapierre
+ */
+
 public class ResultOfGlobalTestDialog extends DefaultDialog {
 
     private ArrayList<Object[]> resultStore;
