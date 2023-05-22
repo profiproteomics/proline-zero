@@ -1,6 +1,6 @@
 
 package fr.proline.zero.util;
-import org.python.antlr.ast.Str;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,12 +12,10 @@ import java.util.*;
 
 /**
  * Contains utilities to manipulate the set of mounting points
- *implements verifications and ensures consistency (uniqueness or validity of paths)
+ * implements verifications and ensures consistency (uniqueness or validity of paths)
  *
  * @see ConfigManager
  * @see JsonCortexAccess
- *
- *
  */
 
 
@@ -48,17 +46,17 @@ public class MountPointUtils {
     private ArrayList<String> invalidPaths = new ArrayList<>();
     private ArrayList<String> missingMPs = new ArrayList<>();
 
-    private ArrayList<String>  duplicatePaths=new ArrayList<>();
+    private ArrayList<String> duplicatePaths = new ArrayList<>();
 
 
     public MountPointUtils() {
 
-        mountPointMap= JsonCortexAccess.getInstance().getMountPointMaps();
+        mountPointMap = JsonCortexAccess.getInstance().getMountPointMaps();
 
     }
 
     /**
-     * Enum, represent three different type of mounting points
+     * Enum, represents three different type of mounting points
      */
 
     public enum MountPointType {
@@ -97,6 +95,7 @@ public class MountPointUtils {
 
     /**
      * Add a mounting point
+     *
      * @param mountPointType
      * @param value
      * @param path
@@ -104,7 +103,7 @@ public class MountPointUtils {
      */
     public boolean addMountPointEntry(MountPointType mountPointType, String value, String path) {
 
-        if (mountPointMap.get(mountPointType) == null&&!labelExists(value)&&!pathExists(path)) {
+        if (mountPointMap.get(mountPointType) == null && !labelExists(value) && !pathExists(path)) {
             Map<String, String> initialMap = new HashMap<>();
             initialMap.put(value, path);
             mountPointMap.put(mountPointType, initialMap);
@@ -124,32 +123,33 @@ public class MountPointUtils {
     }
 
 
-
     private boolean pathExists(String path) {
-        boolean pathExistsInMountpoints=false;
-        boolean pathExistsInFastas=false;
+        boolean pathExistsInMountpoints = false;
+        boolean pathExistsInFastas = false;
         List<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
 
 
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             Map<String, String> map = mountPointMap.get(mountPointType);
             if (map != null && map.containsValue(path)) {
-                pathExistsInMountpoints=true;
+                pathExistsInMountpoints = true;
                 break;
             }
         }
-        if (fastaToBeDisplayed!=null){
-            pathExistsInFastas=fastaToBeDisplayed.contains(path);
+        if (fastaToBeDisplayed != null) {
+            pathExistsInFastas = fastaToBeDisplayed.contains(path);
         }
 
 
-        return pathExistsInFastas||pathExistsInMountpoints;
+        return pathExistsInFastas || pathExistsInMountpoints;
 
     }
-    public boolean getIfPathExist(String path){
+
+    public boolean getIfPathExist(String path) {
         return pathExists(path);
     }
-    public boolean getIfLabelExists(String value){
+
+    public boolean getIfLabelExists(String value) {
         return labelExists(value);
     }
 
@@ -163,7 +163,6 @@ public class MountPointUtils {
     }
 
 
-
     private boolean labelExists(String value) {
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             Map<String, String> map = mountPointMap.get(mountPointType);
@@ -175,10 +174,9 @@ public class MountPointUtils {
     }
 
     /**
-     *
      * @param mountPointType
      * @param key
-     * @param forced  set forced to true to delete a default mounting point
+     * @param forced         set forced to true to delete a default mounting point
      * @return
      */
     public boolean deleteMountPointEntry(MountPointType mountPointType, String key, Boolean forced) {
@@ -191,7 +189,7 @@ public class MountPointUtils {
                 currentKValue.remove(key);
                 mountPointMap.put(mountPointType, currentKValue);
                 mountHasBeenChanged = true;
-                success=true;
+                success = true;
             } else {
                 success = false;
             }
@@ -220,9 +218,9 @@ public class MountPointUtils {
 
 
     /**
-     *
      * verifies the validity of paths and the presence of at least one mounting point check if there are duplicate files
      * builds the error message
+     *
      * @return true if no error in mounting points
      * @see ConfigManager
      */
@@ -257,11 +255,11 @@ public class MountPointUtils {
 
         }
         /// added 15/05
-        if(duplicateFileInside(filesPaths())){
-            errorFatal=true;
+        if (duplicateFileInside(filesPaths())) {
+            errorFatal = true;
             message.append("Some paths in the mount points are identical, please check your mount points \n");
-            for (String duplicatePaths: duplicatePaths){
-                message.append(duplicatePaths+"\n");
+            for (String duplicatePaths : duplicatePaths) {
+                message.append(duplicatePaths + "\n");
             }
         }
         if (message.length() > 0) {
@@ -286,6 +284,7 @@ public class MountPointUtils {
     /**
      * check if at least one mounting point is present
      * does not check raw mountPointType
+     *
      * @return true if at least one mounting point is present
      */
     public boolean atLeastOneMPoint() {
@@ -300,13 +299,15 @@ public class MountPointUtils {
         }
         return false;
     }
+
     public boolean atLeastOneMPointV2() {
 
-        return mountPointMap.size()!=0;
+        return mountPointMap.size() != 0;
     }
 
     /**
      * check if all paths inside mountpointmap exist and store wrong paths in an arraylist invalidPaths
+     *
      * @return true if all paths exist
      */
 
@@ -320,11 +321,11 @@ public class MountPointUtils {
                     Path pathToTest = Paths.get(temp.get(key));
 
                     boolean pathPresent = Files.exists(pathToTest); // returns true even if path is empty string???
-                    boolean pathIsEmptyString=pathToTest.toString().equals("");
+                    boolean pathIsEmptyString = pathToTest.toString().equals("");
                     if (!pathPresent) {
                         invalidPaths.add(temp.get(key));
-                    } else if(pathIsEmptyString) {
-                        invalidPaths.add(key+" : the path corresponding to that label is an empty string");
+                    } else if (pathIsEmptyString) {
+                        invalidPaths.add(key + " : the path corresponding to that label is an empty string");
 
                     }
 
@@ -361,10 +362,12 @@ public class MountPointUtils {
         return invalidPaths;
     }
 
-    public List<String> getMissingMPs(){return missingMPs;}
+    public List<String> getMissingMPs() {
+        return missingMPs;
+    }
 
-    public ArrayList<String> filesPaths(){
-        ArrayList<String > pathsPresent=new ArrayList<>();
+    public ArrayList<String> filesPaths() {
+        ArrayList<String> pathsPresent = new ArrayList<>();
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             Map<String, String> Mpentries = mountPointMap.get(mountPointType);
             if (Mpentries != null) {
@@ -376,10 +379,10 @@ public class MountPointUtils {
             }
         }
         List<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
-        if (fastaToBeDisplayed!=null){
-            for (int k=0; k< fastaToBeDisplayed.size();k++){
-            String path= fastaToBeDisplayed.get(k);
-            pathsPresent.add(path);
+        if (fastaToBeDisplayed != null) {
+            for (int k = 0; k < fastaToBeDisplayed.size(); k++) {
+                String path = fastaToBeDisplayed.get(k);
+                pathsPresent.add(path);
             }
         }
 
@@ -387,29 +390,49 @@ public class MountPointUtils {
         return pathsPresent;
     }
 
-    public boolean duplicateFileInside(ArrayList<String> paths){
+    public boolean duplicateFileInside(ArrayList<String> paths) {
         duplicatePaths.clear();
 
-        boolean duplicateFile=false;
-        for (int i=0;i< paths.size();i++){
-            for (int j=i+1;j< paths.size();j++){
-                String pathi=paths.get(i);
-                String pathj=paths.get(j);
-                duplicateFile=pathi.equals(pathj);
-                if (duplicateFile==true){
+        boolean duplicateFile = false;
+        for (int i = 0; i < paths.size(); i++) {
+            String pathi = paths.get(i);
+            for (int j = i + 1; j < paths.size(); j++) {
+
+                String pathj = paths.get(j);
+
+                if (pathi.equals(pathj)) {
                     duplicatePaths.add(pathi);
 
                 }
             }
 
         }
-        return duplicateFile;
+        return !duplicatePaths.isEmpty();
     }
-    public ArrayList<String> getDuplicatePaths(){
-        return duplicatePaths;
+    public ArrayList<String> duplicateFilesBuilder(ArrayList<String> paths) {
+        ArrayList<String>  duplicates=new ArrayList<>();
+        for (int i = 0; i < paths.size(); i++) {
+            String pathi = paths.get(i);
+            for (int j = i + 1; j < paths.size(); j++) {
+
+                String pathj = paths.get(j);
+
+                if (pathi.equals(pathj)) {
+                    duplicates.add(pathi);
+
+                }
+            }
+
+        }
+        return duplicates;
     }
 
+    public ArrayList<String> getDuplicatePaths() {
+        ArrayList<String>  paths=filesPaths();
+        ArrayList<String> duplicates= duplicateFilesBuilder(paths);
 
+        return duplicates;
+    }
 
 
 }

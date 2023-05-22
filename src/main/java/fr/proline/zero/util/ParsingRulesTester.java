@@ -44,7 +44,7 @@ public class ParsingRulesTester {
         System.out.println("test pressed");
         List<String> localFASTAPaths = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
         // Map<String, List<File>> fastaPaths = getFastaFilesMap();
-        Map<String, List<File>> fastaPaths = retrieveFastaFilesV4(localFASTAPaths);
+        Map<String, List<File>> fastaPaths = retrieveFastaFiles(localFASTAPaths);
 
         if (fastaPaths == null) {
             Popup.warning("No fasta files found, you might check fasta directories inside folder panel");
@@ -162,7 +162,7 @@ public class ParsingRulesTester {
      *
      */
 
-    public static Map<String, List<File>> retrieveFastaFilesV4(List<String> folderPaths) {
+    public static Map<String, List<File>> retrieveFastaFiles(List<String> folderPaths) {
         Map<String, List<File>> fastaFilesByName = new HashMap<>();
 
         for (String folderPath : folderPaths) {

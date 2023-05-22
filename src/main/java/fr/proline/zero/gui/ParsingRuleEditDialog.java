@@ -43,6 +43,10 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     private JTable fastaNamesTable;
     private static final String deleteColummnIdentifier = "      ";
     private static final String[] columns = {"Rule", deleteColummnIdentifier};
+
+    private ArrayList<Boolean> fastavalid;
+
+
     private static final Color J_TABLE_COLOR = new Color(174, 182, 222);
 
     private static final Color TEST_TABLE_COLOR = new Color(200, 200, 200);
@@ -125,7 +129,8 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         addParsingRules.add(newParsingRulePanel(), c);
 
         c.insets = new java.awt.Insets(3, 5, 5, 5);
-        JPanel fastaNamepanel=newFastaNamePanel();
+
+        JPanel fastaNamepanel=newFastaNamePanel(parsingRuleEdited);
 
         // JtextFields are filled with previous values if parsing rule is edited
         if (typeOfDialog.equals(ParsingRuleEditDialog.TypeOfDialog.Edit)) {
@@ -217,7 +222,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         return parsingPanel;
     }
 
-    private JPanel newFastaNamePanel() {
+    private JPanel newFastaNamePanel(ParsingRule parsingRuleEdited) {
         JPanel fastaPanel = new JPanel(new GridBagLayout());
 
         fastaPanel.setBorder(BorderFactory.createTitledBorder("Add Fasta Name Rules: "));
@@ -254,10 +259,23 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         /// test fasta rules
         JButton testFastaButton=new JButton("test");
         testFastaButton.addActionListener(e -> {
-            ParsingRulesTester.testFastaList(fastaList);
+           /*fastaList=parsingRuleEdited.getFastaNameRegExp();
+           fastavalid= ParsingRulesTester.testFastaList(fastaList);
+           if (!fastavalid.isEmpty()){
+               Popup.info("Some fasta regex are not valid");
+           }*/
+            if(ParsingRulesTester.parsingRuleFastaRegexisNotValid(parsingRuleEdited)){
+               // Popup.info("fasta not valid");
+                testFastaButton.setIcon(IconManager.getIcon(IconManager.IconType.WARNING));
+            }
+            else {
+               // Popup.info("reg ex are all valid");
+                testFastaButton.setIcon(IconManager.getIcon(IconManager.IconType.OK));
+            }
         });
         parsingConstraints.gridx++;
         fastaPanel.add(testFastaButton,parsingConstraints);
+
 
         fastaNamesTableModel = new DefaultTableModel();
         fastaNamesTableModel.setColumnIdentifiers(columns);
@@ -608,7 +626,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            ArrayList<Boolean> fastavalid=ParsingRulesTester.testFastaList(fastaList);
+            fastavalid=ParsingRulesTester.testFastaList(fastaList);
 
             if (isSelected) {
                 c.setBackground(Color.LIGHT_GRAY);
@@ -620,9 +638,10 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
                     c.setBackground(Color.WHITE);
                 }
-                // reg ex not valid should appear red
+                // reg ex not valid  appear red
                 if (fastavalid.get(row).equals(false)){
                     c.setBackground((new Color(220,0,0)));
+
 
                 }
             }

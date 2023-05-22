@@ -78,11 +78,13 @@ public class ParsingRulesPanel extends JPanel {
             String protByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
             // patch
             if (protByDefault.equals("")){
-                protByDefault=">(\\\\S+)";
-                ConfigManager.getInstance().getParsingRulesManager().setProteinByDefault(">(\\\\S+)");
+                protByDefault=">\\w{2}\\|\\w+\\|(\\w+)";
+                ConfigManager.getInstance().getParsingRulesManager().setProteinByDefault(">\\w{2}\\|\\w+\\|(\\w+)");
             }
 
             JTextField labelProt = new JTextField(protByDefault);
+            int numColumns = Math.max(10, protByDefault.length());
+            labelProt.setColumns(numColumns-5);
 
             labelProt.getDocument().addDocumentListener(new DocumentListener() {
                 @Override
@@ -106,7 +108,7 @@ public class ParsingRulesPanel extends JPanel {
                 @Override
                 public void changedUpdate(DocumentEvent e) {
                     System.out.println("changed called");
-                    // CD never called???
+
 
                 }
             });

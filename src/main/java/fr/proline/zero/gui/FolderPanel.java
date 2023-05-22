@@ -188,7 +188,9 @@ public class FolderPanel extends JPanel {
     private void initAnyFolderPanel(MountPointUtils.MountPointType mpt, JPanel anyPanel) {
         List<String> pathWrong = ConfigManager.getInstance().getMountPointManager().getInvalidPaths();
         List<String> missingMps = ConfigManager.getInstance().getMountPointManager().getMissingMPs();
+        List<String> duplicatePaths=ConfigManager.getInstance().getMountPointManager().getDuplicatePaths();
         Map<String, String> mountPointsToBeDisplayed = ConfigManager.getInstance().getMountPointManager().getMountPointMap().get(mpt);
+
         boolean missingMountPoint = missingMps.contains(mpt.getDisplayString());
 
         GridBagConstraints anyPanelConstraints = new GridBagConstraints();
@@ -212,10 +214,12 @@ public class FolderPanel extends JPanel {
         String path = null;
         JTextField pathInitial;
         boolean defaultMountPointHasAWrongPath = false;
+        boolean defaultMountPointIsDuplicate=false;
         if (mountPointsToBeDisplayed != null) {
             path = mountPointsToBeDisplayed.get(MountPointUtils.getMountPointDefaultPathLabel(mpt));
-            pathInitial = new JTextField(mountPointsToBeDisplayed.get(MountPointUtils.getMountPointDefaultPathLabel(mpt)));
+            pathInitial = new JTextField(path);
             defaultMountPointHasAWrongPath = pathWrong.contains(mountPointsToBeDisplayed.get(MountPointUtils.getMountPointDefaultPathLabel(mpt)));
+            defaultMountPointIsDuplicate=duplicatePaths.contains(mountPointsToBeDisplayed.get(MountPointUtils.getMountPointDefaultPathLabel(mpt)));
         } else {
             pathInitial = new JTextField();
         }
@@ -226,23 +230,34 @@ public class FolderPanel extends JPanel {
         anyPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
         anyPanelConstraints.weightx = 1;
 
-        // refaire
+
         if (path != null) {
             if (defaultMountPointHasAWrongPath) {
                 pathInitial.setEnabled(true);
                 pathInitial.setForeground(ERROR_COLOR);
-                // pathInitial.setToolTipText("Click to fix the error");
+                pathInitial.setToolTipText("The path is not valid");
                 anyPanel.add(pathInitial, anyPanelConstraints);
 
 
             } else if (path.equals("")) {
                 pathInitial.setText("This path is not valid please enter a path for this mount point");
                 pathInitial.setBackground(SOFT_ERROR_COLOR);
-            } else {
+            }
+
+             else if (defaultMountPointIsDuplicate){
+                 pathInitial.setEnabled(true);
+                 pathInitial.setForeground(ERROR_COLOR);
+                 pathInitial.setToolTipText("This path is duplicate");
+                 anyPanel.add(pathInitial,anyPanelConstraints);
+
+            }
+
+            else {
                 pathInitial.setEnabled(false);
                 anyPanel.add(pathInitial, anyPanelConstraints);
 
             }
+
 
         } else {
             // treats the case where default mounting point is not present (path==null)
@@ -343,7 +358,14 @@ public class FolderPanel extends JPanel {
                     resultPath.setEnabled(true);
                     resultPath.setEditable(true);
                     resultPath.setForeground(ERROR_COLOR);
-                    resultPath.setToolTipText("This path does not exist you should delete it by clicking on the delete button ");
+                    resultPath.setToolTipText("This path does not exist you should delete or update the path ");
+
+                }
+                if (duplicatePaths.contains(mountPointsToBeDisplayed.get(key))) {
+                    resultPath.setEnabled(true);
+                    resultPath.setEditable(true);
+                    resultPath.setForeground(ERROR_COLOR);
+                    resultPath.setToolTipText("This path is a duplicate ");
 
                 }
                 anyPanelConstraints.insets = new Insets(0, 5, 0, 5);
@@ -490,7 +512,8 @@ public class FolderPanel extends JPanel {
                         }
                         if (editFastaDialog.getButtonClicked() == DefaultDialog.BUTTON_CANCEL) {
 
-                            ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(pathBackup);
+                            ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(pathBackup,true);
+
                         }
 
 
@@ -607,7 +630,7 @@ public class FolderPanel extends JPanel {
                     }
                     break;
                 case "Fasta folder":
-                    boolean addSuccesFasta = ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(folderPath);
+                    boolean addSuccesFasta = ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(folderPath,false);
                     if (addSuccesFasta) {
 
                         updateJpanel();

@@ -52,8 +52,10 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
 
         int numberOfResults=resultStore.size();
         String numberAsAString=String.valueOf(resultStore.size());
-        JLabel numberJLabel=new JLabel("Nombre total de fichiers fasta analysés:  "+numberAsAString);
+        String protByDefault=ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
+        JLabel numberJLabel=new JLabel("Total number of fasta files parsed: "+numberAsAString+ "      protein by default: "+protByDefault);
         resultPanel.add(numberJLabel,gbc);
+
         gbc.gridy++;
         // TODO indicate if some fastaRegex used during the test where not valid Regex?
         for (int k=0;k<numberOfResults;k++){

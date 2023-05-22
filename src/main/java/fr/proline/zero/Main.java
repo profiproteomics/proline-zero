@@ -45,7 +45,7 @@ public class Main {
 
 			logger.info("error message:   "+ConfigManager.getInstance().getMountPointManager().getErrorMessage());
 
-			// GUI part executed in EDT
+			// GUI  executed in EDT
 			try {
 				SwingUtilities.invokeAndWait(new Runnable() {
 					public void run() {

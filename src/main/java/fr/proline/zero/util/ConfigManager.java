@@ -295,7 +295,7 @@ public final class ConfigManager {
 
 
 
-    /** calls for verifications of the utils, builds the error message
+    /** verifications of the utils, builds the error message
      * @return true if no error
      */
     public boolean verif() {

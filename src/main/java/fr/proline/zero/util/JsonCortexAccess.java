@@ -39,13 +39,18 @@ public class JsonCortexAccess {
             } else {
 
                 throw new FileNotFoundException("Cortex config file not found");
+
             }
         } catch (FileNotFoundException exception) {
 
-            Popup.warning("No configuration file found for cortex");
+
+
+            Popup.error("No configuration file found for cortex ");
             m_cortexProlineConfig = ConfigFactory.empty();
 
             logger.warn("exception occurred: " + exception.getMessage());
+
+            System.exit(1);
         }
 
 
@@ -71,7 +76,7 @@ public class JsonCortexAccess {
 
 
     /**
-     * @return a hashmap with all mount points found inside cortex application.conf
+     * @return  returns a hashmap with all mount points found inside cortex application.conf
      */
     private HashMap<MountPointUtils.MountPointType, Map<String, String>> getMountPointsJson() {
         try {
@@ -104,7 +109,7 @@ public class JsonCortexAccess {
     }
 
     /**
-     * Saves mountpointmap when gui is closed
+     * Saves mountpointmaps inside cortex application.conf
      *
      * @param mountPoints
      */

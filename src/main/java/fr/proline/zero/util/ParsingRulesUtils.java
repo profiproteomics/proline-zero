@@ -140,13 +140,19 @@ public class ParsingRulesUtils {
     }
 
 
-    public boolean addFastaFolder(String path) {
+    public boolean addFastaFolder(String path, boolean forced) {
         boolean addOk = false;
-        if (canBeAdded(path)) {
+        if (canBeAdded(path)&&!forced) {
             fastaPaths.add(path);
             parseRulesAndFastaHasBeenChanged = true;
             addOk = true;
         }
+        if (forced){
+            fastaPaths.add(path);
+            parseRulesAndFastaHasBeenChanged=true;
+            addOk=true;
+        }
+
         return addOk;
     }
 
