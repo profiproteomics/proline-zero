@@ -37,7 +37,7 @@ public final class ConfigManager {
 
     private ParsingRulesUtils parsingRulesManager;
 
-    private ParsingRulesTester parsingRulesTester;
+    
 
 
     private String lastErrorMessage;
@@ -100,13 +100,7 @@ public final class ConfigManager {
         return parsingRulesManager;
     }
 
-    public ParsingRulesTester getParsingRulesTester() {
-        if (parsingRulesTester == null) {
-            parsingRulesTester = new ParsingRulesTester();
 
-        }
-        return parsingRulesTester;
-    }
 
     public void setStudioActive(boolean b) {
         studioActive = b;

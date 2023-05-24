@@ -21,7 +21,6 @@ import java.util.*;
  */
 
 public class JsonCortexAccess {
-    private final Logger logger = LoggerFactory.getLogger(JsonCortexAccess.class);
 
     private static JsonCortexAccess instance;
     private Config m_cortexProlineConfig;
@@ -45,9 +44,10 @@ public class JsonCortexAccess {
 
 
 
-            Popup.error("No configuration file found for cortex ");
+            Popup.error("No configuration file found for cortex  ");
             m_cortexProlineConfig = ConfigFactory.empty();
 
+            Logger logger = LoggerFactory.getLogger(JsonCortexAccess.class);
             logger.warn("exception occurred: " + exception.getMessage());
 
             System.exit(1);
@@ -55,13 +55,7 @@ public class JsonCortexAccess {
 
 
     }
-   /* private JsonCortexAccess() {
-        ConfigParseOptions options = ConfigParseOptions.defaults();
-        options = options.setSyntax(ConfigSyntax.CONF);
 
-
-        m_cortexProlineConfig  = ConfigFactory.parseFile(ProlineFiles.CORTEX_CONFIG_FILE,options);
-    }*/
 
     public static JsonCortexAccess getInstance() {
         if (instance == null) {
@@ -89,9 +83,8 @@ public class JsonCortexAccess {
                     if (mountPointsCfg.hasPath(nextMp.getJsonKey())) {
                         HashMap<String, String> specificMountPointMap = new HashMap<>();
                         Config specificMPCfg = mountPointsCfg.getConfig(nextMp.getJsonKey());
-                        Iterator<Map.Entry<String, ConfigValue>> mpEntriesIt = specificMPCfg.entrySet().iterator();
-                        while (mpEntriesIt.hasNext()) {
-                            Map.Entry<String, ConfigValue> entry = mpEntriesIt.next();
+
+                        for (Map.Entry<String, ConfigValue> entry : specificMPCfg.entrySet()) {
                             String label = entry.getKey();
                             String val = specificMPCfg.getString(label);
                             specificMountPointMap.put(label, val);
@@ -111,7 +104,6 @@ public class JsonCortexAccess {
     /**
      * Saves mountpointmaps inside cortex application.conf
      *
-     * @param mountPoints
      */
     public void updateCortexConfigFileJson(HashMap<MountPointUtils.MountPointType, Map<String, String>> mountPoints) {
 

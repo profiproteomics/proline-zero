@@ -189,7 +189,7 @@ public class MountPointUtils {
                 currentKValue.remove(key);
                 mountPointMap.put(mountPointType, currentKValue);
                 mountHasBeenChanged = true;
-                success = true;
+
             } else {
                 success = false;
             }
@@ -201,7 +201,7 @@ public class MountPointUtils {
 
             mountPointMap.put(mountPointType, currentKValue);
             mountHasBeenChanged = true;
-            success = true;
+
 
         }
         return success;
@@ -241,15 +241,15 @@ public class MountPointUtils {
                 message.append("\n The following paths do not exist: \n");
             }
             for (String invalidPath : invalidPaths) {
-                message.append("\n" + invalidPath + "\n");
+                message.append("\n").append(invalidPath).append("\n");
             }
             errorFatal = true;
         }
-        if (!defaultMptsExist() && atLeastOneMPoint() && allPathsExist()) {
+        if (!defaultMountPointsExist() && atLeastOneMPoint() && allPathsExist()) {
 
             message.append("Minor error missing default mounting point : \n");
             for (String missingMP : missingMPs) {
-                message.append(missingMP + "\n");
+                message.append(missingMP).append("\n");
             }
             // no fatal error
 
@@ -259,7 +259,7 @@ public class MountPointUtils {
             errorFatal = true;
             message.append("Some paths in the mount points are identical, please check your mount points \n");
             for (String duplicatePaths : duplicatePaths) {
-                message.append(duplicatePaths + "\n");
+                message.append(duplicatePaths).append("\n");
             }
         }
         if (message.length() > 0) {
@@ -337,7 +337,7 @@ public class MountPointUtils {
 
 
     // Does not check raw mountpoints
-    public boolean defaultMptsExist() {
+    public boolean defaultMountPointsExist() {
 
         missingMPs.clear();
 
@@ -369,9 +369,9 @@ public class MountPointUtils {
     public ArrayList<String> filesPaths() {
         ArrayList<String> pathsPresent = new ArrayList<>();
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
-            Map<String, String> Mpentries = mountPointMap.get(mountPointType);
-            if (Mpentries != null) {
-                Set<Map.Entry<String, String>> test = Mpentries.entrySet();
+            Map<String, String> MountPoints = mountPointMap.get(mountPointType);
+            if (MountPoints != null) {
+                Set<Map.Entry<String, String>> test = MountPoints.entrySet();
                 for (Map.Entry<String, String> entries : test) {
                     String path = entries.getValue();
                     pathsPresent.add(path);
@@ -380,20 +380,15 @@ public class MountPointUtils {
         }
         List<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
         if (fastaToBeDisplayed != null) {
-            for (int k = 0; k < fastaToBeDisplayed.size(); k++) {
-                String path = fastaToBeDisplayed.get(k);
-                pathsPresent.add(path);
-            }
+            pathsPresent.addAll(fastaToBeDisplayed);
         }
-
-
         return pathsPresent;
     }
 
     public boolean duplicateFileInside(ArrayList<String> paths) {
         duplicatePaths.clear();
 
-        boolean duplicateFile = false;
+
         for (int i = 0; i < paths.size(); i++) {
             String pathi = paths.get(i);
             for (int j = i + 1; j < paths.size(); j++) {
@@ -412,13 +407,13 @@ public class MountPointUtils {
     public ArrayList<String> duplicateFilesBuilder(ArrayList<String> paths) {
         ArrayList<String>  duplicates=new ArrayList<>();
         for (int i = 0; i < paths.size(); i++) {
-            String pathi = paths.get(i);
+            String pathI = paths.get(i);
             for (int j = i + 1; j < paths.size(); j++) {
 
-                String pathj = paths.get(j);
+                String pathJ = paths.get(j);
 
-                if (pathi.equals(pathj)) {
-                    duplicates.add(pathi);
+                if (pathI.equals(pathJ)) {
+                    duplicates.add(pathI);
 
                 }
             }
@@ -429,9 +424,9 @@ public class MountPointUtils {
 
     public ArrayList<String> getDuplicatePaths() {
         ArrayList<String>  paths=filesPaths();
-        ArrayList<String> duplicates= duplicateFilesBuilder(paths);
 
-        return duplicates;
+
+        return duplicateFilesBuilder(paths);
     }
 
 

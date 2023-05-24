@@ -100,9 +100,7 @@ public class FolderPanel extends JPanel {
         add(new JLabel("Add folder :"), folderPanelConstraints);
 
         JButton openAddDialogButton = new JButton(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
-        openAddDialogButton.addActionListener(e -> {
-            openAddDialog();
-        });
+        openAddDialogButton.addActionListener(e -> openAddDialog());
         folderPanelConstraints.gridx++;
         folderPanelConstraints.anchor = GridBagConstraints.WEST;
         folderPanelConstraints.gridwidth = 2;
@@ -136,7 +134,7 @@ public class FolderPanel extends JPanel {
     }
 
     //VDS TODO: test lighter update method...
-    private void updateJpanel() {
+    private void updateJPanel() {
         removeAll();
         initialize();
         revalidate();
@@ -147,7 +145,7 @@ public class FolderPanel extends JPanel {
     private JPanel createFolderListPanel() {
         // creation du panel et layout
         JPanel folderListPanel = new JPanel(new GridBagLayout());
-        folderListPanel.setBorder(BorderFactory.createTitledBorder("List of folders"));
+        folderListPanel.setBorder(BorderFactory.createTitledBorder(" List of folders "));
         GridBagConstraints c = new GridBagConstraints();
 
         c.weightx = 1;
@@ -194,7 +192,7 @@ public class FolderPanel extends JPanel {
         boolean missingMountPoint = missingMps.contains(mpt.getDisplayString());
 
         GridBagConstraints anyPanelConstraints = new GridBagConstraints();
-        anyPanel.setBorder(BorderFactory.createTitledBorder(mpt.getDisplayString()));
+        anyPanel.setBorder(BorderFactory.createTitledBorder("  "+mpt.getDisplayString()+"  "));
         anyPanelConstraints.insets = new Insets(5, 5, 5, 5);
         anyPanelConstraints.gridx = 0;
         anyPanelConstraints.gridy = 0;
@@ -436,7 +434,7 @@ public class FolderPanel extends JPanel {
 
     private void initFastaFolderPanel(JPanel fastaListPanel) {
 
-        fastaListPanel.setBorder(BorderFactory.createTitledBorder("Fasta files folders"));
+        fastaListPanel.setBorder(BorderFactory.createTitledBorder("  Fasta files folders  "));
         GridBagConstraints fastaListPanelConstraints = new GridBagConstraints();
 
         fastaListPanelConstraints.insets = new Insets(5, 5, 5, 5);
@@ -493,11 +491,11 @@ public class FolderPanel extends JPanel {
                     JButton editButton = new JButton(IconManager.getIcon(IconManager.IconType.EDIT));
                     editButton.setToolTipText("Click to repair mounting point");
                     final int kFinal = k;
-                    final String pathedited = fastaToBeDisplayed.get(k);
+                    final String pathEdited = fastaToBeDisplayed.get(k);
 
                     editButton.addActionListener(e -> {
 
-                        pathBackup = pathedited;
+                        pathBackup = pathEdited;
                         boolean deleteSuccess = ConfigManager.getInstance().getParsingRulesManager().deleteFastaFolder(pathBackup);
 
                         FolderEditDialog editFastaDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingFastas, pathBackup, null, null);
@@ -549,11 +547,12 @@ public class FolderPanel extends JPanel {
     }
 
     private void deleteFolderPath(MountPointUtils.MountPointType mountPointType, String key, boolean forced) {
-        boolean deleteConfirmation = Popup.yesNo("Are you sure you want to delete this Folder?");
+       // boolean deleteConfirmation = Popup.yesNo("Are you sure you want to delete this Folder?");
+        boolean deleteConfirmation=Popup.yesNoCenterTOWindow(ConfigWindow.getInstance(),"Are you sure you want to delete this Folder?");
         if (deleteConfirmation) {
             boolean deleteSucces = ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mountPointType, key, forced);
             if (deleteSucces) {
-                updateJpanel();
+                updateJPanel();
             } else {
                 Popup.warning("The mounting point has not been deleted");
             }
@@ -564,11 +563,12 @@ public class FolderPanel extends JPanel {
 
     private void deleteFastaFolder(String path) {
 
-        boolean deleteConfirmation = Popup.yesNo("Are you sure you want to delete this Folder?");
+        boolean deleteConfirmation = Popup.yesNoCenterTOWindow(ConfigWindow.getInstance(),"Are you sure you want to delete this Folder?");
+
         if (deleteConfirmation) {
             boolean deleteSucess = ConfigManager.getInstance().getParsingRulesManager().deleteFastaFolder(path);
             if (deleteSucess) {
-                updateJpanel();
+                updateJPanel();
 
             } else {
                 Popup.warning("Error while deleting the directory");
@@ -593,7 +593,7 @@ public class FolderPanel extends JPanel {
                     boolean addSuccessResult = ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.RESULT, folderField, folderPath);
                     if (addSuccessResult) {
 
-                        updateJpanel();
+                        updateJPanel();
                         ConfigWindow.getInstance().pack();
                         overallSuccess = true;
 
@@ -608,7 +608,7 @@ public class FolderPanel extends JPanel {
                     boolean addSuccessMzdb = ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.MZDB, folderField, folderPath);
                     if (addSuccessMzdb) {
 
-                        updateJpanel();
+                        updateJPanel();
                         ConfigWindow.getInstance().pack();
                         overallSuccess = true;
                     } else {
@@ -617,10 +617,10 @@ public class FolderPanel extends JPanel {
                     }
                     break;
                 case "Raw folders":
-                    boolean addSuccesRaw = ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.RAW, folderField, folderPath);
-                    if (addSuccesRaw) {
+                    boolean addSuccessRaw = ConfigManager.getInstance().getMountPointManager().addMountPointEntry(MountPointUtils.MountPointType.RAW, folderField, folderPath);
+                    if (addSuccessRaw) {
 
-                        updateJpanel();
+                        updateJPanel();
                         ConfigWindow.getInstance().pack();
                         overallSuccess = true;
                     } else {
@@ -633,7 +633,7 @@ public class FolderPanel extends JPanel {
                     boolean addSuccesFasta = ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(folderPath,false);
                     if (addSuccesFasta) {
 
-                        updateJpanel();
+                        updateJPanel();
                         ConfigWindow.getInstance().pack();
                         overallSuccess = true;
 
@@ -660,15 +660,15 @@ public class FolderPanel extends JPanel {
 
 
     public void updateValues() {
-        updateJpanel();
+        updateJPanel();
         ConfigWindow.getInstance().pack();
         //// TODO
     }
 
     // calculate the size in Pixels of the text inside a JLabel
     private int getSizeInPixels(JLabel jLabel) {
-        Font fontused = jLabel.getFont();
-        FontMetrics fm = jLabel.getFontMetrics(fontused);
+        Font fontUsed = jLabel.getFont();
+        FontMetrics fm = jLabel.getFontMetrics(fontUsed);
         String stringInTextField = jLabel.getText();
         return fm.stringWidth(stringInTextField);
 

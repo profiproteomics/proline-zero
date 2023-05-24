@@ -5,19 +5,20 @@ import fr.proline.studio.gui.DefaultDialog;
 
 
 import javax.swing.*;
-import javax.swing.border.Border;
+
 import java.awt.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.List;
+/**
+ * This class implements a dialog box used to do local tests on parsing rules
+ * works but shall not be used because test is now done directly in ParsingRuleEditDialog
+ * @deprecated
+ */
 
 public class TestParsingRuleDialog extends DefaultDialog {
 
-    /**
-     * This class implements a dialog box used to do local tests on parsing rules
-     * works but shall not be used because test is now done directly in ParsingRuleEditDialog
-     * @deprecated
-     */
+
 
     private JTextField lineField;
 
@@ -39,7 +40,7 @@ public class TestParsingRuleDialog extends DefaultDialog {
 
     protected static void parse(StringBuilder sb, String rule, String fieldName, String stringToParse) {
         sb.append(fieldName);
-        String ruleTreat;
+
         String[] ruleList = rule.split("\\|\\|"); // split at "||"
         for (String element : ruleList) {
             if (!element.isEmpty()) {
@@ -96,10 +97,10 @@ public class TestParsingRuleDialog extends DefaultDialog {
         testButton.addActionListener(e -> {
 
             String lineTested = lineField.getText();
-            String protRegex = proteinAccTField.getText();
+            String proteinRegex = proteinAccTField.getText();
 
             if (!lineTested.equals("")) {
-                String proteinNameExtracted = extractProteinNameWithRegEx(lineTested, protRegex);
+                String proteinNameExtracted = extractProteinNameWithRegEx(lineTested, proteinRegex);
                 if (proteinNameExtracted != null) {
                     resultOfTest.setText(proteinNameExtracted);
                 } else {
@@ -126,8 +127,8 @@ public class TestParsingRuleDialog extends DefaultDialog {
         return testPanel;
     }
 
-    public String extractProteinNameWithRegEx(String line, String protRegex) {
-        return getMatchingString(line, protRegex);
+    public String extractProteinNameWithRegEx(String line, String proteinRegex) {
+        return getMatchingString(line, proteinRegex);
     }
 
 

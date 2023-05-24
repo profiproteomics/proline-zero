@@ -11,8 +11,8 @@ import java.util.List;
 /**
  * This class handles operations on parsing rules (CRUD)
  * implements also verifications (uniqueness..)
- * @see ConfigManager
  *
+ * @see ConfigManager
  */
 public class ParsingRulesUtils {
 
@@ -142,15 +142,15 @@ public class ParsingRulesUtils {
 
     public boolean addFastaFolder(String path, boolean forced) {
         boolean addOk = false;
-        if (canBeAdded(path)&&!forced) {
+        if (canBeAdded(path) && !forced) {
             fastaPaths.add(path);
             parseRulesAndFastaHasBeenChanged = true;
             addOk = true;
         }
-        if (forced){
+        if (forced) {
             fastaPaths.add(path);
-            parseRulesAndFastaHasBeenChanged=true;
-            addOk=true;
+            parseRulesAndFastaHasBeenChanged = true;
+            addOk = true;
         }
 
         return addOk;

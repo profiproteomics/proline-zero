@@ -18,17 +18,14 @@ import java.util.*;
 /**
  * Read and Write Sequence Repository config file.
  * Handles fasta directories as well as  parsing rules
+ *
  * @see ConfigManager
- *
- *
  */
 
 public class JsonSeqRepoAccess {
 
-    private final Logger logger = LoggerFactory.getLogger(JsonSeqRepoAccess.class);
     private static JsonSeqRepoAccess instance;
     private Config parsingRules;
-
 
 
     private JsonSeqRepoAccess() throws FileNotFoundException {
@@ -41,8 +38,7 @@ public class JsonSeqRepoAccess {
 
             if (configFile.exists()) {
                 parsingRules = ConfigFactory.parseFile(ProlineFiles.PARSING_RULES_CONFIG_FILE, options);
-            }
-            else {
+            } else {
                 parsingRules = ConfigFactory.empty();
                 throw new FileNotFoundException("Seq Repo config file parsing-rules.conf not found");
             }
@@ -53,11 +49,13 @@ public class JsonSeqRepoAccess {
             ConfigManager.getInstance().setSeqRepActive(false);
             ProlineFiles.setSeqRepoConfigFileNotFound(true);
 
-            logger.warn("exception occurred: "+exception.getMessage());
+            Logger logger = LoggerFactory.getLogger(JsonSeqRepoAccess.class);
+            logger.warn("exception occurred: " + exception.getMessage());
         }
 
 
     }
+
     public static JsonSeqRepoAccess getInstance() {
         if (instance == null) {
             try {
@@ -102,11 +100,10 @@ public class JsonSeqRepoAccess {
         }
 
     }
-
-
+ /*   @SuppressWarnings("unchecked")
     public List<ParsingRule> getSetOfRules() {
 
-        ArrayList<ParsingRule> arrayOfPrules = new ArrayList<>();
+        ArrayList<ParsingRule> arrayOfParsingRules = new ArrayList<>();
 
 
         try {
@@ -130,7 +127,7 @@ public class JsonSeqRepoAccess {
 
                     ParsingRule ps = new ParsingRule(name, fasta, fastaV, protein);
 
-                    arrayOfPrules.add(i, ps);
+                    arrayOfParsingRules.add(i, ps);
 
                 }
             }
@@ -138,14 +135,49 @@ public class JsonSeqRepoAccess {
             throw new RuntimeException(exception);
         }
 
-        return arrayOfPrules;
+        return arrayOfParsingRules;
 
 
+    }*/
+    public List<ParsingRule> getSetOfRules() {
+        ArrayList<ParsingRule> arrayOfParsingRules = new ArrayList<>();
+
+        try {
+            if (parsingRules.hasPath(ProlineFiles.SEQREPO_PARSING_RULE_KEY)) {
+                ConfigList list = parsingRules.getList(ProlineFiles.SEQREPO_PARSING_RULE_KEY);
+
+                for (int i = 0; i < list.size(); i++) {
+                    ConfigValue configValue = list.get(i);
+                    Object unwrappedValue = configValue.unwrapped();
+
+                    if (unwrappedValue instanceof Map) {
+                        Map<String, Object> parsingRule = (Map<String, Object>) unwrappedValue;
+
+                        String name = parsingRule.get(ProlineFiles.PARSING_RULE_NAME).toString();
+
+                        List<String> fastaList = (List<String>) parsingRule.get(ProlineFiles.PARSING_RULE_FASTA_NAME);
+                        ArrayList<String> fasta = new ArrayList<>(fastaList);
+
+                        String fastaV = parsingRule.get(ProlineFiles.PARSING_RULE_FASTA_VERSION).toString();
+                        String protein = parsingRule.get(ProlineFiles.PARSING_RULE_PROTEIN).toString();
+
+                        ParsingRule ps = new ParsingRule(name, fasta, fastaV, protein);
+
+                        arrayOfParsingRules.add(i, ps);
+                    }
+                }
+            }
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
+
+        return arrayOfParsingRules;
     }
 
+
     /**
-     *
      * Does not update protein by default
+     *
      * @deprecated
      */
 
@@ -155,15 +187,15 @@ public class JsonSeqRepoAccess {
         ConfigObject toBePreserved = JsonSeqRepoAccess.getInstance().getParsingConfig().root().withoutKey(ProlineFiles.SEQREPO_FASTA_DIRECTORIES);
 
         ConfigList cfg = ConfigValueFactory.fromIterable(fastaPaths);
-        ConfigObject finalbuild = toBePreserved.withFallback(cfg.atKey(ProlineFiles.SEQREPO_FASTA_DIRECTORIES));
+        ConfigObject finalBuild = toBePreserved.withFallback(cfg.atKey(ProlineFiles.SEQREPO_FASTA_DIRECTORIES));
         // then  updates parsing rules
-        ConfigObject toBePreserved2 = finalbuild.withoutKey(ProlineFiles.SEQREPO_PARSING_RULE_KEY);
+        ConfigObject toBePreserved2 = finalBuild.withoutKey(ProlineFiles.SEQREPO_PARSING_RULE_KEY);
         Config buildLabel;
         Config buildFastaVersion;
         Config buildProtein;
         Config buildFastaName;
 
-        Config[] configsbuild = new Config[setOfRules.size()];
+        Config[] configBuild = new Config[setOfRules.size()];
         List<ConfigValue> cfg2 = new ArrayList<>();
 
 
@@ -182,13 +214,13 @@ public class JsonSeqRepoAccess {
 
             buildFastaName = ConfigValueFactory.fromIterable(fastaName).atKey(ProlineFiles.PARSING_RULE_FASTA_NAME);
 
-            configsbuild[i] = buildLabel.withFallback(buildFastaVersion.withFallback(buildProtein).withFallback(buildFastaName));
-            cfg2.add(i, configsbuild[i].root());
+            configBuild[i] = buildLabel.withFallback(buildFastaVersion.withFallback(buildProtein).withFallback(buildFastaName));
+            cfg2.add(i, configBuild[i].root());
 
         }
 
-        ConfigList cfglst = ConfigValueFactory.fromIterable(cfg2);
-        ConfigObject reBuiltConfig = toBePreserved2.withFallback(cfglst.atKey(ProlineFiles.SEQREPO_PARSING_RULE_KEY));
+        ConfigList configListParsingRules = ConfigValueFactory.fromIterable(cfg2);
+        ConfigObject reBuiltConfig = toBePreserved2.withFallback(configListParsingRules.atKey(ProlineFiles.SEQREPO_PARSING_RULE_KEY));
 
         String finalWrite = reBuiltConfig.render(ConfigRenderOptions.concise().setFormatted(true).setJson(false).setComments(true));
         try {
@@ -207,16 +239,16 @@ public class JsonSeqRepoAccess {
         ConfigObject toBePreserved = JsonSeqRepoAccess.getInstance().getParsingConfig().root().withoutKey(ProlineFiles.SEQREPO_FASTA_DIRECTORIES);
 
         ConfigList cfg = ConfigValueFactory.fromIterable(fastaPaths);
-        ConfigObject finalbuild = toBePreserved.withFallback(cfg.atKey(ProlineFiles.SEQREPO_FASTA_DIRECTORIES));
+        ConfigObject finalBuild = toBePreserved.withFallback(cfg.atKey(ProlineFiles.SEQREPO_FASTA_DIRECTORIES));
 
         // then  updates parsing rules
-        ConfigObject toBePreserved2 = finalbuild.withoutKey(ProlineFiles.SEQREPO_PARSING_RULE_KEY);
+        ConfigObject toBePreserved2 = finalBuild.withoutKey(ProlineFiles.SEQREPO_PARSING_RULE_KEY);
         Config buildLabel;
         Config buildFastaVersion;
         Config buildProtein;
         Config buildFastaName;
 
-        Config[] configsbuild = new Config[setOfRules.size()];
+        Config[] configBuild = new Config[setOfRules.size()];
         List<ConfigValue> parsingRulesConfig = new ArrayList<>();
 
 
@@ -235,17 +267,17 @@ public class JsonSeqRepoAccess {
 
             buildFastaName = ConfigValueFactory.fromIterable(fastaName).atKey(ProlineFiles.PARSING_RULE_FASTA_NAME);
 
-            configsbuild[i] = buildLabel.withFallback(buildFastaVersion.withFallback(buildProtein).withFallback(buildFastaName));
-            parsingRulesConfig.add(i, configsbuild[i].root());
+            configBuild[i] = buildLabel.withFallback(buildFastaVersion.withFallback(buildProtein).withFallback(buildFastaName));
+            parsingRulesConfig.add(i, configBuild[i].root());
 
         }
 
-        ConfigList cfglst = ConfigValueFactory.fromIterable(parsingRulesConfig);
-        ConfigObject reBuiltConfig = toBePreserved2.withFallback(cfglst.atKey(ProlineFiles.SEQREPO_PARSING_RULE_KEY));
+        ConfigList configList = ConfigValueFactory.fromIterable(parsingRulesConfig);
+        ConfigObject reBuiltConfig = toBePreserved2.withFallback(configList.atKey(ProlineFiles.SEQREPO_PARSING_RULE_KEY));
         // updates default protein accession rule
-        ConfigObject toBePreserved3=reBuiltConfig.withoutKey(ProlineFiles.SEQREPO_PROTEIN_DEFAULT_REGEX);
-        Config protByDefault=ConfigValueFactory.fromAnyRef(defaultProteinAccessionRule).atKey(ProlineFiles.SEQREPO_PROTEIN_DEFAULT_REGEX);
-        ConfigObject finalConfig=toBePreserved3.withFallback(protByDefault);
+        ConfigObject toBePreserved3 = reBuiltConfig.withoutKey(ProlineFiles.SEQREPO_PROTEIN_DEFAULT_REGEX);
+        Config protByDefault = ConfigValueFactory.fromAnyRef(defaultProteinAccessionRule).atKey(ProlineFiles.SEQREPO_PROTEIN_DEFAULT_REGEX);
+        ConfigObject finalConfig = toBePreserved3.withFallback(protByDefault);
 
         // edit config file
         String finalWrite = finalConfig.render(ConfigRenderOptions.concise().setFormatted(true).setJson(false).setComments(true));

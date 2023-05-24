@@ -47,6 +47,13 @@ public class SettingsConstant {
 			+ "A complete description \nis given in Proline Admin documentation <br>" +
 			" or on Forum \"Parsing rules for Sequence Repository\" topic";
 
+	public final static  String PARSING_RULES_HELP_TEST_DIALOG="""
+                This dialog displays the results of the test applied
+                 to all the fasta files contained inside fasta directories. For each file, Proline determines the appropriate parsing rule.\s
+                To do this it goes through the parsing rules looking for which regular expression
+                 fasta Name Rules match with the name of the file.
+                 If none matches, the default regular expression will be used.""";
+
 	public static boolean isBooleanTrue(String booleanValue) {
 		if (booleanValue != null
 				&& (booleanValue.equals("on") || booleanValue.equals("true") || booleanValue.equals("yes"))) {

@@ -1,7 +1,6 @@
 package fr.proline.zero.gui;
 
-import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.*;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -9,7 +8,7 @@ import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
-public class Popup {
+public class Popup  {
 
     private static final String DEFAULT_TITLE = "Proline Zero";
 
@@ -42,9 +41,23 @@ public class Popup {
         SplashScreen.setModal(true);
         return (r == JOptionPane.YES_OPTION);
     }
+    public static boolean yesNoCenterTOWindow(Component parent, String message) {
+        SplashScreen.setModal(false);
+        int r = JOptionPane.showConfirmDialog(parent, message, DEFAULT_TITLE, JOptionPane.YES_NO_OPTION);
+        SplashScreen.setModal(true);
+        return (r == JOptionPane.YES_OPTION);
+    }
+
+
     public static int yesNoClose(String message){
         SplashScreen.setModal(false);
         int r=JOptionPane.showConfirmDialog(null,message,DEFAULT_TITLE,JOptionPane.YES_NO_OPTION);
+        SplashScreen.setModal(true);
+        return r;
+    }
+    public static int yesNoCloseCenterToWindonw(Component parent,String message){
+        SplashScreen.setModal(false);
+        int r=JOptionPane.showConfirmDialog(parent,message,DEFAULT_TITLE,JOptionPane.YES_NO_OPTION);
         SplashScreen.setModal(true);
         return r;
     }
@@ -55,6 +68,7 @@ public class Popup {
         SplashScreen.setModal(true);
         return (r == JOptionPane.OK_OPTION);
     }
+
 
     public static void error(String message) {
         error(message, null);
@@ -104,6 +118,8 @@ public class Popup {
     public static void info(String message) {
         Popup.show(message, DEFAULT_TITLE, JOptionPane.INFORMATION_MESSAGE);
     }
+
+
 
 
 }

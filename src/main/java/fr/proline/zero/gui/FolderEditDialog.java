@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import static java.lang.String.valueOf;
+
 
 
 /**
@@ -27,7 +27,7 @@ import static java.lang.String.valueOf;
  */
 
 public class FolderEditDialog extends DefaultDialog {
-    private JComboBox dataTypeBox;
+    private JComboBox<String> dataTypeBox;
     private JTextField folderLabelField;
     private JTextField folderPathField;
 
@@ -43,7 +43,7 @@ public class FolderEditDialog extends DefaultDialog {
         super(parent);
 
 
-        this.setInternalComponent(createAddFolderPanel(typeOfDialog, mountPointType));
+        this.setInternalComponent(createAddFolderPanel());
 
         this.typeOfDialog = typeOfDialog;
         this.setButtonName(BUTTON_BACK, "Clear");
@@ -95,13 +95,13 @@ public class FolderEditDialog extends DefaultDialog {
         super.pack();
     }
 
-    private JPanel createAddFolderPanel(TypeOfDialog context, MountPointUtils.MountPointType mountPointTypeEdited) {
+    private JPanel createAddFolderPanel() {
         // creation du panel et du layout
         JPanel addFolderPanel = new JPanel(new GridBagLayout());
 
 
         // creation des widgets
-        dataTypeBox = new JComboBox<String>();
+        dataTypeBox = new JComboBox<>();
         dataTypeBox.addItem(MountPointUtils.MountPointType.RESULT.getDisplayString());
         dataTypeBox.addItem(MountPointUtils.MountPointType.MZDB.getDisplayString());
 
@@ -110,9 +110,7 @@ public class FolderEditDialog extends DefaultDialog {
             dataTypeBox.addItem("Fasta folder");
         }
 
-        dataTypeBox.addActionListener(e -> {
-            greyLabelforFasta();
-        });
+        dataTypeBox.addActionListener(e -> greyLabelForFasta());
         dataTypeBox.setEnabled(true);
 
         folderLabelField = new JTextField();
@@ -122,9 +120,7 @@ public class FolderEditDialog extends DefaultDialog {
 
         JButton browseButton = new JButton(IconManager.getIcon(IconManager.IconType.OPEN_FILE));
 
-        browseButton.addActionListener(e -> {
-            openFolderView();
-        });
+        browseButton.addActionListener(e -> openFolderView());
 
 
         // ajout des widgets au layout
@@ -183,7 +179,7 @@ public class FolderEditDialog extends DefaultDialog {
     }
 
 
-    private void greyLabelforFasta() {
+    private void greyLabelForFasta() {
 
         if (dataTypeBox.getSelectedItem().equals("Fasta folder")) {
             folderLabelField.setText("");
@@ -222,19 +218,19 @@ public class FolderEditDialog extends DefaultDialog {
     // Verifies if entries can be added
     @Override
     protected boolean okCalled() {
-        System.out.println("Ok pressed");
+
         boolean entriesAreValid = true;
 
         ArrayList<String> values = getValuesEntered();
 
         String folderField = values.get(0);
         String folderPath = values.get(1);
-        String datatypeboxselected = values.get(2);
+        String dataTypeBoxSelected = values.get(2);
 
         Path pathToTest = Paths.get(folderPath);
         boolean pathExists = Files.exists(pathToTest);
         boolean verifUserEntry = (!folderPath.isEmpty() && !folderField.isEmpty())
-                || (!folderPath.isEmpty() && datatypeboxselected.equals("Fasta folder"));
+                || (!folderPath.isEmpty() && dataTypeBoxSelected.equals("Fasta folder"));
         boolean labelAlreadyExists = ConfigManager.getInstance().getMountPointManager().getIfLabelExists(folderField);
         boolean pathAlreadyExists = ConfigManager.getInstance().getMountPointManager().getIfPathExist(folderPath);
 
@@ -245,7 +241,7 @@ public class FolderEditDialog extends DefaultDialog {
                 setStatus(true, "Please add a folder");
                 entriesAreValid = false;
             }
-            if (folderField.isEmpty() && !datatypeboxselected.equals("Fasta folder")) {
+            if (folderField.isEmpty() && !dataTypeBoxSelected.equals("Fasta folder")) {
                 highlight(folderLabelField);
                 setStatus(true, "Please add a label");
                 entriesAreValid = false;
@@ -297,7 +293,7 @@ public class FolderEditDialog extends DefaultDialog {
 
     @Override
     protected boolean saveCalled() {
-        System.out.println("Save called");
+
         return true;
     }
 }

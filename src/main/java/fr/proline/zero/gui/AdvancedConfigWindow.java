@@ -566,8 +566,7 @@ public class AdvancedConfigWindow extends JDialog {
 
 
 	private void cancelButtonActionPerformed() {
-		boolean yesPressed = Popup
-				.yesNo("Warning !\nAll changes will be lost, are you sure you want to exit this window ?");
+		boolean yesPressed = Popup.yesNoCenterTOWindow(ConfigWindow.getInstance(),"Warning !\nAll changes will be lost, are you sure you want to exit this window ?");
 		if (yesPressed) {
 			restoreValues = true;
 			advancedManager.setHasBeenChanged(false);

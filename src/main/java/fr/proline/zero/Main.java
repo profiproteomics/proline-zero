@@ -38,6 +38,7 @@ public class Main {
 			// initialization of the singleton that will manage all of our properties
 			ConfigManager.getInstance().initialize();
 
+
 			// first launch
 			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists();
 

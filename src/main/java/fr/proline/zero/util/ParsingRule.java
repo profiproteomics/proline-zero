@@ -2,8 +2,7 @@ package fr.proline.zero.util;
 
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 public class ParsingRule {
     private String name;
