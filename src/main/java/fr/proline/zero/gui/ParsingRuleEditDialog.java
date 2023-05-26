@@ -57,11 +57,12 @@ public class ParsingRuleEditDialog extends DefaultDialog {
      */
     enum TypeOfDialog {Add, Edit, ViewFastas}
 
+    private  ParsingRule editedParsingRule;
+
 
     public ParsingRuleEditDialog(Window Parent, TypeOfDialog typeOfDialog, ParsingRule parsingRule) {
 
         super(Parent);
-
         //Configure commons buttons for all TypeOfDialog
         this.setButtonVisible(BUTTON_HELP, false);
 
@@ -93,13 +94,14 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             this.setTitle("Edit parsing rule");
 
         }
-        if (!typeOfDialog.equals(TypeOfDialog.ViewFastas)) {
-            JPanel internalPanel = createParsingRulesJPanel(parsingRule);
-            setStatusVisible(false);
-            setInternalComponent(internalPanel);
+
+        this.editedParsingRule=parsingRule.clone();
+
+        JPanel internalPanel = createParsingRulesJPanel(editedParsingRule);
+
+        setInternalComponent(internalPanel);
 
 
-        }
 
         this.setStatusVisible(true);
         this.setResizable(true);
@@ -264,7 +266,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         fastaNamesTable.setIntercellSpacing(new Dimension(2, 2));
         fastaNamesTable.setDefaultRenderer(Object.class, new CustomRenderer());
 
-        // fastaNamesTable.getTableHeader().setDefaultRenderer(new SimpleHeaderRenderer());
+
 
 
         fastaNamesTable.getColumn(deleteColumnIdentifier).setCellRenderer(new TableButtonRenderer());
@@ -272,7 +274,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         fastaNamesTable.getColumn(deleteColumnIdentifier).setMaxWidth(40);
         JScrollPane scrollPane = new JScrollPane(fastaNamesTable);
 
-        //scrollPane.setPreferredSize(new Dimension(new Dimension(110, 100)));
+
 
         parsingConstraints.gridy++;
         parsingConstraints.gridwidth = 2;
@@ -404,7 +406,6 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         } else if (forgottenEntry) {
             highlight(fastaNameTField);
             setStatus(false, "you might have forgotten an entry! ");
-            // TODO popup should be deplaced
             String[] options = {"Delete", "Add"};
             boolean deleteOrAdd = Popup.optionYesNO("Do you want to add the value or delete it?", options);
             if (deleteOrAdd) {
@@ -430,6 +431,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     }
 
     // close The dialog
+    @Override
     protected boolean cancelCalled() {
 
         return true;
@@ -555,12 +557,9 @@ public class ParsingRuleEditDialog extends DefaultDialog {
                 }
                 // reg ex not valid  appear red
                 if (fastaValid.get(row).equals(false)){
-                    c.setBackground((new Color(220,0,0)));
-
-
+                    c.setBackground((new Color(220,0,90)));
                 }
             }
-
             return c;
         }
     }
@@ -605,6 +604,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             return label;
         }
 
+
         public boolean stopCellEditing() {
             isPushed = false;
             return super.stopCellEditing();
@@ -615,25 +615,6 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         }
     }
 
-  /*  public class SimpleHeaderRenderer extends JLabel implements TableCellRenderer {
-
-        public SimpleHeaderRenderer() {
-
-            setFont(new Font("Courier", Font.PLAIN, 11));
-            setForeground(Color.WHITE);
-            setOpaque(true);
-            setBackground(new Color(213, 24, 30));
-            setBackground(J_TABLE_COLOR);
-            setBorder(BorderFactory.createEtchedBorder());
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            setText(value.toString());
-            return this;
-        }
-
-    }*/
 
 
 }

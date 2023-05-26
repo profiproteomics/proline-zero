@@ -1,23 +1,16 @@
 package fr.proline.zero.util;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 
-public class ParsingRule {
+public class ParsingRule implements Cloneable {
     private String name;
     private List<String> fastaNameRegExp;
     private String fastaVersionRegExp;
     private String proteinAccRegExp;
-    private boolean isEditable;
 
-    public boolean isEditable() {
-        return isEditable;
-    }
-
-    public void setEditable(boolean editable) {
-        isEditable = editable;
-    }
 
     public String getName() {
         return name;
@@ -57,9 +50,35 @@ public class ParsingRule {
         this.fastaNameRegExp = fastaNameRegexp;
         this.fastaVersionRegExp = fastaVersionRegExp;
         this.proteinAccRegExp = proteinAccRegExp;
-        // to be removed useless;
-        this.isEditable = false;
+
     }
+
+    @Override
+    public String toString() {
+        return "ParsingRule{" +
+                "name='" + name + '\'' +
+                ", fastaNameRegExp=" + fastaNameRegExp +
+                ", fastaVersionRegExp='" + fastaVersionRegExp + '\'' +
+                ", proteinAccRegExp='" + proteinAccRegExp + '\'' +
+                '}';
+    }
+
+
+   @Override
+   public ParsingRule clone() {
+       try {
+           ParsingRule clone = (ParsingRule) super.clone();
+
+           clone.fastaNameRegExp = new ArrayList<>(fastaNameRegExp);
+           clone.name=name;
+           clone.fastaVersionRegExp=fastaVersionRegExp;
+           clone.proteinAccRegExp=proteinAccRegExp;
+
+           return clone;
+       } catch (CloneNotSupportedException e) {
+           throw new AssertionError();
+       }
+   }
 }
 
 

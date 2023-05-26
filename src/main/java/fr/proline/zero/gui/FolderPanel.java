@@ -29,14 +29,10 @@ public class FolderPanel extends JPanel {
     private final static Color STRING_COLOR = new Color(50, 0, 230);
     private final static   Color ERROR_COLOR = new Color(255, 0, 50);
 
-    private final static Color SOFT_ERROR_COLOR = new Color(243, 227, 227);
+    private final static Color SOFT_ERROR_COLOR = new Color(204, 205, 208);
 
 
     private String labelEdited;
-
-    // help component used to position Dialogs ont it for better visibility
-    private HelpHeaderPanel help;
-
 
     private String pathBackup;
 
@@ -62,7 +58,7 @@ public class FolderPanel extends JPanel {
         folderPanelConstraints.weightx = 1;
         folderPanelConstraints.weighty = 0;
         folderPanelConstraints.gridwidth = 3;
-        help = new HelpHeaderPanel("Folder", SettingsConstant.FOLDERS_HELP_PANE);
+        HelpHeaderPanel help = new HelpHeaderPanel("Folder", SettingsConstant.FOLDERS_HELP_PANE);
         add(help, folderPanelConstraints);
 
         // temp folder size
@@ -96,7 +92,7 @@ public class FolderPanel extends JPanel {
         folderPanelConstraints.weighty = 0;
         folderPanelConstraints.fill = GridBagConstraints.NONE;
         folderPanelConstraints.anchor = GridBagConstraints.EAST;
-        //add(createTmpFolderPanel(), folderPanelConstraints);
+
         add(new JLabel("Add folder :"), folderPanelConstraints);
 
         JButton openAddDialogButton = new JButton(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
@@ -121,9 +117,8 @@ public class FolderPanel extends JPanel {
 
     private void openAddDialog() {
         FolderEditDialog addDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.AddingAMountPoint, null, null, null);
-        // addDialog.centerToWindow(ConfigWindow.getInstance());
-        addDialog.setLocationRelativeTo(help);
-        addDialog.setSize(450, 200);
+         addDialog.centerToWindow(ConfigWindow.getInstance());
+         addDialog.setSize(450, 200);
         addDialog.setVisible(true);
 
         // TODO execute if button ok is clicked inside dialog
@@ -172,7 +167,7 @@ public class FolderPanel extends JPanel {
 
         c.gridy++;
         folderListPanel.add(mzDBListPanel, c);
-        // TODO : desactiver si seqrep décoché;
+
         c.gridy++;
 
         JPanel fastaListPanel = new JPanel(new GridBagLayout());
@@ -189,7 +184,7 @@ public class FolderPanel extends JPanel {
         List<String> duplicatePaths=ConfigManager.getInstance().getMountPointManager().getDuplicatePaths();
         Map<String, String> mountPointsToBeDisplayed = ConfigManager.getInstance().getMountPointManager().getMountPointMap().get(mpt);
 
-        boolean missingMountPoint = missingMps.contains(mpt.getDisplayString());
+
 
         GridBagConstraints anyPanelConstraints = new GridBagConstraints();
         anyPanel.setBorder(BorderFactory.createTitledBorder("  "+mpt.getDisplayString()+"  "));
@@ -267,7 +262,7 @@ public class FolderPanel extends JPanel {
 
 
         }
-        // indicates the path of the folder is an empty string
+
 
 
         anyPanelConstraints.fill = GridBagConstraints.NONE;
@@ -290,8 +285,7 @@ public class FolderPanel extends JPanel {
 
 
             FolderEditDialog editDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingDefaultMPts, pathBackup, null, mpt);
-            editDialog.setLocationRelativeTo(help);
-            // editDialog.centerToWindow(ConfigWindow.getInstance());
+            editDialog.centerToWindow(ConfigWindow.getInstance());
             editDialog.setSize(500, 200);
             editDialog.setVisible(true);
             if (editDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
@@ -336,7 +330,7 @@ public class FolderPanel extends JPanel {
                 anyPanel.add(field, anyPanelConstraints);
 
                 JTextField resultPath = new JTextField(mountPointsToBeDisplayed.get(key));
-                // resultPath.setPreferredSize(new Dimension(300, 20));
+
                 resultPath.setEditable(false);
                 resultPath.setEnabled(false);
                 if (mountPointsToBeDisplayed.get(key).length() > 87) {
@@ -381,8 +375,8 @@ public class FolderPanel extends JPanel {
                     labelEdited = key;
                     ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mpt, key, false);
                     FolderEditDialog editDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingMpts, pathBackup, labelEdited, mpt);
-                    //  editDialog.centerToWindow(ConfigWindow.getInstance());
-                    editDialog.setLocationRelativeTo(help);
+                     editDialog.centerToWindow(ConfigWindow.getInstance());
+
                     editDialog.setSize(500, 200);
                     editDialog.setVisible(true);
                     if (editDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
@@ -401,7 +395,7 @@ public class FolderPanel extends JPanel {
 
                 clearButton.setHorizontalAlignment(SwingConstants.CENTER);
                 clearButton.setToolTipText("Click to delete mount point");
-                //clearButton.setText("Delete");
+
 
                 clearButton.addActionListener(e -> {
                     deleteFolderPath(mpt, key, false);
@@ -499,8 +493,8 @@ public class FolderPanel extends JPanel {
                         boolean deleteSuccess = ConfigManager.getInstance().getParsingRulesManager().deleteFastaFolder(pathBackup);
 
                         FolderEditDialog editFastaDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingFastas, pathBackup, null, null);
-                        // editFastaDialog.centerToWindow(ConfigWindow.getInstance());
-                        editFastaDialog.setLocationRelativeTo(help);
+                        editFastaDialog.centerToWindow(ConfigWindow.getInstance());
+
                         editFastaDialog.setSize(500, 200);
                         editFastaDialog.setVisible(true);
 
@@ -646,9 +640,10 @@ public class FolderPanel extends JPanel {
 
                     break;
 
-                // TODO not implemented
+
                 default:
                     Popup.error("no such type of Folder");
+
 
                     break;
             }
@@ -675,26 +670,5 @@ public class FolderPanel extends JPanel {
     }
 
 
-    /*public static void main(String[] args) {
-        // ConfigWindow.getInstance();
-        ConfigManager.getInstance().initialize();
-        // ConfigManager.getInstance().getMountPointManager().getMountPointMap();
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            JFrame f = new JFrame();
-            f.add(new FolderPanel());
-            f.setVisible(true);
-            f.setSize(800, 800);
-            f.setAlwaysOnTop(true);
-            f.pack();
-
-            f.setVisible(true);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
-                 UnsupportedLookAndFeelException e) {
-            throw new RuntimeException(e);
-        }
-
-
-    }*/
 
 }

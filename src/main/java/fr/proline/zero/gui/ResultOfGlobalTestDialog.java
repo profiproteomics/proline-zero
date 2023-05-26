@@ -11,7 +11,6 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.swing.UIManager;
 
 import static java.util.Objects.isNull;
 
@@ -27,27 +26,36 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
     public ResultOfGlobalTestDialog(Window parent, ArrayList<Object[]> resultStore, ArrayList<Map<String, String>> linesAndProteins,int successMatching,int numberOfFilesWithoutProtein) {
 
         super(parent);
-        this.setResizable(true);
         this.setTitle("Global test results");
         this.setButtonVisible(BUTTON_HELP, false);
         this.setButtonVisible(BUTTON_CANCEL, false);
-        this.setHelpHeader(IconManager.getIcon(IconManager.IconType.INFO_30),"Global test", SettingsConstant.PARSING_RULES_HELP_TEST_DIALOG);
-
+        this.setHelpHeader(IconManager.getIcon(IconManager.IconType.INFORMATION),"Global test", SettingsConstant.PARSING_RULES_HELP_TEST_DIALOG);
         this.setInternalComponent(scrollPaneResult(resultStore, linesAndProteins,successMatching,numberOfFilesWithoutProtein));
-        super.pack();
+
+        this.setStatusVisible(true);
+        this.setResizable(true);
+        this.setIconImage(IconManager.getImage(IconManager.IconType.INFORMATION));
+
+
 
     }
 
-    private JScrollPane scrollPaneResult(ArrayList<Object[]> resultStore, ArrayList<Map<String, String>> linesAndProteins, int successMatching,int numberOfFilesNoProtein) {
-        JScrollPane scrollPane = new JScrollPane(createResultPanel(resultStore, linesAndProteins,successMatching,numberOfFilesNoProtein));
+    public void pack() {
+
+        // Do nothing on pack to avoid calculated sizes too large
+
+    }
+
+    private JScrollPane scrollPaneResult(ArrayList<Object[]> resultStore, ArrayList<Map<String, String>> linesAndProteins, int successMatching,int DefaultProteinNumberOfFiles) {
+        JScrollPane scrollPane = new JScrollPane(createResultPanel(resultStore, linesAndProteins,successMatching,DefaultProteinNumberOfFiles));
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setPreferredSize(new Dimension(900, 700));
+
         scrollPane.setBorder(null);
         return scrollPane;
     }
 
 
-    private JPanel createResultPanel(ArrayList<Object[]> resultStore, ArrayList<Map<String, String>> linesAndProteins, int successMatching, int numberOfFilesNoProtein) {
+    private JPanel createResultPanel(ArrayList<Object[]> resultStore, ArrayList<Map<String, String>> linesAndProteins, int successMatching, int DefaultProteinNumberOfFiles) {
         JPanel resultPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -60,13 +68,14 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
 
         String proteinByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
 
-        JPanel displayStats=displayStatsV2(numberOfResults,proteinByDefault,successMatching,numberOfFilesNoProtein);
+        JPanel displayStats= displayStats(numberOfResults,proteinByDefault,successMatching,DefaultProteinNumberOfFiles);
         displayStats.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY,2));
+        displayStats.setBorder(BorderFactory.createTitledBorder("Stats"));
         resultPanel.add(displayStats,gbc);
         List<Integer> maximums = calculateMax(resultStore, linesAndProteins);
 
         gbc.gridy++;
-        // TODO indicate if some fastaRegex used during the test where not valid Regex?
+
         for (int k = 0; k < numberOfResults; k++) {
 
             Object[] result = resultStore.get(k);
@@ -87,63 +96,8 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
 
     }
 
-    private JPanel displayStats(int totalNumberOfFiles,String proteinByDefault,int successMatching,int numberOfFilesNoProtein){
 
-        JPanel displayStats=new JPanel(new GridBagLayout());
-        GridBagConstraints gbc=new GridBagConstraints();
-        gbc.insets=new Insets(5,5,5,5);
-        gbc.gridy=0;
-        gbc.gridx=0;
-        gbc.anchor=GridBagConstraints.WEST;
-        gbc.weightx=1;
-        JLabel numberOfFastaFiles=new JLabel("a total of: "+totalNumberOfFiles+" fasta files have beeen parsed during the test");
-        displayStats.add(numberOfFastaFiles,gbc);
-        JLabel proteinByDefrault=new JLabel("protein by default: "+proteinByDefault);
-        gbc.gridy++;
-        displayStats.add(proteinByDefrault,gbc);
-
-
-        JLabel numberOfSuccess=new JLabel("A parsing rule has been found for "+successMatching+" fasta files");
-        gbc.gridy++;
-        displayStats.add(numberOfSuccess,gbc);
-
-        JProgressBar progressBar = new JProgressBar(0, 100);
-        progressBar.setStringPainted(true);
-        progressBar.setForeground(new Color(97, 210, 115));
-
-        double ratio = (double) successMatching / totalNumberOfFiles;
-        int percentage = (int) (ratio * 100);
-
-        progressBar.setValue(percentage);
-        progressBar.setString(percentage + "% de match");
-        progressBar.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-
-
-        gbc.gridy++;
-        displayStats.add(progressBar, gbc);
-        JLabel jLabelMatch=new JLabel("  parmi les fichiers fasta");
-        displayStats.add(jLabelMatch,gbc);
-
-        JProgressBar progressBarProtein = new JProgressBar(0, 100);
-        progressBarProtein.setStringPainted(true);
-        progressBarProtein.setForeground(new Color(97, 210, 115));
-
-        double ratioProtein = (double) (totalNumberOfFiles-numberOfFilesNoProtein) / totalNumberOfFiles;
-        int percentageProtein = (int) (ratioProtein * 100);
-
-        progressBarProtein.setValue(percentageProtein);
-        progressBarProtein.setString(percentageProtein + "% extractions");
-        progressBarProtein.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-
-
-        gbc.gridy++;
-        displayStats.add(progressBarProtein, gbc);
-
-
-        return displayStats;
-
-    }
-    private JPanel displayStatsV2(int totalNumberOfFiles, String proteinByDefault, int successMatching, int numberOfFilesNoProtein) {
+    private JPanel displayStats(int totalNumberOfFiles, String proteinByDefault, int successMatching, int DefaultProteinNumberOfFiles) {
         JPanel displayStats = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -151,33 +105,31 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1;
+        double ratio = (double) successMatching / totalNumberOfFiles;
+        int percentage = (int) (ratio * 100);
 
-        JLabel numberOfFastaFiles = new JLabel("A total of " + totalNumberOfFiles + " fasta files have been parsed during the test");
+        JLabel numberOfFastaFiles = new JLabel("A total of " + totalNumberOfFiles + " fasta files were scanned during the test");
         displayStats.add(numberOfFastaFiles, gbc);
 
-        JLabel proteinByDefaultLabel = new JLabel("Protein by default: " + proteinByDefault);
+        JLabel proteinByDefaultLabel = new JLabel("Default protein accession rule: " + proteinByDefault +"  used for "+(100-percentage)+" % of files" );
         gbc.gridy++;
         displayStats.add(proteinByDefaultLabel, gbc);
 
-        JLabel numberOfSuccess = new JLabel("A matching parsing rule has been found for " + successMatching + " fasta files");
-        gbc.gridy++;
-        displayStats.add(numberOfSuccess, gbc);
 
         JProgressBar progressBar = new JProgressBar(0, 100);
         progressBar.setStringPainted(true);
         progressBar.setForeground(new Color(85, 92, 128));
 
-        double ratio = (double) successMatching / totalNumberOfFiles;
-        int percentage = (int) (ratio * 100);
+
 
         progressBar.setValue(percentage);
-       // progressBar.setString(percentage + "%");
+
         progressBar.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 
         JPanel progressBarPanel = new JPanel(new BorderLayout());
         progressBarPanel.add(progressBar, BorderLayout.CENTER);
 
-        JLabel jLabelMatch = new JLabel("  a parsing rule was found for "+percentage+"% of fasta files");
+        JLabel jLabelMatch = new JLabel("   parsing rule was found for "+percentage+"% of fasta files");
         progressBarPanel.add(jLabelMatch, BorderLayout.EAST);
 
         gbc.gridy++;
@@ -188,7 +140,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         progressBarProtein.setForeground(new Color(85, 92, 128));
 
 
-        double ratioProtein = (double) (totalNumberOfFiles - numberOfFilesNoProtein) / totalNumberOfFiles;
+        double ratioProtein = (double) (totalNumberOfFiles - DefaultProteinNumberOfFiles) / totalNumberOfFiles;
         int percentageProtein = (int) (ratioProtein * 100);
 
         progressBarProtein.setValue(percentageProtein);
@@ -201,7 +153,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         gbc.gridy++;
         displayStats.add(progressBarProteinPanel, gbc);
 
-        JLabel jLabelExtractions = new JLabel("  a protein accession has been found in "+percentageProtein+"% of the files parsed");
+        JLabel jLabelExtractions = new JLabel("  a protein accession has been extracted in "+percentageProtein+"% of the files parsed");
         progressBarProteinPanel.add(jLabelExtractions, BorderLayout.EAST);
 
 
@@ -212,7 +164,8 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
     private JPanel displayOneFileResult(Object[] results, Map<String, String> lines,List<Integer> maximums) {
         JPanel displayOneResult = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        displayOneResult.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2));
+
+        displayOneResult.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.gridx = 0;
@@ -228,7 +181,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         String fastaRegex=(String) results[1];
         JLabel jLabelName = new JLabel("Fasta file:  ");
         gbc.fill = GridBagConstraints.NONE;
-       // gbc.anchor = GridBagConstraints.WEST;
+
         gbc.anchor=GridBagConstraints.EAST;
         gbc.weightx = 0;
         gbc.ipadx = 5;
@@ -267,12 +220,12 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
 
         for (Map.Entry<String, String> entry : lines.entrySet()) {
             JLabel jLabelLine = new JLabel("Fasta entry:");
-            // gbc.ipadx=0;
+
             gbc.gridx = 0;
             gbc.gridy++;
             gbc.weightx = 0;
             gbc.fill = GridBagConstraints.NONE;
-           // gbc.anchor = GridBagConstraints.WEST;
+
             gbc.anchor=GridBagConstraints.EAST;
             displayOneResult.add(jLabelLine, gbc);
             String key = entry.getKey();
@@ -285,11 +238,11 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
             lineTextField.setPreferredSize(new Dimension(maximums.get(2),20));
             gbc.gridx++;
             gbc.weightx = 1;
-            // gbc.gridwidth=2;
+
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.anchor = GridBagConstraints.EAST;
             displayOneResult.add(lineTextField, gbc);
-            JLabel proteinLabel = new JLabel("protein accession extracted:");
+            JLabel proteinLabel = new JLabel("Protein accession extracted:");
             gbc.gridx++;
             gbc.fill = GridBagConstraints.NONE;
             gbc.anchor = GridBagConstraints.EAST;
@@ -298,9 +251,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
             proteinExtracted.setEnabled(false);
             proteinExtracted.setPreferredSize(new Dimension(maximums.get(3),20));
             gbc.gridx++;
-            //gbc.gridwidth=1;
             gbc.fill = GridBagConstraints.HORIZONTAL;
-            // gbc.ipadx=5;
             gbc.anchor = GridBagConstraints.CENTER;
             gbc.ipadx = 5;
             displayOneResult.add(proteinExtracted, gbc);

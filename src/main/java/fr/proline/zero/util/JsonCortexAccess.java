@@ -44,16 +44,14 @@ public class JsonCortexAccess {
 
 
 
-            Popup.error("No configuration file found for cortex  ");
-            m_cortexProlineConfig = ConfigFactory.empty();
+            Popup.error("FileNotFoundException: no configuration file found for cortex ");
+
 
             Logger logger = LoggerFactory.getLogger(JsonCortexAccess.class);
             logger.warn("exception occurred: " + exception.getMessage());
 
             System.exit(1);
         }
-
-
     }
 
 

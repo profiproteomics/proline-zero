@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.nio.file.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -44,7 +45,7 @@ public class ParsingRulesTester {
 
 
         List<String> localFASTAPaths = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
-        // Map<String, List<File>> fastaPaths = getFastaFilesMap();
+
         Map<String, List<File>> fastaPaths = retrieveFastaFiles(localFASTAPaths);
 
         if (fastaPaths.isEmpty()) {
@@ -54,6 +55,7 @@ public class ParsingRulesTester {
         Set<Map.Entry<String, List<File>>> entries = fastaPaths.entrySet();
         // resultStore contains parsing rule selected if any plus fasta name regex plus name of file
         ArrayList<Object[]> resultStore = new ArrayList<>();
+
         // lineResults contains lines from fasta and protein extracted from lines if any
         ArrayList<Map<String, String>> lineResults = new ArrayList<>();
         String protByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
@@ -133,19 +135,19 @@ public class ParsingRulesTester {
                         }
                     }
                 }
+
                 //End go through associated fasta files
             }
-            // launch a dialog once test is completed
+
             ResultOfGlobalTestDialog resultDialog = new ResultOfGlobalTestDialog(ConfigWindow.getInstance(), resultStore, lineResults,successMatching,numberOfFilesWithoutProteinExtracted);
-            resultDialog.centerToWindow(ConfigWindow.getInstance());
             resultDialog.setSize(930, 600);
+            resultDialog.centerToWindow(ConfigWindow.getInstance());
             resultDialog.setVisible(true);
         }
 
 
     }
-    // method imported from  fr.proline.module.seq.service
-    // TODO decide if it should be used instead of lighter retrieveFastaFile
+   // Method from seqrepo works but might be heavy??
 
     private static Map<String, List<File>> getFastaFilesMap() throws Exception {
         Map<String, List<File>> fastaFiles = null;
@@ -169,34 +171,7 @@ public class ParsingRulesTester {
      *
      */
 
- /*   public static Map<String, List<File>> retrieveFastaFiles(List<String> folderPaths) {
-        Map<String, List<File>> fastaFilesByName = new HashMap<>();
 
-        for (String folderPath : folderPaths) {
-            Path folder = Paths.get(folderPath);
-            if (Files.isDirectory(folder)) {
-                try {
-                    Files.find(folder, Integer.MAX_VALUE, (filePath, fileAttr) ->
-                            fileAttr.isRegularFile() && filePath.toString().endsWith(".fasta")
-                    ).forEach(filePath -> {
-                        String fileName = filePath.getFileName().toString();
-                        File file = filePath.toFile();
-                        if (!fastaFilesByName.containsKey(fileName)) {
-                            fastaFilesByName.put(fileName, new ArrayList<>());
-                        }
-                        List<File> filesWithName = fastaFilesByName.get(fileName);
-                        if (!filesWithName.contains(file)) {
-                            filesWithName.add(file);
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return fastaFilesByName;
-    }*/
     public static Map<String, List<File>> retrieveFastaFiles(List<String> folderPaths) {
         Map<String, List<File>> fastaFilesByName = new HashMap<>();
 
@@ -307,22 +282,20 @@ public class ParsingRulesTester {
         // resultObject stores the parsing rule and the fasta name regex that match with the name of the file
         Object[] resultObject = new Object[4];
 
-        for (ParsingRule nextPR : ConfigManager.getInstance().getParsingRulesManager().getSetOfRules()) {
-            for (String fastaRegEx : nextPR.getFastaNameRegExp()) {
+        for (ParsingRule parsingRule : ConfigManager.getInstance().getParsingRulesManager().getSetOfRules()) {
+            for (String fastaRegEx : parsingRule.getFastaNameRegExp()) {
                 try {
 
                     final Pattern pattern = Pattern.compile(fastaRegEx, Pattern.CASE_INSENSITIVE);
 
                     final Matcher matcher = pattern.matcher(fastaFileName);
                     if (matcher.find()) {
-                        resultObject[0] = nextPR;
+                        resultObject[0] = parsingRule;
                         resultObject[1] = fastaRegEx;
                         // loop ends as soon as a fastaRegex match with the name of the file
                         break;
                     }
                 } catch (PatternSyntaxException patternSyntaxException) {
-
-
 
                     resultObject[3]=true;
                     break;
@@ -336,6 +309,7 @@ public class ParsingRulesTester {
         resultObject[2] = fastaFileName;
         return resultObject;
     }
+
 
     /**
      * Will test the validity of fasta name regex associated with a parsingRule
