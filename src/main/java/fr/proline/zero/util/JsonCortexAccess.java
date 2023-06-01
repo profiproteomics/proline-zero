@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * read and write inside Cortex configfile application.conf
+ * read and write  Cortex configfile application.conf
  */
 
 public class JsonCortexAccess {
@@ -25,35 +25,37 @@ public class JsonCortexAccess {
     private static JsonCortexAccess instance;
     private Config m_cortexProlineConfig;
 
+
     private JsonCortexAccess() {
-        ConfigParseOptions options = ConfigParseOptions.defaults();
-        options = options.setSyntax(ConfigSyntax.CONF);
+        ConfigParseOptions options = ConfigParseOptions.defaults().setSyntax(ConfigSyntax.CONF);
         File cortexConfigFile = ProlineFiles.CORTEX_CONFIG_FILE;
+
         try {
-
             if (cortexConfigFile.exists()) {
-
-                m_cortexProlineConfig = ConfigFactory.parseFile(ProlineFiles.CORTEX_CONFIG_FILE, options);
-
+                m_cortexProlineConfig = ConfigFactory.parseFile(cortexConfigFile, options);
             } else {
-
-                throw new FileNotFoundException("Cortex config file not found");
-
+                //   throw new FileNotFoundException("Cortex config file not found");
+                throw new CortexConfigException("Cortex config file not found");
             }
-        } catch (FileNotFoundException exception) {
-
-
-
-            Popup.error("FileNotFoundException: no configuration file found for cortex ");
-
+        } catch (CortexConfigException exception) {
+            // throw new RuntimeException(e);
+            String errorMessage = "Fatal error: no configuration file found for Cortex. \n" +
+                    "application won't start ";
+            Popup.error(errorMessage);
 
             Logger logger = LoggerFactory.getLogger(JsonCortexAccess.class);
-            logger.warn("exception occurred: " + exception.getMessage());
-
+            logger.error(errorMessage, exception);
             System.exit(1);
         }
     }
 
+    static class CortexConfigException extends Exception {
+
+        public CortexConfigException(String message) {
+            super(message);
+        }
+
+    }
 
     public static JsonCortexAccess getInstance() {
         if (instance == null) {
@@ -68,7 +70,7 @@ public class JsonCortexAccess {
 
 
     /**
-     * @return  returns a hashmap with all mount points found inside cortex application.conf
+     * @return returns a hashmap with all mount points found inside cortex application.conf
      */
     private HashMap<MountPointUtils.MountPointType, Map<String, String>> getMountPointsJson() {
         try {
@@ -100,8 +102,7 @@ public class JsonCortexAccess {
     }
 
     /**
-     * Saves mountpointmaps inside cortex application.conf
-     *
+     * Saves mountpoints inside cortex application.conf
      */
     public void updateCortexConfigFileJson(HashMap<MountPointUtils.MountPointType, Map<String, String>> mountPoints) {
 

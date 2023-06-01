@@ -1,4 +1,3 @@
-
 package fr.proline.zero.gui;
 
 import fr.proline.studio.gui.DefaultDialog;
@@ -13,7 +12,7 @@ import java.util.List;
 /**
  * This class implements a dialog box used to do local tests on parsing rules
  * works but shall not be used because test is now done directly in ParsingRuleEditDialog
- * @deprecated
+ * @deprecated 
  */
 
 public class TestParsingRuleDialog extends DefaultDialog {
@@ -104,7 +103,7 @@ public class TestParsingRuleDialog extends DefaultDialog {
                 if (proteinNameExtracted != null) {
                     resultOfTest.setText(proteinNameExtracted);
                 } else {
-                    resultOfTest.setText("No protein name extracted");
+                    resultOfTest.setText("No protein accession extracted");
                 }
             } else {
                 highlight(lineField);

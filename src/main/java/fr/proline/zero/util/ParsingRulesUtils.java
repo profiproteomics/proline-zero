@@ -172,7 +172,7 @@ public class ParsingRulesUtils {
 
     public void updateConfigFileParseRulesAndFasta() {
         // JsonSeqRepoAccess.getInstance().updateConfigRulesAndFasta(fastaPaths, setOfRules);
-        JsonSeqRepoAccess.getInstance().updateConfigRulesAndFastaV2(fastaPaths, setOfRules, defaultProteinAccRule);
+        JsonSeqRepoAccess.getInstance().updateConfigRulesAndFasta(fastaPaths, setOfRules, defaultProteinAccRule);
     }
 
 

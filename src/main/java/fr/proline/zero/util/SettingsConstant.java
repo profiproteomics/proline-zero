@@ -49,9 +49,8 @@ public class SettingsConstant {
 
 	public final static  String PARSING_RULES_HELP_TEST_DIALOG="""
                 This dialog displays the results of the test applied
-                to all the fasta files contained inside fasta directories. For each file, Proline determines the appropriate parsing rule.\s
-                To do this it goes through the parsing rules looking for which regular expression
-                fasta Name Rules match with the name of the file.
+                to all the fasta files contained inside fasta directories.\s
+                For each file, Proline determines the appropriate parsing rule.\s
                 If none matches, the default regular expression will be used.""";
 
 	public static boolean isBooleanTrue(String booleanValue) {

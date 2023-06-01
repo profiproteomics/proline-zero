@@ -25,6 +25,7 @@ import java.util.List;
  * Extends DefaultDialog (Studio)
  * Used to edit a parsing Rule
  * Local test on the protein accession rule of the parsing rule viewed
+ *
  * @see ConfigManager
  * @see ParsingRule
  * @see ParsingRulesTester
@@ -55,28 +56,20 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     /**
      * enum used to differentiate types of dialog
      */
-    enum TypeOfDialog {Add, Edit, ViewFastas}
+    enum TypeOfDialog {Add, Edit}
 
-    private  ParsingRule editedParsingRule;
-
+    private ParsingRule editedParsingRule;
 
     public ParsingRuleEditDialog(Window Parent, TypeOfDialog typeOfDialog, ParsingRule parsingRule) {
 
         super(Parent);
         //Configure commons buttons for all TypeOfDialog
         this.setButtonVisible(BUTTON_HELP, false);
-
-        // Test button not used anymore
-        this.setButtonName(BUTTON_DEFAULT, "Test");
         this.setButtonVisible(BUTTON_DEFAULT, false);
-        this.setButtonEnabled(BUTTON_DEFAULT, false);
-        this.setButtonIcon(BUTTON_DEFAULT, IconManager.getIcon(IconManager.IconType.TEST));
 
         this.setButtonVisible(BUTTON_BACK, true);
         this.setButtonName(BUTTON_BACK, "Clear");
         this.setButtonIcon(BUTTON_BACK, IconManager.getIcon(IconManager.IconType.ERASER));
-
-
 
         this.typeOfDialog = typeOfDialog;
 
@@ -85,23 +78,21 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             this.setIconImage(IconManager.getImage(IconManager.IconType.PLUS_16X16));
             this.setButtonIcon(BUTTON_OK, IconManager.getIcon(IconManager.IconType.PLUS_16X16));
             this.setTitle("Add parsing rule");
+            this.editedParsingRule = null;
 
         }
         if (typeOfDialog.equals(TypeOfDialog.Edit)) {
             this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
             this.setButtonName(BUTTON_OK, "Update");
+            // TODO size of icon too big create a small update icon 16*16
             this.setButtonIcon(BUTTON_OK, IconManager.getIcon(IconManager.IconType.UPDATE));
             this.setTitle("Edit parsing rule");
+            this.editedParsingRule = parsingRule.clone();
 
         }
 
-        this.editedParsingRule=parsingRule.clone();
-
         JPanel internalPanel = createParsingRulesJPanel(editedParsingRule);
-
         setInternalComponent(internalPanel);
-
-
 
         this.setStatusVisible(true);
         this.setResizable(true);
@@ -122,13 +113,13 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         c.gridx = 0;
         c.gridy = 0;
         c.anchor = GridBagConstraints.NORTHWEST;
-        c.fill=GridBagConstraints.BOTH;
-        c.weightx=1;
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1;
         addParsingRules.add(newParsingRulePanel(), c);
 
         c.insets = new java.awt.Insets(3, 5, 5, 5);
 
-        JPanel fastaNamePanel=newFastaNamePanel();
+        JPanel fastaNamePanel = newFastaNamePanel();
 
         // JtextFields are filled with previous values if parsing rule is edited
         if (typeOfDialog.equals(ParsingRuleEditDialog.TypeOfDialog.Edit)) {
@@ -136,28 +127,27 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             fastaVersionTField.setText(parsingRuleEdited.getFastaVersionRegExp());
             proteinAccTField.setText(parsingRuleEdited.getProteinAccRegExp());
             List<String> fastaNames = parsingRuleEdited.getFastaNameRegExp();
-
             fastaList = fastaNames;
             // draws the jTable to be modified
             for (String fastaName : fastaNames) {
                 Object[] vector = {fastaName, removeFastaNameRuleJButton};
                 fastaNamesTableModel.addRow(vector);
             }
-            c.weighty=0;
+            c.weighty = 0;
 
         }
         c.insets = new java.awt.Insets(3, 5, 5, 5);
         c.gridx++;
         c.anchor = GridBagConstraints.WEST;
-        c.gridheight=2;
-        c.weightx=0;
+        c.gridheight = 2;
+        c.weightx = 0;
         addParsingRules.add(fastaNamePanel, c);
-        c.gridx=0;
-        c.gridy=1;
-        c.gridheight=1;
-        c.fill=GridBagConstraints.BOTH;
-        c.weightx=1;
-        addParsingRules.add(createTestPanel(),c);
+        c.gridx = 0;
+        c.gridy = 1;
+        c.gridheight = 1;
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1;
+        addParsingRules.add(createTestPanel(), c);
         addParsingRules.add(Box.createHorizontalGlue(), c);
 
         return addParsingRules;
@@ -222,7 +212,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     private JPanel newFastaNamePanel() {
         JPanel fastaPanel = new JPanel(new GridBagLayout());
 
-        fastaPanel.setBorder(BorderFactory.createTitledBorder("Add fasta name rules: "));
+        fastaPanel.setBorder(BorderFactory.createTitledBorder(" Add fasta name rules  "));
         GridBagConstraints parsingConstraints = new GridBagConstraints();
         parsingConstraints.insets = new Insets(5, 5, 5, 5);
 
@@ -232,32 +222,33 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
         fastaList = new ArrayList<>();
         JButton addButton = new JButton(IconManager.getIcon(IconManager.IconType.PLUS_16X16));
-        addButton.setToolTipText("Click to add fasta name rule entered above");
+        addButton.setToolTipText("Click to add fasta name rule");
         addButton.addActionListener(e -> addFastaNames());
-
 
         fastaNameTField = new JTextField();
         parsingConstraints.anchor = GridBagConstraints.NORTHWEST;
         parsingConstraints.weightx = 1;
-        fastaNameTField.setPreferredSize(new Dimension(170, 23));
+        //parsingConstraints.weighty=0;
+        //parsingConstraints.gridheight=1;
+
+        fastaNameTField.setPreferredSize(new Dimension(fastaNameTField.getPreferredSize()));
+
         fastaPanel.add(fastaNameTField, parsingConstraints);
         parsingConstraints.gridx++;
         parsingConstraints.weightx = 0;
+        parsingConstraints.weighty = 0;
+
         parsingConstraints.fill = GridBagConstraints.NONE;
         parsingConstraints.anchor = GridBagConstraints.EAST;
+        addButton.setPreferredSize(new Dimension(addButton.getPreferredSize()));
         fastaPanel.add(addButton, parsingConstraints);
         parsingConstraints.gridx = 0;
         parsingConstraints.gridy++;
         parsingConstraints.anchor = GridBagConstraints.WEST;
         fastaPanel.add(new JLabel("Fasta name rules: "), parsingConstraints);
-
-
-
-
         fastaNamesTableModel = new DefaultTableModel();
         fastaNamesTableModel.setColumnIdentifiers(columns);
         fastaNamesTable = new JTable();
-
         removeFastaNameRuleJButton = new JButton();
         fastaNamesTable.setModel(fastaNamesTableModel);
         fastaNamesTable.setGridColor(J_TABLE_COLOR);
@@ -265,22 +256,15 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         fastaNamesTable.setShowGrid(true);
         fastaNamesTable.setIntercellSpacing(new Dimension(2, 2));
         fastaNamesTable.setDefaultRenderer(Object.class, new CustomRenderer());
-
-
-
-
         fastaNamesTable.getColumn(deleteColumnIdentifier).setCellRenderer(new TableButtonRenderer());
         fastaNamesTable.getColumn(deleteColumnIdentifier).setCellEditor(new TableButtonEditor(new JCheckBox()));
         fastaNamesTable.getColumn(deleteColumnIdentifier).setMaxWidth(40);
         JScrollPane scrollPane = new JScrollPane(fastaNamesTable);
-
-
-
         parsingConstraints.gridy++;
         parsingConstraints.gridwidth = 2;
         parsingConstraints.gridx = 0;
         parsingConstraints.weightx = 1;
-        parsingConstraints.weighty=1;
+        parsingConstraints.weighty = 1;
         parsingConstraints.fill = GridBagConstraints.BOTH;
         fastaPanel.add(scrollPane, parsingConstraints);
 
@@ -293,15 +277,15 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     private JPanel createTestPanel() {
         JPanel testPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        testPanel.setBorder(BorderFactory.createTitledBorder("Test"));
+        testPanel.setBorder(BorderFactory.createTitledBorder(" Test "));
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.insets = new Insets(5, 2, 5, 2);
 
         JLabel entryLineLabel = new JLabel("Fasta entry: ");
-        gbc.anchor=GridBagConstraints.WEST;
-        gbc.fill=GridBagConstraints.NONE;
-        gbc.weightx=0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weightx = 0;
 
         testPanel.add(entryLineLabel, gbc);
         gbc.gridx++;
@@ -311,10 +295,10 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         lineField.setEnabled(true);
         lineField.setToolTipText("Enter a line from a fasta file");
         gbc.weightx = 1;
-        gbc.fill=GridBagConstraints.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         testPanel.add(lineField, gbc);
         JButton testButton = new JButton("Test");
-        testButton.setToolTipText("Click to test protein accession rule:  "+proteinAccTField.getText());
+        testButton.setToolTipText("Click to test protein accession rule:  " + proteinAccTField.getText());
 
         testButton.addActionListener(e -> {
 
@@ -329,7 +313,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
                     revalidate();
                     repaint();
                 } else {
-                    resultOfTest.setText("No protein name extracted");
+                    resultOfTest.setText("No protein accession extracted");
                     revalidate();
                     repaint();
                 }
@@ -340,14 +324,14 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         });
         gbc.gridx++;
         gbc.fill = GridBagConstraints.NONE;
-        testButton.setMargin(new Insets(3,3,3,3));
-        gbc.anchor=GridBagConstraints.EAST;
-        gbc.weightx=0;
+        testButton.setMargin(new Insets(3, 3, 3, 3));
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.weightx = 0;
         testPanel.add(testButton, gbc);
         gbc.gridx = 0;
         gbc.gridy++;
-        gbc.anchor=GridBagConstraints.WEST;
-        gbc.weightx=0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.weightx = 0;
         testPanel.add(new JLabel("Protein accession extracted: "), gbc);
         resultOfTest = new JTextField();
         resultOfTest.setEnabled(true);
@@ -355,26 +339,40 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         gbc.gridx++;
 
         gbc.weightx = 1;
-        gbc.gridwidth=2;
-        gbc.fill=GridBagConstraints.HORIZONTAL;
-        gbc.anchor=GridBagConstraints.EAST;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.EAST;
         testPanel.add(resultOfTest, gbc);
         return testPanel;
     }
 
+    private void addFastaNames() {
+
+        String fastaToBeAdded = fastaNameTField.getText().trim();
+        boolean isValid = ParsingRulesTester.isRegexFastaNameValid(fastaToBeAdded);
+        if (!isValid) {
+            Popup.warning("the regular expression you filled is not valid");
+        } else if (fastaToBeAdded.length() != 0) {
+            fastaNameTField.setText("");
+            fastaList.add(fastaToBeAdded);
+            Object[] vector = {fastaToBeAdded, removeFastaNameRuleJButton};
+            fastaNamesTableModel.addRow(vector);
+            revalidate();
+            repaint();
+        } else {
+            Popup.warning("Please enter value");
+        }
 
 
+    }
 
     /**
      * check if entries inside EditDialog are valid
+     *
      * @return true if entries are all filled and valid (uniqueness of label)
      */
     @Override
     protected boolean okCalled() {
-
-        if (this.typeOfDialog.equals(TypeOfDialog.ViewFastas)) {
-            return true;
-        }
         boolean entriesAreValid = true;
         boolean formFullyFilled = !labelField.getText().isEmpty() && !proteinAccTField.getText().isEmpty()
                 && !fastaVersionTField.getText().isEmpty() && !fastaList.isEmpty();
@@ -405,7 +403,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             entriesAreValid = false;
         } else if (forgottenEntry) {
             highlight(fastaNameTField);
-            setStatus(false, "you might have forgotten an entry! ");
+            setStatus(true, "you might have forgotten an entry! ");
             String[] options = {"Delete", "Add"};
             boolean deleteOrAdd = Popup.optionYesNO("Do you want to add the value or delete it?", options);
             if (deleteOrAdd) {
@@ -417,11 +415,31 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             entriesAreValid = false;
 
         }
+
+        if (entriesAreValid) {
+            boolean proteinRegExIsValid = ParsingRulesTester.isRegexProInsideDialog(proteinAccTField.getText().trim());
+            if (!proteinRegExIsValid) {
+                highlight(proteinAccTField);
+                setStatus(true, "protein accession rule is not valid");
+                entriesAreValid = false;
+
+            }
+            boolean fastaListIsValid = ParsingRulesTester.testFastaListInsideDialog(fastaList);
+            if (!fastaListIsValid) {
+
+                //highlight(fastaNamesTable);
+                Popup.warning("Non valid regular expression you might check inside the table");
+                setStatus(true, "at least one regular expression is not valid");
+                entriesAreValid = false;
+            }
+
+        }
         return entriesAreValid;
     }
 
     /**
      * retrieves the parsingrule
+     *
      * @return parsingrule
      */
 
@@ -438,48 +456,9 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     }
 
 
-
-
-    /**
-     * @deprecated used to open local test dialog  not used anymore
-     *
-     *
-     */
-    @Override
-    protected boolean defaultCalled() {
-
-
-        if (proteinAccTField.getText().equals("")) {
-            highlight(proteinAccTField);
-            setStatus(true, "Regular expression missing");
-        } else {
-            TestParsingRuleDialog testDialog = new TestParsingRuleDialog(ConfigWindow.getInstance(), labelField, fastaVersionTField, proteinAccTField, fastaList);
-            testDialog.centerToScreen();
-            testDialog.setSize(800, 300);
-            testDialog.setVisible(true);
-
-
-            if (testDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
-                String newProteinRegExp = testDialog.getNewProteinAccessionRule();
-                boolean proteinHasBeenChanged = !newProteinRegExp.equals(proteinAccTField.getText());
-                if (proteinHasBeenChanged) {
-
-                    String[] options = {"Keep", "Change"};
-                    boolean userChooseToKeepOldValue = Popup.optionYesNO("During the test you modified the value of the protein accession rule\n" +
-                            "you have the possibility to change the value", options);
-                    if (!userChooseToKeepOldValue) {
-                        proteinAccTField.setText(newProteinRegExp);
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-
     /**
      * resets elements inside dialog
+     *
      * @return
      */
     protected boolean backCalled() {
@@ -489,6 +468,8 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         fastaVersionTField.setText("");
         proteinAccTField.setText("");
         fastaNameTField.setText("");
+        lineField.setText("");
+        resultOfTest.setText("");
         fastaNamesTableModel.getDataVector().removeAllElements();
         fastaNamesTableModel.fireTableDataChanged();
         revalidate();
@@ -498,28 +479,10 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
     }
 
-    private void addFastaNames() {
 
-        String fastaToBeAdded = fastaNameTField.getText().trim();
-        boolean isValid=ParsingRulesTester.isRegexFastaNameValid(fastaToBeAdded);
-        if (!isValid){
-            Popup.warning("the regular expression you filled is not valid");
-        }
-        else if (fastaToBeAdded.length() != 0) {
-            fastaNameTField.setText("");
-            fastaList.add(fastaToBeAdded);
-            Object[] vector = {fastaToBeAdded, removeFastaNameRuleJButton};
-            fastaNamesTableModel.addRow(vector);
-            revalidate();
-            repaint();
-        } else {
-            Popup.warning("Please enter value");
-        }
-
-
-    }
-
-    //// Methods used To implement the table
+    /**
+     * All methods below are used to implement the JTable
+     */
     public class TableButtonRenderer implements TableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -556,8 +519,8 @@ public class ParsingRuleEditDialog extends DefaultDialog {
                     c.setBackground(Color.WHITE);
                 }
                 // reg ex not valid  appear red
-                if (fastaValid.get(row).equals(false)){
-                    c.setBackground((new Color(220,0,90)));
+                if (fastaValid.get(row).equals(false)) {
+                    c.setBackground((new Color(220, 0, 90)));
                 }
             }
             return c;
@@ -614,7 +577,6 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             super.fireEditingStopped();
         }
     }
-
 
 
 }

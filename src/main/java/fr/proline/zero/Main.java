@@ -44,7 +44,6 @@ public class Main {
 
 			// we check that all of our properties are correct and will not give errors
 
-			logger.info("error message:   "+ConfigManager.getInstance().getMountPointManager().getErrorMessage());
 
 			// GUI  executed in EDT
 			try {

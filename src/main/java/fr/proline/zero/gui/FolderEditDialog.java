@@ -15,15 +15,13 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 
-
-
 /**
- *  used to add or update a mounting point (MZDB plus RESULT) as well as Fastas
+ * used to add or update a mounting point (MZDB plus RESULT) as well as Fastas
+ *
  * @author Christophe Delapierre
  * @see FolderPanel
  * @see ConfigManager
  * @see DefaultDialog
- *
  */
 
 public class FolderEditDialog extends DefaultDialog {
@@ -41,10 +39,7 @@ public class FolderEditDialog extends DefaultDialog {
 
     public FolderEditDialog(Window parent, TypeOfDialog typeOfDialog, String pathBackup, String labelEdited, MountPointUtils.MountPointType mountPointType) {
         super(parent);
-
-
         this.setInternalComponent(createAddFolderPanel());
-
         this.typeOfDialog = typeOfDialog;
         this.setButtonName(BUTTON_BACK, "Clear");
         this.setButtonVisible(BUTTON_BACK, true);
@@ -55,10 +50,8 @@ public class FolderEditDialog extends DefaultDialog {
         this.setButtonVisible(BUTTON_HELP, false);
 
         if (typeOfDialog.equals(TypeOfDialog.AddingAMountPoint)) {
-
             this.setTitle("Add folder");
             this.setIconImage(IconManager.getImage(IconManager.IconType.PLUS_16X16));
-
             this.setButtonName(BUTTON_OK, "Add");
 
         } else if (typeOfDialog.equals(TypeOfDialog.EditingFastas)) {
@@ -79,6 +72,7 @@ public class FolderEditDialog extends DefaultDialog {
             folderLabelField.setEditable(false);
             dataTypeBox.setSelectedItem(mountPointType.getDisplayString());
             dataTypeBox.setEnabled(false);
+
         } else if (typeOfDialog.equals(TypeOfDialog.EditingMpts)) {
 
             this.setTitle("Edit Mounting Point");
@@ -89,7 +83,6 @@ public class FolderEditDialog extends DefaultDialog {
             dataTypeBox.setEnabled(false);
 
         }
-
 
         this.setResizable(true);
         super.pack();
@@ -105,7 +98,7 @@ public class FolderEditDialog extends DefaultDialog {
         dataTypeBox.addItem(MountPointUtils.MountPointType.RESULT.getDisplayString());
         dataTypeBox.addItem(MountPointUtils.MountPointType.MZDB.getDisplayString());
 
-        boolean SeqRepoIsActive=ConfigManager.getInstance().isSeqRepActive();
+        boolean SeqRepoIsActive = ConfigManager.getInstance().isSeqRepActive();
         if (SeqRepoIsActive) {
             dataTypeBox.addItem("Fasta folder");
         }
@@ -130,9 +123,9 @@ public class FolderEditDialog extends DefaultDialog {
         addFolderConstraint.fill = GridBagConstraints.HORIZONTAL;
         addFolderConstraint.gridx = 0;
         addFolderConstraint.gridy = 0;
-        JLabel l = new JLabel("Data type : ", SwingConstants.RIGHT);
-        l.setEnabled(true);
-        addFolderPanel.add(l, addFolderConstraint);
+        JLabel jLabel = new JLabel("Data type : ", SwingConstants.RIGHT);
+        jLabel.setEnabled(true);
+        addFolderPanel.add(jLabel, addFolderConstraint);
 
         addFolderConstraint.gridx++;
         addFolderConstraint.anchor = GridBagConstraints.NORTHWEST;
@@ -141,9 +134,9 @@ public class FolderEditDialog extends DefaultDialog {
         addFolderConstraint.gridx = 0;
         addFolderConstraint.gridy++;
         addFolderConstraint.anchor = GridBagConstraints.NORTHEAST;
-        l = new JLabel("Label : ", SwingConstants.RIGHT);
-        l.setEnabled(true);
-        addFolderPanel.add(l, addFolderConstraint);
+        jLabel = new JLabel("Label : ", SwingConstants.RIGHT);
+        jLabel.setEnabled(true);
+        addFolderPanel.add(jLabel, addFolderConstraint);
 
         addFolderConstraint.gridx++;
         addFolderConstraint.anchor = GridBagConstraints.NORTHWEST;
@@ -154,10 +147,10 @@ public class FolderEditDialog extends DefaultDialog {
         addFolderConstraint.gridx = 0;
         addFolderConstraint.gridy++;
         addFolderConstraint.anchor = GridBagConstraints.NORTHEAST;
-        l = new JLabel("Path : ", SwingConstants.RIGHT);
-        l.setEnabled(true);
+        jLabel = new JLabel("Path : ", SwingConstants.RIGHT);
+        jLabel.setEnabled(true);
         browseButton.setEnabled(true);
-        addFolderPanel.add(l, addFolderConstraint);
+        addFolderPanel.add(jLabel, addFolderConstraint);
 
         addFolderConstraint.gridx++;
         addFolderConstraint.anchor = GridBagConstraints.NORTHWEST;
@@ -204,8 +197,7 @@ public class FolderEditDialog extends DefaultDialog {
     }
 
     /**
-     *
-     * @return  the three values inside the folder dialog
+     * @return the three values inside the folder dialog
      */
     public ArrayList<String> getValuesEntered() {
         ArrayList<String> values = new ArrayList<>(3);

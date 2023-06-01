@@ -68,7 +68,12 @@ public class Popup  {
         SplashScreen.setModal(true);
         return (r == JOptionPane.OK_OPTION);
     }
-
+    public static boolean optionYesNOCenterToWindow(Component parent,String message, String[] options) {
+        SplashScreen.setModal(false);
+        int r = JOptionPane.showOptionDialog(parent, message, DEFAULT_TITLE, JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, message);
+        SplashScreen.setModal(true);
+        return (r == JOptionPane.OK_OPTION);
+    }
 
     public static void error(String message) {
         error(message, null);

@@ -79,6 +79,14 @@ public class ParsingRule implements Cloneable {
            throw new AssertionError();
        }
    }
+
+    public ParsingRule(ParsingRule parsingRule) {
+        this.fastaNameRegExp = parsingRule.fastaNameRegExp;
+        this.name= parsingRule.name;
+        this.fastaVersionRegExp=parsingRule.fastaVersionRegExp;
+        this.proteinAccRegExp=parsingRule.proteinAccRegExp;
+
+    }
 }
 
 

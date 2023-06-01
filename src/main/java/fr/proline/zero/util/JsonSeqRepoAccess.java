@@ -138,14 +138,11 @@ public class JsonSeqRepoAccess {
 
 
     /**
-     * Does not update protein by default
-     *
-     * @deprecated
+     * Saves config file parsing-rule.conf.
      */
 
 
-
-    public void updateConfigRulesAndFastaV2(List<String> fastaPaths, List<ParsingRule> setOfRules, String defaultProteinAccessionRule) {
+    public void updateConfigRulesAndFasta(List<String> fastaPaths, List<ParsingRule> setOfRules, String defaultProteinAccessionRule) {
         // first updates fasta directories
 
         ConfigObject toBePreserved = JsonSeqRepoAccess.getInstance().getParsingConfig().root().withoutKey(ProlineFiles.SEQREPO_FASTA_DIRECTORIES);

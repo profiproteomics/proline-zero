@@ -24,7 +24,6 @@ public class ParsingRulesPanel extends JPanel {
     private static final Logger LOG = LoggerFactory.getLogger(ParsingRulesPanel.class);
 
 
-
     public ParsingRulesPanel() {
 
         initialize();
@@ -75,8 +74,8 @@ public class ParsingRulesPanel extends JPanel {
 
             String protByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
             // patch
-            if (protByDefault.equals("")){
-                protByDefault=">\\w{2}\\|\\w+\\|(\\w+)";
+            if (protByDefault.equals("")) {
+                protByDefault = ">\\w{2}\\|\\w+\\|(\\w+)";
                 ConfigManager.getInstance().getParsingRulesManager().setProteinByDefault(protByDefault);
             }
 
@@ -91,8 +90,6 @@ public class ParsingRulesPanel extends JPanel {
                     String textInsideTextField = labelProt.getText();
 
                     ConfigManager.getInstance().setProteinByDefault(textInsideTextField);
-
-
                 }
 
                 @Override
@@ -105,8 +102,6 @@ public class ParsingRulesPanel extends JPanel {
 
                 @Override
                 public void changedUpdate(DocumentEvent e) {
-
-
 
                 }
             });
@@ -123,8 +118,8 @@ public class ParsingRulesPanel extends JPanel {
             c.fill = GridBagConstraints.HORIZONTAL;
             c.anchor = GridBagConstraints.NORTHWEST;
             c.weighty = 0;
-            //---------------
-            // JPanel rulesListPanel=createParsingRulesListPanel();
+
+
             JScrollPane scrollPane = new JScrollPane(createParsingRulesListPanel());
             scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
             scrollPane.setPreferredSize(new Dimension(700, 550));
@@ -148,13 +143,17 @@ public class ParsingRulesPanel extends JPanel {
     }
 
     private void openAddDialog() {
-        ParsingRuleEditDialog newDialog = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.Add, null);
-        newDialog.centerToWindow(ConfigWindow.getInstance());
-        newDialog.setSize(630, 350);
+        ParsingRuleEditDialog adderDialog = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.Add, null);
 
-        newDialog.setVisible(true);
-        if (newDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
-            ParsingRule parsingRuleAdded = newDialog.getParsingRuleInsideDialog();
+        adderDialog.setSize(630, 380);
+        adderDialog.setHelpHeader(IconManager.getIcon(IconManager.IconType.INFORMATION), "", "This dialog allows you to add new parsing rules,\n" +
+                "you can also test the validity of the protein accession rule, to do so enter a line from a fasta file and click on the test button");
+
+        adderDialog.centerToWindow(ConfigWindow.getInstance());
+        adderDialog.setVisible(true);
+
+        if (adderDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+            ParsingRule parsingRuleAdded = adderDialog.getParsingRuleInsideDialog();
             boolean addSuccess = ConfigManager.getInstance().getParsingRulesManager().addNewRule(parsingRuleAdded);
             if (addSuccess) {
                 updatePanel();
@@ -253,16 +252,11 @@ public class ParsingRulesPanel extends JPanel {
     }
 
 
-
-
-
-
     /**
      * builds the JPanel that display a particular parsing rule
+     *
      * @param parsingRule
      * @param maximumSize
-     *
-     *
      */
     private JPanel displayParsingRules(ParsingRule parsingRule, int[] maximumSize) {
         JPanel displayParsingRule = new JPanel(new GridBagLayout());
@@ -460,11 +454,8 @@ public class ParsingRulesPanel extends JPanel {
     }
 
 
-
-
-
     private void deleteRule(ParsingRule parsingRuleToBeDeleted) {
-        boolean deleteConfirmation = Popup.yesNoCenterTOWindow(ConfigWindow.getInstance(),"Are you sure you want to delete this parsing rule?");
+        boolean deleteConfirmation = Popup.yesNoCenterTOWindow(ConfigWindow.getInstance(), "Are you sure you want to delete this parsing rule?");
         if (deleteConfirmation) {
             boolean success = ConfigManager.getInstance().getParsingRulesManager().deleteRule(parsingRuleToBeDeleted);
             if (success) {
@@ -480,26 +471,28 @@ public class ParsingRulesPanel extends JPanel {
 
         int index = setOfRules.indexOf(parsingRuleEdited);
 
-        ParsingRuleEditDialog newDialog = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.Edit, parsingRuleEdited);
-
-        newDialog.centerToWindow(ConfigWindow.getInstance());
-        newDialog.setSize(600, 300);
-        newDialog.setVisible(true);
+        ParsingRuleEditDialog parsingRuleEditDialog = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.Edit, parsingRuleEdited);
 
 
-        if (newDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+        parsingRuleEditDialog.setSize(600, 380);
+        parsingRuleEditDialog.centerToWindow(ConfigWindow.getInstance());
+        parsingRuleEditDialog.setHelpHeader(IconManager.getIcon(IconManager.IconType.INFORMATION), "", "In this dialog you can modify the parsing rule" +
+                ", you can also test if the protein rule does extract properly the accession of the protein.");
+        parsingRuleEditDialog.setVisible(true);
 
-            ParsingRule modifiedParsingRule = newDialog.getParsingRuleInsideDialog();
+
+        if (parsingRuleEditDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+
+            ParsingRule modifiedParsingRule = parsingRuleEditDialog.getParsingRuleInsideDialog();
 
             ConfigManager.getInstance().getParsingRulesManager().updateSetOfRules(index, modifiedParsingRule);
             updatePanel();
         }
 
-        if (newDialog.getButtonClicked()==DefaultDialog.BUTTON_CANCEL){
+        if (parsingRuleEditDialog.getButtonClicked() == DefaultDialog.BUTTON_CANCEL) {
 
 
         }
-
 
 
     }

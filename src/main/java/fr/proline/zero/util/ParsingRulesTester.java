@@ -20,7 +20,6 @@ import static fr.proline.module.seq.Constants.LATIN_1_CHARSET;
 
 /**
  * This class contains all the methods used to do tests on parsing rules
- *
  */
 
 public class ParsingRulesTester {
@@ -44,9 +43,9 @@ public class ParsingRulesTester {
     public static void globalTest() throws Exception {
 
 
-        List<String> localFASTAPaths = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
+        List<String> fastaDirectories = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
 
-        Map<String, List<File>> fastaPaths = retrieveFastaFiles(localFASTAPaths);
+        Map<String, List<File>> fastaPaths = retrieveFastaFiles(fastaDirectories);
 
         if (fastaPaths.isEmpty()) {
             Popup.warning("No fasta files found, you might check fasta directories inside folder panel");
@@ -63,8 +62,8 @@ public class ParsingRulesTester {
         // test won't be executed if regex by default is not valid
         if (proteinByDefaultIsValid) {
 
-            int successMatching=0;
-            int numberOfFilesWithoutProteinExtracted=0;
+            int successMatching = 0;
+            int numberOfFilesWithoutProteinExtracted = 0;
             for (Map.Entry<String, List<File>> entry : entries) {
                 String fastaName = entry.getKey();
                 List<File> FastaFiles = entry.getValue();
@@ -109,16 +108,18 @@ public class ParsingRulesTester {
                                     linePlusProteinName.put(trimmedLine, foundEntry);
 
                                 } else {
-                                    linePlusProteinName.put(trimmedLine, "No protein name extracted");
+                                    linePlusProteinName.put(trimmedLine, "No protein accession extracted");
                                 }
                             } // End entryFound
                             rawLine = br.readLine();
                         }
-                        if (!proteinHasBeenFound){
+                        if (!proteinHasBeenFound) {
                             numberOfFilesWithoutProteinExtracted++;
                         }
-                        if (!proteinHasBeenFound && countEntry == 0) {
-                            linePlusProteinName.put("Could not extract any line from file:  " + fastaName, "No protein found");
+                        if (countEntry == 0) {
+                            //linePlusProteinName.put("Could not extract any line from file  " + fastaName, "No protein extracted");
+                            linePlusProteinName.put("Could not extract any line from this file", "hence no protein accession extracted");
+                            // numberOfFilesWithoutProteinExtracted++;
                         }
 
                         lineResults.add(linePlusProteinName);
@@ -139,15 +140,15 @@ public class ParsingRulesTester {
                 //End go through associated fasta files
             }
 
-            ResultOfGlobalTestDialog resultDialog = new ResultOfGlobalTestDialog(ConfigWindow.getInstance(), resultStore, lineResults,successMatching,numberOfFilesWithoutProteinExtracted);
-            resultDialog.setSize(930, 600);
+            ResultOfGlobalTestDialog resultDialog = new ResultOfGlobalTestDialog(ConfigWindow.getInstance(), resultStore, lineResults, successMatching, numberOfFilesWithoutProteinExtracted);
+            resultDialog.setSize(930, 700);
             resultDialog.centerToWindow(ConfigWindow.getInstance());
             resultDialog.setVisible(true);
         }
 
 
     }
-   // Method from seqrepo works but might be heavy??
+    // Method from seqrepo works but might be heavy??
 
     private static Map<String, List<File>> getFastaFilesMap() throws Exception {
         Map<String, List<File>> fastaFiles = null;
@@ -163,12 +164,12 @@ public class ParsingRulesTester {
     }
 
     /**
-     * will retrieve all fasta files, key is name of file, values are Files with name equal to key
+     * will retrieve all fasta files, key is name of file, values are Files path with name equal to key
      * recursive method
-     * @param folderPaths
-     * @return  a Map
-     * @author Christophe Delapierre
      *
+     * @param folderPaths
+     * @return a Map
+     * @author Christophe Delapierre
      */
 
 
@@ -202,8 +203,6 @@ public class ParsingRulesTester {
     }
 
 
-
-
     public static String extractProteinNameWithRegEx(String line, String protRegex) {
         return getMatchingString(line, protRegex);
     }
@@ -211,40 +210,41 @@ public class ParsingRulesTester {
     /**
      * method that takes two strings as input parameters: sourceText and protRegEx. It attempts to find a matching substring
      * within sourceText based on the regular expression protRegEx.
+     *
      * @param sourceText
      * @param protRegEx
      * @return String
-     * @author Christophe Delapierre
      * @throws PatternSyntaxException
+     * @author Christophe Delapierre
      */
 
     private static String getMatchingString(final String sourceText, final String protRegEx) {
         if (sourceText == null || protRegEx == null)
             return null;
-        String result = null;
+        String matchingProtein = null;
 
         try {
             Pattern textPattern = Pattern.compile(protRegEx, Pattern.CASE_INSENSITIVE);
 
 
-                final Matcher matcher = textPattern.matcher(sourceText);
+            final Matcher matcher = textPattern.matcher(sourceText);
 
-                if (matcher.find()) {
+            if (matcher.find()) {
 
-                    if (matcher.groupCount() >= 1)
-                        result = matcher.group(1).trim();
-                }
+                if (matcher.groupCount() >= 1)
+                    matchingProtein = matcher.group(1).trim();
+            }
+
 
         } catch (PatternSyntaxException patternSyntaxException) {
             // shall never happen in global test  because protRegex has already been checked
             patternSyntaxException.printStackTrace();
             // could happen in local test
             Popup.warning("Protein Regex is not valid please modify it");
-
             return "regex not valid, no protein extracted";
 
         }
-        return result;
+        return matchingProtein;
     }
 
     public static boolean isRegexProtValid(String regex) {
@@ -253,6 +253,16 @@ public class ParsingRulesTester {
             return true;
         } catch (PatternSyntaxException e) {
             Popup.warning("Default regular expression is not valid please modify it");
+            return false;
+        }
+    }
+
+    public static boolean isRegexProInsideDialog(String regex) {
+        try {
+            Pattern.compile(regex);
+            return true;
+        } catch (PatternSyntaxException e) {
+
             return false;
         }
     }
@@ -270,10 +280,11 @@ public class ParsingRulesTester {
     /**
      * Retrieves first parsingrule that contains a fasta name regex that matches with name of file passed
      * return null if no parsing rule matches
+     *
      * @param fastaFileName
      * @return Object[]
-     * @author Christophe Delapierre
      * @throws PatternSyntaxException
+     * @author Christophe Delapierre
      */
 
     //
@@ -292,12 +303,14 @@ public class ParsingRulesTester {
                     if (matcher.find()) {
                         resultObject[0] = parsingRule;
                         resultObject[1] = fastaRegEx;
+                        resultObject[3] = true;
                         // loop ends as soon as a fastaRegex match with the name of the file
                         break;
+
                     }
                 } catch (PatternSyntaxException patternSyntaxException) {
 
-                    resultObject[3]=true;
+                    resultObject[3] = false;
                     break;
                 }
             }
@@ -332,21 +345,41 @@ public class ParsingRulesTester {
         }
         return atleastOneFastaIsNotValid;
     }
-    public static ArrayList<Boolean> testFastaList(List<String> fastaList){
-        ArrayList<Boolean> fastaValid=new ArrayList<>();
+
+    /**
+     * Tests if all fasta names regex are valid.
+     *
+     * @param fastaList
+     * @return
+     */
+    public static ArrayList<Boolean> testFastaList(List<String> fastaList) {
+        ArrayList<Boolean> fastaValid = new ArrayList<>();
         int sizeOfFastaRegex = fastaList.size();
         for (int j = 0; j < sizeOfFastaRegex; j++) {
 
             if (isRegexFastaNameValid(fastaList.get(j))) {
-                fastaValid.add(j,true);
+                fastaValid.add(j, true);
 
-            }
-            else fastaValid.add(false);
+            } else fastaValid.add(false);
         }
         return fastaValid;
 
     }
 
+    public static boolean testFastaListInsideDialog(List<String> fastaList) {
+        int sizeOfFastaRegex = fastaList.size();
+        boolean fastaRegexAreValid = true;
+        for (int j = 0; j < sizeOfFastaRegex; j++) {
+
+            if (!isRegexFastaNameValid(fastaList.get(j))) {
+                fastaRegexAreValid = false;
+                break;
+
+            }
+        }
+        return fastaRegexAreValid;
+
+    }
 
 
 }
