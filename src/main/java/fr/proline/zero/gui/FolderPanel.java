@@ -27,15 +27,15 @@ public class FolderPanel extends JPanel {
 
     private final static Color DEFAULT_LABEL_COLOR = new Color(50, 0, 230);
 
-    private final static Color ERROR_COLOR =new Color(190, 0, 0);
-    private final static Color WARNING_COLOR=new Color(230,230,230);
-    private final static Color LABEL_ERROR= new Color(180,0,0);
+    private final static Color ERROR_COLOR = new Color(190, 0, 0);
+    private final static Color WARNING_COLOR = new Color(230, 230, 230);
+    private final static Color LABEL_ERROR = new Color(180, 0, 0);
 
-    private final static Color JTEXT_COLOR =new Color(5,5,5);
+    private final static Color JTEXT_COLOR = new Color(5, 5, 5);
 
 
     private String labelEdited;
-    private  String pathBackup;
+    private String pathBackup;
     public ArrayList<String> valuesInsideDialog;
 
 
@@ -113,7 +113,6 @@ public class FolderPanel extends JPanel {
         add(Box.createHorizontalGlue(), folderPanelConstraints);
 
 
-
     }
 
     private void openAddDialog() {
@@ -181,10 +180,9 @@ public class FolderPanel extends JPanel {
 
     private void initAnyFolderPanel(MountPointUtils.MountPointType mountPointType, JPanel anyPanel) {
         List<String> pathWrong = ConfigManager.getInstance().getMountPointManager().getInvalidPaths();
-        List<String> innerDuplicates=ConfigManager.getInstance().getMountPointManager().getDuplicatePathsPerMountPoint(mountPointType);
-        List<String> exteriorDuplicates=ConfigManager.getInstance().getMountPointManager().getDuplicateExteriorToMountPoints();
-        List<String> labelsDuplicate=ConfigManager.getInstance().getMountPointManager().getNonUniqueLabels(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
 
+        List<String> labelsDuplicate = ConfigManager.getInstance().getMountPointManager().getNonUniqueLabels(ConfigManager.getInstance().getMountPointManager().getMountPointMap());
+        List<String> listOfDuplicates = ConfigManager.getInstance().getMountPointManager().getDuplicatePaths();
         Map<String, String> mountPointsToBeDisplayed = ConfigManager.getInstance().getMountPointManager().getMountPointMap().get(mountPointType);
 
         GridBagConstraints anyPanelConstraints = new GridBagConstraints();
@@ -207,9 +205,9 @@ public class FolderPanel extends JPanel {
         String path = null;
         JTextField jTextPathInitial;
         boolean defaultMountPointHasAWrongPath = false;
-        boolean defaultMountPointIsInnerDuplicate = false;
-        boolean defaultMountPointIsDuplicateExterior=false;
-        boolean defaultMountPointLabelIsDuplicate=false;
+
+        boolean defaultMountPointLabelIsDuplicate = false;
+        boolean defaultMountPointIsDuplicate = false;
         if (mountPointsToBeDisplayed != null) {
 
             path = mountPointsToBeDisplayed.get(MountPointUtils.getMountPointDefaultPathLabel(mountPointType));
@@ -217,14 +215,11 @@ public class FolderPanel extends JPanel {
 
             defaultMountPointHasAWrongPath = pathWrong.contains(path);
             // check if the label is duplicate
-            defaultMountPointLabelIsDuplicate=labelsDuplicate.contains(MountPointUtils.getMountPointDefaultPathLabel(mountPointType));
+            defaultMountPointLabelIsDuplicate = labelsDuplicate.contains(MountPointUtils.getMountPointDefaultPathLabel(mountPointType));
+            defaultMountPointIsDuplicate = listOfDuplicates.contains(path);
 
-            if (!defaultMountPointLabelIsDuplicate)
-            {
-                defaultMountPointIsInnerDuplicate = innerDuplicates.contains(path);
-                defaultMountPointIsDuplicateExterior=exteriorDuplicates.contains(path);
+          ;
 
-            }
         } else {
             jTextPathInitial = new JTextField();
         }
@@ -241,27 +236,17 @@ public class FolderPanel extends JPanel {
 
                 jTextPathInitial.setText("Missing path please enter a path for this mount point");
                 changeJTextFieldLook(jTextPathInitial, ERROR_COLOR, Color.WHITE, "empty path ");
-            }
-            else if (defaultMountPointHasAWrongPath) {
+            } else if (defaultMountPointHasAWrongPath) {
                 changeJTextFieldLook(jTextPathInitial, ERROR_COLOR, Color.WHITE, "This path is not valid");
-            }
-            else if (defaultMountPointLabelIsDuplicate){
+            } else if (defaultMountPointLabelIsDuplicate) {
 
-                changeJTextFieldLook(jTextPathInitial,LABEL_ERROR,Color.WHITE,"This mount point has not unique label");
+                changeJTextFieldLook(jTextPathInitial, LABEL_ERROR, Color.WHITE, "This mount point has not unique label");
                 fieldInitial.setForeground(LABEL_ERROR);
-            }
+            } else if (defaultMountPointIsDuplicate) {
 
-            else if (defaultMountPointIsInnerDuplicate) {
+                changeJTextFieldLook(jTextPathInitial, WARNING_COLOR, JTEXT_COLOR, "This path is a duplicate");
 
-                changeJTextFieldLook(jTextPathInitial, ERROR_COLOR, Color.WHITE, "this is a duplicate path");
-
-            }
-             else if (defaultMountPointIsDuplicateExterior){
-
-                 changeJTextFieldLook(jTextPathInitial,WARNING_COLOR, JTEXT_COLOR,"warning this path exists in an another mount point");
-            }
-
-            else {
+            } else {
                 jTextPathInitial.setEnabled(false);
 
             }
@@ -283,19 +268,18 @@ public class FolderPanel extends JPanel {
         anyPanelConstraints.weightx = 0;
         anyPanelConstraints.gridx++;
 
-        JButton editButton = new JButton(IconManager.getIcon(IconManager.IconType.EDIT));
-        editButton.setHorizontalAlignment(SwingConstants.CENTER);
-        editButton.setToolTipText("Click to edit ");
-        editButton.setSize(20, 15);
+        JButton editDefaultMountPoint = new JButton(IconManager.getIcon(IconManager.IconType.EDIT));
+        editDefaultMountPoint.setHorizontalAlignment(SwingConstants.CENTER);
+        editDefaultMountPoint.setToolTipText("Click to edit ");
+        editDefaultMountPoint.setSize(20, 15);
 
         String finalPath = path;
-        editButton.addActionListener(e -> {
+        editDefaultMountPoint.addActionListener(e -> {
 
 
             pathBackup = finalPath;
-            if (finalPath != null) {
-                ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mountPointType, MountPointUtils.getMountPointDefaultPathLabel(mountPointType), true);
-            }
+
+            ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mountPointType,MountPointUtils.getMountPointDefaultPathLabel(mountPointType),true);
 
 
             FolderEditDialog editDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingDefaultMPts, pathBackup, null, mountPointType);
@@ -308,13 +292,14 @@ public class FolderPanel extends JPanel {
                 addFolderAction();
             }
             if (editDialog.getButtonClicked() == DefaultDialog.BUTTON_CANCEL) {
-                ConfigManager.getInstance().getMountPointManager().addMountPointEntry(mountPointType, MountPointUtils.getMountPointDefaultPathLabel(mountPointType), pathBackup);
+
+                ConfigManager.getInstance().getMountPointManager().cancelDeleteMountPointEntry(mountPointType, MountPointUtils.getMountPointDefaultPathLabel(mountPointType), pathBackup);
             }
 
 
         });
         anyPanelConstraints.insets = new Insets(5, 2, 5, 2);
-        anyPanel.add(editButton, anyPanelConstraints);
+        anyPanel.add(editDefaultMountPoint, anyPanelConstraints);
         anyPanelConstraints.gridx++;
         anyPanelConstraints.fill = GridBagConstraints.NONE;
         anyPanelConstraints.weightx = 0;
@@ -344,50 +329,39 @@ public class FolderPanel extends JPanel {
 
                 anyPanel.add(field, anyPanelConstraints);
 
-                JTextField resultPath = new JTextField(mountPointsToBeDisplayed.get(key));
+                JTextField jTextMountPointPath = new JTextField(mountPointsToBeDisplayed.get(key));
 
-                resultPath.setEditable(false);
-                resultPath.setEnabled(false);
+                jTextMountPointPath.setEditable(false);
+                jTextMountPointPath.setEnabled(false);
 
                 if (mountPointsToBeDisplayed.get(key).equals("")) {
-                    resultPath.setText("This path is empty please enter a path for this mount point");
-                    changeJTextFieldLook(resultPath,ERROR_COLOR,Color.WHITE,"This path is empty please enter a path for this mount point");
-                }
-                else if (pathWrong.contains(mountPointsToBeDisplayed.get(key))) {
+                    jTextMountPointPath.setText("This path is empty please enter a path for this mount point");
+                    changeJTextFieldLook(jTextMountPointPath, ERROR_COLOR, Color.WHITE, "This path is empty please enter a path for this mount point");
+                } else if (pathWrong.contains(mountPointsToBeDisplayed.get(key))) {
 
-                    changeJTextFieldLook(resultPath, ERROR_COLOR, Color.WHITE, "This path is not valid");
-                }
+                    changeJTextFieldLook(jTextMountPointPath, ERROR_COLOR, Color.WHITE, "This path is not valid");
+                } else if (labelsDuplicate.contains(key)) {
 
-                else if (labelsDuplicate.contains(key)){
-
-                    changeJTextFieldLook(resultPath,LABEL_ERROR,Color.WHITE,"this mount point has not unique label");
+                    changeJTextFieldLook(jTextMountPointPath, LABEL_ERROR, Color.WHITE, "this mount point has not unique label");
                     field.setForeground(LABEL_ERROR);
-                }
+                } else if (listOfDuplicates.contains(mountPointsToBeDisplayed.get(key))) {
 
-
-                else if (innerDuplicates.contains(mountPointsToBeDisplayed.get(key))) {
-
-                    changeJTextFieldLook(resultPath, ERROR_COLOR, Color.WHITE, "This path is a duplicate ");
-
-                }
-                else if (exteriorDuplicates.contains(mountPointsToBeDisplayed.get(key))){
-
-                    changeJTextFieldLook(resultPath,WARNING_COLOR, JTEXT_COLOR,"warning this path exists in an another mount point");
+                    changeJTextFieldLook(jTextMountPointPath, WARNING_COLOR, JTEXT_COLOR, "This path is a duplicate ");
 
                 }
                 anyPanelConstraints.gridx++;
                 anyPanelConstraints.anchor = GridBagConstraints.WEST;
                 anyPanelConstraints.weightx = 1;
                 anyPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-                int sizeOfJtext = getSizeInPixels(resultPath);
+                int sizeOfJtext = getSizeInPixels(jTextMountPointPath);
 
                 if (sizeOfJtext > 350) {
-                    resultPath.setEnabled(true);
-                    resultPath.setEditable(true);
+                    jTextMountPointPath.setEnabled(true);
+                    jTextMountPointPath.setEditable(true);
                 }
 
                 anyPanelConstraints.insets = new Insets(0, 5, 0, 5);
-                anyPanel.add(resultPath, anyPanelConstraints);
+                anyPanel.add(jTextMountPointPath, anyPanelConstraints);
                 anyPanelConstraints.fill = GridBagConstraints.NONE;
                 anyPanelConstraints.weightx = 0;
                 anyPanelConstraints.gridx++;
@@ -397,13 +371,13 @@ public class FolderPanel extends JPanel {
                 editMPointButton.setToolTipText("Click to edit mounting point");
 
                 editMPointButton.setEnabled(true);
-                final String pathClone=mountPointsToBeDisplayed.get(key);
-                final String labelClone=key;
+                final String pathClone = mountPointsToBeDisplayed.get(key);
+                final String labelClone = key;
 
                 editMPointButton.addActionListener(e -> {
 
-                    pathBackup=pathClone;
-                    labelEdited=labelClone;
+                    pathBackup = pathClone;
+                    labelEdited = labelClone;
                     ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mountPointType, key, false);
                     FolderEditDialog editDialog = new FolderEditDialog(ConfigWindow.getInstance(), FolderEditDialog.TypeOfDialog.EditingMpts, pathBackup, labelEdited, mountPointType);
                     editDialog.setSize(500, 200);
@@ -416,13 +390,15 @@ public class FolderPanel extends JPanel {
                         addFolderAction();
                     }
                     if (editDialog.getButtonClicked() == DefaultDialog.BUTTON_CANCEL) {
-                        //ConfigManager.getInstance().getMountPointManager().addMountPointEntry(mountPointType, labelClone, pathClone);
-                        ConfigManager.getInstance().getMountPointManager().addMountPointEntry(mountPointType, labelEdited, pathBackup);
+
+
+                        ConfigManager.getInstance().getMountPointManager().cancelDeleteMountPointEntry(mountPointType, labelEdited, pathBackup);
 
                     }
-                    if (editDialog.getButtonClicked()==DefaultDialog.BUTTON_BACK){
-                        pathBackup=pathClone;
-                        labelEdited=labelClone;
+                    if (editDialog.getButtonClicked() == DefaultDialog.BUTTON_BACK) {
+
+                        pathBackup = pathClone;
+                        labelEdited = labelClone;
 
                     }
 
@@ -470,16 +446,15 @@ public class FolderPanel extends JPanel {
 
         List<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
         List<String> wrongFastaDirectories = ConfigManager.getInstance().getParsingRulesManager().getInvalidFastaPaths();
-       // TODO
-       // List<String> duplicatePaths = ConfigManager.getInstance().getMountPointManager().getDuplicatePaths();
-        List<String> duplicatePaths = ConfigManager.getInstance().getMountPointManager().getDuplicateAmongFastas();
-        List<String> duplicatePathsExterior=ConfigManager.getInstance().getMountPointManager().getDuplicateExteriorToMountPoints();
+        // TODO
+        List<String> duplicatePaths = ConfigManager.getInstance().getMountPointManager().getDuplicatePaths();
+
         if (ConfigManager.getInstance().isSeqRepActive()) {
             if (fastaToBeDisplayed != null) {
                 for (int k = 0; k < fastaToBeDisplayed.size(); k++) {
                     boolean errorInThePath = wrongFastaDirectories != null && wrongFastaDirectories.contains(fastaToBeDisplayed.get(k));
-                    boolean pathIsDuplicate = duplicatePaths.contains(fastaToBeDisplayed.get(k));
-                    boolean pathIsDuplicateExterior=duplicatePathsExterior.contains(fastaToBeDisplayed.get(k));
+
+                    boolean pathBelongsToDuplicate = duplicatePaths.contains(fastaToBeDisplayed.get(k));
                     fastaListPanelConstraints.gridx = 0;
                     fastaListPanelConstraints.weightx = 0;
                     fastaListPanelConstraints.anchor = GridBagConstraints.EAST;
@@ -497,12 +472,9 @@ public class FolderPanel extends JPanel {
                         jTextFieldPathFasta.setText("Path does not exist");
                         changeJTextFieldLook(jTextFieldPathFasta, ERROR_COLOR, Color.WHITE, "Missing path please enter a path for this mount point");
                     }
-                    if (pathIsDuplicate) {
-                        changeJTextFieldLook(jTextFieldPathFasta, ERROR_COLOR, Color.WHITE, "This path is a duplicate");
 
-                    }
-                    else if(pathIsDuplicateExterior){
-                        changeJTextFieldLook(jTextFieldPathFasta,WARNING_COLOR, JTEXT_COLOR,"Warning");
+                    if (pathBelongsToDuplicate) {
+                        changeJTextFieldLook(jTextFieldPathFasta, WARNING_COLOR, JTEXT_COLOR, "This path is duplicate");
                     }
 
                     int sizeOfJTextField = getSizeInPixels(jTextFieldPathFasta);
@@ -587,7 +559,7 @@ public class FolderPanel extends JPanel {
     }
 
     private void deleteFolderPath(MountPointUtils.MountPointType mountPointType, String key, boolean forced) {
-        // boolean deleteConfirmation = Popup.yesNo("Are you sure you want to delete this Folder?");
+
         boolean deleteConfirmation = Popup.yesNoCenterToComponent(ConfigWindow.getInstance(), "Are you sure you want to delete this Folder?");
         if (deleteConfirmation) {
             boolean deleteSucces = ConfigManager.getInstance().getMountPointManager().deleteMountPointEntry(mountPointType, key, forced);

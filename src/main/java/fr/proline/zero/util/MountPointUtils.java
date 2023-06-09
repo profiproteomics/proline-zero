@@ -128,6 +128,33 @@ public class MountPointUtils {
     }
 
     /**
+     * Restore mount point deleted during editing
+     * @param mountPointType
+     * @param value
+     * @param path
+     * @return
+     */
+    public boolean cancelDeleteMountPointEntry(MountPointType mountPointType, String value, String path) {
+
+        if (mountPointMap.get(mountPointType) == null ) {
+            Map<String, String> initialMap = new HashMap<>();
+            initialMap.put(value, path);
+            mountPointMap.put(mountPointType, initialMap);
+            mountHasBeenChanged = true;
+
+        } else  {
+            Map<String, String> currentMountPoint = mountPointMap.get(mountPointType);
+            currentMountPoint.put(value, path);
+            mountPointMap.put(mountPointType, currentMountPoint);
+            mountHasBeenChanged = true;
+
+        }
+        return true;
+
+
+    }
+
+    /**
      * First version that checks in all mountPoints plus fasta folders if path already exists
      * used only when adding a fasta
      *
@@ -293,6 +320,7 @@ public class MountPointUtils {
         }
         /**
          * Checks if some mounting points have same labels
+         *
          */
         ArrayList<String> nonUniqueLabel=getNonUniqueLabels(mountPointMap);
         if (nonUniqueLabel.size()!=0) {
@@ -317,24 +345,26 @@ public class MountPointUtils {
             errorFatal = true;
 
         }
-        /**
+
+     /*   *//**
          * Check if some path are identical among same mount points
-         */
+         * not a fatal error
+         *//*
         if (getDuplicatesInsideMountPoint().size() != 0) {
 
-            errorFatal = true;
-            message.append("---- ERROR -----\n");
+
+            message.append("---- Warning -----\n");
             message.append("Some paths are identical inside same mountPoint:\n");
             for (String duplicates : duplicateInsideSameMountPoint) {
                 message.append(duplicates).append("\n");
             }
         }
 
-        /**
+        *//**
          * Checks everywhere if paths are identical among different mount
          * points
          * not a fatal error
-         */
+         *//*
         ArrayList<String> listOfDuplicateFilesExterior= getDuplicatesExteriorToMountPoints();
 
         if (listOfDuplicateFilesExterior.size()!=0){
@@ -344,14 +374,26 @@ public class MountPointUtils {
                 message.append(paths).append("\n");
 
             }
+        }*/
+        /**
+         * Check if they are any identical paths in any mountPoint
+         */
+        ArrayList<String> listOfDuplicates=getDuplicatePaths();
+        if (listOfDuplicates.size()!=0){
+            message.append("------- Warning ---------\n");
+            message.append("Some paths  are identical: \n");
+            for (String paths: listOfDuplicates){
+                message.append(paths).append("\n");
 
+            }
 
         }
+
         /**
          * Checks if a mountPoint by default is missing
          * not a fatal error
          */
-        if (!defaultMountPointsExist() && !errorFatal) {
+        if (!defaultMountPointsExist()&&!noMountingPoints() ) {
             message.append("Minor error missing default mounting point : \n");
             for (String missingMP : missingMountPoints) {
                 message.append(missingMP).append("\n");
@@ -386,7 +428,7 @@ public class MountPointUtils {
     public boolean noMountingPoints() {
 
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
-
+            // skips raw
             if (!mountPointType.equals(MountPointType.RAW)) {
                 if (mountPointMap.get(mountPointType) != null) {
                     return false;
@@ -396,10 +438,7 @@ public class MountPointUtils {
         return true;
     }
 
-    public boolean atLeastOneMPointV2() {
 
-        return mountPointMap.size() != 0;
-    }
 
     /**
      * check if all paths inside mountpointmap exist and store wrong paths in an arraylist invalidPaths
@@ -424,7 +463,6 @@ public class MountPointUtils {
                         invalidPaths.add(key + " : the path corresponding to that label is an empty string");
 
                     }
-
                 }
             }
         }
@@ -432,7 +470,7 @@ public class MountPointUtils {
     }
 
 
-    // Does not check raw mountpoints
+    // Does not check raw mountpoints!!!
     public boolean defaultMountPointsExist() {
 
         missingMountPoints.clear();
@@ -505,27 +543,7 @@ public class MountPointUtils {
 
 
 
-    public boolean duplicatePathInsideArray(ArrayList<String> listOfPath) {
-        duplicatePaths.clear();
 
-
-        for (int i = 0; i < listOfPath.size(); i++) {
-            String pathi = listOfPath.get(i);
-            for (int j = i + 1; j < listOfPath.size(); j++) {
-
-                String pathj = listOfPath.get(j);
-
-                if (pathi.equals(pathj)) {
-                    if (!duplicatePaths.contains(pathi)) {
-                        duplicatePaths.add(pathi);
-                    }
-
-                }
-            }
-
-        }
-        return !duplicatePaths.isEmpty();
-    }
 
 
     /**
@@ -652,7 +670,7 @@ public class MountPointUtils {
 
     /**
      * Patch that handles case where inside same mount point, the 2 default labels are present
-     * (mzdb+msacot) rename them directly
+     * (mzdb+msacot) update the labels by adding a character
      *
      * @param hashMap
      */
@@ -689,6 +707,7 @@ public class MountPointUtils {
 
     /**
      * Same as above but retrieves paths corresponding to dupicate labels
+     * Not used
      * @param hashMap
      * @return
      */
@@ -715,6 +734,28 @@ public class MountPointUtils {
         }
 
         return nonUniqueValues;
+    }
+
+    public boolean duplicatePathInsideArray(ArrayList<String> listOfPath) {
+        duplicatePaths.clear();
+
+
+        for (int i = 0; i < listOfPath.size(); i++) {
+            String pathi = listOfPath.get(i);
+            for (int j = i + 1; j < listOfPath.size(); j++) {
+
+                String pathj = listOfPath.get(j);
+
+                if (pathi.equals(pathj)) {
+                    if (!duplicatePaths.contains(pathi)) {
+                        duplicatePaths.add(pathi);
+                    }
+
+                }
+            }
+
+        }
+        return !duplicatePaths.isEmpty();
     }
 
 

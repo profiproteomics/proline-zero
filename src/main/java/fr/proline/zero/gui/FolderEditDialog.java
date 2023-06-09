@@ -48,8 +48,8 @@ public class FolderEditDialog extends DefaultDialog {
         this.setButtonVisible(BUTTON_OK, true);
         this.setButtonName(BUTTON_OK, "Update");
         this.setButtonVisible(BUTTON_HELP, false);
-        String pathCopy=pathBackup;
-        String labelCopy=labelEdited;
+        final String pathCopy = pathBackup;
+        final String labelCopy = labelEdited;
 
         if (typeOfDialog.equals(TypeOfDialog.AddingAMountPoint)) {
             this.setTitle("Add folder");
@@ -209,14 +209,13 @@ public class FolderEditDialog extends DefaultDialog {
         return values;
     }
 
-    private MountPointUtils.MountPointType getMountPointTypeSelected(String dataTypeBoxSelected){
+    private MountPointUtils.MountPointType getMountPointTypeSelected(String dataTypeBoxSelected) {
         MountPointUtils.MountPointType mountPointSelected;
-        if (dataTypeBoxSelected.equals(MountPointUtils.MountPointType.RESULT.getDisplayString())){
-            mountPointSelected= MountPointUtils.MountPointType.RESULT;
+        if (dataTypeBoxSelected.equals(MountPointUtils.MountPointType.RESULT.getDisplayString())) {
+            mountPointSelected = MountPointUtils.MountPointType.RESULT;
 
-        }
-        else {
-            mountPointSelected= MountPointUtils.MountPointType.MZDB;
+        } else {
+            mountPointSelected = MountPointUtils.MountPointType.MZDB;
         }
         return mountPointSelected;
     }
@@ -239,13 +238,13 @@ public class FolderEditDialog extends DefaultDialog {
                 || (!folderPath.isEmpty() && dataTypeBoxSelected.equals("Fasta folder"));
         boolean labelAlreadyExists = ConfigManager.getInstance().getMountPointManager().getIfLabelExists(folderField);
         boolean pathInFastaExist = false;
-        boolean  pathAlreadyExists = false; 
-        if (dataTypeBoxSelected.equals("Fasta folder")){
-           pathInFastaExist=ConfigManager.getInstance().getMountPointManager().getIfPathExist(folderPath); 
+        boolean pathAlreadyExists = false;
+        if (dataTypeBoxSelected.equals("Fasta folder")) {
+            pathInFastaExist = ConfigManager.getInstance().getMountPointManager().getIfPathExist(folderPath);
+        } else {
+            MountPointUtils.MountPointType mountPointType = getMountPointTypeSelected(dataTypeBoxSelected);
+            pathAlreadyExists = ConfigManager.getInstance().getMountPointManager().getIfPathExistInAMountPoint(folderPath, mountPointType);
         }
-        else {
-        MountPointUtils.MountPointType mountPointType=getMountPointTypeSelected(dataTypeBoxSelected);
-        pathAlreadyExists = ConfigManager.getInstance().getMountPointManager().getIfPathExistInAMountPoint(folderPath,mountPointType);}
 
 
         if (!verifUserEntry) {
@@ -270,7 +269,7 @@ public class FolderEditDialog extends DefaultDialog {
             entriesAreValid = false;
 
 
-        } else if (pathAlreadyExists||pathInFastaExist) {
+        } else if (pathAlreadyExists || pathInFastaExist) {
             highlight(folderPathField);
             setStatus(true, "path already exists please choose another folder");
             entriesAreValid = false;

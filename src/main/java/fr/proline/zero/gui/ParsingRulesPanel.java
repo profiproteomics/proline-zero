@@ -547,10 +547,7 @@ public class ParsingRulesPanel extends JPanel {
             updatePanel();
         }
 
-        if (parsingRuleEditDialog.getButtonClicked() == DefaultDialog.BUTTON_CANCEL) {
 
-
-        }
 
 
     }
