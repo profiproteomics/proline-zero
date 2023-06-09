@@ -171,6 +171,8 @@ public class FolderPanel extends JPanel {
 
         JPanel fastaListPanel = new JPanel(new GridBagLayout());
         initFastaFolderPanel(fastaListPanel);
+
+
         folderListPanel.add(fastaListPanel, c);
 
 
