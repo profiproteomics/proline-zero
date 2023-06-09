@@ -26,6 +26,11 @@ public class Popup  {
         JOptionPane.showMessageDialog(null, message, title, messageType);
         SplashScreen.setModal(true);
     }
+    private static void showCenteredToComponent(Component parent, String message, String title, int messageType) {
+        SplashScreen.setModal(false);
+        JOptionPane.showMessageDialog(parent, message, title, messageType);
+        SplashScreen.setModal(true);
+    }
 
 
     public static boolean okCancel(String message) {
@@ -41,7 +46,7 @@ public class Popup  {
         SplashScreen.setModal(true);
         return (r == JOptionPane.YES_OPTION);
     }
-    public static boolean yesNoCenterTOWindow(Component parent, String message) {
+    public static boolean yesNoCenterToComponent(Component parent, String message) {
         SplashScreen.setModal(false);
         int r = JOptionPane.showConfirmDialog(parent, message, DEFAULT_TITLE, JOptionPane.YES_NO_OPTION);
         SplashScreen.setModal(true);
@@ -55,7 +60,7 @@ public class Popup  {
         SplashScreen.setModal(true);
         return r;
     }
-    public static int yesNoCloseCenterToWindonw(Component parent,String message){
+    public static int yesNoCloseCenterToComponent(Component parent, String message){
         SplashScreen.setModal(false);
         int r=JOptionPane.showConfirmDialog(parent,message,DEFAULT_TITLE,JOptionPane.YES_NO_OPTION);
         SplashScreen.setModal(true);
@@ -68,7 +73,7 @@ public class Popup  {
         SplashScreen.setModal(true);
         return (r == JOptionPane.OK_OPTION);
     }
-    public static boolean optionYesNOCenterToWindow(Component parent,String message, String[] options) {
+    public static boolean optionYesNoCenterToComponent(Component parent, String message, String[] options) {
         SplashScreen.setModal(false);
         int r = JOptionPane.showOptionDialog(parent, message, DEFAULT_TITLE, JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, message);
         SplashScreen.setModal(true);
@@ -116,8 +121,13 @@ public class Popup  {
         }
     }
 
+
     public static void warning(String message) {
         Popup.show(message, DEFAULT_TITLE, JOptionPane.WARNING_MESSAGE);
+    }
+
+    public static void warningCenteredToComponent(Component parent,String message) {
+        Popup.showCenteredToComponent(parent,message,DEFAULT_TITLE,JOptionPane.WARNING_MESSAGE);
     }
 
     public static void info(String message) {

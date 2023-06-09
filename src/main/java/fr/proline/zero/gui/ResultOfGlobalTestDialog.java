@@ -254,11 +254,11 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
 
         String parsingRuleName = null;
         // Check at first if some lines have been extracted
-        if (lines.containsValue("hence no protein accession extracted")) {
+        if (lines.containsValue("No line no protein accession extracted")) {
             displayOneResult.add(new JLabel(IconManager.getIcon(IconManager.IconType.CANCEL)), gbc);
             gbc.gridx++;
             gbc.anchor = GridBagConstraints.WEST;
-            displayOneResult.add(new JLabel("this file might not be in fasta format"), gbc);
+            displayOneResult.add(new JLabel("This file might not be in fasta format"), gbc);
 
         } else {
 
@@ -267,12 +267,12 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
 
                 parsingRuleName = parsingRule.getName();
                 if (!lines.containsValue("No protein accession extracted")) {
-                    displayOneResult.add(new JLabel(IconManager.getIcon(IconManager.IconType.TICK_SMALL)), gbc);
+                    displayOneResult.add(new JLabel(IconManager.getIcon(IconManager.IconType.TICK_CIRCLE)), gbc);
                     gbc.gridx++;
                     gbc.anchor = GridBagConstraints.WEST;
                     displayOneResult.add(new JLabel("Parsing rule found and protein accession has been extracted"), gbc);
                 } else {
-                    displayOneResult.add(new JLabel(IconManager.getIcon(IconManager.IconType.EXCLAMATION)), gbc);
+                    displayOneResult.add(new JLabel(IconManager.getIcon(IconManager.IconType.WARNING)), gbc);
                     gbc.gridx++;
                     gbc.anchor = GridBagConstraints.WEST;
                     displayOneResult.add(new JLabel("Parsing rule found but no protein accession found"), gbc);
@@ -283,7 +283,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
 
                 if (!lines.containsValue(("No protein accession extracted"))) {
 
-                    displayOneResult.add(new JLabel(IconManager.getIcon(IconManager.IconType.WARNING)), gbc);
+                    displayOneResult.add(new JLabel(IconManager.getIcon(IconManager.IconType.TICK_CIRCLE)), gbc);
                     gbc.gridx++;
                     gbc.anchor = GridBagConstraints.WEST;
                     displayOneResult.add(new JLabel("No parsing rule found but protein accession has been extracted"), gbc);
@@ -341,7 +341,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         displayOneResult.add(jLabelParsingRuleUsed, gbc);
         JTextField jTextFieldParsingRuleLabel = new JTextField();
         if (!isNull(parsingRule)) {
-            jTextFieldParsingRuleLabel.setText(parsingRuleName + "  " + fastaRegex);
+            jTextFieldParsingRuleLabel.setText(parsingRuleName + " - " + fastaRegex);
         } else {
             //jTextFieldParsingRuleLabel.setText("No parsing rule found, will use " + ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule());
             jTextFieldParsingRuleLabel.setText("No parsing rule found , will use protein by default");

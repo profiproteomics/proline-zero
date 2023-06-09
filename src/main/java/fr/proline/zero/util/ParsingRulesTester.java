@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.nio.file.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -76,7 +75,7 @@ public class ParsingRulesTester {
                     ParsingRule rule = (ParsingRule) resultsOfTest[0];
                     String protRegex;
                     if (rule != null) {
-                        boolean regularExpressionIsValid = isRegexFastaNameValid(rule.getProteinAccRegExp());
+                        boolean regularExpressionIsValid = isRegexValid(rule.getProteinAccRegExp());
                         if (regularExpressionIsValid) {
                             protRegex = rule.getProteinAccRegExp();
                             successMatching++;
@@ -118,7 +117,7 @@ public class ParsingRulesTester {
                         }
                         if (countEntry == 0) {
                             //linePlusProteinName.put("Could not extract any line from file  " + fastaName, "No protein extracted");
-                            linePlusProteinName.put("Could not extract any line from this file", "hence no protein accession extracted");
+                            linePlusProteinName.put("Could not extract any line from this file", "No line no protein accession extracted");
                             // numberOfFilesWithoutProteinExtracted++;
                         }
 
@@ -267,7 +266,7 @@ public class ParsingRulesTester {
         }
     }
 
-    public static boolean isRegexFastaNameValid(String regex) {
+    public static boolean isRegexValid(String regex) {
         try {
             Pattern.compile(regex);
             return true;
@@ -325,19 +324,19 @@ public class ParsingRulesTester {
 
 
     /**
-     * Will test the validity of fasta name regex associated with a parsingRule
+     *  Tests the validity of fasta name regex associated with a parsingRule
      * will return false if at least one regex is not valid
      *
      * @param parsingRule
      * @return boolean
      */
     public static boolean parsingRuleFastaRegexisNotValid(ParsingRule parsingRule) {
+
         boolean atleastOneFastaIsNotValid = false;
         List<String> fastaNameRegex = parsingRule.getFastaNameRegExp();
-
         for (String nameRegex : fastaNameRegex) {
 
-            if (!isRegexFastaNameValid(nameRegex)) {
+            if (!isRegexValid(nameRegex)) {
                 atleastOneFastaIsNotValid = true;
                 break;
 
@@ -357,7 +356,7 @@ public class ParsingRulesTester {
         int sizeOfFastaRegex = fastaList.size();
         for (int j = 0; j < sizeOfFastaRegex; j++) {
 
-            if (isRegexFastaNameValid(fastaList.get(j))) {
+            if (isRegexValid(fastaList.get(j))) {
                 fastaValid.add(j, true);
 
             } else fastaValid.add(false);
@@ -371,7 +370,7 @@ public class ParsingRulesTester {
         boolean fastaRegexAreValid = true;
         for (int j = 0; j < sizeOfFastaRegex; j++) {
 
-            if (!isRegexFastaNameValid(fastaList.get(j))) {
+            if (!isRegexValid(fastaList.get(j))) {
                 fastaRegexAreValid = false;
                 break;
 

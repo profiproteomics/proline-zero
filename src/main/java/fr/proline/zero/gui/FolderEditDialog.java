@@ -48,6 +48,8 @@ public class FolderEditDialog extends DefaultDialog {
         this.setButtonVisible(BUTTON_OK, true);
         this.setButtonName(BUTTON_OK, "Update");
         this.setButtonVisible(BUTTON_HELP, false);
+        String pathCopy=pathBackup;
+        String labelCopy=labelEdited;
 
         if (typeOfDialog.equals(TypeOfDialog.AddingAMountPoint)) {
             this.setTitle("Add folder");
@@ -57,7 +59,7 @@ public class FolderEditDialog extends DefaultDialog {
         } else if (typeOfDialog.equals(TypeOfDialog.EditingFastas)) {
             this.setTitle("Edit Fasta Folder");
             this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
-            folderPathField.setText(pathBackup);
+            folderPathField.setText(pathCopy);
             folderLabelField.setEnabled(false);
             dataTypeBox.setSelectedItem("Fasta folder");
             dataTypeBox.setEnabled(false);
@@ -66,7 +68,7 @@ public class FolderEditDialog extends DefaultDialog {
         } else if (typeOfDialog.equals(TypeOfDialog.EditingDefaultMPts)) {
             this.setTitle("Edit  Mounting Point By Default");
             this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
-            folderPathField.setText(pathBackup);
+            folderPathField.setText(pathCopy);
             folderLabelField.setText(MountPointUtils.getMountPointDefaultPathLabel(mountPointType));
             folderLabelField.setEnabled(false);
             folderLabelField.setEditable(false);
@@ -77,8 +79,8 @@ public class FolderEditDialog extends DefaultDialog {
 
             this.setTitle("Edit Mounting Point");
             this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
-            folderLabelField.setText(labelEdited);
-            folderPathField.setText(pathBackup);
+            folderLabelField.setText(labelCopy);
+            folderPathField.setText(pathCopy);
             dataTypeBox.setSelectedItem(mountPointType.getDisplayString());
             dataTypeBox.setEnabled(false);
 
@@ -207,6 +209,18 @@ public class FolderEditDialog extends DefaultDialog {
         return values;
     }
 
+    private MountPointUtils.MountPointType getMountPointTypeSelected(String dataTypeBoxSelected){
+        MountPointUtils.MountPointType mountPointSelected;
+        if (dataTypeBoxSelected.equals(MountPointUtils.MountPointType.RESULT.getDisplayString())){
+            mountPointSelected= MountPointUtils.MountPointType.RESULT;
+
+        }
+        else {
+            mountPointSelected= MountPointUtils.MountPointType.MZDB;
+        }
+        return mountPointSelected;
+    }
+
     // Verifies if entries can be added
     @Override
     protected boolean okCalled() {
@@ -224,7 +238,14 @@ public class FolderEditDialog extends DefaultDialog {
         boolean verifUserEntry = (!folderPath.isEmpty() && !folderField.isEmpty())
                 || (!folderPath.isEmpty() && dataTypeBoxSelected.equals("Fasta folder"));
         boolean labelAlreadyExists = ConfigManager.getInstance().getMountPointManager().getIfLabelExists(folderField);
-        boolean pathAlreadyExists = ConfigManager.getInstance().getMountPointManager().getIfPathExist(folderPath);
+        boolean pathInFastaExist = false;
+        boolean  pathAlreadyExists = false; 
+        if (dataTypeBoxSelected.equals("Fasta folder")){
+           pathInFastaExist=ConfigManager.getInstance().getMountPointManager().getIfPathExist(folderPath); 
+        }
+        else {
+        MountPointUtils.MountPointType mountPointType=getMountPointTypeSelected(dataTypeBoxSelected);
+        pathAlreadyExists = ConfigManager.getInstance().getMountPointManager().getIfPathExistInAMountPoint(folderPath,mountPointType);}
 
 
         if (!verifUserEntry) {
@@ -249,7 +270,7 @@ public class FolderEditDialog extends DefaultDialog {
             entriesAreValid = false;
 
 
-        } else if (pathAlreadyExists) {
+        } else if (pathAlreadyExists||pathInFastaExist) {
             highlight(folderPathField);
             setStatus(true, "path already exists please choose another folder");
             entriesAreValid = false;
@@ -263,6 +284,8 @@ public class FolderEditDialog extends DefaultDialog {
 
     @Override
     protected boolean cancelCalled() {
+
+
         return true;
     }
 

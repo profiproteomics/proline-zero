@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * JPanel that display Parsing rules and that allows CRUD operations
+ * JPanel that display Parsing rules and wich allows CRUD operations
  * a global test over all fasta files is also possible
  */
 
@@ -23,9 +23,9 @@ public class ParsingRulesPanel extends JPanel {
 
     private static final Logger LOG = LoggerFactory.getLogger(ParsingRulesPanel.class);
 
+    private final static Color SOFT_ERROR_COLOR = new Color(180, 0, 0);
 
     public ParsingRulesPanel() {
-
         initialize();
     }
 
@@ -142,6 +142,11 @@ public class ParsingRulesPanel extends JPanel {
 
     }
 
+    /**
+     * Opens a dialog box to add a new parsing rules
+     * @see DefaultDialog
+     */
+
     private void openAddDialog() {
         ParsingRuleEditDialog adderDialog = new ParsingRuleEditDialog(ConfigWindow.getInstance(), ParsingRuleEditDialog.TypeOfDialog.Add, null);
 
@@ -198,13 +203,15 @@ public class ParsingRulesPanel extends JPanel {
         for (ParsingRule currentParsingRule : setOfRules) {
             displayRules.add(displayParsingRules(currentParsingRule, maximas), constraints);
             constraints.gridy++;
-
         }
-
         return displayRules;
     }
 
-
+    /**
+     *
+     * @param setOfRules
+     * @return the maximum sizes of the 4 Jtextfields for all parsing rules
+     */
     private int[] getMaximums(List<ParsingRule> setOfRules) {
         int[] arrayOfMax = {0, 0, 0, 0};
         for (ParsingRule parsingRule : setOfRules) {
@@ -233,6 +240,12 @@ public class ParsingRulesPanel extends JPanel {
 
     }
 
+    /**
+     *
+     * @param parsingRule
+     * @return the sizes in pixels of the 4 JtextFields associated to a parsing rule
+     */
+
     private List<Integer> getSizesGeneric(ParsingRule parsingRule) {
 
         List<Integer> sizes = new ArrayList<>(4);
@@ -253,9 +266,8 @@ public class ParsingRulesPanel extends JPanel {
 
 
     /**
-     * builds the JPanel that display a particular parsing rule
-     *
-     * @param parsingRule
+     * builds the JPanel that display one parsing rule
+     *@param parsingRule
      * @param maximumSize
      */
     private JPanel displayParsingRules(ParsingRule parsingRule, int[] maximumSize) {
@@ -271,6 +283,24 @@ public class ParsingRulesPanel extends JPanel {
         String protein = parsingRule.getProteinAccRegExp();
         List<String> fastaNames = parsingRule.getFastaNameRegExp();
         boolean parsingRuleHasManyFastaRules = (fastaNames.size() > 2);
+        boolean parsingRuleFastasAreNotValid=ParsingRulesTester.parsingRuleFastaRegexisNotValid(parsingRule);
+        boolean proteinAccessionRuleIsValid=ParsingRulesTester.isRegexValid(parsingRule.getProteinAccRegExp());
+
+
+       /* if (parsingRuleIsCorrupted){
+            displayParsingRule.setBorder(BorderFactory.createLineBorder(new Color(150,0,0),2));
+            displayParsingRule.setToolTipText("The set of fasta name regular expressions is not valid\n " +
+                    "please check inside table");
+            displayParsingRule.setBackground(SOFT_ERROR_COLOR);
+
+        }*/
+        /*if(!proteinAccessionRuleIsValid){
+            displayParsingRule.setBorder(BorderFactory.createLineBorder(new Color(150,0,0),2));
+            displayParsingRule.setToolTipText("The protein accession rule is not valid");
+            displayParsingRule.setBackground(SOFT_ERROR_COLOR);
+
+        }*/
+
 
         JLabel jLabelName = new JLabel("Label: ");
         constraints.anchor = GridBagConstraints.EAST;
@@ -308,6 +338,11 @@ public class ParsingRulesPanel extends JPanel {
             fastaField.setPreferredSize(new Dimension(maximumSize[1] + 15, 20));
             constraints.insets = new Insets(5, 5, 5, 5);
         }
+        if (parsingRuleFastasAreNotValid){
+
+            changeJTextFieldLook(fastaField,SOFT_ERROR_COLOR,Color.WHITE,"The set of fasta rules is not valid");
+            //fastaName.setForeground(new Color(200,0,0));
+        }
         constraints.gridx++;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.weightx = 1;
@@ -322,15 +357,34 @@ public class ParsingRulesPanel extends JPanel {
             JButton viewFastaButton = new JButton("...");
             viewFastaButton.setMargin(new Insets(0, 0, 2, 0));
             viewFastaButton.setToolTipText("Click to display the list of fasta rules");
-
             viewFastaButton.addActionListener(e -> {
-
 
                 JList<String> fastaList = new JList<>(fastaNames.toArray(new String[0]));
                 JScrollPane scrollPane = new JScrollPane(fastaList);
-                // Show the dialog box with the JList inside with a JScrollPane
-                JOptionPane.showMessageDialog(fastaField, scrollPane, "Fasta Names", JOptionPane.PLAIN_MESSAGE);
+                ArrayList<Boolean> indicator=ParsingRulesTester.testFastaList(fastaNames);
+                ListCellRenderer<? super String> cellRenderer = new DefaultListCellRenderer() {
+                    @Override
+                    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                        Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
+                        if (indicator.get(index).equals(true)) {
+                            component.setForeground(Color.BLACK);
+                            component.setBackground(new Color(215,215,215));
+                        } else {
+                            component.setForeground(Color.WHITE);
+                            component.setBackground(new Color(180,0,0));
+                        }
+
+                        return component;
+                    }
+                };
+
+                fastaList.setCellRenderer(cellRenderer);
+                int visibleRowCount = Math.min(fastaList.getModel().getSize(), 9);
+
+                fastaList.setVisibleRowCount(visibleRowCount);
+                // Show the dialog box with the JList inside
+                JOptionPane.showMessageDialog(fastaField, scrollPane, "List of fasta name rules", JOptionPane.PLAIN_MESSAGE);
 
             });
 
@@ -360,7 +414,6 @@ public class ParsingRulesPanel extends JPanel {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(0, 5, 0, 5);
         fastaVersionRegExpTF.setPreferredSize(new Dimension(maximumSize[2] - 15, 20));
-        //constraints.insets=new Insets(0,0,0,0);
         displayParsingRule.add(fastaVersionRegExpTF, constraints);
 
         JLabel jLabelProtein = new JLabel("Protein accession rule: ");
@@ -381,16 +434,21 @@ public class ParsingRulesPanel extends JPanel {
         if (parsingRuleHasManyFastaRules)
             constraints.gridwidth = 2;
         proteinField.setPreferredSize(new Dimension(maximumSize[3], 20));
+        if (!proteinAccessionRuleIsValid){
+
+            changeJTextFieldLook(proteinField,SOFT_ERROR_COLOR,Color.WHITE,"The protein accession rule is not valid");
+
+           // jLabelProtein.setForeground(new Color(180,0,0));
+
+        }
         displayParsingRule.add(proteinField, constraints);
 
         constraints.gridwidth = parsingRuleHasManyFastaRules ? 5 : 4;
         constraints.gridy++;
-
         constraints.anchor = GridBagConstraints.EAST;
         constraints.fill = GridBagConstraints.NONE;
         constraints.insets = new Insets(4, 2, 3, 4);
         displayParsingRule.add(setOfButtonPanel(parsingRule), constraints);
-        // add(Box.createHorizontalGlue());
 
         return displayParsingRule;
 
@@ -402,7 +460,7 @@ public class ParsingRulesPanel extends JPanel {
         ConfigWindow.getInstance().pack();
     }
 
-    // JPanel with two buttons for each parsing rule
+    // JPanel with two edit and suppress buttons for each parsing rule
     private JPanel setOfButtonPanel(ParsingRule parsingRule) {
         JPanel setOfButtonPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -436,7 +494,7 @@ public class ParsingRulesPanel extends JPanel {
         JButton testButton = new JButton("Test");
         testButton.setIcon(IconManager.getIcon(IconManager.IconType.TEST));
         testButton.setEnabled(true);
-        testButton.setToolTipText("Click to proceed to the global test over fasta files");
+        testButton.setToolTipText("Click to proceed to the test on fasta files");
 
         testButton.addActionListener(e -> {
             SwingWorker<Void, Void> worker = new SwingWorker<>() {
@@ -455,7 +513,7 @@ public class ParsingRulesPanel extends JPanel {
 
 
     private void deleteRule(ParsingRule parsingRuleToBeDeleted) {
-        boolean deleteConfirmation = Popup.yesNoCenterTOWindow(ConfigWindow.getInstance(), "Are you sure you want to delete this parsing rule?");
+        boolean deleteConfirmation = Popup.yesNoCenterToComponent(ConfigWindow.getInstance(), "Are you sure you want to delete this parsing rule?");
         if (deleteConfirmation) {
             boolean success = ConfigManager.getInstance().getParsingRulesManager().deleteRule(parsingRuleToBeDeleted);
             if (success) {
@@ -476,7 +534,7 @@ public class ParsingRulesPanel extends JPanel {
 
         parsingRuleEditDialog.setSize(600, 380);
         parsingRuleEditDialog.centerToWindow(ConfigWindow.getInstance());
-        parsingRuleEditDialog.setHelpHeader(IconManager.getIcon(IconManager.IconType.INFORMATION), "", "In this dialog you can modify the parsing rule" +
+        parsingRuleEditDialog.setHelpHeader(IconManager.getIcon(IconManager.IconType.INFORMATION), "", "From this window you can modify the parsing rule" +
                 ", you can also test if the protein rule does extract properly the accession of the protein.");
         parsingRuleEditDialog.setVisible(true);
 
@@ -495,6 +553,15 @@ public class ParsingRulesPanel extends JPanel {
         }
 
 
+    }
+    private void changeJTextFieldLook(JTextField jTextField, Color backGroundColor, Color textColor, String toolTipMessage){
+        jTextField.setBackground(backGroundColor);
+        if (!jTextField.isEnabled())
+        {jTextField.setDisabledTextColor(textColor);}
+        else {
+            jTextField.setForeground(textColor);
+        }
+        jTextField.setToolTipText(toolTipMessage);
     }
 
 

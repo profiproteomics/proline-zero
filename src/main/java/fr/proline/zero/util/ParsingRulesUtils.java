@@ -181,7 +181,6 @@ public class ParsingRulesUtils {
         errorFatal = false;
         StringBuilder message = new StringBuilder();
         // TODO implement verifications
-        //message.append(errorMessage);
         if (!fastaPathsAreValid()) {
             errorFatal = true;
             if (invalidFastaPaths.size() > 1) {

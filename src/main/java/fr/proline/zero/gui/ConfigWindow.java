@@ -317,10 +317,10 @@ public class ConfigWindow extends JDialog {
             restoreButton = new JButton("Restore Settings", restoreIcon);
             restoreButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent event) {
-                    boolean yesPressed = Popup.yesNoCenterTOWindow(ConfigWindow.getInstance(),"Are you sure you want to reset the properties values to those from the config file ?\n(those values may not be valid)");
+                    boolean yesPressed = Popup.yesNoCenterToComponent(ConfigWindow.getInstance(),"Are you sure you want to reset the properties values to those from the config file ?\n(those values may not be valid)");
                     if (yesPressed) {
                         configManager.restoreValues();
-                        updateValues();
+                        updateModulesPanel();
                         memoryPanel.updateValues();
                         folderPanel.updateValues();
                         serverPanel.updateValues();
@@ -376,7 +376,7 @@ public class ConfigWindow extends JDialog {
                 msgToDisplay.append(
                         "\nAn example proline_launcher.config file is provided in proline_launcher.config.origin file");
 
-                boolean yesPressed = Popup.yesNoCenterTOWindow(ConfigWindow.getInstance(),msgToDisplay.toString());
+                boolean yesPressed = Popup.yesNoCenterToComponent(ConfigWindow.getInstance(),msgToDisplay.toString());
                 if (yesPressed) {
                     System.exit(0);
                 }
@@ -386,7 +386,7 @@ public class ConfigWindow extends JDialog {
                         "There are still some minors errors in configuration :\n");
                 msgToDisplay.append(ConfigManager.getInstance().getLastErrorMessage());
                 msgToDisplay.append("\nContinue and launch Proline Zero ?");
-                boolean yesPressed = Popup.yesNoCenterTOWindow(ConfigWindow.getInstance(),msgToDisplay.toString());
+                boolean yesPressed = Popup.yesNoCenterToComponent(ConfigWindow.getInstance(),msgToDisplay.toString());
                 if (yesPressed) {
                     ConfigManager.getInstance().updateConfigurationParams();
                     //ConfigManager.getInstance().updateCortexConfigFile();
@@ -399,9 +399,7 @@ public class ConfigWindow extends JDialog {
     // when the cancel button is pressed
     private void cancelButtonActionPerformed() {
 
-
-     //   int userChoice = Popup.yesNoClose("Continue with previous configuration (No = exit Proline Zero) ?");
-        int userChoice = Popup.yesNoCloseCenterToWindonw(ConfigWindow.getInstance(),"Continue with previous configuration (No = exit Proline Zero) ?");
+        int userChoice = Popup.yesNoCloseCenterToComponent(ConfigWindow.getInstance(),"Continue with previous configuration (No = exit Proline Zero) ?");
 
         if (userChoice == JOptionPane.OK_OPTION) {
             ConfigManager.getInstance().restoreValues();
@@ -419,12 +417,12 @@ public class ConfigWindow extends JDialog {
 
         if (configHasChanged) {
 
-            int userChoice = Popup.yesNoCloseCenterToWindonw(ConfigWindow.getInstance(),"Some modifications have been made do you want to save them? ");
+            int userChoice = Popup.yesNoCloseCenterToComponent(ConfigWindow.getInstance(),"Some modifications have been made do you want to save them? ");
 
             if (userChoice == JOptionPane.OK_OPTION) {
                 configManager.updateConfigurationParams();
 
-                int secondUserChoice = Popup.yesNoCloseCenterToWindonw(ConfigWindow.getInstance(),"Modifications have been saved ,do you want to launch proline?");
+                int secondUserChoice = Popup.yesNoCloseCenterToComponent(ConfigWindow.getInstance(),"Modifications have been saved ,do you want to launch proline?");
 
                 if (secondUserChoice == JOptionPane.OK_OPTION) {
                     checkErrorAndExecute();
@@ -436,7 +434,7 @@ public class ConfigWindow extends JDialog {
 
             if (userChoice == JOptionPane.NO_OPTION) {
 
-                int launchProline = Popup.yesNoCloseCenterToWindonw(ConfigWindow.getInstance(),"Do you want to launch Proline with previous Configuration?");
+                int launchProline = Popup.yesNoCloseCenterToComponent(ConfigWindow.getInstance(),"Do you want to launch Proline with previous Configuration?");
 
                 if (launchProline == JOptionPane.OK_OPTION) {
                     configManager.restoreValues();
@@ -451,7 +449,7 @@ public class ConfigWindow extends JDialog {
         } else {
 
             // User did not make any modification before clicking on the cross
-            int userChoice = Popup.yesNoCloseCenterToWindonw(ConfigWindow.getInstance(),"Do you want to launch proline with previous configuration?");
+            int userChoice = Popup.yesNoCloseCenterToComponent(ConfigWindow.getInstance(),"Do you want to launch proline with previous configuration?");
             if (userChoice == JOptionPane.OK_OPTION) {
                 checkErrorAndExecute();
             }
@@ -494,7 +492,7 @@ public class ConfigWindow extends JDialog {
 
 
     // repaint the window with new values
-    private void updateValues() {
+    private void updateModulesPanel() {
         doNotShowAgainBox.setSelected(!configManager.showConfigDialog());
         studioModuleBox.setSelected(configManager.isStudioActive());
         seqRepModuleBox.setSelected(configManager.isSeqRepActive());
