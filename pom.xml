@@ -408,13 +408,13 @@
                     <classifier>windows-x64</classifier>
                     <type>zip</type>
                 </dependency>
-               <!-- <dependency>
+                <dependency>
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
                     <version>${pg.win.version}</version>
                     <type>zip</type>
                     <classifier>${os.classifier}</classifier>
-                </dependency>-->
+                </dependency>
             </dependencies>
         </profile>
         <!--<profile>-->
