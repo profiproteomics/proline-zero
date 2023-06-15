@@ -20,11 +20,12 @@
         <commons.version>1.2.0-SNAPSHOT</commons.version>
         <hornetq.version>2.4.0.Final</hornetq.version>
         <dist.data>${project.basedir}/data/sample</dist.data>
-        <!--<pg.win.version>9.4.11-2</pg.win.version>-->
         <pg.win.version>13.7-1</pg.win.version>
         <pg.linux.version>10.11-3</pg.linux.version>
         <h2.version>1.4.196</h2.version>
-        <raw2mzdb.version>0.9.10</raw2mzdb.version>
+        <raw2mzdb.version>1.1.0</raw2mzdb.version>
+        <input.resources.directory>src/main/resources</input.resources.directory>
+        <include.pattern>**/*.png</include.pattern>
     </properties>
     
     <dependencies>
@@ -33,11 +34,6 @@
     		<artifactId>commons-beanutils</artifactId>
     		<version>1.9.4</version>
 		</dependency>
-
-        <!--<dependency>
-            <groupId>fr.proline</groupId>
-            <artifactId>prolinestudio-commons</artifactId>
-        </dependency>-->
 
     	<dependency>
     		<groupId>org.apache.commons</groupId>
@@ -121,16 +117,23 @@
             <version>1.9.13</version>
         </dependency>
 
-        <!-- <dependency>
-               <groupId>fr.proline</groupId>
-               <artifactId>proline-server</artifactId>
-               <version>2.3.0-SNAPSHOT</version>
-           </dependency>-->
-
-
     </dependencies>
 
     <build>
+
+        <resources><!-- replace default properties for resources copy from resources to classes-->
+            <resource>
+                <directory>src/main/resources</directory>
+                <!--Include only necessary files -->
+                <includes>
+                    <include>*.png</include>
+                    <include>*.ico</include>
+                    <include>logback.xml</include>
+                    <include>proline_launcher.config</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
 
         <plugins>
             <plugin>
@@ -160,14 +163,14 @@
                         </goals>
                         <configuration>
                             <overwrite>true</overwrite>
-                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>src/main/resources</directory>
+                                    <directory>${input.resources.directory}</directory>
                                     <includes>
-                                        <include>**/profi.png</include>
+                                        <include>**/proline_launcher.sh</include>
+                                        <include>${include.pattern}</include>
                                     </includes>
-                                    <filtering>true</filtering>
                                 </resource>
                             </resources>
                         </configuration>
@@ -186,14 +189,12 @@
                                     <directory>src/main/resources</directory>
                                     <includes>
                                         <include>**/${project.name}.sh</include>
-                                        <filtering>true</filtering>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
                             </resources>
                         </configuration>
                     </execution>
-
                 </executions>
             </plugin>
 
@@ -280,22 +281,12 @@
             <!-- Build Zip Assembly -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <!-- <version>2.5.5</version> -->
                 <configuration>
                     <descriptors>
                         <descriptor>assembly/assembly.xml</descriptor>
                     </descriptors>
                     <finalName>${project.name}-${project.version}</finalName>
                 </configuration>
-                <!--<executions>-->
-                <!--<execution>-->
-                <!--<id>make-assembly</id>-->
-                <!--<phase>package</phase>-->
-                <!--<goals>-->
-                <!--<goal>single</goal>-->
-                <!--</goals>-->
-                <!--</execution>-->
-                <!--</executions>-->
             </plugin>
 
         </plugins>
@@ -303,7 +294,30 @@
 
     <profiles>
         <profile>
+            <id>for-dev</id>
+            <!-- This Profile should be set during development in order to be able to run Main from IntelliJ   -->
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <input.resources.directory>src/main/resources/dev-files</input.resources.directory>
+                <include.pattern>**/*.*</include.pattern>
+            </properties>
+<!--            <build>-->
+<!--                <resources>-->
+<!--                    <resource>-->
+<!--                        <directory>src/main/resources</directory>-->
+<!--                        <includes>-->
+<!--                            <include>**/profi.png</include>-->
+<!--                        </includes>-->
+<!--                        <filtering>true</filtering>-->
+<!--                    </resource>-->
+<!--                </resources>-->
+<!--            </build>-->
+        </profile>
+        <profile>
             <id>with-dependencies</id>
+            <!-- This Profile should be set when all dependencies should be downloaded. typically when creating a distribution -->
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
@@ -370,6 +384,7 @@
         </profile>
         <profile>
             <id>windows-x64_h2</id>
+            <!-- This Profile should be set to create a distribution for Windows (64bits) using H2 as datastore   -->
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
@@ -389,6 +404,7 @@
             </dependencies>
         </profile>
         <profile>
+            <!-- This Profile should be set to create a distribution for Windows (64bits) using postgresql as datastore   -->
             <id>windows-x64_postgresql</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -404,7 +420,7 @@
                 <dependency>
                     <groupId>fr.profi</groupId>
                     <artifactId>raw2mzdb</artifactId>
-                    <version>1.1.0</version>
+                    <version>${raw2mzdb.version}</version>
                     <classifier>windows-x64</classifier>
                     <type>zip</type>
                 </dependency>
@@ -444,6 +460,7 @@
         <!--</profile>-->
         <profile>
             <id>linux-x64_h2</id>
+            <!-- This Profile should be set to create a distribution for Linux (64bits) using H2 as datastore   -->
             <properties>
                 <os.classifier>linux-x64</os.classifier>
                 <proline.datastore>h2</proline.datastore>
@@ -460,6 +477,7 @@
             </dependencies>
         </profile>
         <profile>
+            <!-- This Profile should be set to create a distribution for Linux (64bits) using postgresql as datastore   -->
             <id>linux-x64_postgresql</id>
             <properties>
                 <os.classifier>linux-x64</os.classifier>
@@ -475,8 +493,7 @@
                     <version>${pg.linux.version}</version>
                     <type>zip</type>
                     <classifier>${os.classifier}</classifier>
-                </dependency>                               
-                <!--proline-zero-2.1.0-SNAPSHOT.jar-->
+                </dependency>
             </dependencies>
         </profile>
     </profiles>
