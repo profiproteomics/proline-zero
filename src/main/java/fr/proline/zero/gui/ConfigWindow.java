@@ -373,8 +373,8 @@ public class ConfigWindow extends JDialog {
                 StringBuilder msgToDisplay = new StringBuilder("Proline Zero can't start with current errors :\n");
                 msgToDisplay.append(ConfigManager.getInstance().getLastErrorMessage());
                 msgToDisplay.append("\nWould you like to exit Proline Zero ?");
-                msgToDisplay.append(
-                        "\nAn example proline_launcher.config file is provided in proline_launcher.config.origin file");
+//                msgToDisplay.append(
+//                        "\nAn example proline_launcher.config file is provided in proline_launcher.config.origin file");
 
                 boolean yesPressed = Popup.yesNoCenterToComponent(ConfigWindow.getInstance(),msgToDisplay.toString());
                 if (yesPressed) {

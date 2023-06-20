@@ -22,13 +22,16 @@ class Config {
 
 	private static void initialize() {
 		if (properties == null) {
+			String filePath = "proline_launcher.config";
 			try {
 				properties = new Properties();
-				File configFile = new File("proline_launcher.config");
+				 File configFile = new File(filePath);
+				 filePath = configFile.getAbsolutePath();
+
 				properties.load(new FileInputStream(configFile));
 			} catch (Throwable t) {
-				logger.error("Error while reading configuration file, using default configuration instead", t);
-				InputStream is = Main.class.getClassLoader().getResourceAsStream("fr/proline/zero/proline_launcher.config");
+				logger.error("Error while reading configuration file, "+filePath+", try using default configuration instead", t);
+				InputStream is = Main.class.getClassLoader().getResourceAsStream("proline_launcher.config"); //VDS inutile. Pas de replace des tags...
 				if(is==null)
 					throw new RuntimeException("Error while reading configuration file. No default file found");
 
