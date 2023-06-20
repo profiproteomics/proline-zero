@@ -76,6 +76,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         this.setButtonName(BUTTON_BACK, "Clear");
         this.setButtonIcon(BUTTON_BACK, IconManager.getIcon(IconManager.IconType.ERASER));
 
+
         this.typeOfDialog = typeOfDialog;
 
         if (typeOfDialog.equals(TypeOfDialog.Add)) {
@@ -405,6 +406,11 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         boolean formFullyFilled = !labelField.getText().isEmpty() && !proteinAccTField.getText().isEmpty()
                 && !fastaVersionTField.getText().isEmpty() && !fastaList.isEmpty();
         boolean forgottenEntry = !fastaNameTField.getText().isEmpty();
+        boolean parsingRuleLabelDidChange=false;
+        if (!labelField.getText().isEmpty()){
+            parsingRuleLabelDidChange=!labelField.getText().equals(editedParsingRule.getName());
+        }
+
         if (!formFullyFilled) {
             if (labelField.getText().isEmpty()) {
                 highlight(labelField);
@@ -425,10 +431,11 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             }
 
 
-        } else if (ConfigManager.getInstance().getParsingRulesManager().labelExists(labelField.getText()) && this.typeOfDialog.equals(TypeOfDialog.Add)) {
+        } else if (parsingRuleLabelDidChange ) {
+           if( ConfigManager.getInstance().getParsingRulesManager().labelExists(labelField.getText())){
             highlight(labelField);
             setStatus(true, "Label already exists please choose another name ");
-            entriesAreValid = false;
+            entriesAreValid = false;}
         } else if (forgottenEntry) {
             highlight(fastaNameTField);
             setStatus(true, "you might have forgotten an entry! ");
@@ -458,7 +465,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
                 Popup.warning("The list of fasta names contains some non valid regular expressions\n " +
                         "they are displayed in red inside the table"
                 );
-               // highlight(fastaNamesTable);
+
                 setStatus(true, "at least one regular expression is not valid inside table");
                 entriesAreValid = false;
             }

@@ -95,6 +95,7 @@ public class ParsingRulesUtils {
 
     }
 
+
     public ParsingRule updateParsingRule(ParsingRule ruleModified, String name, String fastaVersionRegExp, String proteinAccRegExp, List<String> fastaNameRegExp) {
         ruleModified.setName(name);
         ruleModified.setFastaNameRegExp(fastaNameRegExp);
@@ -159,6 +160,20 @@ public class ParsingRulesUtils {
     public boolean deleteFastaFolder(String path) {
         parseRulesAndFastaHasBeenChanged = true;
         return fastaPaths.remove(path);
+    }
+
+    /**
+     * Used while editing fatsa folders
+     * @param oldPath
+     * @param newPath
+     * @return
+     */
+    public boolean updateFastaFolder(String oldPath, String newPath){
+        int oldIndex=fastaPaths.indexOf(oldPath);
+        fastaPaths.set(oldIndex,newPath);
+        parseRulesAndFastaHasBeenChanged=true;
+        return true;
+
     }
 
     public void restoreParseRulesAndFastas() {

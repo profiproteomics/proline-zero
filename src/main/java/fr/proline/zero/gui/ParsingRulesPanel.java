@@ -79,15 +79,15 @@ public class ParsingRulesPanel extends JPanel {
                 ConfigManager.getInstance().getParsingRulesManager().setProteinByDefault(protByDefault);
             }
 
-            JTextField labelProt = new JTextField(protByDefault);
+            JTextField jTextLabelProt = new JTextField(protByDefault);
             int numColumns = Math.max(8, protByDefault.length());
-            labelProt.setColumns(numColumns);
+            jTextLabelProt.setColumns(numColumns);
 
-            labelProt.getDocument().addDocumentListener(new DocumentListener() {
+            jTextLabelProt.getDocument().addDocumentListener(new DocumentListener() {
                 @Override
                 public void insertUpdate(DocumentEvent e) {
 
-                    String textInsideTextField = labelProt.getText();
+                    String textInsideTextField = jTextLabelProt.getText();
 
                     ConfigManager.getInstance().setProteinByDefault(textInsideTextField);
                 }
@@ -95,7 +95,7 @@ public class ParsingRulesPanel extends JPanel {
                 @Override
                 public void removeUpdate(DocumentEvent e) {
 
-                    String textInsideTextField = labelProt.getText();
+                    String textInsideTextField = jTextLabelProt.getText();
 
                     ConfigManager.getInstance().setProteinByDefault(textInsideTextField);
                 }
@@ -109,21 +109,24 @@ public class ParsingRulesPanel extends JPanel {
             c.gridx++;
             // c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 0.5;
-            labelProt.setPreferredSize(labelProt.getPreferredSize());
-            add(labelProt, c);
+            jTextLabelProt.setPreferredSize(jTextLabelProt.getPreferredSize());
+            add(jTextLabelProt, c);
+
+
+
+            JScrollPane scrollPane = new JScrollPane(createParsingRulesListPanel());
+
+            scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+           // scrollPane.setPreferredSize(new Dimension(700, 550));
+            scrollPane.setBorder(null);
             c.weightx = 1;
             c.gridx = 0;
             c.gridwidth = 2;
             c.gridy++;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.anchor = GridBagConstraints.NORTHWEST;
+            c.fill = GridBagConstraints.NONE;
+            c.anchor = GridBagConstraints.NORTH;
             c.weighty = 0;
-
-
-            JScrollPane scrollPane = new JScrollPane(createParsingRulesListPanel());
-            scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-            scrollPane.setPreferredSize(new Dimension(700, 550));
-            scrollPane.setBorder(null);
             add(scrollPane, c);
             c.gridy++;
             c.anchor = GridBagConstraints.NORTHEAST;
@@ -162,6 +165,7 @@ public class ParsingRulesPanel extends JPanel {
             boolean addSuccess = ConfigManager.getInstance().getParsingRulesManager().addNewRule(parsingRuleAdded);
             if (addSuccess) {
                 updatePanel();
+                ConfigWindow.getInstance().pack();
             } else {
                 Popup.warning("Error while adding the parsing rule");
             }
@@ -173,6 +177,7 @@ public class ParsingRulesPanel extends JPanel {
     private void updatePanel() {
         removeAll();
         initialize();
+
     }
 
 
@@ -198,6 +203,8 @@ public class ParsingRulesPanel extends JPanel {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(5, 1, 5, 1);
         constraints.weightx = 1;
+        constraints.anchor=GridBagConstraints.NORTH;
+        displayRules.setPreferredSize(new Dimension(700,100*setOfRules.size()));
         int[] maximas = getMaximums(setOfRules);
 
         for (ParsingRule currentParsingRule : setOfRules) {
