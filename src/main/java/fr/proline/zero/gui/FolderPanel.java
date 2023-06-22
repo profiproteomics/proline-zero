@@ -33,6 +33,8 @@ public class FolderPanel extends JPanel {
     private final static Color JTEXT_COLOR = new Color(5, 5, 5);
 
     private final static String duplicateToolTipText ="Warning at least two labels point on this folder";
+    private final static String duplicateLabelToolTipText="the label of this mount point is shared by another mount point";
+    private final static String misssingPathToolTipText="Missing path for this mount point";
 
     public ArrayList<String> valuesInsideDialog;
 
@@ -100,18 +102,21 @@ public class FolderPanel extends JPanel {
         folderPanelConstraints.anchor = GridBagConstraints.WEST;
         folderPanelConstraints.gridwidth = 2;
         add(openAddDialogButton, folderPanelConstraints);
+        folderPanelConstraints.gridy++;
+        folderPanelConstraints.gridx=0;
+
         if (!ConfigManager.getInstance().getMountPointManager().verif()){
             JLabel errorIcon=new JLabel(IconManager.getIcon(IconManager.IconType.WARNING));
-            errorIcon.setText("  Error");
-            folderPanelConstraints.anchor=GridBagConstraints.CENTER;
+
             add(errorIcon,folderPanelConstraints);
 
         }
         else {
             JLabel noErrorIcon=new JLabel(IconManager.getIcon(IconManager.IconType.TICK_CIRCLE));
-            folderPanelConstraints.anchor=GridBagConstraints.CENTER;
+
             add(noErrorIcon,folderPanelConstraints);
         }
+
         folderPanelConstraints.gridx = 0;
         folderPanelConstraints.gridwidth = 3;
         folderPanelConstraints.fill = GridBagConstraints.BOTH;
@@ -236,15 +241,15 @@ public class FolderPanel extends JPanel {
         if (pathDisplayed != null) {
             if (pathDisplayed.equals("")) {
                 jTextPathInitial.setText("Missing path please enter a path for this mount point");
-                changeJTextFieldLook(jTextPathInitial, ERROR_COLOR, Color.WHITE, "empty path ");
+                changeJTextFieldLook(jTextPathInitial, ERROR_COLOR, Color.WHITE, misssingPathToolTipText);
             } else if (defaultMountPointHasAWrongPath) {
                 changeJTextFieldLook(jTextPathInitial, ERROR_COLOR, Color.WHITE, "This path is not valid");
             } else if (defaultMountPointLabelIsDuplicate) {
-                changeJTextFieldLook(jTextPathInitial, WARNING_COLOR, Color.BLACK, "This mount point has not unique label");
+                changeJTextFieldLook(jTextPathInitial, WARNING_COLOR, Color.WHITE, duplicateLabelToolTipText);
                 jLabelDefault.setForeground(LABEL_ERROR);
             } else if (defaultMountPointPathIsDuplicate) {
-                jTextPathInitial.setToolTipText(duplicateToolTipText);
-                jTextPathInitial.setEnabled(false);
+
+                changeJTextFieldLook(jTextPathInitial,WARNING_COLOR,Color.BLACK,duplicateToolTipText);
             } else {
                 jTextPathInitial.setEnabled(false);
             }
@@ -253,7 +258,7 @@ public class FolderPanel extends JPanel {
         } else {
             // treats the case where default mounting point is not present (path==null)
             jTextPathInitial.setText("Please add a path for this mount point");
-            changeJTextFieldLook(jTextPathInitial, ERROR_COLOR, Color.WHITE, "This default mounting point is missing");
+            changeJTextFieldLook(jTextPathInitial, ERROR_COLOR, Color.WHITE, misssingPathToolTipText);
         }
 
         folderPanelConstraints.gridx++;
@@ -336,18 +341,19 @@ public class FolderPanel extends JPanel {
 
                 if (mountPointsToBeDisplayed.get(key).equals("")) {
                     mountPointPathTField.setText("This path is empty please enter a path for this mount point");
-                    changeJTextFieldLook(mountPointPathTField, ERROR_COLOR, Color.WHITE, "This path is empty please enter a path for this mount point");
+                    changeJTextFieldLook(mountPointPathTField, ERROR_COLOR, Color.WHITE, misssingPathToolTipText);
 
                 } else if (pathWrong.contains(mountPointsToBeDisplayed.get(key))) {
                     changeJTextFieldLook(mountPointPathTField, ERROR_COLOR, Color.WHITE, "This path is not valid");
 
                 } else if (labelsDuplicate.contains(key)) {
-                    changeJTextFieldLook(mountPointPathTField, WARNING_COLOR, Color.BLACK, "this mount point has not unique label");
+                    changeJTextFieldLook(mountPointPathTField, WARNING_COLOR, Color.WHITE, duplicateLabelToolTipText);
 
                     label.setForeground(LABEL_ERROR);
 
                 } else if (listOfDuplicates.contains(mountPointsToBeDisplayed.get(key))) {
-                    mountPointPathTField.setToolTipText(duplicateToolTipText);
+
+                    changeJTextFieldLook(mountPointPathTField,WARNING_COLOR,Color.WHITE,duplicateToolTipText);
 
                 }
                 folderPanelConstraints.gridx++;
@@ -479,8 +485,9 @@ public class FolderPanel extends JPanel {
                         changeJTextFieldLook(jTextFieldPathFasta, ERROR_COLOR, Color.WHITE, "This path is not valid");
                     }
                     if (fastaToBeDisplayed.get(k).equals("")) {
+                        // TODO delete the entry?
                         jTextFieldPathFasta.setText("Path does not exist");
-                        changeJTextFieldLook(jTextFieldPathFasta, ERROR_COLOR, Color.WHITE, "Missing path please enter a path for this mount point");
+                        changeJTextFieldLook(jTextFieldPathFasta, ERROR_COLOR, Color.WHITE, misssingPathToolTipText);
                     }
                     if (pathBelongsToDuplicate) {
 
@@ -637,7 +644,7 @@ public class FolderPanel extends JPanel {
                 }
                 break;
             case "Fasta folder":
-                boolean addSuccesFasta = ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(folderPath, false);
+                boolean addSuccesFasta = ConfigManager.getInstance().getParsingRulesManager().addFastaFolder(folderPath);
                 if (addSuccesFasta) {
                     updateJPanel();
                     ConfigWindow.getInstance().pack();

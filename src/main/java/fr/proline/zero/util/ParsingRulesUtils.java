@@ -141,25 +141,16 @@ public class ParsingRulesUtils {
     }
 
     /**
-     * WARNING TO BE MODIFIED!!!
-     * @param path
+     *
+     *@param path
      * @param forced
-     * @return
+     *
      */
-    public boolean addFastaFolder(String path, boolean forced) {
-        boolean addOk = false;
-        if ( !forced) {
-            fastaPaths.add(path);
-            parseRulesAndFastaHasBeenChanged = true;
-            addOk = true;
-        }
-        if (forced) {
-            fastaPaths.add(path);
-            parseRulesAndFastaHasBeenChanged = true;
-            addOk = true;
-        }
+    public boolean addFastaFolder(String path) {
 
-        return addOk;
+        fastaPaths.add(path);
+        parseRulesAndFastaHasBeenChanged = true;
+        return true;
     }
 
     public boolean deleteFastaFolder(String path) {
@@ -169,14 +160,15 @@ public class ParsingRulesUtils {
 
     /**
      * Used while editing fasta folders
+     *
      * @param oldPath
      * @param newPath
-     * @return
+     *
      */
-    public boolean updateFastaFolder(String oldPath, String newPath){
-        int oldIndex=fastaPaths.indexOf(oldPath);
-        fastaPaths.set(oldIndex,newPath);
-        parseRulesAndFastaHasBeenChanged=true;
+    public boolean updateFastaFolder(String oldPath, String newPath) {
+        int oldIndex = fastaPaths.indexOf(oldPath);
+        fastaPaths.set(oldIndex, newPath);
+        parseRulesAndFastaHasBeenChanged = true;
         return true;
 
     }
@@ -203,17 +195,12 @@ public class ParsingRulesUtils {
         // TODO implement verifications
         if (!fastaPathsAreValid()) {
             errorFatal = true;
-            if (invalidFastaPaths.size() > 1) {
-                message.append("Some paths inside seq repo configuration file are not valid: \n");
-
-                for (String invalidPath : invalidFastaPaths) {
-                    message.append(invalidPath);
-                    message.append("\n");
-                }
-            } else {
-                message.append("One path is not valid: \n");
-                message.append(invalidFastaPaths.get(0));
+            message.append("Fatal error inside Sequence repository file: \n");
+            for (String invalidPath : invalidFastaPaths) {
+                message.append("Fasta file: " + invalidPath + " is not valid");
+                message.append("\n");
             }
+
         }
         if (noParsingRule()) {
             message.append("\n Minor error: \n");

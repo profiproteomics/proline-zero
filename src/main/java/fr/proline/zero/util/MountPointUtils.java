@@ -266,7 +266,6 @@ public class MountPointUtils {
         boolean success = true;
 
             Map<String, String> currentKValue = mountPointMap.get(mountPointType);
-
             boolean mPointExists = currentKValue.containsKey(key);
             if ( mPointExists) {
                 currentKValue.remove(key);
@@ -314,13 +313,9 @@ public class MountPointUtils {
         }
 
         if (!allPathsExist()) {
-            if (invalidPaths.size() == 1) {
-                message.append("The following path does not exist: \n");
-            } else {
-                message.append("The following paths do not exist: \n");
-            }
+            message.append("Fatal error inside mounting points:\n");
             for (String invalidPath : invalidPaths) {
-                message.append(invalidPath).append("\n");
+                message.append("The path: "+invalidPath+ " is not valid").append("\n");
             }
             errorFatal = true;
 
@@ -332,6 +327,7 @@ public class MountPointUtils {
         ArrayList<String> nonUniqueLabel = getNonUniqueLabels(mountPointMap);
         if (nonUniqueLabel.size() != 0) {
             errorFatal = true;
+
 
             for (String label : nonUniqueLabel) {
                 message.append("The label: ").append(label).append(" is not unique\n");
@@ -346,9 +342,9 @@ public class MountPointUtils {
         ArrayList<String> listOfDuplicates = getDuplicatePaths();
         if (listOfDuplicates.size() != 0) {
             message.append("------- Warning ---------\n");
-            message.append("Some paths  are identical: \n");
-            for (String paths : listOfDuplicates) {
-                message.append(paths).append("\n");
+            message.append("Some mounting points share the same path: \n");
+            for (String path : listOfDuplicates) {
+                message.append(path).append("\n");
 
             }
 
@@ -556,6 +552,7 @@ public class MountPointUtils {
     /**
      * Patch that handles case where inside same mount point, the 2 default labels are present
      * (mzdb+msacot) update the labels by adding a character
+     *
      */
     private void defaultMountPointRenamer() {
 

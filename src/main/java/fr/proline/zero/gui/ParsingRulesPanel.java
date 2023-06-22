@@ -115,13 +115,9 @@ public class ParsingRulesPanel extends JPanel {
 
 
             JScrollPane scrollPane = new JScrollPane(createParsingRulesListPanel());
-            int numberOfRules=ConfigManager.getInstance().getParsingRulesManager().getSetOfRules().size();
-            if (numberOfRules<5){
-            scrollPane.setPreferredSize(new Dimension(750, numberOfRules*100));
-            }
-            else {scrollPane.setPreferredSize(new Dimension(750,500));}
             scrollPane.setBorder(null);
-            scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            scrollPane.setPreferredSize(new Dimension(750,500));
+            scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
             c.weightx = 1;
             c.gridx = 0;
             c.gridwidth = 2;
@@ -203,19 +199,19 @@ public class ParsingRulesPanel extends JPanel {
         constraints.gridy = 0;
         constraints.gridx = 0;
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.fill=GridBagConstraints.BOTH;
-        constraints.insets = new Insets(5, 1, 5, 1);
+        constraints.insets = new Insets(3, 1, 2, 1);
         constraints.weightx = 1;
+        constraints.weighty=0;
         constraints.anchor=GridBagConstraints.NORTH;
-
-        displayRules.setPreferredSize(new Dimension(730,100*setOfRules.size()));
-
         int[] maximas = getMaximums(setOfRules);
 
         for (ParsingRule currentParsingRule : setOfRules) {
             displayRules.add(displayParsingRules(currentParsingRule, maximas), constraints);
             constraints.gridy++;
         }
+        int gap=700-97*setOfRules.size();
+        displayRules.add(Box.createVerticalStrut(gap),constraints);
+
         return displayRules;
     }
 
