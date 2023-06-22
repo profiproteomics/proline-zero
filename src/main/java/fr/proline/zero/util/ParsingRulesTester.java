@@ -146,6 +146,8 @@ public class ParsingRulesTester {
         }
 
 
+
+
     }
     // Method from seqrepo works but might be heavy??
 

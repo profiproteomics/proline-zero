@@ -45,15 +45,16 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     private static final String deleteColumnIdentifier = "      ";
     private static final String[] columns = {"Rule", deleteColumnIdentifier};
 
-    private static final Icon fastaListValid=IconManager.getIcon(IconManager.IconType.TICK_CIRCLE);
-    private static final Icon fastaListNotValid=IconManager.getIcon(IconManager.IconType.WARNING);
+    private static final Icon fastaListValid = IconManager.getIcon(IconManager.IconType.TICK_CIRCLE);
+    private static final Icon fastaListNotValid = IconManager.getIcon(IconManager.IconType.WARNING);
 
     private JLabel indicatorLabel;
 
     private static final Color J_TABLE_COLOR = new Color(174, 182, 222);
 
     private static final Color TEST_TABLE_COLOR = new Color(200, 200, 200);
-    private final static Color SOFT_ERROR_COLOR = new Color(180, 0, 0);
+
+    private final static Color WARNING_COLOR = new Color(145, 147, 154);
     private final TypeOfDialog typeOfDialog;
 
     private static final Logger LOG = LoggerFactory.getLogger(ParsingRuleEditDialog.class);
@@ -84,7 +85,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             this.setIconImage(IconManager.getImage(IconManager.IconType.PLUS_16X16));
             this.setButtonIcon(BUTTON_OK, IconManager.getIcon(IconManager.IconType.PLUS_16X16));
             this.setTitle("Add parsing rule");
-            this.editedParsingRule = null;
+
 
         }
         if (typeOfDialog.equals(TypeOfDialog.Edit)) {
@@ -132,16 +133,15 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             labelField.setText(parsingRuleEdited.getName());
             fastaVersionTField.setText(parsingRuleEdited.getFastaVersionRegExp());
             proteinAccTField.setText(parsingRuleEdited.getProteinAccRegExp());
-            if (!ParsingRulesTester.isRegexValid(parsingRuleEdited.getProteinAccRegExp())){
+            if (!ParsingRulesTester.isRegexValid(parsingRuleEdited.getProteinAccRegExp())) {
 
-                changeJTextFieldAttributes(proteinAccTField,SOFT_ERROR_COLOR,Color.WHITE,"this regular expression is not valid");
+                changeJTextFieldAttributes(proteinAccTField, WARNING_COLOR, Color.WHITE, "this regular expression is not valid");
             }
 
-            fastaList=parsingRuleEdited.getFastaNameRegExp();
-            if(!ParsingRulesTester.testFastaListInsideDialog(fastaList)){
+            fastaList = parsingRuleEdited.getFastaNameRegExp();
+            if (!ParsingRulesTester.testFastaListInsideDialog(fastaList)) {
                 indicatorLabel.setIcon(fastaListNotValid);
-            }
-            else {
+            } else {
                 indicatorLabel.setIcon(fastaListValid);
 
             }
@@ -233,7 +233,6 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
     /**
      * Display the JTable with fasta name regular expressions
-     *
      */
     private JPanel newFastaNamePanel() {
         JPanel fastaPanel = new JPanel(new GridBagLayout());
@@ -273,10 +272,10 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         parsingConstraints.anchor = GridBagConstraints.WEST;
         fastaPanel.add(new JLabel("Fasta name rules: "), parsingConstraints);
         parsingConstraints.gridx++;
-        indicatorLabel=new JLabel(fastaListValid);
-        parsingConstraints.anchor=GridBagConstraints.CENTER;
-        fastaPanel.add( indicatorLabel,parsingConstraints);
-        parsingConstraints.anchor=GridBagConstraints.EAST;
+        indicatorLabel = new JLabel(fastaListValid);
+        parsingConstraints.anchor = GridBagConstraints.CENTER;
+        fastaPanel.add(indicatorLabel, parsingConstraints);
+        parsingConstraints.anchor = GridBagConstraints.EAST;
         fastaNamesTableModel = new DefaultTableModel();
         fastaNamesTableModel.setColumnIdentifiers(columns);
         fastaNamesTable = new JTable();
@@ -397,7 +396,9 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
     /**
      * check if entries inside EditDialog are valid
-     * @return true if entries are all filled and valid (uniqueness of label)
+     *
+     * @return true if entries are all filled
+     *Checks if label already exists and if regular expressions are valid
      */
 
     @Override
@@ -406,9 +407,9 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         boolean formFullyFilled = !labelField.getText().isEmpty() && !proteinAccTField.getText().isEmpty()
                 && !fastaVersionTField.getText().isEmpty() && !fastaList.isEmpty();
         boolean forgottenEntry = !fastaNameTField.getText().isEmpty();
-        boolean parsingRuleLabelDidChange=false;
-        if (!labelField.getText().isEmpty()){
-            parsingRuleLabelDidChange=!labelField.getText().equals(editedParsingRule.getName());
+        boolean parsingRuleLabelDidChange = false;
+        if (!labelField.getText().isEmpty() && typeOfDialog.equals(TypeOfDialog.Edit)) {
+            parsingRuleLabelDidChange = !labelField.getText().equals(editedParsingRule.getName());
         }
 
         if (!formFullyFilled) {
@@ -431,11 +432,12 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             }
 
 
-        } else if (parsingRuleLabelDidChange ) {
-           if( ConfigManager.getInstance().getParsingRulesManager().labelExists(labelField.getText())){
-            highlight(labelField);
-            setStatus(true, "Label already exists please choose another name ");
-            entriesAreValid = false;}
+        } else if (parsingRuleLabelDidChange || typeOfDialog.equals(TypeOfDialog.Add)) {
+            if (ConfigManager.getInstance().getParsingRulesManager().labelExists(labelField.getText())) {
+                highlight(labelField);
+                setStatus(true, "Label already exists please choose another one ");
+                entriesAreValid = false;
+            }
         } else if (forgottenEntry) {
             highlight(fastaNameTField);
             setStatus(true, "you might have forgotten an entry! ");
@@ -494,7 +496,6 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
     /**
      * resets elements inside dialog
-     *
      */
     protected boolean backCalled() {
 
@@ -611,11 +612,12 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             super.fireEditingStopped();
         }
     }
-        private void changeJTextFieldAttributes(JTextField jTextField, Color backGroundColor, Color textColor, String toolTipMessage){
+
+    private void changeJTextFieldAttributes(JTextField jTextField, Color backGroundColor, Color textColor, String toolTipMessage) {
         jTextField.setBackground(backGroundColor);
-        if (!jTextField.isEnabled())
-        {jTextField.setDisabledTextColor(textColor);}
-        else {
+        if (!jTextField.isEnabled()) {
+            jTextField.setDisabledTextColor(textColor);
+        } else {
             jTextField.setForeground(textColor);
         }
         jTextField.setToolTipText(toolTipMessage);

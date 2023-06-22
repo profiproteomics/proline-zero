@@ -181,7 +181,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         double ratio = (double) successMatching / totalNumberOfFiles;
         int percentage = (int) (ratio * 100);
 
-        JLabel numberOfFastaFiles = new JLabel("A total of " + totalNumberOfFiles + " fasta files were scanned during the test");
+        JLabel numberOfFastaFiles = new JLabel( totalNumberOfFiles + " fasta files scanned during the test");
         displayStats.add(numberOfFastaFiles, gbc);
 
         JLabel proteinByDefaultLabel = new JLabel("Default protein accession rule: " + proteinByDefault + "  used for " + (100 - percentage) + " % of files");
@@ -291,7 +291,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
 
                 } else {
 
-                    displayOneResult.add(new JLabel(IconManager.getIcon(IconManager.IconType.EXCLAMATION)), gbc);
+                    displayOneResult.add(new JLabel(IconManager.getIcon(IconManager.IconType.WARNING)), gbc);
                     gbc.gridx++;
                     gbc.anchor = GridBagConstraints.WEST;
                     displayOneResult.add(new JLabel("No parsing rule found and no protein accession has been extracted "), gbc);
@@ -320,13 +320,6 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         jTextFieldName.setPreferredSize(new Dimension(maximums.get(0), 20));
 
 
-        /*if (parsingRule == null) {
-
-            jTextFieldName.setBackground(SOFT_ERROR_COLOR);
-
-        } else {
-            jTextFieldName.setBackground(SUCCESS_COLOR);
-        }*/
         jTextFieldName.setText(fastaFileName);
         gbc.gridx++;
         gbc.weightx = 0.5;
@@ -343,7 +336,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         if (!isNull(parsingRule)) {
             jTextFieldParsingRuleLabel.setText(parsingRuleName + " - " + fastaRegex);
         } else {
-            //jTextFieldParsingRuleLabel.setText("No parsing rule found, will use " + ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule());
+
             jTextFieldParsingRuleLabel.setText("No parsing rule found , will use protein by default");
         }
         jTextFieldParsingRuleLabel.setEnabled(false);

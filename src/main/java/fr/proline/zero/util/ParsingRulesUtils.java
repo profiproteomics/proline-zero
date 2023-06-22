@@ -140,10 +140,15 @@ public class ParsingRulesUtils {
         return !pathExists && !fastaPaths.contains(path);
     }
 
-
+    /**
+     * WARNING TO BE MODIFIED!!!
+     * @param path
+     * @param forced
+     * @return
+     */
     public boolean addFastaFolder(String path, boolean forced) {
         boolean addOk = false;
-        if (canBeAdded(path) && !forced) {
+        if ( !forced) {
             fastaPaths.add(path);
             parseRulesAndFastaHasBeenChanged = true;
             addOk = true;
@@ -163,7 +168,7 @@ public class ParsingRulesUtils {
     }
 
     /**
-     * Used while editing fatsa folders
+     * Used while editing fasta folders
      * @param oldPath
      * @param newPath
      * @return

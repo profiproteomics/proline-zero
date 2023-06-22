@@ -23,7 +23,7 @@ public class ParsingRulesPanel extends JPanel {
 
     private static final Logger LOG = LoggerFactory.getLogger(ParsingRulesPanel.class);
 
-    private final static Color SOFT_ERROR_COLOR = new Color(180, 0, 0);
+    private final static Color SOFT_ERROR_COLOR = new Color(145, 147, 154);
 
     public ParsingRulesPanel() {
         initialize();
@@ -72,15 +72,15 @@ public class ParsingRulesPanel extends JPanel {
             add(new JLabel("Default protein accession rule: "), c);
 
 
-            String protByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
-            // patch
-            if (protByDefault.equals("")) {
-                protByDefault = ">\\w{2}\\|\\w+\\|(\\w+)";
-                ConfigManager.getInstance().getParsingRulesManager().setProteinByDefault(protByDefault);
+            String proteinRuleByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
+
+            if (proteinRuleByDefault.equals("")) {
+                proteinRuleByDefault = ">\\w{2}\\|\\w+\\|(\\w+)";
+                ConfigManager.getInstance().getParsingRulesManager().setProteinByDefault(proteinRuleByDefault);
             }
 
-            JTextField jTextLabelProt = new JTextField(protByDefault);
-            int numColumns = Math.max(8, protByDefault.length());
+            JTextField jTextLabelProt = new JTextField(proteinRuleByDefault);
+            int numColumns = Math.max(8, proteinRuleByDefault.length());
             jTextLabelProt.setColumns(numColumns);
 
             jTextLabelProt.getDocument().addDocumentListener(new DocumentListener() {
@@ -115,16 +115,18 @@ public class ParsingRulesPanel extends JPanel {
 
 
             JScrollPane scrollPane = new JScrollPane(createParsingRulesListPanel());
-
-            scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-
-           // scrollPane.setPreferredSize(new Dimension(700, 550));
+            int numberOfRules=ConfigManager.getInstance().getParsingRulesManager().getSetOfRules().size();
+            if (numberOfRules<5){
+            scrollPane.setPreferredSize(new Dimension(750, numberOfRules*100));
+            }
+            else {scrollPane.setPreferredSize(new Dimension(750,500));}
             scrollPane.setBorder(null);
+            scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
             c.weightx = 1;
             c.gridx = 0;
             c.gridwidth = 2;
             c.gridy++;
-            c.fill = GridBagConstraints.NONE;
+            c.fill = GridBagConstraints.HORIZONTAL;
             c.anchor = GridBagConstraints.NORTH;
             c.weighty = 0;
             add(scrollPane, c);
@@ -201,10 +203,13 @@ public class ParsingRulesPanel extends JPanel {
         constraints.gridy = 0;
         constraints.gridx = 0;
         constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.fill=GridBagConstraints.BOTH;
         constraints.insets = new Insets(5, 1, 5, 1);
         constraints.weightx = 1;
         constraints.anchor=GridBagConstraints.NORTH;
-        displayRules.setPreferredSize(new Dimension(700,100*setOfRules.size()));
+
+        displayRules.setPreferredSize(new Dimension(730,100*setOfRules.size()));
+
         int[] maximas = getMaximums(setOfRules);
 
         for (ParsingRule currentParsingRule : setOfRules) {
@@ -292,22 +297,6 @@ public class ParsingRulesPanel extends JPanel {
         boolean parsingRuleHasManyFastaRules = (fastaNames.size() > 2);
         boolean parsingRuleFastasAreNotValid=ParsingRulesTester.parsingRuleFastaRegexisNotValid(parsingRule);
         boolean proteinAccessionRuleIsValid=ParsingRulesTester.isRegexValid(parsingRule.getProteinAccRegExp());
-
-
-       /* if (parsingRuleIsCorrupted){
-            displayParsingRule.setBorder(BorderFactory.createLineBorder(new Color(150,0,0),2));
-            displayParsingRule.setToolTipText("The set of fasta name regular expressions is not valid\n " +
-                    "please check inside table");
-            displayParsingRule.setBackground(SOFT_ERROR_COLOR);
-
-        }*/
-        /*if(!proteinAccessionRuleIsValid){
-            displayParsingRule.setBorder(BorderFactory.createLineBorder(new Color(150,0,0),2));
-            displayParsingRule.setToolTipText("The protein accession rule is not valid");
-            displayParsingRule.setBackground(SOFT_ERROR_COLOR);
-
-        }*/
-
 
         JLabel jLabelName = new JLabel("Label: ");
         constraints.anchor = GridBagConstraints.EAST;

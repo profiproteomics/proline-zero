@@ -26,8 +26,8 @@ import java.util.ArrayList;
 
 public class FolderEditDialog extends DefaultDialog {
     private JComboBox<String> dataTypeBox;
-    private JTextField folderLabelField;
-    private JTextField folderPathField;
+    private JTextField folderLabelTField;
+    private JTextField folderPathTField;
 
     private final TypeOfDialog typeOfDialog;
 
@@ -63,8 +63,8 @@ public class FolderEditDialog extends DefaultDialog {
         } else if (typeOfDialog.equals(TypeOfDialog.EditingFastas)) {
             this.setTitle("Edit Fasta Folder");
             this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
-            folderPathField.setText(pathBackup);
-            folderLabelField.setEnabled(false);
+            folderPathTField.setText(pathBackup);
+            folderLabelTField.setEnabled(false);
             dataTypeBox.setSelectedItem("Fasta folder");
             dataTypeBox.setEnabled(false);
 
@@ -72,10 +72,10 @@ public class FolderEditDialog extends DefaultDialog {
         } else if (typeOfDialog.equals(TypeOfDialog.EditingDefaultMPts)) {
             this.setTitle("Edit  Mounting Point By Default");
             this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
-            folderPathField.setText(pathBackup);
-            folderLabelField.setText(MountPointUtils.getMountPointDefaultPathLabel(mountPointType));
-            folderLabelField.setEnabled(false);
-            folderLabelField.setEditable(false);
+            folderPathTField.setText(pathBackup);
+            folderLabelTField.setText(MountPointUtils.getMountPointDefaultPathLabel(mountPointType));
+            folderLabelTField.setEnabled(false);
+            folderLabelTField.setEditable(false);
             dataTypeBox.setSelectedItem(mountPointType.getDisplayString());
             dataTypeBox.setEnabled(false);
 
@@ -83,8 +83,8 @@ public class FolderEditDialog extends DefaultDialog {
 
             this.setTitle("Edit Mounting Point");
             this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
-            folderLabelField.setText(labelEdited);
-            folderPathField.setText(pathBackup);
+            folderLabelTField.setText(labelEdited);
+            folderPathTField.setText(pathBackup);
             dataTypeBox.setSelectedItem(mountPointType.getDisplayString());
             dataTypeBox.setEnabled(false);
 
@@ -97,7 +97,12 @@ public class FolderEditDialog extends DefaultDialog {
     private JPanel createAddFolderPanel() {
         // creation du panel et du layout
         JPanel addFolderPanel = new JPanel(new GridBagLayout());
-
+        GridBagConstraints addFolderConstraint = new GridBagConstraints();
+        addFolderConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
+        addFolderConstraint.anchor = GridBagConstraints.NORTHEAST;
+        addFolderConstraint.fill = GridBagConstraints.HORIZONTAL;
+        addFolderConstraint.gridx = 0;
+        addFolderConstraint.gridy = 0;
 
         // creation des widgets
         dataTypeBox = new JComboBox<>();
@@ -112,23 +117,15 @@ public class FolderEditDialog extends DefaultDialog {
         dataTypeBox.addActionListener(e -> greyLabelForFasta());
         dataTypeBox.setEnabled(true);
 
-        folderLabelField = new JTextField();
-        folderLabelField.setEnabled(true);
-        folderPathField = new JTextField();
-        folderPathField.setEnabled(true);
+        folderLabelTField = new JTextField();
+        folderLabelTField.setEnabled(true);
+        folderPathTField = new JTextField();
+        folderPathTField.setEnabled(true);
 
         JButton browseButton = new JButton(IconManager.getIcon(IconManager.IconType.OPEN_FILE));
-
         browseButton.addActionListener(e -> openFolderView());
 
 
-        // ajout des widgets au layout
-        GridBagConstraints addFolderConstraint = new GridBagConstraints();
-        addFolderConstraint.insets = new java.awt.Insets(5, 5, 5, 5);
-        addFolderConstraint.anchor = GridBagConstraints.NORTHEAST;
-        addFolderConstraint.fill = GridBagConstraints.HORIZONTAL;
-        addFolderConstraint.gridx = 0;
-        addFolderConstraint.gridy = 0;
         JLabel jLabelData = new JLabel("Data type : ", SwingConstants.RIGHT);
         jLabelData.setEnabled(true);
         addFolderPanel.add(jLabelData, addFolderConstraint);
@@ -147,7 +144,7 @@ public class FolderEditDialog extends DefaultDialog {
         addFolderConstraint.gridx++;
         addFolderConstraint.anchor = GridBagConstraints.NORTHWEST;
         addFolderConstraint.weightx = 0.3;
-        addFolderPanel.add(folderLabelField, addFolderConstraint);
+        addFolderPanel.add(folderLabelTField, addFolderConstraint);
 
         addFolderConstraint.weightx = 0;
         addFolderConstraint.gridx = 0;
@@ -161,7 +158,7 @@ public class FolderEditDialog extends DefaultDialog {
         addFolderConstraint.gridx++;
         addFolderConstraint.anchor = GridBagConstraints.NORTHWEST;
         addFolderConstraint.weightx = 0.5;
-        addFolderPanel.add(folderPathField, addFolderConstraint);
+        addFolderPanel.add(folderPathTField, addFolderConstraint);
 
 
         addFolderConstraint.fill = GridBagConstraints.NONE;
@@ -181,10 +178,10 @@ public class FolderEditDialog extends DefaultDialog {
     private void greyLabelForFasta() {
 
         if (dataTypeBox.getSelectedItem().equals("Fasta folder")) {
-            folderLabelField.setText("");
-            folderLabelField.setEnabled(false);
+            folderLabelTField.setText("");
+            folderLabelTField.setEnabled(false);
         } else {
-            folderLabelField.setEnabled(true);
+            folderLabelTField.setEnabled(true);
         }
 
     }
@@ -197,20 +194,20 @@ public class FolderEditDialog extends DefaultDialog {
 
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = jfc.getSelectedFile();
-            folderPathField.setToolTipText(selectedFile.getAbsolutePath());
-            folderPathField.setText(selectedFile.getAbsolutePath());
+            folderPathTField.setToolTipText(selectedFile.getAbsolutePath());
+            folderPathTField.setText(selectedFile.getAbsolutePath());
         }
     }
 
     /**
-     * @return the three values inside the folder dialog
+     * @return the three values inside the folder edit dialog
      */
-    public ArrayList<String> getValuesEntered() {
-        ArrayList<String> values = new ArrayList<>(3);
-        values.add(0, folderLabelField.getText().trim());
-        values.add(1, folderPathField.getText());
-        values.add(2, dataTypeBox.getSelectedItem().toString());
-        return values;
+    public ArrayList<String> getValuesFromEditDialog() {
+        ArrayList<String> valuesEntered = new ArrayList<>(3);
+        valuesEntered.add(0, folderLabelTField.getText().trim());
+        valuesEntered.add(1, folderPathTField.getText());
+        valuesEntered.add(2, dataTypeBox.getSelectedItem().toString());
+        return valuesEntered;
     }
 
     private static MountPointUtils.MountPointType getMountPointTypeSelected(String dataTypeBoxSelected) {
@@ -234,9 +231,7 @@ public class FolderEditDialog extends DefaultDialog {
 
         boolean entriesAreValid = true;
 
-
-        ArrayList<String> values = getValuesEntered();
-
+        ArrayList<String> values = getValuesFromEditDialog();
         String folderField = values.get(0);
         String folderPath = values.get(1);
         String dataTypeBoxSelected = values.get(2);
@@ -255,52 +250,50 @@ public class FolderEditDialog extends DefaultDialog {
             boolean pathDidChange = !folderPath.equals(initialPath);
             if (labelDidChange) {
                 labelAlreadyExists = ConfigManager.getInstance().getMountPointManager().getIfLabelExists(folderField);
-
             }
             if (pathDidChange) {
-                MountPointUtils.MountPointType mountPointType = getMountPointTypeSelected(dataTypeBoxSelected);
-                pathAlreadyExists = ConfigManager.getInstance().getMountPointManager().getIfPathExistInAMountPoint(folderPath, mountPointType);
-
+                pathAlreadyExists = ConfigManager.getInstance().getMountPointManager().getIfPathExist(folderPath);
             }
         }
 
         if (dataTypeBoxSelected.equals("Fasta folder")) {
-
             boolean pathDidChange = !folderPath.equals(initialPath);
             if (pathDidChange) {
-
                 pathInFastaExist = ConfigManager.getInstance().getMountPointManager().getIfPathExist(folderPath);
             }
         }
 
-
         if (!entriesAreFullyFilled) {
             if (folderPath.isEmpty()) {
-                highlight(folderPathField);
+                highlight(folderPathTField);
                 setStatus(true, "Please add a folder");
                 entriesAreValid = false;
             }
            else  {
-                highlight(folderLabelField);
+                highlight(folderLabelTField);
                 setStatus(true, "Please add a label");
                 entriesAreValid = false;
             }
         } else if (!pathExists) {
-            highlight(folderPathField);
+            highlight(folderPathTField);
             setStatus(true, "The path is not valid");
             entriesAreValid = false;
 
         } else if (labelAlreadyExists) {
-            highlight(folderLabelField);
+            highlight(folderLabelTField);
             setStatus(true, "label already exists please choose another label");
             entriesAreValid = false;
 
-
         } else if (pathAlreadyExists || pathInFastaExist) {
-            highlight(folderPathField);
-            setStatus(true, "path already exists please choose another folder");
-            entriesAreValid = false;
-
+            highlight(folderPathTField);
+            boolean addConfirm=Popup.yesNoCenterToComponent(ConfigWindow.getInstance(),"The path you entered already exists, do " +
+                    "you want to add it anyway?");
+            if (addConfirm){
+                entriesAreValid=true;
+            }
+            else {
+                entriesAreValid=false;
+            }
         }
 
         return entriesAreValid;
@@ -310,31 +303,24 @@ public class FolderEditDialog extends DefaultDialog {
 
     @Override
     protected boolean cancelCalled() {
-
-
         return true;
     }
 
     @Override
     protected boolean backCalled() {
 
-
         if (this.typeOfDialog.equals(TypeOfDialog.EditingFastas) || this.typeOfDialog.equals(TypeOfDialog.EditingDefaultMPts)) {
-            folderPathField.setText("");
-
+            folderPathTField.setText("");
 
         } else {
-            folderLabelField.setText("");
-            folderPathField.setText("");
-
+            folderLabelTField.setText("");
+            folderPathTField.setText("");
         }
-
         return true;
     }
 
     @Override
     protected boolean saveCalled() {
-
         return true;
     }
 }
