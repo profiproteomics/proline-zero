@@ -210,21 +210,12 @@ public class FolderEditDialog extends DefaultDialog {
         return valuesEntered;
     }
 
-    private static MountPointUtils.MountPointType getMountPointTypeSelected(String dataTypeBoxSelected) {
-        MountPointUtils.MountPointType mountPointSelected;
-        if (dataTypeBoxSelected.equals(MountPointUtils.MountPointType.RESULT.getDisplayString())) {
-            mountPointSelected = MountPointUtils.MountPointType.RESULT;
 
-        } else {
-            mountPointSelected = MountPointUtils.MountPointType.MZDB;
-        }
-        return mountPointSelected;
-    }
 
     /**
      * Method called when user clicks on the update button
      * Check if entries are valid
-     * @return
+     * @return true if the entry can be added or edited
      */
     @Override
     protected boolean okCalled() {
@@ -288,12 +279,10 @@ public class FolderEditDialog extends DefaultDialog {
             highlight(folderPathTField);
             boolean addConfirm=Popup.yesNoCenterToComponent(ConfigWindow.getInstance(),"The path you entered already exists, do " +
                     "you want to add it anyway?");
-            if (addConfirm){
-                entriesAreValid=true;
-            }
-            else {
+            if (!addConfirm){
                 entriesAreValid=false;
             }
+
         }
 
         return entriesAreValid;

@@ -22,17 +22,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Extends DefaultDialog (Studio)
+ *
  * Used to edit a parsing Rule
  * Local test on the protein accession rule of the parsing rule viewed
  *
  * @see ConfigManager
  * @see ParsingRule
  * @see ParsingRulesTester
+ * @see DefaultDialog
  */
 
 public class ParsingRuleEditDialog extends DefaultDialog {
-    private JTextField labelField;
+    private JTextField labelTField;
     private JTextField fastaVersionTField;
     private JTextField proteinAccTField;
     private JTextField fastaNameTField;
@@ -45,15 +46,12 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     private static final String deleteColumnIdentifier = "      ";
     private static final String[] columns = {"Rule", deleteColumnIdentifier};
 
-    private static final Icon fastaListValid = IconManager.getIcon(IconManager.IconType.TICK_CIRCLE);
-    private static final Icon fastaListNotValid = IconManager.getIcon(IconManager.IconType.WARNING);
+    private static final Icon fastaListValidIcon = IconManager.getIcon(IconManager.IconType.TICK_CIRCLE);
+    private static final Icon fastaListNotValidIcon = IconManager.getIcon(IconManager.IconType.WARNING);
 
     private JLabel indicatorLabel;
 
     private static final Color J_TABLE_COLOR = new Color(174, 182, 222);
-
-    private static final Color TEST_TABLE_COLOR = new Color(200, 200, 200);
-
     private final static Color WARNING_COLOR = new Color(145, 147, 154);
     private final TypeOfDialog typeOfDialog;
 
@@ -72,12 +70,9 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         //Configure commons buttons for all TypeOfDialog
         this.setButtonVisible(BUTTON_HELP, false);
         this.setButtonVisible(BUTTON_DEFAULT, false);
-
         this.setButtonVisible(BUTTON_BACK, true);
         this.setButtonName(BUTTON_BACK, "Clear");
         this.setButtonIcon(BUTTON_BACK, IconManager.getIcon(IconManager.IconType.ERASER));
-
-
         this.typeOfDialog = typeOfDialog;
 
         if (typeOfDialog.equals(TypeOfDialog.Add)) {
@@ -91,7 +86,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         if (typeOfDialog.equals(TypeOfDialog.Edit)) {
             this.setIconImage(IconManager.getImage(IconManager.IconType.EDIT));
             this.setButtonName(BUTTON_OK, "Update");
-            // TODO size of icon too big create a small update icon 16*16
+            // TODO size of icon too big create a small update icon 16*16??
             this.setButtonIcon(BUTTON_OK, IconManager.getIcon(IconManager.IconType.UPDATE));
             this.setTitle("Edit parsing rule");
             this.editedParsingRule = parsingRule.clone();
@@ -130,22 +125,22 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
         // JtextFields are filled with previous values if parsing rule is edited
         if (typeOfDialog.equals(ParsingRuleEditDialog.TypeOfDialog.Edit)) {
-            labelField.setText(parsingRuleEdited.getName());
+            labelTField.setText(parsingRuleEdited.getName());
             fastaVersionTField.setText(parsingRuleEdited.getFastaVersionRegExp());
             proteinAccTField.setText(parsingRuleEdited.getProteinAccRegExp());
+
             if (!ParsingRulesTester.isRegexValid(parsingRuleEdited.getProteinAccRegExp())) {
 
-                changeJTextFieldAttributes(proteinAccTField, WARNING_COLOR, Color.WHITE, "this regular expression is not valid");
+                changeJTextFieldLook(proteinAccTField, WARNING_COLOR, Color.WHITE, "this regular expression is not valid");
             }
-
             fastaList = parsingRuleEdited.getFastaNameRegExp();
+
             if (!ParsingRulesTester.testFastaListInsideDialog(fastaList)) {
-                indicatorLabel.setIcon(fastaListNotValid);
+                indicatorLabel.setIcon(fastaListNotValidIcon);
             } else {
-                indicatorLabel.setIcon(fastaListValid);
+                indicatorLabel.setIcon(fastaListValidIcon);
 
             }
-
             // draws the jTable to be modified
             for (String fastaName : fastaList) {
                 Object[] vector = {fastaName, removeFastaNameRuleJButton};
@@ -154,7 +149,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             c.weighty = 0;
 
         }
-        // Add
+
         else {
             indicatorLabel.setIcon(null);
         }
@@ -191,12 +186,12 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         constraints.weightx = 0;
         parsingPanel.add(labelName, constraints);
 
-        labelField = new JTextField();
+        labelTField = new JTextField();
         constraints.gridx++;
-        labelField.setPreferredSize(new Dimension(150, 20));
+        labelTField.setPreferredSize(new Dimension(150, 20));
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.weightx = 1;
-        parsingPanel.add(labelField, constraints);
+        parsingPanel.add(labelTField, constraints);
 
         constraints.gridy++;
         JLabel fastaVersion = new JLabel("Fasta version rule: ");
@@ -218,8 +213,8 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         constraints.anchor = GridBagConstraints.SOUTHEAST;
         constraints.fill = GridBagConstraints.NONE;
         constraints.weightx = 0;
-        JLabel protLabel = new JLabel("Protein accession rule: ");
-        parsingPanel.add(protLabel, constraints);
+        JLabel proteinLabel = new JLabel("Protein accession rule: ");
+        parsingPanel.add(proteinLabel, constraints);
 
         proteinAccTField = new JTextField();
         constraints.gridx++;
@@ -253,26 +248,23 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         fastaNameTField = new JTextField();
         parsingConstraints.anchor = GridBagConstraints.NORTHWEST;
         parsingConstraints.weightx = 1;
-        //parsingConstraints.weighty=0;
-        //parsingConstraints.gridheight=1;
-
         fastaNameTField.setPreferredSize(new Dimension(fastaNameTField.getPreferredSize()));
-
         fastaPanel.add(fastaNameTField, parsingConstraints);
+
         parsingConstraints.gridx++;
         parsingConstraints.weightx = 0;
         parsingConstraints.weighty = 0;
-
         parsingConstraints.fill = GridBagConstraints.NONE;
         parsingConstraints.anchor = GridBagConstraints.EAST;
         addButton.setPreferredSize(new Dimension(addButton.getPreferredSize()));
         fastaPanel.add(addButton, parsingConstraints);
+
         parsingConstraints.gridx = 0;
         parsingConstraints.gridy++;
         parsingConstraints.anchor = GridBagConstraints.WEST;
         fastaPanel.add(new JLabel("Fasta name rules: "), parsingConstraints);
         parsingConstraints.gridx++;
-        indicatorLabel = new JLabel(fastaListValid);
+        indicatorLabel = new JLabel(fastaListValidIcon);
         parsingConstraints.anchor = GridBagConstraints.CENTER;
         fastaPanel.add(indicatorLabel, parsingConstraints);
         parsingConstraints.anchor = GridBagConstraints.EAST;
@@ -316,33 +308,39 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0;
-
         testPanel.add(entryLineLabel, gbc);
-        gbc.gridx++;
 
         lineField = new JTextField();
         lineField.setEditable(true);
         lineField.setEnabled(true);
         lineField.setToolTipText("Enter a line from a fasta file");
         gbc.weightx = 1;
+        gbc.gridx++;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         testPanel.add(lineField, gbc);
+
         JButton testButton = new JButton("Test");
         testButton.setToolTipText("Click to test protein accession rule:  " + proteinAccTField.getText());
-
         testButton.addActionListener(e -> {
 
             String lineTested = lineField.getText();
             String protRegex = proteinAccTField.getText();
 
             if (!lineTested.equals("")) {
-                String proteinNameExtracted = ParsingRulesTester.extractProteinNameWithRegEx(lineTested, protRegex);
+                String proteinNameExtracted = null;
+                if (!protRegex.equals("")){
+                     proteinNameExtracted = ParsingRulesTester.extractProteinNameWithRegEx(lineTested, protRegex);
+                }
+                else {
+                    highlight(proteinAccTField);
+                    setStatus(true,"Please enter a protein regular expression");
+                }
 
                 if (proteinNameExtracted != null) {
                     resultOfTest.setText(proteinNameExtracted);
                     revalidate();
                     repaint();
-                } else {
+                } else if(!protRegex.equals("")) {
                     resultOfTest.setText("No protein accession extracted");
                     revalidate();
                     repaint();
@@ -358,21 +356,23 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         gbc.anchor = GridBagConstraints.EAST;
         gbc.weightx = 0;
         testPanel.add(testButton, gbc);
+
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 0;
         testPanel.add(new JLabel("Protein accession extracted: "), gbc);
+
         resultOfTest = new JTextField();
         resultOfTest.setEnabled(true);
         resultOfTest.setEditable(true);
         gbc.gridx++;
-
         gbc.weightx = 1;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.EAST;
         testPanel.add(resultOfTest, gbc);
+
         return testPanel;
     }
 
@@ -381,7 +381,9 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         String fastaToBeAdded = fastaNameTField.getText().trim();
         boolean isValid = ParsingRulesTester.isRegexValid(fastaToBeAdded);
         if (!isValid) {
-            Popup.warning("the regular expression you filled is not valid");
+           // Popup.warning("the regular expression you filled is not valid");
+            highlight(fastaNameTField);
+            setStatus(true,"Invalid regular expression");
         } else if (fastaToBeAdded.length() != 0) {
             fastaNameTField.setText("");
             fastaList.add(fastaToBeAdded);
@@ -404,17 +406,17 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     @Override
     protected boolean okCalled() {
         boolean entriesAreValid = true;
-        boolean formFullyFilled = !labelField.getText().isEmpty() && !proteinAccTField.getText().isEmpty()
+        boolean formFullyFilled = !labelTField.getText().isEmpty() && !proteinAccTField.getText().isEmpty()
                 && !fastaVersionTField.getText().isEmpty() && !fastaList.isEmpty();
         boolean forgottenEntry = !fastaNameTField.getText().isEmpty();
         boolean parsingRuleLabelDidChange = false;
-        if (!labelField.getText().isEmpty() && typeOfDialog.equals(TypeOfDialog.Edit)) {
-            parsingRuleLabelDidChange = !labelField.getText().equals(editedParsingRule.getName());
+        if (!labelTField.getText().isEmpty() && typeOfDialog.equals(TypeOfDialog.Edit)) {
+            parsingRuleLabelDidChange = !labelTField.getText().equals(editedParsingRule.getName());
         }
 
         if (!formFullyFilled) {
-            if (labelField.getText().isEmpty()) {
-                highlight(labelField);
+            if (labelTField.getText().isEmpty()) {
+                highlight(labelTField);
                 setStatus(true, "Please add a label");
                 entriesAreValid = false;
             } else if (proteinAccTField.getText().isEmpty()) {
@@ -433,8 +435,8 @@ public class ParsingRuleEditDialog extends DefaultDialog {
 
 
         } else if (parsingRuleLabelDidChange || typeOfDialog.equals(TypeOfDialog.Add)) {
-            if (ConfigManager.getInstance().getParsingRulesManager().labelExists(labelField.getText())) {
-                highlight(labelField);
+            if (ConfigManager.getInstance().getParsingRulesManager().labelExists(labelTField.getText())) {
+                highlight(labelTField);
                 setStatus(true, "Label already exists please choose another one ");
                 entriesAreValid = false;
             }
@@ -464,9 +466,10 @@ public class ParsingRuleEditDialog extends DefaultDialog {
             }
             boolean fastaListIsValid = ParsingRulesTester.testFastaListInsideDialog(fastaList);
             if (!fastaListIsValid) {
+
+
                 Popup.warning("The list of fasta names contains some non valid regular expressions\n " +
-                        "they are displayed in red inside the table"
-                );
+                        "they are displayed in red inside the table");
 
                 setStatus(true, "at least one regular expression is not valid inside table");
                 entriesAreValid = false;
@@ -477,14 +480,14 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     }
 
     /**
-     * retrieves the parsingrule
+     * retrieves the parsing-rule
      *
      * @return parsingrule
      */
 
     public ParsingRule getParsingRuleInsideDialog() {
 
-        return new ParsingRule(labelField.getText().trim(), fastaList, fastaVersionTField.getText().trim(), proteinAccTField.getText().trim());
+        return new ParsingRule(labelTField.getText().trim(), fastaList, fastaVersionTField.getText().trim(), proteinAccTField.getText().trim());
     }
 
     // close The dialog
@@ -500,7 +503,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
     protected boolean backCalled() {
 
 
-        labelField.setText("");
+        labelTField.setText("");
         fastaVersionTField.setText("");
         proteinAccTField.setText("");
         fastaNameTField.setText("");
@@ -613,7 +616,7 @@ public class ParsingRuleEditDialog extends DefaultDialog {
         }
     }
 
-    private void changeJTextFieldAttributes(JTextField jTextField, Color backGroundColor, Color textColor, String toolTipMessage) {
+    private void changeJTextFieldLook(JTextField jTextField, Color backGroundColor, Color textColor, String toolTipMessage) {
         jTextField.setBackground(backGroundColor);
         if (!jTextField.isEnabled()) {
             jTextField.setDisabledTextColor(textColor);

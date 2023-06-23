@@ -140,12 +140,6 @@ public class ParsingRulesUtils {
         return !pathExists && !fastaPaths.contains(path);
     }
 
-    /**
-     *
-     *@param path
-     * @param forced
-     *
-     */
     public boolean addFastaFolder(String path) {
 
         fastaPaths.add(path);
@@ -161,12 +155,12 @@ public class ParsingRulesUtils {
     /**
      * Used while editing fasta folders
      *
-     * @param oldPath
-     * @param newPath
+     * @param initialPath path before editing
+     * @param newPath new value of path
      *
      */
-    public boolean updateFastaFolder(String oldPath, String newPath) {
-        int oldIndex = fastaPaths.indexOf(oldPath);
+    public boolean updateFastaFolder(String initialPath, String newPath) {
+        int oldIndex = fastaPaths.indexOf(initialPath);
         fastaPaths.set(oldIndex, newPath);
         parseRulesAndFastaHasBeenChanged = true;
         return true;
@@ -197,8 +191,16 @@ public class ParsingRulesUtils {
             errorFatal = true;
             message.append("Fatal error inside Sequence repository file: \n");
             for (String invalidPath : invalidFastaPaths) {
-                message.append("Fasta file: " + invalidPath + " is not valid");
-                message.append("\n");
+                if (invalidPath.equals("a fasta folder path  is an empty string"))
+                {
+                    message.append("a fasta folder path is an empty string\n");
+                }
+
+                else
+                { message.append("Fasta file: " + invalidPath + " is not valid");
+                    message.append("\n");
+                }
+
             }
 
         }

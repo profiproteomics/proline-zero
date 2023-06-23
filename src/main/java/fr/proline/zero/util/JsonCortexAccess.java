@@ -34,9 +34,7 @@ public class JsonCortexAccess {
 
         try {
             if (cortexConfigFile.exists()) {
-                Config config = ConfigFactory.parseFile(cortexConfigFile, options);
                 m_cortexProlineConfig = ConfigFactory.parseFile(cortexConfigFile,options);
-
 
             } else {
                 throw new CortexConfigException("Cortex config file not found");

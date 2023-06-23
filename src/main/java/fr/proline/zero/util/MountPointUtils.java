@@ -47,9 +47,7 @@ public class MountPointUtils {
     private final ArrayList<String> invalidPaths = new ArrayList<>();
     private final ArrayList<String> missingMountPoints = new ArrayList<>();
 
-    private final ArrayList<String> duplicatePaths = new ArrayList<>();
 
-    private final ArrayList<String> duplicateInsideSameMountPoint = new ArrayList<>();
 
 
     public MountPointUtils() {
@@ -101,9 +99,9 @@ public class MountPointUtils {
     /**
      * Add a mounting point
      *
-     * @param mountPointType
-     * @param value
-     * @param path
+     * @param mountPointType mountpointype of the added mounting point
+     * @param value label of the mounting point
+     * @param path  path of the mount point
      * @return true if the mounting point has been added
      */
     public boolean addMountPointEntry(MountPointType mountPointType, String value, String path) {
@@ -129,55 +127,37 @@ public class MountPointUtils {
 
     /**
      * update a mountPoint, used while editing
-     *
-     * @param mountPointType
-     * @param newKey
-     * @param newPath
-     * @param oldKey
-     * @param oldPath
-     * @return
+     *@return true if the mountPoint has been updated successfully
      */
 
     public boolean updateMountPointEntry(MountPointType mountPointType, String newKey, String newPath, String oldKey, String oldPath) {
 
-
         Map<String, String> mapToBeUpDated = mountPointMap.get(mountPointType);
         if (mapToBeUpDated != null) {
-
             mapToBeUpDated.remove(oldKey, oldPath);
             mapToBeUpDated.put(newKey, newPath);
             mountPointMap.put(mountPointType, mapToBeUpDated);
             mountPointMapHasBeenChanged = true;
-
-
         } else {
-
             Map<String, String> mapToBeUpdated = new HashMap<>();
             mapToBeUpdated.put(newKey, newPath);
             mountPointMap.put(mountPointType, mapToBeUpdated);
             mountPointMapHasBeenChanged = true;
         }
-
-
         return true;
-
-
     }
 
 
 
     /**
      * First version that checks in all mountPoints plus fasta folders if path already exists
-     *
-     *
-     * @param path
-     * @return
+     * @param path that is to be checked against the current directory
+     * @return true if path already exists
      */
     private boolean pathExists(String path) {
         boolean pathExistsInMountpoints = false;
         boolean pathExistsInFastas = false;
         List<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
-
 
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
             Map<String, String> map = mountPointMap.get(mountPointType);
@@ -190,7 +170,6 @@ public class MountPointUtils {
             pathExistsInFastas = fastaToBeDisplayed.contains(path);
         }
 
-
         return pathExistsInFastas || pathExistsInMountpoints;
 
     }
@@ -198,9 +177,9 @@ public class MountPointUtils {
     /**
      * New version that checks only in the same mountPointType plus inside fasta folder
      *
-     * @param path
-     * @param mountPointType
-     * @return
+     * @param path to be checked
+     * @param mountPointType mountpointype of the path
+     * @return true if the path is in the same mountPointType or in fasta folders
      */
     private boolean pathExistsV2(String path, MountPointType mountPointType) {
         boolean pathExistsInMountpoints = false;
@@ -235,14 +214,6 @@ public class MountPointUtils {
         return labelExists(value);
     }
 
-    public List<String> getPaths() {
-        List<String> paths = new ArrayList<>();
-        for (MountPointUtils.MountPointType type : MountPointUtils.MountPointType.values()) {
-            Map<String, String> mountPoints = getSpecMountPointMap(type);
-            paths.addAll(mountPoints.values());
-        }
-        return paths;
-    }
 
 
     private boolean labelExists(String value) {
@@ -257,10 +228,10 @@ public class MountPointUtils {
 
     /**
      * Deletes a non default mountPoint
-     * @param mountPointType
-     * @param key
+     * @param mountPointType mountpointtype of the mountPoint
+     * @param key of the mount point to be deleted
      *
-     * @return
+     * @return true if the mountPoint has been deleted successfully
      */
     public boolean deleteMountPointEntry(MountPointType mountPointType, String key) {
         boolean success = true;
@@ -296,8 +267,7 @@ public class MountPointUtils {
      * verifies the validity of paths and the presence of at least one mounting point
      * checks if there are duplicate files
      * builds the error message
-     *
-     * @return true if no error in mounting points
+     *@return true if no error in mounting points
      * @see ConfigManager
      */
 
@@ -309,62 +279,47 @@ public class MountPointUtils {
         if (noMountingPoints()) {
             message.append("No mounting points found \n");
             errorFatal = true;
-
         }
 
         if (!allPathsExist()) {
             message.append("Fatal error inside mounting points:\n");
             for (String invalidPath : invalidPaths) {
-                message.append("The path: "+invalidPath+ " is not valid").append("\n");
+                message.append("The path: ").append(invalidPath).append(" is not valid").append("\n");
             }
             errorFatal = true;
 
         }
-        /**
-         * Checks if some mounting points have same labels
-         *
-         */
+       // Checks if some mounting points share the same label
         ArrayList<String> nonUniqueLabel = getNonUniqueLabels(mountPointMap);
         if (nonUniqueLabel.size() != 0) {
             errorFatal = true;
-
-
             for (String label : nonUniqueLabel) {
                 message.append("The label: ").append(label).append(" is not unique\n");
             }
-
         }
 
-        /**
-         * Check if they are any identical paths in any mountPoint
-         * Not a fatal error
-         */
+       // Builds the warning message
         ArrayList<String> listOfDuplicates = getDuplicatePaths();
         if (listOfDuplicates.size() != 0) {
             message.append("------- Warning ---------\n");
             message.append("Some mounting points share the same path: \n");
             for (String path : listOfDuplicates) {
                 message.append(path).append("\n");
-
             }
-
         }
 
-        /**
-         * Checks if a  default mountPoint is missing
-         * not a fatal error
-         */
+       // Checks if the default mounting points are present
+
         if (!defaultMountPointsExist() && !noMountingPoints()) {
             message.append("Minor error missing default mounting point : \n");
             for (String missingMP : missingMountPoints) {
                 message.append(missingMP).append("\n");
             }
-
         }
 
         if (message.length() > 0) {
             errorMessage = message.toString();
-            // isValid = false;
+
         }
 
         return message.length() == 0;
@@ -483,9 +438,8 @@ public class MountPointUtils {
 
 
     /**
-     * Takes in argument a list of paths and returns duplicate paths among the list
-     *
-     * @param paths
+     * @param paths a particular list of paths
+     *@return duplicate paths among the list
      *
      */
     private ArrayList<String> duplicateFilesBuilder(ArrayList<String> paths) {
@@ -508,11 +462,7 @@ public class MountPointUtils {
         return duplicates;
     }
 
-    /**
-     * check among all mountpoints if any duplicate path
-     *
-     * @return
-     */
+
     public ArrayList<String> getDuplicatePaths() {
         ArrayList<String> paths = filesPaths();
         return duplicateFilesBuilder(paths);
@@ -532,7 +482,7 @@ public class MountPointUtils {
 
         // Select labels when a label appears twice or more
         for (Map.Entry<MountPointUtils.MountPointType, Map<String, String>> entry : hashMap.entrySet()) {
-            MountPointUtils.MountPointType mountPointType = entry.getKey();
+
             Map<String, String> innerMap = entry.getValue();
 
             for (Map.Entry<String, String> innerEntry : innerMap.entrySet()) {
@@ -552,6 +502,7 @@ public class MountPointUtils {
     /**
      * Patch that handles case where inside same mount point, the 2 default labels are present
      * (mzdb+msacot) update the labels by adding a character
+     * @implNote To be decided if should be used or not?
      *
      */
     private void defaultMountPointRenamer() {

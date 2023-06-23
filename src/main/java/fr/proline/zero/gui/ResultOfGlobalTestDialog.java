@@ -24,8 +24,7 @@ import static java.util.Objects.isNull;
 
 public class ResultOfGlobalTestDialog extends DefaultDialog {
 
-    private final static Color SOFT_ERROR_COLOR = new Color(212, 133, 175);
-    private final static Color SUCCESS_COLOR = new Color(174, 203, 170);
+
 
     public ResultOfGlobalTestDialog(Window parent, ArrayList<Object[]> resultStore, ArrayList<Map<String, String>> linesAndProteins, int successMatching, int numberOfFilesWithoutProtein) {
 
@@ -34,8 +33,6 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         this.setButtonVisible(BUTTON_HELP, false);
         this.setButtonVisible(BUTTON_CANCEL, false);
         this.setHelpHeader(IconManager.getIcon(IconManager.IconType.INFORMATION), "Global test", SettingsConstant.PARSING_RULES_HELP_TEST_DIALOG);
-
-       // this.setInternalComponent(scrollPaneResult(resultStore, linesAndProteins, successMatching, numberOfFilesWithoutProtein));
         this.setInternalComponent(createGlobalPanel(resultStore, linesAndProteins, successMatching, numberOfFilesWithoutProtein));
         this.setStatusVisible(true);
         this.setResizable(true);
@@ -50,14 +47,13 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
 
     }
 
-    private JScrollPane scrollPaneResult(ArrayList<Object[]> resultStore, ArrayList<Map<String, String>> linesAndProteins, int successMatching, int DefaultProteinNumberOfFiles) {
-        JScrollPane scrollPane = new JScrollPane(createResultPanel(resultStore, linesAndProteins, successMatching, DefaultProteinNumberOfFiles));
+    private JScrollPane scrollPaneResult(ArrayList<Object[]> resultStore, ArrayList<Map<String, String>> linesAndProteins, int successMatching, int numberOfFilesWithoutProtein) {
+        JScrollPane scrollPane = new JScrollPane(createResultPanel(resultStore, linesAndProteins, successMatching, numberOfFilesWithoutProtein));
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-
         scrollPane.setBorder(null);
         return scrollPane;
     }
-    private JPanel createGlobalPanel(ArrayList<Object[]> resultStore, ArrayList<Map<String, String>> linesAndProteins, int successMatching, int DefaultProteinNumberOfFiles){
+    private JPanel createGlobalPanel(ArrayList<Object[]> resultStore, ArrayList<Map<String, String>> linesAndProteins, int successMatching, int numberOfFilesWithoutProteinExtracted){
         JPanel globalJPanel=new JPanel(new GridBagLayout());
         GridBagConstraints gbc=new GridBagConstraints();
         gbc.insets=new Insets(5,5,5,5);
@@ -68,11 +64,11 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         gbc.weightx=1;
         int numberOfResults= resultStore.size();
         String proteinByDefault=ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
-        JPanel displayStats = displayStats(numberOfResults, proteinByDefault, successMatching, DefaultProteinNumberOfFiles);
+        JPanel displayStats = displayStats(numberOfResults, proteinByDefault, successMatching, numberOfFilesWithoutProteinExtracted);
         displayStats.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
         displayStats.setBorder(BorderFactory.createTitledBorder(" Statistics "));
         globalJPanel.add(displayStats,gbc);
-        JScrollPane scrollPaneResult=scrollPaneResult( resultStore,  linesAndProteins, successMatching, DefaultProteinNumberOfFiles);
+        JScrollPane scrollPaneResult=scrollPaneResult( resultStore,  linesAndProteins, successMatching, numberOfFilesWithoutProteinExtracted);
         gbc.gridy++;
         gbc.fill=GridBagConstraints.BOTH;
         gbc.weighty=1;
@@ -92,16 +88,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
         gbc.weightx = 1;
 
         int numberOfResults = resultStore.size();
-
-        String proteinByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
-/*
-        JPanel displayStats = displayStats(numberOfResults, proteinByDefault, successMatching, DefaultProteinNumberOfFiles);
-        displayStats.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
-        displayStats.setBorder(BorderFactory.createTitledBorder(" Statistics "));
-        resultPanel.add(displayStats, gbc);*/
         List<Integer> maximums = calculateMax(resultStore, linesAndProteins);
-
-       // gbc.gridy++;
 
         for (int k = 0; k < numberOfResults; k++) {
 
@@ -117,57 +104,15 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
             gbc.gridy++;
 
         }
-
         return resultPanel;
-
-
     }
-   /* private JPanel createResultPanel(ArrayList<Object[]> resultStore, ArrayList<Map<String, String>> linesAndProteins, int successMatching, int DefaultProteinNumberOfFiles) {
-        JPanel resultPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1;
 
-        int numberOfResults = resultStore.size();
-
-        String proteinByDefault = ConfigManager.getInstance().getParsingRulesManager().getDefaultProteinAccRule();
-
-        JPanel displayStats = displayStats(numberOfResults, proteinByDefault, successMatching, DefaultProteinNumberOfFiles);
-        displayStats.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
-        displayStats.setBorder(BorderFactory.createTitledBorder(" Statistics "));
-        resultPanel.add(displayStats, gbc);
-        List<Integer> maximums = calculateMax(resultStore, linesAndProteins);
-
-        gbc.gridy++;
-
-        for (int k = 0; k < numberOfResults; k++) {
-
-            Object[] result = resultStore.get(k);
-            Map<String, String> lines = linesAndProteins.get(k);
-            gbc.ipadx = 5;
-            gbc.ipady = 5;
-            resultPanel.add(displayOneFileResult(result, lines, maximums), gbc);
-            gbc.gridy++;
-            JSeparator lineBar = new JSeparator();
-            lineBar.setOrientation(SwingConstants.HORIZONTAL);
-            resultPanel.add(lineBar, gbc);
-            gbc.gridy++;
-
-        }
-
-        return resultPanel;
-
-
-    }*/
 
     /**
-     * @param totalNumberOfFiles
-     * @param proteinByDefault
-     * @param successMatching
-     * @param DefaultProteinNumberOfFiles
+     * @param totalNumberOfFiles number of files parsed
+     * @param proteinByDefault default regular expression used when no parsing rule found
+     * @param successMatching number of files where a parsing rule was found
+     * @param DefaultProteinNumberOfFiles number of files where protein has not been extracted
      * @return a JPanel with some statistics about the test
      */
     private JPanel displayStats(int totalNumberOfFiles, String proteinByDefault, int successMatching, int DefaultProteinNumberOfFiles) {
@@ -234,11 +179,10 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
 
     /**
      * builds a JPanel for a particular fasta file tested
+     *@param results array of different objects: parsing rule + fasta name reg ex selected
+     * @param lines array of lines of file parsed + the protein extracted (if any) into this line
+     * @param maximums list of maximum size of text, used to harmonize sizes of jtextfields
      *
-     * @param results
-     * @param lines
-     * @param maximums
-     * @return
      */
     private JPanel displayOneFileResult(Object[] results, Map<String, String> lines, List<Integer> maximums) {
         JPanel displayOneResult = new JPanel(new GridBagLayout());
@@ -296,10 +240,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
                     gbc.anchor = GridBagConstraints.WEST;
                     displayOneResult.add(new JLabel("No parsing rule found and no protein accession has been extracted "), gbc);
 
-
                 }
-
-
             }
         }
         String fastaFileName = (String) results[2];
@@ -403,10 +344,7 @@ public class ResultOfGlobalTestDialog extends DefaultDialog {
     /**
      * Calculate maximum sizes of the JTextfields inside ResultGlobalTestDialog
      * Used to harmonize the dimensions
-     * * @param resultStore
-     *
-     * @param linesAndProteins
-     * @return
+     * @return a list of maximas
      */
 
     private List<Integer> calculateMax(ArrayList<Object[]> resultStore, ArrayList<Map<String, String>> linesAndProteins) {

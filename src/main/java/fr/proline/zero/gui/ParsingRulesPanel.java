@@ -209,15 +209,13 @@ public class ParsingRulesPanel extends JPanel {
             displayRules.add(displayParsingRules(currentParsingRule, maximas), constraints);
             constraints.gridy++;
         }
-        int gap=700-97*setOfRules.size();
+        int gap=700-99*setOfRules.size();
         displayRules.add(Box.createVerticalStrut(gap),constraints);
 
         return displayRules;
     }
 
     /**
-     *
-     * @param setOfRules
      * @return the maximum sizes of the 4 Jtextfields for all parsing rules
      */
     private int[] getMaximums(List<ParsingRule> setOfRules) {
@@ -250,7 +248,7 @@ public class ParsingRulesPanel extends JPanel {
 
     /**
      *
-     * @param parsingRule
+     * @param parsingRule parsing rule displayed
      * @return the sizes in pixels of the 4 JtextFields associated to a parsing rule
      */
 
@@ -275,8 +273,8 @@ public class ParsingRulesPanel extends JPanel {
 
     /**
      * builds the JPanel that display one parsing rule
-     *@param parsingRule
-     * @param maximumSize
+     *@param parsingRule parsing rule displayed
+     * @param maximumSize set of maximum size of text inside 4 jtextfield
      */
     private JPanel displayParsingRules(ParsingRule parsingRule, int[] maximumSize) {
         JPanel displayParsingRule = new JPanel(new GridBagLayout());
@@ -318,30 +316,28 @@ public class ParsingRulesPanel extends JPanel {
         constraints.weightx = 0;
         displayParsingRule.add(fastaName, constraints);
 
-        JTextField fastaField = new JTextField(fastaConcatenator(fastaNames));
-        fastaField.setEnabled(false);
-        fastaField.setEditable(false);
+        JTextField fastaTField = new JTextField(fastaConcatenator(fastaNames));
+        fastaTField.setEnabled(false);
+        fastaTField.setEditable(false);
 
         if (parsingRuleHasManyFastaRules) {
-            fastaField.setPreferredSize(new Dimension(maximumSize[1] - 13, 20));
+            fastaTField.setPreferredSize(new Dimension(maximumSize[1] - 13, 20));
             constraints.insets = new Insets(5, 5, 5, 0);
 
         } else {
-            fastaField.setPreferredSize(new Dimension(maximumSize[1] + 15, 20));
+            fastaTField.setPreferredSize(new Dimension(maximumSize[1] + 15, 20));
             constraints.insets = new Insets(5, 5, 5, 5);
         }
         if (parsingRuleFastasAreNotValid){
 
-            changeJTextFieldLook(fastaField,SOFT_ERROR_COLOR,Color.WHITE,"The set of fasta rules is not valid");
-            //fastaName.setForeground(new Color(200,0,0));
+            changeJTextFieldLook(fastaTField,SOFT_ERROR_COLOR,Color.WHITE,"The set of fasta rules is not valid");
+
         }
         constraints.gridx++;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.weightx = 1;
         constraints.fill = GridBagConstraints.HORIZONTAL;
-
-
-        displayParsingRule.add(fastaField, constraints);
+        displayParsingRule.add(fastaTField, constraints);
 
 
         if (parsingRuleHasManyFastaRules) {
@@ -373,10 +369,9 @@ public class ParsingRulesPanel extends JPanel {
 
                 fastaList.setCellRenderer(cellRenderer);
                 int visibleRowCount = Math.min(fastaList.getModel().getSize(), 9);
-
                 fastaList.setVisibleRowCount(visibleRowCount);
-                // Show the dialog box with the JList inside
-                JOptionPane.showMessageDialog(fastaField, scrollPane, "List of fasta name rules", JOptionPane.PLAIN_MESSAGE);
+
+                JOptionPane.showMessageDialog(fastaTField, scrollPane, "List of fasta name rules", JOptionPane.PLAIN_MESSAGE);
 
             });
 
@@ -429,8 +424,6 @@ public class ParsingRulesPanel extends JPanel {
         if (!proteinAccessionRuleIsValid){
 
             changeJTextFieldLook(proteinField,SOFT_ERROR_COLOR,Color.WHITE,"The protein accession rule is not valid");
-
-           // jLabelProtein.setForeground(new Color(180,0,0));
 
         }
         displayParsingRule.add(proteinField, constraints);
