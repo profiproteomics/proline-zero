@@ -66,13 +66,13 @@ public class MemoryPanel extends JPanel {
 		c.gridy = 0;
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
-		c.weighty = 1;
+		c.weighty = 0;
 		c.anchor = GridBagConstraints.NORTHWEST;
 
 		HelpHeaderPanel help = new HelpHeaderPanel("Memory" , SettingsConstant.MEMORY_HELP_PANE);
 		add(help, c);
 
-		c.insets = new java.awt.Insets(20, 15, 0, 15);
+		c.insets = new java.awt.Insets(5, 5, 5, 5);
 		c.gridy++;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
@@ -107,7 +107,7 @@ public class MemoryPanel extends JPanel {
 
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.insets = new java.awt.Insets(2, 10, 0, 0);
+		c.insets = new java.awt.Insets(2, 5, 2, 5);
 
 		c.gridx = 0;
 		allocTypePanel.add(new JLabel("Allocation mode :", SwingConstants.RIGHT), c);

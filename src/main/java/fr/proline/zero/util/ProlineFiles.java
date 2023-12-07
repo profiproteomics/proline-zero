@@ -48,6 +48,9 @@ public class ProlineFiles {
     public final static File ADMIN_JAR_FILE = new File(ADMIN_DIRECTORY + "/Proline-Admin-GUI-" + Config.getAdminVersion() + ".jar");
     public final static File ADMIN_LOG_FILE = new File(ADMIN_DIRECTORY + "/logs/proline_admin_gui_log.txt");
     public final static File ADMIN_CONFIG_FILE = new File(ADMIN_DIRECTORY + "/config/application.conf");
+    public final static File SEQ_REPO_DIRECTORY= new File(WORKING_DIRECTORY+"/PM-SequenceRepository-"+Config.getSeqRepoVersion());
+    public final static File PARSING_RULES_CONFIG_FILE= new File (SEQ_REPO_DIRECTORY+"/config/parsing-rules.conf");
+    public final static File PARSING_RULES_CONFIG_FILE2= new File (SEQ_REPO_DIRECTORY+"/config/Xparsing-rules.conf");
 
     /*
      * Proline Cortex files
@@ -55,11 +58,33 @@ public class ProlineFiles {
     public final static File CORTEX_DIRECTORY = new File(WORKING_DIRECTORY + "/Proline-Cortex-" + Config.getCortexVersion());
     public final static File CORTEX_JAR_FILE = new File(CORTEX_DIRECTORY + "/proline-cortex-" + Config.getCortexVersion() + ".jar");
     public final static File CORTEX_CONFIG_FILE = new File(CORTEX_DIRECTORY + "/config/application.conf");
+
+    public final static File CORTEX_CONFIG_FILE_TEST = new File(CORTEX_DIRECTORY + "/config/Xapplication.conf");
     public final static File CORTEX_JMS_CONFIG_FILE = new File(CORTEX_DIRECTORY + "/config/jms-node.conf");
     public static String CORTEX_JMS_NODE_NB_RUNSERVICE = "service_thread_pool_size";
 
     public static String CORTEX_JMS_NODE_PORT = "jms_server_port";
+    public static String CORTEX_MOUNT_POINTS_KEY ="mount_points";
     public static String CORTEX_MZDB_MOUNT_POINT = "mzdb_files";
+    public static String CORTEX_RESULT_FILES_MOUNT_POINT="result_files";
+    public static String CORTEX_RAW_FILES_MOUNT_POINT="raw_files";
+
+
+    public static String USER_CORTEX_MZDB_MOUNT_POINT="mzdb_files";
+
+    public static String USER_CORTEX_RESULT_FILES_POINT ="mascot_data";
+
+    public static String USER_CORTEX_RAW_FILES_MOUNT_POINT="raw_files";
+    public static String SEQREPO_PARSING_RULE_KEY ="parsing-rules";
+    public static String SEQREPO_FASTA_DIRECTORIES ="local-fasta-directories";
+    public static String SEQREPO_PROTEIN_DEFAULT_REGEX ="default-protein-accession";
+    public final static String PARSING_RULE_NAME ="name";
+    public final static String PARSING_RULE_FASTA_NAME ="fasta-name";
+    public final static String PARSING_RULE_FASTA_VERSION ="fasta-version";
+    public final static String PARSING_RULE_PROTEIN ="protein-accession";
+
+
+
 
     public static File getCortexCurrentDebugLogFile() {
         return new File(CORTEX_DIRECTORY + "/logs/proline_cortex_log." + getFormattedDate() + ".txt");
@@ -148,5 +173,15 @@ public class ProlineFiles {
     public final static URL STATUS_STOPPED_ICON = getImage("stop.png");
     public final static URL PROGRESS_ICON = getImage("hourGlass.png");
     public final static URL HELP_ICON = getImage("question.png");
+
+    private static boolean seqRepoConfigFileNotFound=false;
+    public static boolean isSeqRepoConfigFileNotFound() {
+        return seqRepoConfigFileNotFound;
+    }
+    public static void setSeqRepoConfigFileNotFound(boolean seqRepoConfigFile) {
+        seqRepoConfigFileNotFound = seqRepoConfigFile;
+    }
+
+
 
 }
