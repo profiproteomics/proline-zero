@@ -174,47 +174,13 @@ public class MountPointUtils {
 
     }
 
-    /**
-     * New version that checks only in the same mountPointType plus inside fasta folder
-     *
-     * @param path to be checked
-     * @param mountPointType mountpointype of the path
-     * @return true if the path is in the same mountPointType or in fasta folders
-     */
-    private boolean pathExistsV2(String path, MountPointType mountPointType) {
-        boolean pathExistsInMountpoints = false;
-        boolean pathExistsInFastas = false;
-        List<String> fastaToBeDisplayed = ConfigManager.getInstance().getParsingRulesManager().getFastaPaths();
-
-
-        Map<String, String> map = mountPointMap.get(mountPointType);
-        if (map != null && map.containsValue(path)) {
-            pathExistsInMountpoints = true;
-
-        }
-
-        if (fastaToBeDisplayed != null) {
-            pathExistsInFastas = fastaToBeDisplayed.contains(path);
-        }
-
-
-        return pathExistsInFastas || pathExistsInMountpoints;
-
-    }
-
     public boolean getIfPathExist(String path) {
         return pathExists(path);
-    }
-
-    public boolean getIfPathExistInAMountPoint(String path, MountPointType mountPointType) {
-        return pathExistsV2(path, mountPointType);
     }
 
     public boolean getIfLabelExists(String value) {
         return labelExists(value);
     }
-
-
 
     private boolean labelExists(String value) {
         for (MountPointUtils.MountPointType mountPointType : MountPointUtils.MountPointType.values()) {
@@ -368,6 +334,11 @@ public class MountPointUtils {
             if (mountPointMap != null) {
                 for (String key : mountPointMap.keySet()) {
                     Path pathToTest = Paths.get(mountPointMap.get(key));
+
+                    if (!pathToTest.isAbsolute()) {
+                        Path cortexPath = ProlineFiles.CORTEX_DIRECTORY.toPath();
+                        pathToTest = cortexPath.resolve(pathToTest);
+                    }
 
                     boolean pathPresent = Files.exists(pathToTest);
                     boolean pathIsEmptyString = pathToTest.toString().equals("");

@@ -221,6 +221,13 @@ public class ParsingRulesUtils {
         for (String fastaPaths : fastaPaths) {
 
             Path pathToTest = Paths.get(fastaPaths);
+
+            if (!pathToTest.isAbsolute()) {
+                Path cortexPath = ProlineFiles.SEQ_REPO_DIRECTORY.toPath();
+                pathToTest = cortexPath.resolve(pathToTest);
+            }
+
+
             if (!Files.exists(pathToTest)) {
                 invalidFastaPaths.add(fastaPaths);
             }

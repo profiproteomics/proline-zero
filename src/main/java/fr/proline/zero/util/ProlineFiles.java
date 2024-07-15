@@ -50,7 +50,6 @@ public class ProlineFiles {
     public final static File ADMIN_CONFIG_FILE = new File(ADMIN_DIRECTORY + "/config/application.conf");
     public final static File SEQ_REPO_DIRECTORY= new File(WORKING_DIRECTORY+"/PM-SequenceRepository-"+Config.getSeqRepoVersion());
     public final static File PARSING_RULES_CONFIG_FILE= new File (SEQ_REPO_DIRECTORY+"/config/parsing-rules.conf");
-    public final static File PARSING_RULES_CONFIG_FILE2= new File (SEQ_REPO_DIRECTORY+"/config/Xparsing-rules.conf");
 
     /*
      * Proline Cortex files
@@ -59,7 +58,6 @@ public class ProlineFiles {
     public final static File CORTEX_JAR_FILE = new File(CORTEX_DIRECTORY + "/proline-cortex-" + Config.getCortexVersion() + ".jar");
     public final static File CORTEX_CONFIG_FILE = new File(CORTEX_DIRECTORY + "/config/application.conf");
 
-    public final static File CORTEX_CONFIG_FILE_TEST = new File(CORTEX_DIRECTORY + "/config/Xapplication.conf");
     public final static File CORTEX_JMS_CONFIG_FILE = new File(CORTEX_DIRECTORY + "/config/jms-node.conf");
     public static String CORTEX_JMS_NODE_NB_RUNSERVICE = "service_thread_pool_size";
 
