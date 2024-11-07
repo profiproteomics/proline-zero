@@ -32,7 +32,7 @@ public class MemoryUtils {
 
 	private static final OperatingSystemMXBean os = (OperatingSystemMXBean) ManagementFactory
 			.getOperatingSystemMXBean();
-	private static final long totalMemorySize = os.getTotalPhysicalMemorySize() / (G * G);
+	private static final long totalMemorySize = os.getTotalMemorySize() / (G * G);
 
 	public enum AttributionMode {
 		AUTO {
@@ -49,9 +49,9 @@ public class MemoryUtils {
 			public String toString() {
 				return "manual";
 			}
-		};
+		}
 
-	};
+	}
 
 	private AttributionMode attributionMode;
 
@@ -327,12 +327,12 @@ public class MemoryUtils {
 			errorFatal = true;
 		}
 
-		if (totalMemory < MemoryAllocationRule.MIN.getRange().getMinimumInteger()) {
+		if (totalMemory < MemoryAllocationRule.MIN.getRange().getMinimum()) {
 			message.append("The specified total memory value is below minimum required ("
-					+ MemoryAllocationRule.MIN.getRange().getMinimumInteger() + ")");
+					+ MemoryAllocationRule.MIN.getRange().getMinimum() + ")");
 			errorFatal = true;
 //			ConfigManager.getInstance().setSeqRepActive(!(this.seqrepMemory == 0));
-		} else if (((serverTotalMemory + (1 * G)) < MemoryAllocationRule.MIN.getRange().getMaximumInteger())
+		} else if (((serverTotalMemory + (1 * G)) < MemoryAllocationRule.MIN.getRange().getMaximum())
 				&& ConfigManager.getInstance().isSeqRepActive()
 				&& !(getAttributionMode().equals(AttributionMode.MANUAL))) {
 			if (message.length() > 0)

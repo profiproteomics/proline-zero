@@ -3,36 +3,44 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>proline-zero</artifactId>
-    <version>2.2.1-SNAPSHOT</version>
+    <version>2.4.0silac-SNAPSHOT</version>
     <name>Proline-Zero</name>
 
     <parent>
         <groupId>fr.proline</groupId>
         <artifactId>profi-pom</artifactId>
-        <version>1.1.1-SNAPSHOT</version> <!-- Snapshot Trunk version -->
+        <version>1.3.0-SNAPSHOT</version> <!-- Snapshot Trunk version -->
     </parent>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cortex.version>2.2.1-SNAPSHOT</cortex.version>
-        <studio.version>2.2.1-SNAPSHOT</studio.version>
+        <server.version>2.4.0silac-SNAPSHOT </server.version>
+        <seqrepo.version>2.4.0silac-SNAPSHOT</seqrepo.version>
+        <admin.version>2.4.0silac-SNAPSHOT</admin.version>
+        <studio.version>2.4.0-SNAPSHOT</studio.version>
+        <commons.version>1.3.0-SNAPSHOT</commons.version>
         <hornetq.version>2.4.0.Final</hornetq.version>
-        <admin.version>2.2.1-SNAPSHOT</admin.version>
-        <seqrepo.version>2.2.1-SNAPSHOT</seqrepo.version>
         <dist.data>${project.basedir}/data/sample</dist.data>
-        <!--<pg.win.version>9.4.11-2</pg.win.version>-->
-        <pg.win.version>9.6.11-1</pg.win.version>
+        <pg.win.version>13.7-1_light</pg.win.version>
         <pg.linux.version>10.11-3</pg.linux.version>
         <h2.version>1.4.196</h2.version>
-
+<!--        <raw2mzdb.version>1.1.0</raw2mzdb.version>-->
+        <input.resources.directory>src/main/resources</input.resources.directory>
+        <include.pattern>**/*.png</include.pattern>
     </properties>
     
     <dependencies>
+
     	<dependency>
     		<groupId>commons-beanutils</groupId>
     		<artifactId>commons-beanutils</artifactId>
     		<version>1.9.4</version>
 		</dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
     	<dependency>
     		<groupId>org.apache.commons</groupId>
     		<artifactId>commons-configuration2</artifactId>
@@ -41,45 +49,91 @@
         <dependency>
             <groupId>org.zeroturnaround</groupId>
             <artifactId>zt-exec</artifactId>
-            <version>1.10</version>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.4.196</version>
-           
+            <version>1.12</version>
         </dependency>
         <dependency>
             <groupId>org.zeroturnaround</groupId>
             <artifactId>zt-process-killer</artifactId>
-            <version>1.8</version>
+            <version>1.10</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>fr.profi.util</groupId>
             <artifactId>profi-commons-java</artifactId>
-            <version>1.1.0</version>
+            <version>${commons.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.dorkbox</groupId>
             <artifactId>SystemTray</artifactId>
-            <version>3.16</version>
+            <version>4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dorkbox</groupId>
+            <artifactId>Utilities</artifactId>
+            <version>1.25</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.typesafe/config -->
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+
+        </dependency>
+        <!-- Only use IconManager & DefaultDialog -->
+        <dependency>
+            <groupId>fr.proline</groupId>
+            <artifactId>prolinestudio-commons</artifactId>
+            <version>${studio.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>fr.proline</groupId>
+            <artifactId>pm-sequence-repository</artifactId>
+            <version>${seqrepo.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
-            <version>4.3.0</version>
-        </dependency>
     </dependencies>
 
     <build>
+
+        <resources><!-- replace default properties for resources copy from resources to classes-->
+            <resource>
+                <directory>src/main/resources</directory>
+                <!--Include only necessary files -->
+                <includes>
+                    <include>*.png</include>
+                    <include>*.ico</include>
+                    <include>logback.xml</include>
+                    <include>proline_launcher.config</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
 
         <plugins>
             <plugin>
@@ -89,11 +143,9 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <classpathLayoutType>custom</classpathLayoutType>
-                            <customClasspathLayout>
-                                lib/${artifact.artifactId}-${artifact.baseVersion}${dashClassifier?}.${artifact.extension}
-                            </customClasspathLayout>
+                            <classpathPrefix>lib/</classpathPrefix>
                             <mainClass>fr.proline.zero.Main</mainClass>
+                            <useUniqueVersions>false</useUniqueVersions>
                         </manifest>
                     </archive>
                 </configuration>
@@ -111,14 +163,14 @@
                         </goals>
                         <configuration>
                             <overwrite>true</overwrite>
-                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>src/main/resources</directory>
+                                    <directory>${input.resources.directory}</directory>
                                     <includes>
-                                        <include>**/profi.png</include>
+                                        <include>**/proline_launcher.sh</include>
+                                        <include>${include.pattern}</include>
                                     </includes>
-                                    <filtering>true</filtering>
                                 </resource>
                             </resources>
                         </configuration>
@@ -137,14 +189,12 @@
                                     <directory>src/main/resources</directory>
                                     <includes>
                                         <include>**/${project.name}.sh</include>
-                                        <filtering>true</filtering>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
                             </resources>
                         </configuration>
                     </execution>
-
                 </executions>
             </plugin>
 
@@ -190,7 +240,7 @@
             <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
                 <artifactId>launch4j-maven-plugin</artifactId>
-                <version>1.7.25</version>
+                <version>2.1.1</version>
                 <executions>
                     <execution>
                         <id>l4j-clui</id>
@@ -210,7 +260,7 @@
                             </classPath>
                             <icon>src/main/resources/logo48x48.ico</icon>
                             <jre>
-                                <path>ProlineStudio-${studio.version}/jre</path>
+                                <path>ProlineStudio-${studio.version}/jdk</path>
                             </jre>
                             <versionInfo>
                                 <fileVersion>1.2.3.4</fileVersion>
@@ -231,22 +281,12 @@
             <!-- Build Zip Assembly -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <!-- <version>2.5.5</version> -->
                 <configuration>
                     <descriptors>
                         <descriptor>assembly/assembly.xml</descriptor>
                     </descriptors>
                     <finalName>${project.name}-${project.version}</finalName>
                 </configuration>
-                <!--<executions>-->
-                <!--<execution>-->
-                <!--<id>make-assembly</id>-->
-                <!--<phase>package</phase>-->
-                <!--<goals>-->
-                <!--<goal>single</goal>-->
-                <!--</goals>-->
-                <!--</execution>-->
-                <!--</executions>-->
             </plugin>
 
         </plugins>
@@ -254,7 +294,19 @@
 
     <profiles>
         <profile>
+            <id>for-dev</id>
+            <!-- This Profile should be set during development in order to be able to run Main from IntelliJ   -->
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <input.resources.directory>src/main/resources/dev-files</input.resources.directory>
+                <include.pattern>**/*.*</include.pattern>
+            </properties>
+        </profile>
+        <profile>
             <id>with-dependencies</id>
+            <!-- This Profile should be set when all dependencies should be downloaded. typically when creating a distribution -->
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
@@ -262,7 +314,7 @@
                 <dependency>
                     <groupId>fr.proline</groupId>
                     <artifactId>proline-cortex</artifactId>
-                    <version>${cortex.version}</version>
+                    <version>${server.version}</version>
                     <classifier>bin</classifier>
                     <type>zip</type>
                     <exclusions>
@@ -298,6 +350,7 @@
                         </exclusion>
                     </exclusions>
                 </dependency>
+
                 <dependency>
                     <groupId>fr.proline</groupId>
                     <artifactId>ProlineStudio</artifactId>
@@ -315,6 +368,7 @@
         </profile>
         <profile>
             <id>windows-x64_h2</id>
+            <!-- This Profile should be set to create a distribution for Windows (64bits) using H2 as datastore   -->
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
@@ -334,6 +388,7 @@
             </dependencies>
         </profile>
         <profile>
+            <!-- This Profile should be set to create a distribution for Windows (64bits) using postgresql as datastore   -->
             <id>windows-x64_postgresql</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -346,13 +401,13 @@
                 <proline.launcher.executable.commandline></proline.launcher.executable.commandline>
             </properties>
             <dependencies>
-                <dependency>
-                    <groupId>fr.profi</groupId>
-                    <artifactId>raw2mzdb</artifactId>
-                    <version>1.1.0</version>
-                    <classifier>windows-x64</classifier>
-                    <type>zip</type>
-                </dependency>
+<!--                <dependency>-->
+<!--                    <groupId>fr.profi</groupId>-->
+<!--                    <artifactId>raw2mzdb</artifactId>-->
+<!--                    <version>${raw2mzdb.version}</version>-->
+<!--                    <classifier>windows-x64</classifier>-->
+<!--                    <type>zip</type>-->
+<!--                </dependency>-->
                 <dependency>
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
@@ -389,6 +444,7 @@
         <!--</profile>-->
         <profile>
             <id>linux-x64_h2</id>
+            <!-- This Profile should be set to create a distribution for Linux (64bits) using H2 as datastore   -->
             <properties>
                 <os.classifier>linux-x64</os.classifier>
                 <proline.datastore>h2</proline.datastore>
@@ -405,6 +461,7 @@
             </dependencies>
         </profile>
         <profile>
+            <!-- This Profile should be set to create a distribution for Linux (64bits) using postgresql as datastore   -->
             <id>linux-x64_postgresql</id>
             <properties>
                 <os.classifier>linux-x64</os.classifier>
@@ -420,8 +477,7 @@
                     <version>${pg.linux.version}</version>
                     <type>zip</type>
                     <classifier>${os.classifier}</classifier>
-                </dependency>                               
-                <!--proline-zero-2.1.0-SNAPSHOT.jar-->
+                </dependency>
             </dependencies>
         </profile>
     </profiles>

@@ -1,6 +1,6 @@
 package fr.proline.zero.util;
 
-import org.apache.commons.lang.math.LongRange;
+import org.apache.commons.lang3.Range;
 
 public enum MemoryAllocationRule {
 	// Enum class that returns all the memory values depending on the memory
@@ -10,11 +10,13 @@ public enum MemoryAllocationRule {
 	// The three next are memory values and teh rest is calculated
 	// The last is the max memory value that the datastore can take
 
-	MIN(3072, 4097, 1024, 512, 0, 5120), RULETWO(4097, 5120, 1024, 512, 512, 5120),
-	RULETHREE(5121, 6000, 1024, 512, 1024, 5120), RULEFOUR(6001, 10240, 1024, 1024, 1024, 5120),
+	MIN(3072, 4097, 1024, 512, 0, 5120),
+	RULETWO(4097, 5120, 1024, 512, 512, 5120),
+	RULETHREE(5121, 6000, 1024, 512, 1024, 5120),
+	RULEFOUR(6001, 10240, 1024, 1024, 1024, 5120),
 	RULEMAX(10240, Long.MAX_VALUE, 2048, 1024, 1024, 5120);
 
-	private LongRange range;
+	private Range<Long> range;
 	private long studioMemory;
 	private long jmsMemory;
 	private long seqRepoMemory;
@@ -22,14 +24,14 @@ public enum MemoryAllocationRule {
 
 	private MemoryAllocationRule(long rangeLow, long rangeHigh, long studioMemory, long jmsMemory, long seqRepoMemory,
 			long maxPGMemory) {
-		this.range = new LongRange(rangeLow, rangeHigh);
+		this.range = Range.between(rangeLow, rangeHigh);
 		this.studioMemory = studioMemory;
 		this.jmsMemory = jmsMemory;
 		this.seqRepoMemory = seqRepoMemory;
 		this.maxPGMemory = maxPGMemory;
 	}
 
-	public LongRange getRange() {
+	public Range<Long> getRange() {
 		return range;
 	}
 
@@ -50,11 +52,11 @@ public enum MemoryAllocationRule {
 	}
 
 	public boolean containsAuto(long number) {
-		return range.containsLong(number);
+		return range.contains(number);
 	}
 
 	public boolean containsSemiAuto(long number) {
 		long numberSemiAuto = number + studioMemory;
-		return range.containsLong(numberSemiAuto);
+		return range.contains(numberSemiAuto);
 	}
 }
