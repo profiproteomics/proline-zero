@@ -34,6 +34,8 @@
             <directory>${dist.data}</directory>
             <includes>
                 <include>data/mascot/**</include>
+                <include>data/mzdb/**</include>
+                <include>data/fasta/**</include>
             </includes>
             <outputDirectory/>
         </fileSet>
