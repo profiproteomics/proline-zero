@@ -160,6 +160,7 @@ public class Main {
 			b = tmpFile.mkdir();
 			logger.info("create folder {} successful ={}", tmpFile.getName(), b);
 		}
+		//VDS Should not be necessary anymore (added in zip)
 		File fastaFile = ProlineFiles.DATA_SEQUENCE_REPOSITORY_DIRECTORY;
 		if (!fastaFile.isDirectory()) {
 			boolean b;
@@ -167,6 +168,7 @@ public class Main {
 			logger.info("create folder {} successful ={}", fastaFile.getName(), b);
 		}
 
+		//VDS Should not be necessary anymore (added in zip)
 		String dataMzdbPath = ExecutionSession.getMzdbFolder().replace("..", ".");// relative under working directory,
 																					// not relative to cortex directory
 		File mzdbFile = new File(dataMzdbPath);
@@ -176,6 +178,7 @@ public class Main {
 			logger.info("create folder {} successful={}", mzdbFile.getName(), b);
 			mzdbFile.mkdir();
 		}
+
 		cleanTmpFolder(tmpFile);
 	}
 
