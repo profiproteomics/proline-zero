@@ -39,14 +39,18 @@ public class JMSServer extends AbstractProcess {
             logger.info("starting JMS server from path " + jmsHome.getAbsolutePath());
             List<String> command = new ArrayList<>();
             command.add(ConfigManager.getInstance().getAdvancedManager().getJvmExePath());
+//            command.add("java");
             command.add("-Dhornetq.remoting.netty.host=0.0.0.0");
             command.add("-Dhornetq.remoting.netty.port=" + jmsPort);
+            command.add("--add-opens");
+            command.add("java.base/java.lang=ALL-UNNAMED");
+            command.add("--add-opens");
+            command.add("java.management/java.lang.management=ALL-UNNAMED");
+//            command.add("-XX:+AggressiveOpts");
+//            command.add("-XX:+UseFastAccessorMethods");
             command.add("-XX:+UseParallelGC");
-            command.add("-XX:+AggressiveOpts");
-            command.add("-XX:+UseFastAccessorMethods");
             command.add("-Xmx"+ConfigManager.getInstance().getMemoryManager().getJmsMemory()+"M");
             command.add("-Dhornetq.config.dir=config/stand-alone/non-clustered");
-
             command.add("-Djava.util.logging.manager=org.jboss.logmanager.LogManager");
             command.add("-Djava.util.logging.config.file=config/stand-alone/non-clustered/logging.properties");
             command.add("-Djava.library.path=bin");
@@ -55,7 +59,7 @@ public class JMSServer extends AbstractProcess {
             command.add(classpath);
             command.add("org.hornetq.integration.bootstrap.HornetQBootstrapServer");
             command.add("hornetq-beans.xml");
-
+            logger.debug("Start Process {} successfully using params+ ({})", getModuleName(),command.toString());
             process = new ProcessExecutor()
                     .command(command)
                     .environment("HORNETQ_HOME", jmsHome.getAbsolutePath())
@@ -90,4 +94,20 @@ public class JMSServer extends AbstractProcess {
         ZeroTray.update();
     }
 
+    public void stop() throws Exception {
+
+        if(SystemUtils.isOSWindows()) {
+            File stopFile = new File(ProlineFiles.HORNETQ_CONFIG_DIRECTORY, "STOP_ME");
+            logger.debug("Process {} stopping with file creation :  {}", getModuleName(), stopFile.getAbsolutePath());
+            if(stopFile.exists())
+                stopFile.delete();
+            stopFile.deleteOnExit();
+            logger.info("Process " + getModuleName() + " has been stopped");
+            boolean result = stopFile.createNewFile();
+            logger.debug("Stop Process {} result : {}", getModuleName(), result);
+
+        } else {
+            super.stop();
+        }
+    }
 }

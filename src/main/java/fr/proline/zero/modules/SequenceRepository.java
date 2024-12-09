@@ -38,7 +38,7 @@ public class SequenceRepository extends AbstractProcess {
                 if (ConfigManager.getInstance().isDebugMode()) {
                     logger.debug(line);
                 }
-                updateProcessStatus(line, "Entering Consumer receive loop", false);
+                updateProcessStatus(line, "Sequence Repository JMS Connection started", false);
             }
         }).destroyOnExit().start();
         waitForStartCompletion(ConfigManager.getInstance().getAdvancedManager().getServerDefaultTimeout());

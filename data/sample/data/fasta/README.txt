@@ -1,0 +1,1 @@
+Default repository where Proline-Zero/Sequence Repository will search for fasta files. See user guide for more information

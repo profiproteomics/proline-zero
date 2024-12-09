@@ -2,7 +2,6 @@ package fr.proline.zero.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -23,13 +22,16 @@ class Config {
 
 	private static void initialize() {
 		if (properties == null) {
+			String filePath = "proline_launcher.config";
 			try {
 				properties = new Properties();
-				File configFile = new File("proline_launcher.config");
+				 File configFile = new File(filePath);
+				 filePath = configFile.getAbsolutePath();
+
 				properties.load(new FileInputStream(configFile));
 			} catch (Throwable t) {
-				logger.error("Error while reading configuration file, using default configuration instead", t);
-				InputStream is = Main.class.getClassLoader().getResourceAsStream("fr/proline/zero/proline_launcher.config");
+				logger.error("Error while reading configuration file, "+filePath+", try using default configuration instead", t);
+				InputStream is = Main.class.getClassLoader().getResourceAsStream("proline_launcher.config"); //VDS inutile. Pas de replace des tags...
 				if(is==null)
 					throw new RuntimeException("Error while reading configuration file. No default file found");
 
@@ -149,11 +151,11 @@ class Config {
 
 	public static String getJavaHome() {
 		Config.initialize();
-		// if null try to find studio's jre, if still null return current jre
+		// if null try to find studio's jdk, if still null return current jdk
 		String javaPath = properties.getProperty("java_home").trim();
 		if (javaPath == null) {
-			Popup.warning("The JRE path could not be read, trying to find studio's jre");
-			javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jre";
+			Popup.warning("The JDK path could not be read, trying to find studio's jdk");
+			javaPath = "ProlineStudio-" + Config.getStudioVersion() + "/jdk";
 		}
 		return new File(javaPath).getAbsolutePath();
 	}
@@ -162,7 +164,7 @@ class Config {
 		Config.initialize();
 		String allocationMode = properties.getProperty("allocation_mode").trim();
 		if (allocationMode == null) {
-			Popup.warning("The JRE path could not be read, trying to find studio's jre");
+			Popup.warning("The JDK path could not be read, trying to find studio's jdk");
 			allocationMode = "auto";
 		}
 		return allocationMode;

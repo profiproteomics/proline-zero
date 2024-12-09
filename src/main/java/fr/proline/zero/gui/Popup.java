@@ -1,16 +1,14 @@
 package fr.proline.zero.gui;
 
-import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.*;
 
-import javax.swing.JOptionPane;
-import javax.swing.JTextPane;
+import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
-public class Popup {
+public class Popup  {
 
     private static final String DEFAULT_TITLE = "Proline Zero";
 
@@ -28,6 +26,12 @@ public class Popup {
         JOptionPane.showMessageDialog(null, message, title, messageType);
         SplashScreen.setModal(true);
     }
+    private static void showCenteredToComponent(Component parent, String message, String title, int messageType) {
+        SplashScreen.setModal(false);
+        JOptionPane.showMessageDialog(parent, message, title, messageType);
+        SplashScreen.setModal(true);
+    }
+
 
     public static boolean okCancel(String message) {
         SplashScreen.setModal(false);
@@ -42,10 +46,36 @@ public class Popup {
         SplashScreen.setModal(true);
         return (r == JOptionPane.YES_OPTION);
     }
+    public static boolean yesNoCenterToComponent(Component parent, String message) {
+        SplashScreen.setModal(false);
+        int r = JOptionPane.showConfirmDialog(parent, message, DEFAULT_TITLE, JOptionPane.YES_NO_OPTION);
+        SplashScreen.setModal(true);
+        return (r == JOptionPane.YES_OPTION);
+    }
+
+
+    public static int yesNoClose(String message){
+        SplashScreen.setModal(false);
+        int r=JOptionPane.showConfirmDialog(null,message,DEFAULT_TITLE,JOptionPane.YES_NO_OPTION);
+        SplashScreen.setModal(true);
+        return r;
+    }
+    public static int yesNoCloseCenterToComponent(Component parent, String message){
+        SplashScreen.setModal(false);
+        int r=JOptionPane.showConfirmDialog(parent,message,DEFAULT_TITLE,JOptionPane.YES_NO_OPTION);
+        SplashScreen.setModal(true);
+        return r;
+    }
 
     public static boolean optionYesNO(String message, String[] options) {
         SplashScreen.setModal(false);
         int r = JOptionPane.showOptionDialog(null, message, DEFAULT_TITLE, JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, message);
+        SplashScreen.setModal(true);
+        return (r == JOptionPane.OK_OPTION);
+    }
+    public static boolean optionYesNoCenterToComponent(Component parent, String message, String[] options) {
+        SplashScreen.setModal(false);
+        int r = JOptionPane.showOptionDialog(parent, message, DEFAULT_TITLE, JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, message);
         SplashScreen.setModal(true);
         return (r == JOptionPane.OK_OPTION);
     }
@@ -91,12 +121,20 @@ public class Popup {
         }
     }
 
+
     public static void warning(String message) {
         Popup.show(message, DEFAULT_TITLE, JOptionPane.WARNING_MESSAGE);
+    }
+
+    public static void warningCenteredToComponent(Component parent,String message) {
+        Popup.showCenteredToComponent(parent,message,DEFAULT_TITLE,JOptionPane.WARNING_MESSAGE);
     }
 
     public static void info(String message) {
         Popup.show(message, DEFAULT_TITLE, JOptionPane.INFORMATION_MESSAGE);
     }
+
+
+
 
 }

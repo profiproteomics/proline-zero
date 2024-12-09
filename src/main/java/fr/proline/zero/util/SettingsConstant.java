@@ -41,8 +41,17 @@ public class SettingsConstant {
 	public final static String SERVER_TIMEOUT_TOOLTIP = "Server default timeout : Time to wait before considering a component as unavailable";
 	public final static String JVM_PATH_TOOLTIP = "JVM Path : Path to a Java Runtime to be used by ProlineZero components.";
 	public final static String FORCE_DATASTORE_UPDATE_TOOLTIP = "Force Datastore update : Force \"run Proline Admin update\". This may be necessary when only some list data have been updated (such as quantitation methods...)";
-	public final static String PARSING_RULES_HELP_PANE = "<br> Specify parsing rules used by Sequence Repository to retrieve Protein accession from fasta entry.<br>"
-			+ "A complete description is given in Proline Admin documentation or on Forum \"Parsing rules for Sequence Repository\" topic";
+	public final static String PARSING_RULES_HELP_PANE ="\n"+
+			" Specify parsing rules used by Sequence Repository to retrieve <br> " +
+			" Protein accession from fasta entry. <br>"
+			+ "A complete description \nis given in Proline Admin documentation <br>" +
+			" or on Forum \"Parsing rules for Sequence Repository\" topic";
+
+	public final static  String PARSING_RULES_HELP_TEST_DIALOG="""
+                This dialog displays the results of the test applied
+                to all the fasta files contained inside fasta directories.\s
+                For each file, Proline determines the appropriate parsing rule.\s
+                If none matches, the default regular expression will be used.""";
 
 	public static boolean isBooleanTrue(String booleanValue) {
 		if (booleanValue != null
@@ -58,5 +67,7 @@ public class SettingsConstant {
 		}
 		return "off";
 	}
+
+
 
 }

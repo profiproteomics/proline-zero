@@ -2,7 +2,10 @@ package fr.proline.zero;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 
+import fr.proline.zero.util.*;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +16,8 @@ import fr.proline.zero.gui.SplashScreen;
 import fr.proline.zero.gui.ZeroTray;
 import fr.proline.zero.modules.ExecutionSession;
 import fr.proline.zero.modules.IZeroModule;
-import fr.proline.zero.util.ConfigManager;
-import fr.proline.zero.util.ProlineFiles;
-import fr.proline.zero.util.ShutdownHook;
-import fr.proline.zero.util.SystemUtils;
+
+import javax.swing.*;
 
 public class Main {
 
@@ -37,36 +38,52 @@ public class Main {
 			// initialization of the singleton that will manage all of our properties
 			ConfigManager.getInstance().initialize();
 
+
 			// first launch
 			boolean initBeforeStart = !ProlineFiles.PG_DATASTORE.exists() && !ProlineFiles.H2_DATASTORE.exists();
 
-
 			// we check that all of our properties are correct and will not give errors
-			boolean isOK = ConfigManager.getInstance().verif();
+
+
+			// GUI  executed in EDT
+			try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+					public void run() {
+						boolean isOK = ConfigManager.getInstance().verif();
+						if (!isOK) {
+							if (ConfigManager.getInstance().isErrorFatal()) {
+								// fatal errors
+								Popup.error(ConfigManager.getInstance().getLastErrorMessage());
+							} else {
+								// minor errors
+								Popup.warning(ConfigManager.getInstance().getLastErrorMessage());
+							}
+						}
+						// launch, if needed, the config window (fatal error or show config_dialog = on)
+						if (ConfigManager.getInstance().showConfigDialog() || ConfigManager.getInstance().isErrorFatal()) {
+							// building the window and all its components here
+							ConfigWindow paramWindow = ConfigWindow.getInstance();
+							paramWindow.setVisible(true);
+							// WAITING HERE FOR CONFIG WINDOW TO CLOSE
+						} else {
+							// The config window will save the properties in the file, if it's not displayed
+							// we still need to save the properties because we may have changed them with
+							// the verif() method
+							ConfigManager.getInstance().updateConfigurationParams();
+							//ConfigManager.getInstance().updateCortexConfigFile();
+						}
+
+					}
+				});
+			} /*catch (Exception ex) {
+				// Handle exception
+			}*/
+			catch (InvocationTargetException | InterruptedException e) {
+				e.printStackTrace();
+			}
 
 			// else we displayed the error messages
-			if (!isOK) {
-				if (ConfigManager.getInstance().isErrorFatal()) {
-					// fatal errors
-					Popup.error(ConfigManager.getInstance().getLastErrorMessage());
-				} else {
-					// minor errors
-					Popup.warning(ConfigManager.getInstance().getLastErrorMessage());
-				}
-			}
 
-			// launch, if needed, the config window (fatal error or show config_dialog = on)
-			if (ConfigManager.getInstance().showConfigDialog() || ConfigManager.getInstance().isErrorFatal()) {
-				// building the window and all its components here
-				ConfigWindow paramWindow = ConfigWindow.getInstance();
-				paramWindow.setVisible(true);
-				// WAITING HERE FOR CONFIG WINDOW TO CLOSE
-			} else {
-				// The config window will save the properties in the file, if it's not displayed
-				// we still need to save the properties because we may have changed them with
-				// the verif() method
-				ConfigManager.getInstance().updateConfigFileZero();
-			}
 
 			logger.info("First launch, update port");
 			ExecutionSession.updateConfigPort();
@@ -143,6 +160,7 @@ public class Main {
 			b = tmpFile.mkdir();
 			logger.info("create folder {} successful ={}", tmpFile.getName(), b);
 		}
+		//VDS Should not be necessary anymore (added in zip)
 		File fastaFile = ProlineFiles.DATA_SEQUENCE_REPOSITORY_DIRECTORY;
 		if (!fastaFile.isDirectory()) {
 			boolean b;
@@ -150,6 +168,7 @@ public class Main {
 			logger.info("create folder {} successful ={}", fastaFile.getName(), b);
 		}
 
+		//VDS Should not be necessary anymore (added in zip)
 		String dataMzdbPath = ExecutionSession.getMzdbFolder().replace("..", ".");// relative under working directory,
 																					// not relative to cortex directory
 		File mzdbFile = new File(dataMzdbPath);
@@ -159,6 +178,7 @@ public class Main {
 			logger.info("create folder {} successful={}", mzdbFile.getName(), b);
 			mzdbFile.mkdir();
 		}
+
 		cleanTmpFolder(tmpFile);
 	}
 
